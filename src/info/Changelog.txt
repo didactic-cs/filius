@@ -1,3 +1,7 @@
+filius (1.7.3) unstable; urgency=low
+  * Abhängigkeit zu Java 8 in Windows-Version korrigiert
+ -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Tue, 21 Aug 2018 00:00:00 +0000
+
 filius (1.7.2) unstable; urgency=low
   * Konfigurierbare Groesse der Arbeitsflaeche zum Aufbau der Rechnernetze (konfigurierbar in filius.ini)
   * Fehlerbehebung: Fenstergroesse fuer E-Mail Verfassen so angepasst, dass es auch unter Mac OS funktioniert
