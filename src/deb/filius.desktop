@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Filius
+Name[de]=Filius
+Comment=Learn how Computer Networks are built
+Comment[de]=Lernsoftware zu Rechnernetzen
+Exec=/usr/share/filius/filius.sh
+Icon=filius32
+Terminal=false
+Type=Application
+Categories=Education
+StartupNotify=false

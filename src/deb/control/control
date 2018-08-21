@@ -1,0 +1,10 @@
+Package: filius
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Recommends: jdk (>= 1.8)
+Maintainer: Stefan Freischlad <kontakt@lernsoftware-filius.de>
+Description: Lernsoftware zu Rechnernetzen
+ Entdeckendes Lernen mit Filius durch Simulation von Rechnernetzen
+Distribution: production
