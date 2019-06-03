@@ -102,7 +102,8 @@ public class Information implements Serializable {
     private int maxVermittlungsStellen;
 
     /**
-     * Pfad zum Verzeichnis, in dem das Programm ausgefuehrt wird (in dem sich die ausfuehrbare Jar-Datei befindet); <br />
+     * Pfad zum Verzeichnis, in dem das Programm ausgefuehrt wird (in dem sich die ausfuehrbare Jar-Datei befindet);
+     * <br />
      * der Pfad schliesst mit dem Pfad-Trennzeichen (unter UNIX "/")
      */
     private String programmPfad = null;
@@ -186,8 +187,8 @@ public class Information implements Serializable {
                         "Fehler: Verzeichnis ist nicht schreibbar. Filius benötigt aber Schreibrechte.\n"
                                 + "Bitte wählen Sie ein Verzeichnis, für das Sie Schreibrechte besitzen.\n\n"
                                 + "Error: Directory is not writeable. But Filius needs write permissions.\n"
-                                + "Please choose a directory where you have write permissions.", "Fehler / Error",
-                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                                + "Please choose a directory where you have write permissions.",
+                        "Fehler / Error", javax.swing.JOptionPane.ERROR_MESSAGE);
                 JFileChooser fc = new JFileChooser();
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 if (fc.showOpenDialog(new java.awt.Frame()) == JFileChooser.APPROVE_OPTION) {
@@ -389,8 +390,8 @@ public class Information implements Serializable {
 
         tmpList = new LinkedList<HashMap<String, String>>();
         try {
-            desktopFile = new RandomAccessFile(Information.getInformation().getAnwendungenPfad()
-                    + "EigeneAnwendungen.txt", "r");
+            desktopFile = new RandomAccessFile(
+                    Information.getInformation().getAnwendungenPfad() + "EigeneAnwendungen.txt", "r");
             for (String line; (line = desktopFile.readLine()) != null;) {
                 HashMap<String, String> tmpMap = new HashMap<String, String>();
                 if (!line.trim().equals("")) {
@@ -418,14 +419,12 @@ public class Information implements Serializable {
     private String holeAnwendungenDateipfad() {
         String pfad = "config/Desktop";
         File desktopResource = ResourceUtil.getResourceFile(pfad + "_" + locale.toString() + ".txt");
-        if (desktopResource == null) {
-            desktopResource = ResourceUtil.getResourceFile(pfad + ".txt");
-        }
         return desktopResource.getAbsolutePath();
     }
 
     /**
-     * Pfad zum Verzeichnis, in dem das Programm ausgefuehrt wird (in dem sich die ausfuehrbare Jar-Datei befindet); <br />
+     * Pfad zum Verzeichnis, in dem das Programm ausgefuehrt wird (in dem sich die ausfuehrbare Jar-Datei befindet);
+     * <br />
      * der Pfad schliesst mit dem Pfad-Trennzeichen (unter UNIX "/")
      */
     public String getProgrammPfad() {
@@ -640,8 +639,8 @@ public class Information implements Serializable {
                                         posixCommandLineToolBehaviour = true;
                                     }
                                 } else if (configKey.equalsIgnoreCase("desktop-mode")) {
-                                    desktopWindowMode = GUIDesktopWindow.Mode.getMode(Integer.parseInt(configValue
-                                            .trim()));
+                                    desktopWindowMode = GUIDesktopWindow.Mode
+                                            .getMode(Integer.parseInt(configValue.trim()));
                                 } else if (configKey.equalsIgnoreCase("old-exchange-dialog")) {
                                     if (configValue.trim().equals("1")) {
                                         this.oldExchangeDialog = true;

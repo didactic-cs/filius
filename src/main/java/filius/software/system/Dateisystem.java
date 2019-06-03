@@ -32,12 +32,14 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import filius.Main;
 
 /**
  * Die Klasse Dateisystem dient dazu, die Funktionalitaet des Dateisystems eines Betriebssystems nachzubilden. Das
- * Dateisystem ist als Baum strukturiert. Daher werden die einzelnen Verzeichnisse und Dateien als Knoten gespeichert. <br />
+ * Dateisystem ist als Baum strukturiert. Daher werden die einzelnen Verzeichnisse und Dateien als Knoten gespeichert.
+ * <br />
  * Dateien werden als Objekte der Klasse Datei uebergeben, die als Inhalt sowohl einfache Textdateien wie auch
  * Base64-kodierte binaere Dateien ermoeglicht. <br />
  * Datei wird hier als generischer Begriff fuer eine Datei und ein Verzeichnis verwendet.
@@ -209,8 +211,8 @@ public class Dateisystem implements Serializable {
      * @see absoluterPfad(DefaultMutableTreeNode)
      */
     public static DefaultMutableTreeNode verzeichnisKnoten(DefaultMutableTreeNode verzeichnis, String pfad) {
-        Main.debug.println("INVOKED (static) filius.software.system.Dateisystem, verzeichnisKnoten(" + verzeichnis
-                + "," + pfad + ")");
+        Main.debug.println("INVOKED (static) filius.software.system.Dateisystem, verzeichnisKnoten(" + verzeichnis + ","
+                + pfad + ")");
         Enumeration enumeration;
         DefaultMutableTreeNode node;
         String absolutePath;
@@ -240,8 +242,8 @@ public class Dateisystem implements Serializable {
      * 
      */
     public boolean deleteFile(String absolutePath) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), deleteFile("
-                + absolutePath + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), deleteFile(" + absolutePath + ")");
         DefaultMutableTreeNode node = verzeichnisKnoten(absolutePath);
         if (node != null) {
             node.removeFromParent();
@@ -259,17 +261,17 @@ public class Dateisystem implements Serializable {
      * @return die Datei wenn vorhanden, sonst "null"
      */
     public Datei holeDatei(String dateiPfad) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + dateiPfad
-                + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + dateiPfad + ")");
         DefaultMutableTreeNode node;
 
         node = verzeichnisKnoten(dateiPfad);
         if (node != null && (node.getUserObject() instanceof Datei)) {
-            // Main.debug.println("DEBUG ("+this.hashCode()+") "+getClass()+", holeDatei:  return='"+(Datei)
+            // Main.debug.println("DEBUG ("+this.hashCode()+") "+getClass()+", holeDatei: return='"+(Datei)
             // node.getUserObject()+"'");
             return (Datei) node.getUserObject();
         } else {
-            // Main.debug.println("DEBUG ("+this.hashCode()+") "+getClass()+", holeDatei:  return=<null>");
+            // Main.debug.println("DEBUG ("+this.hashCode()+") "+getClass()+", holeDatei: return=<null>");
             return null;
         }
     }
@@ -425,9 +427,9 @@ public class Dateisystem implements Serializable {
         node = verzeichnisKnoten(verzeichnisPfad);
         if (node != null) {
             if (dateiVorhanden(node, neuesVerzeichnis)) {
-                Main.debug.println("WARNING (" + this.hashCode() + "): Verzeichnis " + neuesVerzeichnis
-                        + " wurde nicht erzeugt, " + "weil es im Verzeichnis " + verzeichnisPfad
-                        + " bereits existiert.");
+                Main.debug.println(
+                        "WARNING (" + this.hashCode() + "): Verzeichnis " + neuesVerzeichnis + " wurde nicht erzeugt, "
+                                + "weil es im Verzeichnis " + verzeichnisPfad + " bereits existiert.");
             } else {
                 neuerNode = new DefaultMutableTreeNode(neuesVerzeichnis);
                 node.add(neuerNode);
@@ -468,7 +470,7 @@ public class Dateisystem implements Serializable {
         if (node == null) {
             return null;
         } else {
-            for (Enumeration<DefaultMutableTreeNode> e = node.children(); e.hasMoreElements();) {
+            for (Enumeration<TreeNode> e = node.children(); e.hasMoreElements();) {
                 DefaultMutableTreeNode n = (DefaultMutableTreeNode) e.nextElement();
                 if (n.getUserObject() instanceof Datei) {
                     Datei dat = (Datei) n.getUserObject();
@@ -489,8 +491,8 @@ public class Dateisystem implements Serializable {
      *         existiert wird null zurueckgeliefert.
      */
     public LinkedList<Object> listeVerzeichnis(DefaultMutableTreeNode verzeichnis) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", listeVerzeichnis(" + verzeichnis
-                + ")");
+        Main.debug
+                .println("INVOKED (" + this.hashCode() + ") " + getClass() + ", listeVerzeichnis(" + verzeichnis + ")");
         LinkedList<Object> liste = new LinkedList<Object>();
         Enumeration enumeration;
         DefaultMutableTreeNode tmpNode;
@@ -576,7 +578,7 @@ public class Dateisystem implements Serializable {
         if (currIndex >= 0 && path.substring(0, 1).equals(FILE_SEPARATOR))
             result = FILE_SEPARATOR + result; // add leading slash if it was
                                               // present before
-        // Main.debug.println("	\tevaluatePathString, result="+result);
+        // Main.debug.println(" \tevaluatePathString, result="+result);
         return result;
     }
 

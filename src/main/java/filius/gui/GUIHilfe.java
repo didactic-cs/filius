@@ -59,7 +59,7 @@ public class GUIHilfe implements I18n {
 
         epHtml = new JEditorPane();
 
-        epHtml.setContentType("text/html");
+        epHtml.setContentType("text/html; charset=UTF-8");
         epHtml.setText(messages.getString("guihilfe_msg2"));
         laden("entwurfsmodus");
         spHtmlScroller = new JScrollPane(epHtml);
@@ -121,12 +121,12 @@ public class GUIHilfe implements I18n {
             // Information.getInformation().getRelativePathToProgramDir()+"hilfe/gfx");
             String newPath = Information.getInformation().getRelativePathToProgramDir();
             newPath = "file:" + file.getParentFile().getAbsolutePath() + "/gfx/";
-            // Main.debug.println("DEBUG: Hilfe, laden:   (1) newPath='"+newPath+"'");
+            // Main.debug.println("DEBUG: Hilfe, laden: (1) newPath='"+newPath+"'");
             if (File.separator.equals("\\")) {
                 newPath = newPath.replace('\\', '/');
                 // newPath = newPath.replaceAll("/", "\\\\\\\\");
             }
-            // Main.debug.println("DEBUG: Hilfe, laden:   (2) newPath='"+newPath+"'");
+            // Main.debug.println("DEBUG: Hilfe, laden: (2) newPath='"+newPath+"'");
             newText = newText.replaceAll("hilfe/gfx/", newPath);
             System.out.println(newText);
             epHtml.read(new java.io.StringReader(newText), null);

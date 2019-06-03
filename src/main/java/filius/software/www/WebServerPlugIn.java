@@ -31,39 +31,38 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import filius.Main;
+import filius.rahmenprogramm.ResourceUtil;
 
 /**
  * 
- * @author Michell wird vom den Klassen FirewallWebKonfig und FirewallWebLog
- *         benutzt
+ * @author Michell wird vom den Klassen FirewallWebKonfig und FirewallWebLog benutzt
  */
 public abstract class WebServerPlugIn {
 
-	private String pfad;
+    private String pfad;
 
-	public String getPfad() {
-		return pfad;
-	}
+    public String getPfad() {
+        return pfad;
+    }
 
-	public void setPfad(String pfad) {
-		this.pfad = pfad;
-	}
+    public void setPfad(String pfad) {
+        this.pfad = pfad;
+    }
 
-	public abstract String holeHtmlSeite(String postDaten);
+    public abstract String holeHtmlSeite(String postDaten);
 
-	/**
-	 * liest eine reale Textdatei vom Format .txt ein. Diese befinden sich im
-	 * Ordner /config
-	 */
-	protected String textDateiEinlesen(String datei) throws FileNotFoundException, IOException {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (FirewallWebKonfig), textDateiEinlesen(" + datei + ")");
-		BufferedReader test = new BufferedReader(new FileReader(datei));
-		String fullFile = "";
-		String input = "";
-		while ((input = test.readLine()) != null) {
-			fullFile += input + "\n";
-		}
-		return fullFile;
-	}
+    /**
+     * liest eine reale Textdatei vom Format .txt ein. Diese befinden sich im Ordner /config
+     */
+    protected String textDateiEinlesen(String datei) throws FileNotFoundException, IOException {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+                + " (FirewallWebKonfig), textDateiEinlesen(" + datei + ")");
+        BufferedReader test = new BufferedReader(new FileReader(ResourceUtil.getResourcePath(datei)));
+        String fullFile = "";
+        String input = "";
+        while ((input = test.readLine()) != null) {
+            fullFile += input + "\n";
+        }
+        return fullFile;
+    }
 }

@@ -58,6 +58,9 @@ import filius.rahmenprogramm.TeeOutputStream;
  */
 public class Main implements I18n {
 
+    private static final String FRANCAIS = "Française";
+    private static final String ENGLISH = "English";
+    private static final String DEUTSCH = "Deutsch";
     /**
      * ueber diesen Stream werden Nachrichten ausgegeben, die fuer die Fehlersuche nuetzlich sind. NOTE: in loggen(..)
      * gesetzt
@@ -93,13 +96,18 @@ public class Main implements I18n {
 
         konfigPfad = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
         if (!(new File(konfigPfad)).exists() && null == Information.getInformation().getLocale()) {
-            Object[] possibleValues = { "Deutsch", "English" };
-            Object selectedValue = JOptionPane.showInputDialog(null, "", "Language", JOptionPane.INFORMATION_MESSAGE,
-                    null, possibleValues, possibleValues[0]);
-            if (selectedValue != null && selectedValue.equals(possibleValues[0]))
-                Information.getInformation().setLocale(new Locale("de", "DE"));
-            else
-                Information.getInformation().setLocale(new Locale("en", "GB"));
+            String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
+            String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
+                    JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
+            if (selectedValue == null) {
+                Information.getInformation().setLocale(Locale.GERMANY);
+            } else if (ENGLISH.equals(selectedValue)) {
+                Information.getInformation().setLocale(Locale.UK);
+            } else if (FRANCAIS.equals(selectedValue)) {
+                Information.getInformation().setLocale(Locale.FRANCE);
+            } else {
+                Information.getInformation().setLocale(Locale.GERMANY);
+            }
         } else {
             try {
                 xmldec = new XMLDecoder(new BufferedInputStream(new FileInputStream(konfigPfad)));
@@ -112,8 +120,8 @@ public class Main implements I18n {
                         }
                         if (programmKonfig[2] != null && programmKonfig[3] != null
                                 && null == Information.getInformation().getLocale()) {
-                            Information.getInformation().setLocale(
-                                    new Locale((String) programmKonfig[2], (String) programmKonfig[3]));
+                            Information.getInformation()
+                                    .setLocale(new Locale((String) programmKonfig[2], (String) programmKonfig[3]));
                         }
                     }
                     if (programmKonfig.length >= 5) {
@@ -171,7 +179,8 @@ public class Main implements I18n {
     /**
      * Das Beenden des Programms laeuft folgendermassen ab:
      * <ol>
-     * <li>Wechsel in den Entwurfsmodus (und damit beenden der virtuellen Software und der damit verbundenen Threads</li>
+     * <li>Wechsel in den Entwurfsmodus (und damit beenden der virtuellen Software und der damit verbundenen
+     * Threads</li>
      * <li>Pruefung, ob eine Aenderung am Szenario vorgenommen wurde
      * <ul>
      * <li>wenn Szenario geaendert wurde, wird gefragt, ob die Datei noch gespeichert werden soll</li>
@@ -231,12 +240,12 @@ public class Main implements I18n {
                 System.out.println("Ausgaben werden in Datei '" + logDateiPfad + "' protokolliert.");
                 System.setErr(Main.debug);
             } catch (FileNotFoundException e) {
-                System.err.println("Error: logging could not be realised due to FileNotFoundException:\n\t'"
-                        + e.toString() + "'");
+                System.err.println(
+                        "Error: logging could not be realised due to FileNotFoundException:\n\t'" + e.toString() + "'");
                 Main.debug = new PrintStream(new TeeOutputStream(null, kommandozeile));
             } catch (Exception e) {
-                System.err.println("Error: logging could not be realised; reason not specified:\n\t'" + e.toString()
-                        + "'");
+                System.err.println(
+                        "Error: logging could not be realised; reason not specified:\n\t'" + e.toString() + "'");
                 Main.debug = new PrintStream(new TeeOutputStream(null, kommandozeile));
             }
         } else {
@@ -275,10 +284,10 @@ public class Main implements I18n {
                         // Exception would emerge!)
                         // Information.getInformation().setArbeitsbereichPfad(newWD);
                     } else {
-                        System.err
-                                .println("Parameter '-wd' ohne Argument verwendet! Korrekte Verwendung (Beispiel):  '-wd /home/user'\n");
-                        System.err
-                                .println("Parameter '-wd' without content! Correct usage (example):  '-wd /home/user'\n");
+                        System.err.println(
+                                "Parameter '-wd' ohne Argument verwendet! Korrekte Verwendung (Beispiel):  '-wd /home/user'\n");
+                        System.err.println(
+                                "Parameter '-wd' without content! Correct usage (example):  '-wd /home/user'\n");
                         showUsageInformation();
                         System.exit(1);
                     }
@@ -309,8 +318,8 @@ public class Main implements I18n {
                         }
 
                     } else {
-                        System.err
-                                .println("Parameter '-r' ohne Argument verwendet! Korrekte Verwendung (Beispiel):  '-r 2'\n");
+                        System.err.println(
+                                "Parameter '-r' ohne Argument verwendet! Korrekte Verwendung (Beispiel):  '-r 2'\n");
                         showUsageInformation();
                         System.exit(1);
                     }
@@ -405,7 +414,8 @@ public class Main implements I18n {
                 + "\t     bei Ausfuehrung auf langsamer Hardware zu vermeiden)\n"
                 + "\t     Gueltige Werte sind 1 (Vorgabe) bis 5.\n");
         usage.append("\t-n   Darstellung mit betriebssystemspezifischem Look & Feel\n");
-        usage.append("\t-s   Darstellung fuer niedrige Bildschirmaufloesung (kleiner\n" + "\t     1024x768) anpassen\n");
+        usage.append(
+                "\t-s   Darstellung fuer niedrige Bildschirmaufloesung (kleiner\n" + "\t     1024x768) anpassen\n");
 
         System.out.println(usage.toString());
     }

@@ -54,7 +54,8 @@ import filius.software.transportschicht.TCPSocket;
  * <ol>
  * <li>Zum Abruf einer Webseite von einem Webserver gibt es die Methoden <b>holeRessource(url: URL)</b> fuer eine
  * GET-Abfrage und</li>
- * <li><b>holeRessource(url: URL, post: String)</b> fuer eine POST-Abfrage mit Daten im Datenteil einer HTTP-Nachricht.</li>
+ * <li><b>holeRessource(url: URL, post: String)</b> fuer eine POST-Abfrage mit Daten im Datenteil einer
+ * HTTP-Nachricht.</li>
  * </ol>
  * Diese Methoden haben keinen Rueckgabewert und blockieren auch nicht. Die vom Server gelieferten Daten werden an den
  * Beobachter als HTTPNachricht weitergegeben.
@@ -165,14 +166,14 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     }
 
     public String holeHost() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebBrowser), holeHost()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebBrowser), holeHost()");
         return host;
     }
 
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebBrowser), starten()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebBrowser), starten()");
         super.starten();
         bilddateien = new LinkedList<String>();
     }
@@ -206,7 +207,8 @@ public class WebBrowser extends ClientAnwendung implements I18n {
         if (statusCode == 0) {
             quelltext = messages.getString("sw_webbrowser_msg1");
         } else {
-            dateipfad = ResourceUtil.getResourcePath("tmpl/http_fehler.txt");
+            dateipfad = ResourceUtil.getResourcePath(
+                    "tmpl/http_fehler_" + Information.getInformation().getLocale().toString() + ".txt");
             try {
                 quelltext = einlesenTextdatei(dateipfad);
             } catch (Exception e) {
@@ -318,8 +320,8 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                     synchronized (bilddateien) {
                         if (bilddateien.size() > 0) {
                             dateipfad = bilddateien.removeFirst();
-                            Base64.decodeToFile(antwort.getDaten(), Information.getInformation().getTempPfad()
-                                    + dateipfad);
+                            Base64.decodeToFile(antwort.getDaten(),
+                                    Information.getInformation().getTempPfad() + dateipfad);
                         }
                     }
                     antwort = null;

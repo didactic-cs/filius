@@ -42,118 +42,118 @@ import filius.software.www.WebServerPlugIn;
  * 
  */
 public class VermittlungWeb extends WebServerPlugIn implements I18n {
-	private VermittlungsrechnerBetriebssystem bs;
+    private VermittlungsrechnerBetriebssystem bs;
 
-	public VermittlungWeb(VermittlungsrechnerBetriebssystem bs) {
-		super();
+    public VermittlungWeb(VermittlungsrechnerBetriebssystem bs) {
+        super();
 
-		this.bs = bs;
-	}
+        this.bs = bs;
+    }
 
-	public String holeHtmlSeite(String postDaten) {
-		RIPTable table = bs.getRIPTable();
+    public String holeHtmlSeite(String postDaten) {
+        RIPTable table = bs.getRIPTable();
 
-		String html = null;
-		if (table != null) {
-			html = createRoutingTablePage(table);
-		} else {
-			html = createForwardingTablePage(bs.getWeiterleitungstabelle());
-		}
+        String html = null;
+        if (table != null) {
+            html = createRoutingTablePage(table);
+        } else {
+            html = createForwardingTablePage(bs.getWeiterleitungstabelle());
+        }
 
-		return html;
-	}
+        return html;
+    }
 
-	private String createForwardingTablePage(Weiterleitungstabelle weiterleitungstabelle) {
-		StringBuffer forwardingEntries = new StringBuffer();
-		for (String[] forwardingEntry : weiterleitungstabelle.holeTabelle()) {
-			forwardingEntries.append(forwardingEntryToHtml(forwardingEntry));
-		}
-		String html = null;
-		try {
-			html = textDateiEinlesen("tmpl/routing_" + Information.getInformation().getLocale().toString() + ".html");
-			html = html.replaceAll(":title:", messages.getString("sw_vermittlungweb_msg5"));
-			html = html.replaceAll(":routing_entries:", forwardingEntries.toString());
-			html = html.replaceAll(":hint:", messages.getString("sw_vermittlungweb_msg4"));
-		} catch (IOException e) {
-			System.err.println("routing table template could not be read.");
-			e.printStackTrace();
-		}
-		return html;
-	}
+    private String createForwardingTablePage(Weiterleitungstabelle weiterleitungstabelle) {
+        StringBuffer forwardingEntries = new StringBuffer();
+        for (String[] forwardingEntry : weiterleitungstabelle.holeTabelle()) {
+            forwardingEntries.append(forwardingEntryToHtml(forwardingEntry));
+        }
+        String html = null;
+        try {
+            html = textDateiEinlesen("tmpl/routing_" + Information.getInformation().getLocale() + ".html");
+            html = html.replaceAll(":title:", messages.getString("sw_vermittlungweb_msg5"));
+            html = html.replaceAll(":routing_entries:", forwardingEntries.toString());
+            html = html.replaceAll(":hint:", messages.getString("sw_vermittlungweb_msg4"));
+        } catch (IOException e) {
+            System.err.println("routing table template could not be read.");
+            e.printStackTrace();
+        }
+        return html;
+    }
 
-	private String forwardingEntryToHtml(String[] forwardingEntry) {
-		String html = "";
+    private String forwardingEntryToHtml(String[] forwardingEntry) {
+        String html = "";
 
-		html += "<td>" + forwardingEntry[0] + "</td>";
-		html += "<td>" + forwardingEntry[1] + "</td>";
+        html += "<td>" + forwardingEntry[0] + "</td>";
+        html += "<td>" + forwardingEntry[1] + "</td>";
 
-		boolean targetIsDirectlyConnected = forwardingEntry[2].equals(forwardingEntry[3]);
-		boolean isLocalhost = forwardingEntry[3].equals("127.0.0.1");
-		if (targetIsDirectlyConnected || isLocalhost) {
-			html += "<td> 0 </td>";
-		} else {
-			html += "<td> ? </td>";
-		}
+        boolean targetIsDirectlyConnected = forwardingEntry[2].equals(forwardingEntry[3]);
+        boolean isLocalhost = forwardingEntry[3].equals("127.0.0.1");
+        if (targetIsDirectlyConnected || isLocalhost) {
+            html += "<td> 0 </td>";
+        } else {
+            html += "<td> ? </td>";
+        }
 
-		html += "<td>" + messages.getString("sw_vermittlungweb_msg3") + "</td>";
+        html += "<td>" + messages.getString("sw_vermittlungweb_msg3") + "</td>";
 
-		html += "<td><a href=\"http://" + forwardingEntry[2] + "/routes\">" + forwardingEntry[2] + "</a></td>";
-		html += "<td> - </td>";
+        html += "<td><a href=\"http://" + forwardingEntry[2] + "/routes\">" + forwardingEntry[2] + "</a></td>";
+        html += "<td> - </td>";
 
-		boolean isDefaultGateway = forwardingEntry[1].equals("0.0.0.0");
-		if (targetIsDirectlyConnected || isLocalhost) {
-			return "<tr style='background-color:#aaffaa'>" + html + "</tr>";
-		} else if (isDefaultGateway) {
-			return "<tr style='background-color:#aaaaff'>" + html + "</tr>";
-		} else {
-			return "<tr>" + html + "</tr>";
-		}
-	}
+        boolean isDefaultGateway = forwardingEntry[1].equals("0.0.0.0");
+        if (targetIsDirectlyConnected || isLocalhost) {
+            return "<tr style='background-color:#aaffaa'>" + html + "</tr>";
+        } else if (isDefaultGateway) {
+            return "<tr style='background-color:#aaaaff'>" + html + "</tr>";
+        } else {
+            return "<tr>" + html + "</tr>";
+        }
+    }
 
-	private String createRoutingTablePage(RIPTable table) {
-		StringBuffer routingEntries = new StringBuffer();
-		synchronized (table) {
-			for (RIPRoute route : table.routes) {
-				routingEntries.append(routeToHtml(route));
-			}
-		}
+    private String createRoutingTablePage(RIPTable table) {
+        StringBuffer routingEntries = new StringBuffer();
+        synchronized (table) {
+            for (RIPRoute route : table.routes) {
+                routingEntries.append(routeToHtml(route));
+            }
+        }
 
-		String html = null;
-		try {
-			html = textDateiEinlesen("tmpl/routing_" + Information.getInformation().getLocale().toString() + ".html");
-			html = html.replaceAll(":title:", messages.getString("sw_vermittlungweb_msg6"));
-			html = html.replaceAll(":routing_entries:", routingEntries.toString());
-			html = html.replaceAll(":hint:", messages.getString("sw_vermittlungweb_msg1"));
-		} catch (IOException e) {
-			System.err.println("routing table template could not be read.");
-			e.printStackTrace();
-		}
-		return html;
-	}
+        String html = null;
+        try {
+            html = textDateiEinlesen("tmpl/routing_" + Information.getInformation().getLocale() + ".html");
+            html = html.replaceAll(":title:", messages.getString("sw_vermittlungweb_msg6"));
+            html = html.replaceAll(":routing_entries:", routingEntries.toString());
+            html = html.replaceAll(":hint:", messages.getString("sw_vermittlungweb_msg1"));
+        } catch (IOException e) {
+            System.err.println("routing table template could not be read.");
+            e.printStackTrace();
+        }
+        return html;
+    }
 
-	private String routeToHtml(RIPRoute route) {
-		String html = "";
+    private String routeToHtml(RIPRoute route) {
+        String html = "";
 
-		html += "<td>" + route.getNetAddress() + "</td>";
-		html += "<td>" + route.getNetMask() + "</td>";
-		html += "<td>" + route.hops + "</td>";
+        html += "<td>" + route.getNetAddress() + "</td>";
+        html += "<td>" + route.getNetMask() + "</td>";
+        html += "<td>" + route.hops + "</td>";
 
-		if (route.expires == 0) {
-			html += "<td>" + messages.getString("sw_vermittlungweb_msg3") + "</td>";
-		} else {
-			long gueltig = (route.expires - RIPUtil.getTime()) / 1000;
-			html += "<td>" + gueltig + "</td>";
-		}
+        if (route.expires == 0) {
+            html += "<td>" + messages.getString("sw_vermittlungweb_msg3") + "</td>";
+        } else {
+            long gueltig = (route.expires - RIPUtil.getTime()) / 1000;
+            html += "<td>" + gueltig + "</td>";
+        }
 
-		html += "<td>" + route.getGateway() + "</td>";
-		html += "<td><a href=\"http://" + route.hopPublicIp + "/routes\">" + route.hopPublicIp + "</a></td>";
+        html += "<td>" + route.getGateway() + "</td>";
+        html += "<td><a href=\"http://" + route.hopPublicIp + "/routes\">" + route.hopPublicIp + "</a></td>";
 
-		if (route.hops == 0) {
-			return "<tr style='background-color:#aaffaa'>" + html + "</tr>";
-		} else if (route.hops == 16) {
-			return "<tr style='background-color:#ffaaaa'>" + html + "</tr>";
-		} else {
-			return "<tr>" + html + "</tr>";
-		}
-	}
+        if (route.hops == 0) {
+            return "<tr style='background-color:#aaffaa'>" + html + "</tr>";
+        } else if (route.hops == 16) {
+            return "<tr style='background-color:#ffaaaa'>" + html + "</tr>";
+        } else {
+            return "<tr>" + html + "</tr>";
+        }
+    }
 }

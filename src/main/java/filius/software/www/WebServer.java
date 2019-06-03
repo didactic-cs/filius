@@ -34,6 +34,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import filius.Main;
 import filius.rahmenprogramm.Base64;
+import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
 import filius.software.clientserver.TCPServerAnwendung;
 import filius.software.system.Datei;
@@ -131,23 +132,21 @@ public class WebServer extends TCPServerAnwendung {
 
         dateisystem = getSystemSoftware().getDateisystem();
         dateisystem.erstelleVerzeichnis(dateisystem.getRoot(), "webserver");
-        verzeichnis = dateisystem.verzeichnisKnoten(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR
-                + "webserver");
+        verzeichnis = dateisystem
+                .verzeichnisKnoten(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "webserver");
         try {
             if (!dateisystem.dateiVorhanden(verzeichnis, "index.html")) {
 
-                erzeugeIndexDatei(ResourceUtil.getResourcePath("tmpl/webserver_index.txt"));
+                erzeugeIndexDatei(ResourceUtil
+                        .getResourcePath("tmpl/webserver_index_" + Information.getInformation().getLocale() + ".txt"));
 
                 // this was used for externally stored file... no longer working
                 // erzeugeDatei("splashscreen-mini", "png", Base64
                 // .encodeFromFile(Information.getInformation().getProgrammPfad()
                 // + "gfx/allgemein/splashscreen-mini.png"));
 
-                erzeugeDatei(
-                        "splashscreen-mini",
-                        "png",
-                        Base64.encodeBytes(inputStreamToBytes(getClass().getResourceAsStream(
-                                "/gfx/allgemein/splashscreen-mini.png"))));
+                erzeugeDatei("splashscreen-mini", "png", Base64.encodeBytes(
+                        inputStreamToBytes(getClass().getResourceAsStream("/gfx/allgemein/splashscreen-mini.png"))));
             }
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
@@ -227,7 +226,7 @@ public class WebServer extends TCPServerAnwendung {
             vHostArray[row][col] = val;
         else
             vHostArray[row][col] = "";
-        // Main.debug.println("DEBUG WebServer:  vHostArray (danach):\n"+printVHostTable());
+        // Main.debug.println("DEBUG WebServer: vHostArray (danach):\n"+printVHostTable());
         this.saveVHosts();
     }
 
@@ -261,8 +260,8 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebServer), starten()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
         super.starten();
 
         if (!getSystemSoftware().getDateisystem().dateiVorhanden("www.conf", "vhosts")) {
@@ -273,8 +272,8 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebServer), beenden()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), beenden()");
         super.beenden();
     }
 
@@ -304,8 +303,8 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     private void initialisiereVHosts() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + ", initialisiereVHosts()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");
         Datei vhosts;
         StringTokenizer tokenizer;
         String line;
