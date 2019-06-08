@@ -34,6 +34,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import filius.rahmenprogramm.I18n;
+
 // import sun.misc.JavaLangAccess;
 /**
  * 
@@ -42,48 +44,46 @@ import javax.swing.ListCellRenderer;
  * @author Hannes
  * 
  */
-public class OrdnerInhaltListRenderer extends JLabel implements ListCellRenderer {
+public class OrdnerInhaltListRenderer extends JLabel implements ListCellRenderer, I18n {
 
-	private ImageIcon dateiIcon, ordnerIcon;
+    private ImageIcon dateiIcon, ordnerIcon;
 
-	public OrdnerInhaltListRenderer() {
-		super();
-		this.dateiIcon = new ImageIcon(getClass().getResource("/gfx/desktop/datei.png"));
-		this.ordnerIcon = new ImageIcon(getClass().getResource("/gfx/desktop/ordner.png"));
+    public OrdnerInhaltListRenderer() {
+        super();
+        this.dateiIcon = new ImageIcon(getClass().getResource("/gfx/desktop/datei.png"));
+        this.ordnerIcon = new ImageIcon(getClass().getResource("/gfx/desktop/ordner.png"));
 
-	}
+    }
 
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-	        boolean cellHasFocus) {
-		// TODO Auto-generated method stub
+    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+            boolean cellHasFocus) {
+        String[] teile = value.toString().split(";");
 
-		String[] teile = value.toString().split(";");
+        String text = value.toString();
+        if (teile.length > 0) {
+            if (teile[0].equals(messages.getString("fileexplorer_msg10"))) {
+                setIcon(dateiIcon);
+            } else {
+                setIcon(ordnerIcon);
+            }
+            setText(teile[1]);
+        }
+        /* Wenn Selektiert: Farbe ändern */
+        if (isSelected) {
+            setBackground(new Color(128, 200, 255));
+            setOpaque(true);
+        } else {
+            setOpaque(false);
+        }
+        /* Wenn Fokus: Border setzen */
+        if (cellHasFocus) {
+            setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
+        } else {
+            setBorder(null);
+        }
+        /* experimentell: Feste ZellenHoehe basierend auf JLabel Hoehe */
 
-		String text = value.toString();
-		if (teile.length > 0) {
-			if (teile[0].equals("Datei")) {
-				setIcon(dateiIcon);
-			} else {
-				setIcon(ordnerIcon);
-			}
-			setText(teile[1]);
-		}
-		/* Wenn Selektiert: Farbe ändern */
-		if (isSelected) {
-			setBackground(new Color(128, 200, 255));
-			setOpaque(true);
-		} else {
-			setOpaque(false);
-		}
-		/* Wenn Fokus: Border setzen */
-		if (cellHasFocus) {
-			setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
-		} else {
-			setBorder(null);
-		}
-		/* experimentell: Feste ZellenHoehe basierend auf JLabel Hoehe */
-
-		return this;
-	}
+        return this;
+    }
 
 }

@@ -199,8 +199,8 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
                 });
                 String path = SzenarioVerwaltung.getInstance().holePfad();
                 if (path != null) {
-                    File preselectedFile = new File(dialog.getTabTitle(AggregatedMessageTable.this.interfaceId)
-                            + ".txt");
+                    File preselectedFile = new File(
+                            dialog.getTabTitle(AggregatedMessageTable.this.interfaceId) + ".txt");
                     fileChooser.setSelectedFile(preselectedFile);
                 }
 
@@ -305,13 +305,13 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
             columnNames[colIdx] = getColumnName(colIdx);
             if (colIdx == BEMERKUNG_SPALTE) {
                 tmplBuilder.append("%-40s | ");
-                lineSeparatorBuilder.append(StringUtils.repeat('-', 42)+"+");
+                lineSeparatorBuilder.append(StringUtils.repeat('-', 42) + "+");
             } else if (colIdx == LFD_NR_SPALTE) {
                 tmplBuilder.append("%-10s | ");
-                lineSeparatorBuilder.append(StringUtils.repeat('-', 12)+"+");
+                lineSeparatorBuilder.append(StringUtils.repeat('-', 12) + "+");
             } else {
                 tmplBuilder.append("%-20s | ");
-                lineSeparatorBuilder.append(StringUtils.repeat('-', 22)+"+");
+                lineSeparatorBuilder.append(StringUtils.repeat('-', 22) + "+");
             }
         }
         tmplBuilder.append("\r\n");

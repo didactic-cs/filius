@@ -117,7 +117,7 @@
 
     </td></tr><tr><td>
 
-:errMsg:
+:errorMsg:
     <!-- Konfiguration neuer Regeln -->
       <table  border="0" bgcolor="#E0E0E0" width="100%" cellpadding="5">
         <tr>

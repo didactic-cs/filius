@@ -119,8 +119,8 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
         int screenHeight = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
         int screenWidth = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
         setBounds(screenWidth / 2, screenHeight / 10, screenWidth / 2, 4 * screenHeight / 5);
-        image = Toolkit.getDefaultToolkit().getImage(
-                getClass().getResource("/gfx/allgemein/nachrichtenfenster_icon.png"));
+        image = Toolkit.getDefaultToolkit()
+                .getImage(getClass().getResource("/gfx/allgemein/nachrichtenfenster_icon.png"));
         setIconImage(image);
 
         this.setModal(false);
@@ -157,6 +157,8 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
                 public void valueChanged(ListSelectionEvent e) {
                     if (tabelle.getSelectedRow() >= 0) {
                         detailsPanel.update(tabelle.getValueAt(tabelle.getSelectedRow(), 0));
+                    } else {
+                        detailsPanel.clear();
                     }
                 }
             });
@@ -229,6 +231,11 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
             this.setBackground(Color.WHITE);
         }
 
+        public void clear() {
+            removeAll();
+            updateUI();
+        }
+
         public void update(Object messageNo) {
             if (messageNo != null) {
                 Object[][] daten = Lauscher.getLauscher().getDaten(macAddress, false);
@@ -244,7 +251,8 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
                 Object[] dataSet = daten[dataSetNo];
                 DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(messages.getString("rp_lauscher_msg1")
                         + ": " + dataSet[0] + " / " + messages.getString("rp_lauscher_msg2") + ": " + dataSet[1]);
-                for (; dataSetNo < daten.length && Integer.parseInt(daten[dataSetNo][0].toString()) == number; dataSetNo++) {
+                for (; dataSetNo < daten.length
+                        && Integer.parseInt(daten[dataSetNo][0].toString()) == number; dataSetNo++) {
                     dataSet = daten[dataSetNo];
                     DefaultMutableTreeNode layerNode = new DefaultMutableTreeNode(dataSet[5], true);
                     DefaultMutableTreeNode dateNode;

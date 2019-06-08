@@ -299,9 +299,9 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
             DefaultMutableTreeNode enode = (DefaultMutableTreeNode) e.nextElement();
             if (enode.getUserObject().getClass().equals(Datei.class)) {
                 Datei dat = (Datei) enode.getUserObject();
-                lm.addElement(messages.getString("fileexplorer_msg10") + dat.getName());
+                lm.addElement(messages.getString("fileexplorer_msg10") + ";" + dat.getName());
             } else {
-                lm.addElement(messages.getString("fileexplorer_msg11") + enode.toString());
+                lm.addElement(messages.getString("fileexplorer_msg11") + ";" + enode.toString());
             }
         }
     }
@@ -329,8 +329,8 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
      * Da bei clone() nur das Objekt und nicht seine Referenzen kopiert werden, wird fuer DefaultMutableTreeNode Tiefes
      * Kopieren gebraucht, um z.B. bei einem Ordner die komplette eingeschlossene Struktur zu erhalten
      */
-    public DefaultMutableTreeNode tiefesKopieren(DefaultMutableTreeNode original) throws IOException,
-            ClassNotFoundException {
+    public DefaultMutableTreeNode tiefesKopieren(DefaultMutableTreeNode original)
+            throws IOException, ClassNotFoundException {
         DefaultMutableTreeNode ergebnis = null;
 
         // ObjectOutputStream erzeugen
