@@ -4,7 +4,7 @@
 
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>1.7.3</version>
+	<version>1.7.4</version>
 	<properties>
 		<buildDate>21.08.2018</buildDate>
 		<publisher>Stefan Freischlad</publisher>

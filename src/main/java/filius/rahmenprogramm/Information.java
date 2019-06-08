@@ -126,7 +126,7 @@ public class Information implements Serializable {
 
     private boolean oldExchangeDialog = true;
 
-    private FeatureMode softwareWizardMode = FeatureMode.AUTO;
+    private FeatureMode softwareWizardMode = FeatureMode.FORCE_ENABLE;
 
     // private Locale locale = new Locale("en", "GB");
 
@@ -652,6 +652,8 @@ public class Information implements Serializable {
                                         softwareWizardMode = FeatureMode.FORCE_ENABLE;
                                     } else if (configValue.trim().equals("0")) {
                                         softwareWizardMode = FeatureMode.FORCE_DISABLE;
+                                    } else if (configValue.trim().equals("2")) {
+                                        softwareWizardMode = FeatureMode.AUTO;
                                     }
                                 } else if (configKey.equalsIgnoreCase("pane-width")) {
                                     try {
