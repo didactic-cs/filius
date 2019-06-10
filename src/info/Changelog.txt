@@ -1,5 +1,5 @@
 filius (1.7.4) unstable; urgency=low
-  * Sprache Französisch hinzugefügt (durch Patrice Tréton)
+  * Sprache Franzoesisch hinzugefuegt (Uebersetzung durch Patrice Treton)
   * Fehlerkorrekturen I18n
   * Software-Assistent wird in Vorgabeeinstellung immer angezeigt
  -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 08 Jun 2019 00:00:00 +0000
