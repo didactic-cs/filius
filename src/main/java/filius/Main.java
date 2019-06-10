@@ -58,7 +58,7 @@ import filius.rahmenprogramm.TeeOutputStream;
  */
 public class Main implements I18n {
 
-    private static final String FRANCAIS = "Française";
+    private static final String FRANCAIS = "Français";
     private static final String ENGLISH = "English";
     private static final String DEUTSCH = "Deutsch";
     /**

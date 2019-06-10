@@ -6,7 +6,7 @@
 	<artifactId>filius</artifactId>
 	<version>1.7.4</version>
 	<properties>
-		<buildDate>08.06.2019</buildDate>
+		<buildDate>10.06.2019</buildDate>
 		<publisher>Stefan Freischlad</publisher>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.10</junit.version>
