@@ -26,9 +26,11 @@
 package filius.software.www;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 import filius.Main;
 import filius.rahmenprogramm.ResourceUtil;
@@ -57,12 +59,14 @@ public abstract class WebServerPlugIn {
     protected String textDateiEinlesen(String datei) throws FileNotFoundException, IOException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (FirewallWebKonfig), textDateiEinlesen(" + datei + ")");
-        BufferedReader test = new BufferedReader(new FileReader(ResourceUtil.getResourcePath(datei)));
-        String fullFile = "";
-        String input = "";
-        while ((input = test.readLine()) != null) {
-            fullFile += input + "\n";
+        StringBuffer fullFile = new StringBuffer();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(ResourceUtil.getResourcePath(datei)), Charset.forName("UTF-8")))) {
+            String input;
+            while ((input = reader.readLine()) != null) {
+                fullFile.append(input).append("\n");
+            }
         }
-        return fullFile;
+        return fullFile.toString();
     }
 }

@@ -111,15 +111,12 @@ public class GUIHilfe implements I18n {
         if (File.separator.equals("\\")) {
             gfxPath = gfxPath.replace('\\', '/');
         }
-        try {
-            StringBuffer sb = new StringBuffer((int) file.length() + 5);
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
+            StringBuffer sb = new StringBuffer();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 sb.append(line);
             }
-            reader.close();
-
             String newText = sb.toString();
             newText = newText.replaceAll("hilfe/gfx/", gfxPath);
             System.out.println(newText);

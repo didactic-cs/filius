@@ -26,11 +26,13 @@
 package filius.software.www;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 
 import org.htmlparser.Node;
@@ -184,14 +186,12 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     private String einlesenTextdatei(String datei) throws FileNotFoundException, IOException {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), einlesenTextdatei(" + datei + ")");
-        StringBuffer fullFile;
-        String input;
-
-        FileReader fileReader = new FileReader(datei);
-        fullFile = new StringBuffer();
-        try (BufferedReader dateiPuffer = new BufferedReader(fileReader)) {
-            while ((input = dateiPuffer.readLine()) != null) {
-                fullFile.append(input + "\n");
+        StringBuffer fullFile = new StringBuffer();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(ResourceUtil.getResourcePath(datei)), Charset.forName("UTF-8")))) {
+            String input;
+            while ((input = reader.readLine()) != null) {
+                fullFile.append(input).append("\n");
             }
         }
         return fullFile.toString();

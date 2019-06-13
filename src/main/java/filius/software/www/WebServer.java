@@ -26,7 +26,9 @@
 package filius.software.www;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -87,14 +89,12 @@ public class WebServer extends TCPServerAnwendung {
     public void erzeugeIndexDatei(String dateipfad) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeIndexDatei(" + dateipfad + ")");
-        BufferedReader dateiPuffer;
-        StringBuffer fullFile;
         String input;
 
-        try {
-            dateiPuffer = new BufferedReader(new FileReader(dateipfad));
-            fullFile = new StringBuffer();
-            while ((input = dateiPuffer.readLine()) != null) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(dateipfad), Charset.forName("UTF-8")))) {
+            StringBuffer fullFile = new StringBuffer();
+            while ((input = reader.readLine()) != null) {
                 fullFile.append(input + "\n");
             }
             erzeugeDatei("index", "html", fullFile.toString());

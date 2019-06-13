@@ -25,12 +25,16 @@
  */
 package filius.rahmenprogramm;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -359,25 +363,23 @@ public class Information implements Serializable {
      * @throws IOException
      */
     public List<Map<String, String>> ladeProgrammListe() throws IOException {
-        List<Map<String, String>> tmpList;
-        RandomAccessFile desktopFile;
+        List<Map<String, String>> tmpList = new LinkedList<Map<String, String>>();
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(holeAnwendungenDateipfad()), Charset.forName("UTF-8")))) {
+            for (String line; (line = reader.readLine()) != null;) {
+                if (!line.trim().startsWith("#") && !line.trim().equals("")) {
+                    HashMap<String, String> tmpMap = new HashMap<String, String>();
+                    StringTokenizer st = new StringTokenizer(line, ";");
 
-        tmpList = new LinkedList<Map<String, String>>();
-        desktopFile = new RandomAccessFile(holeAnwendungenDateipfad(), "r");
-        for (String line; (line = desktopFile.readLine()) != null;) {
-            if (!line.trim().startsWith("#") && !line.trim().equals("")) {
-                HashMap<String, String> tmpMap = new HashMap<String, String>();
-                StringTokenizer st = new StringTokenizer(line, ";");
+                    tmpMap.put("Anwendung", st.nextToken());
+                    tmpMap.put("Klasse", st.nextToken());
+                    tmpMap.put("GUI-Klasse", st.nextToken());
+                    tmpMap.put("gfxFile", st.nextToken());
 
-                tmpMap.put("Anwendung", st.nextToken());
-                tmpMap.put("Klasse", st.nextToken());
-                tmpMap.put("GUI-Klasse", st.nextToken());
-                tmpMap.put("gfxFile", st.nextToken());
-
-                tmpList.add(tmpMap);
+                    tmpList.add(tmpMap);
+                }
             }
         }
-        desktopFile.close();
 
         tmpList.addAll(ladePersoenlicheProgrammListe());
 
