@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -6,7 +7,7 @@
 	<artifactId>filius</artifactId>
 	<version>1.7.4</version>
 	<properties>
-		<buildDate>13.06.2019</buildDate>
+		<buildDate>23.06.2019</buildDate>
 		<publisher>Stefan Freischlad</publisher>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.10</junit.version>
@@ -320,7 +321,7 @@
 					<plugin>
 						<artifactId>jdeb</artifactId>
 						<groupId>org.vafer</groupId>
-						<version>1.0.1</version>
+						<version>1.7</version>
 						<executions>
 							<execution>
 								<phase>install</phase>
@@ -334,6 +335,21 @@
 											<src>${project.build.directory}/${project.build.finalName}.jar</src>
 											<type>file</type>
 											<dst>/usr/share/filius/filius.jar</dst>
+										</data>
+										<data>
+											<type>template</type>
+											<paths>
+												<path>/usr/share/filius</path>
+												<path>/usr/share/doc/filius</path>
+												<path>/usr/share/doc/filius</path>
+												<path>/usr/share/filius/config</path>
+												<path>/usr/share/filius/tmpl</path>
+												<path>/usr/share/filius/tmpl/quelltext_vorlagen</path>
+												<path>/usr/share/filius/img</path>
+												<path>/usr/share/filius/hilfe</path>
+												<path>/usr/share/filius/hilfe/gfx</path>
+												<path>/usr/share/filius/lib</path>
+											</paths>
 										</data>
 										<data>
 											<src>${project.basedir}/src/scripts/Filius.sh</src>
@@ -356,6 +372,11 @@
 											<src>${project.basedir}/src/deb/filius.desktop</src>
 											<type>file</type>
 											<dst>/usr/share/applications/filius.desktop</dst>
+										</data>
+										<data>
+											<src>${project.basedir}/src/deb/application-filius-project.xml</src>
+											<type>file</type>
+											<dst>/usr/share/mime/packages/application-filius-project.xml</dst>
 										</data>
 										<data>
 											<src>${project.basedir}/src/deb/filius32.png</src>
