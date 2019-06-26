@@ -81,7 +81,8 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                                      // other shortcuts will be given for this
                     }
                     /* delete item on deletion key press */
-                    if ((e.getKeyChar() == KeyEvent.VK_DELETE) && (frame.isFocused())) {
+                    if ((e.getKeyChar() == KeyEvent.VK_DELETE) && (frame.isFocused())
+                            && GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF) {
                         if (GUIContainer.getGUIContainer().isMarkerVisible()) { // several
                             // items
                             // are
@@ -126,7 +127,8 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                         } else if (GUIEvents.getGUIEvents().getActiveItem() != null) { // single
                                                                                        // item
                                                                                        // active
-                            // Main.debug.println("KeyDispatcher:  delete item '"+(GUIEvents.getGUIEvents().getActiveItem()!=null
+                            // Main.debug.println("KeyDispatcher: delete item
+                            // '"+(GUIEvents.getGUIEvents().getActiveItem()!=null
                             // ?
                             // GUIEvents.getGUIEvents().getActiveItem().getKnoten().getName()
                             // : "<null>"));
@@ -139,46 +141,46 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                         // Main.debug.println("DEL pressed, but nothing selected");
                     } // del key
                     if (e.getModifiers() == 2) { // CTRL key pressed
-                        // Main.debug.println("KeyDispatcher:   CTRL-Key pressed, waiting for additional key!");
+                        // Main.debug.println("KeyDispatcher: CTRL-Key pressed, waiting for additional key!");
                         switch (e.getKeyCode()) {
                         case 78: // N (new)
-                            // Main.debug.println("KeyDispatcher:    CTRL+N recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+N recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btNeu");
                             return true;
                         case 79: // O (open)
-                            // Main.debug.println("KeyDispatcher:    CTRL+O recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+O recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btOeffnen");
                             return true;
                         case 83: // S (save file)
-                            // Main.debug.println("KeyDispatcher:    CTRL+S recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+S recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btSpeichern");
                             return true;
                         case 68: // D (development mode)
-                            // Main.debug.println("KeyDispatcher:    CTRL+D recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+D recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btEntwurfsmodus");
                             return true;
                         case 82: // R (run-time/simulation mode)
-                            // Main.debug.println("KeyDispatcher:    CTRL+R recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+R recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btAktionsmodus");
                             return true;
                         case 37: // left arrow (slower simulation)
-                            // Main.debug.println("KeyDispatcher:    CTRL+left recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+left recognised");
                             GUIContainer.getGUIContainer().getMenu().changeSlider(-1);
                             return true;
                         case 39: // right arrow (faster simulation)
-                            // Main.debug.println("KeyDispatcher:    CTRL+right recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+right recognised");
                             GUIContainer.getGUIContainer().getMenu().changeSlider(1);
                             return true;
                         case 87: // W (wizard for new modules)
-                            // Main.debug.println("KeyDispatcher:    CTRL+W recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+W recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btWizard");
                             return true;
                         case 72: // H (help)
-                            // Main.debug.println("KeyDispatcher:    CTRL+H recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+H recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btHilfe");
                             return true;
                         case 65: // A (about dialog)
-                            // Main.debug.println("KeyDispatcher:    CTRL+A recognised");
+                            // Main.debug.println("KeyDispatcher: CTRL+A recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btInfo");
                             return true;
                         }
@@ -186,7 +188,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                     if (e.getModifiers() == 8) { // ALT key pressed; only makes
                                                  // sense for cables!
                         if (e.getKeyCode() == 49) { // key '1' (cable)
-                            // Main.debug.println("KeyDispatcher:    ALT+1 recognised");
+                            // Main.debug.println("KeyDispatcher: ALT+1 recognised");
                             switchCablePreview();
                             return true;
                         }

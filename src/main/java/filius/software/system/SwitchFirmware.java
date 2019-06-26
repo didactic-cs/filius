@@ -37,134 +37,125 @@ import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.netzzugangsschicht.SwitchPortBeobachter;
 
 /**
- * Diese Klasse stellt die Funktionalitaet des Switches zur Verfuegung.
- * Wichtiges Element ist die Source Address Table (SAT). Der Switch operiert nur
- * auf der Netzzugangsschicht, auf der MAC-Adressen verwendet werden.
+ * Diese Klasse stellt die Funktionalitaet des Switches zur Verfuegung. Wichtiges Element ist die Source Address Table
+ * (SAT). Der Switch operiert nur auf der Netzzugangsschicht, auf der MAC-Adressen verwendet werden.
  */
 public class SwitchFirmware extends SystemSoftware implements I18n {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Die Source Address Tabel (SAT), in der die MAC-Adressen den physischen
-	 * Anschluessen des Switch zugeordnet werden
-	 */
-	private HashMap<String, Port> sat = null;
+    /**
+     * Die Source Address Tabel (SAT), in der die MAC-Adressen den physischen Anschluessen des Switch zugeordnet werden
+     */
+    private HashMap<String, Port> sat = new HashMap<String, Port>();
 
-	/**
-	 * Liste der Anschlussbeobachter. Sie implementieren die Netzzugangsschicht.
-	 */
-	private LinkedList<SwitchPortBeobachter> switchBeobachter;
+    /**
+     * Liste der Anschlussbeobachter. Sie implementieren die Netzzugangsschicht.
+     */
+    private LinkedList<SwitchPortBeobachter> switchBeobachter;
 
-	/**
-	 * Hier werden bereits weitergeleitete Frames gespeichert. Wird ein Frame
-	 * wiederholt verschickt, beispielsweise wegen einer Verbindung, die zwei
-	 * Anschluesse kurzschliesst, wird der Frame verworfen.
-	 * 
-	 * @see filius.software.netzzugangsschicht.SwitchPortBeobachter
-	 */
-	private LinkedList<EthernetFrame> durchgelaufeneFrames = new LinkedList<EthernetFrame>();
+    /**
+     * Hier werden bereits weitergeleitete Frames gespeichert. Wird ein Frame wiederholt verschickt, beispielsweise
+     * wegen einer Verbindung, die zwei Anschluesse kurzschliesst, wird der Frame verworfen.
+     * 
+     * @see filius.software.netzzugangsschicht.SwitchPortBeobachter
+     */
+    private LinkedList<EthernetFrame> durchgelaufeneFrames = new LinkedList<EthernetFrame>();
 
-	/**
-	 * Hier wird die Netzzugangsschicht des Switch initialisiert und gestartet.
-	 * Ausserdem wird die SAT zurueckgesetzt.
-	 */
-	public void starten() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), starten()");
-		SwitchPortBeobachter anschlussBeobachter;
+    /**
+     * Hier wird die Netzzugangsschicht des Switch initialisiert und gestartet. Ausserdem wird die SAT zurueckgesetzt.
+     */
+    public void starten() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), starten()");
+        SwitchPortBeobachter anschlussBeobachter;
 
-		sat = new HashMap<String, Port>();
-		switchBeobachter = new LinkedList<SwitchPortBeobachter>();
+        sat = new HashMap<String, Port>();
+        switchBeobachter = new LinkedList<SwitchPortBeobachter>();
 
-		for (Port anschluss : ((Switch) getKnoten()).getAnschluesse()) {
-			anschlussBeobachter = new SwitchPortBeobachter(this, anschluss);
-			anschlussBeobachter.starten();
-			switchBeobachter.add(anschlussBeobachter);
-		}
-	}
+        for (Port anschluss : ((Switch) getKnoten()).getAnschluesse()) {
+            anschlussBeobachter = new SwitchPortBeobachter(this, anschluss);
+            anschlussBeobachter.starten();
+            switchBeobachter.add(anschlussBeobachter);
+        }
+    }
 
-	/** Hier wird die Netzzugangsschicht des Switch gestoppt. */
-	public void beenden() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), beenden()");
-		for (SwitchPortBeobachter anschlussBeobachter : switchBeobachter) {
-			anschlussBeobachter.beenden();
-		}
-	}
+    /** Hier wird die Netzzugangsschicht des Switch gestoppt. */
+    public void beenden() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), beenden()");
+        for (SwitchPortBeobachter anschlussBeobachter : switchBeobachter) {
+            anschlussBeobachter.beenden();
+        }
+    }
 
-	/** Diese Methode wird genutzt, um die SAT abzurufen. */
-	public Vector<Vector<String>> holeSAT() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeSAT()");
-		Vector<Vector<String>> eintraege = new Vector<Vector<String>>();
-		Vector<String> eintrag;
-		String ausgabe;
+    /** Diese Methode wird genutzt, um die SAT abzurufen. */
+    public Vector<Vector<String>> holeSAT() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeSAT()");
+        Vector<Vector<String>> eintraege = new Vector<Vector<String>>();
+        Vector<String> eintrag;
+        String ausgabe;
 
-		for (String elem : sat.keySet()) {
-			Port anschluss = (Port) sat.get(elem);
-			ausgabe = messages.getString("sw_switchfirmware_msg1") + " "
-			        + ((Switch) getKnoten()).getAnschluesse().indexOf(anschluss);
-			eintrag = new Vector<String>();
-			eintrag.add(elem.toUpperCase());
-			eintrag.add(ausgabe);
-			eintraege.add(eintrag);
-		}
+        for (String elem : sat.keySet()) {
+            Port anschluss = (Port) sat.get(elem);
+            ausgabe = messages.getString("sw_switchfirmware_msg1") + " "
+                    + ((Switch) getKnoten()).getAnschluesse().indexOf(anschluss);
+            eintrag = new Vector<String>();
+            eintrag.add(elem.toUpperCase());
+            eintrag.add(ausgabe);
+            eintraege.add(eintrag);
+        }
 
-		return eintraege;
-	}
+        return eintraege;
+    }
 
-	/**
-	 * Methode zum erzeugen eines neuen Eintrags in der SAT. Wenn bereits ein
-	 * Eintrag zu der uebergebenen MAC-Adresse vorliegt, wird der alte Eintrag
-	 * aktualisiert.
-	 * 
-	 * @param macAdresse
-	 *            die MAC-Adresse des entfernten Anschlusses
-	 * @param anschluss
-	 *            der Anschluss des Switch, der mit dem entfernten Anschluss
-	 *            verbunden ist
-	 */
-	public void hinzuSatEintrag(String macAdresse, Port anschluss) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), hinzuSatEintrag("
-		        + macAdresse + "," + anschluss + ")");
-		if (!sat.containsKey(macAdresse)) {
-			// Main.debug.println("SwitchFirmware: Neuer Eintrag in SAT-Tabelle: "
-			// + macAdresse + "->" + anschluss.toString());
-		} else {
-			sat.remove(macAdresse);
-			// Main.debug.println("SwitchFirmware: Eintrag fuer " + macAdresse +
-			// " in SAT aktualisiert.");
-		}
+    /**
+     * Methode zum erzeugen eines neuen Eintrags in der SAT. Wenn bereits ein Eintrag zu der uebergebenen MAC-Adresse
+     * vorliegt, wird der alte Eintrag aktualisiert.
+     * 
+     * @param macAdresse
+     *            die MAC-Adresse des entfernten Anschlusses
+     * @param anschluss
+     *            der Anschluss des Switch, der mit dem entfernten Anschluss verbunden ist
+     */
+    public void hinzuSatEintrag(String macAdresse, Port anschluss) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), hinzuSatEintrag("
+                + macAdresse + "," + anschluss + ")");
+        if (!sat.containsKey(macAdresse)) {
+            // Main.debug.println("SwitchFirmware: Neuer Eintrag in SAT-Tabelle: "
+            // + macAdresse + "->" + anschluss.toString());
+        } else {
+            sat.remove(macAdresse);
+            // Main.debug.println("SwitchFirmware: Eintrag fuer " + macAdresse +
+            // " in SAT aktualisiert.");
+        }
 
-		sat.put(macAdresse, anschluss);
-	}
+        sat.put(macAdresse, anschluss);
+    }
 
-	/**
-	 * Mit dieser Methode wird der Anschluss ausgewaehlt, der die Verbindung zum
-	 * Anschuss mit der uebergebenen MAC-Adresse herstellt. Dazu wird die SAT
-	 * verwendet.
-	 * 
-	 * @param macAdresse
-	 *            die Zieladresse eines Frames nach der in der SAT gesucht
-	 *            werden soll
-	 * @return der Anschluss zur MAC oder null, wenn kein passender Eintrag
-	 *         existiert
-	 */
-	public Port holeAnschlussFuerMAC(String macAdresse) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (SwitchFirmware), holeAnschlussFuerMAC(" + macAdresse + ")");
-		if (sat.containsKey(macAdresse)) {
-			return (Port) sat.get(macAdresse);
-		} else {
-			return null;
-		}
-	}
+    /**
+     * Mit dieser Methode wird der Anschluss ausgewaehlt, der die Verbindung zum Anschuss mit der uebergebenen
+     * MAC-Adresse herstellt. Dazu wird die SAT verwendet.
+     * 
+     * @param macAdresse
+     *            die Zieladresse eines Frames nach der in der SAT gesucht werden soll
+     * @return der Anschluss zur MAC oder null, wenn kein passender Eintrag existiert
+     */
+    public Port holeAnschlussFuerMAC(String macAdresse) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+                + " (SwitchFirmware), holeAnschlussFuerMAC(" + macAdresse + ")");
+        if (sat.containsKey(macAdresse)) {
+            return (Port) sat.get(macAdresse);
+        } else {
+            return null;
+        }
+    }
 
-	/**
-	 * Methode zum Zugriff auf die bereits durchgelaufenen Frames. Diese wird
-	 * dazu genutzt um Fehler durch Zyklen zu vermeiden.
-	 * 
-	 * @return Liste der bereits weitergeleiteten Frames.
-	 */
-	public LinkedList<EthernetFrame> holeDurchgelaufeneFrames() {
-		return durchgelaufeneFrames;
-	}
+    /**
+     * Methode zum Zugriff auf die bereits durchgelaufenen Frames. Diese wird dazu genutzt um Fehler durch Zyklen zu
+     * vermeiden.
+     * 
+     * @return Liste der bereits weitergeleiteten Frames.
+     */
+    public LinkedList<EthernetFrame> holeDurchgelaufeneFrames() {
+        return durchgelaufeneFrames;
+    }
 }

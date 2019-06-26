@@ -31,6 +31,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
+import filius.gui.GUIMainMenu;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
@@ -52,16 +53,17 @@ public class GUIKnotenItem {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                SzenarioVerwaltung.getInstance().setzeGeaendert();
-
-                if (e.getButton() == 3) {
-                    GUIEvents.getGUIEvents().kontextMenueAktionsmodus(GUIKnotenItem.this, e.getX(), e.getY());
-                } else if (e.getButton() == 1) {
-                    if (GUIKnotenItem.this.getKnoten() instanceof Rechner
-                            || GUIKnotenItem.this.getKnoten() instanceof Notebook) {
-                        GUIContainer.getGUIContainer().showDesktop(GUIKnotenItem.this);
-                    } else if (GUIKnotenItem.this.getKnoten() instanceof Switch) {
-                        GUIEvents.getGUIEvents().satTabelleAnzeigen(GUIKnotenItem.this);
+                if (GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_AKTION) {
+                    SzenarioVerwaltung.getInstance().setzeGeaendert();
+                    if (e.getButton() == 3) {
+                        GUIEvents.getGUIEvents().kontextMenueAktionsmodus(GUIKnotenItem.this, e.getX(), e.getY());
+                    } else if (e.getButton() == 1) {
+                        if (GUIKnotenItem.this.getKnoten() instanceof Rechner
+                                || GUIKnotenItem.this.getKnoten() instanceof Notebook) {
+                            GUIContainer.getGUIContainer().showDesktop(GUIKnotenItem.this);
+                        } else if (GUIKnotenItem.this.getKnoten() instanceof Switch) {
+                            GUIEvents.getGUIEvents().satTabelleAnzeigen(GUIKnotenItem.this);
+                        }
                     }
                 }
             }
