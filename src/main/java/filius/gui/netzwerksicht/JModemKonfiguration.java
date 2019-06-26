@@ -44,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import filius.Main;
+import filius.gui.GUIContainer;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Modem;
 import filius.rahmenprogramm.I18n;
@@ -70,8 +71,8 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
 
     @Override
     public void aenderungenAnnehmen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (JModemKonfiguration), aenderungenAnnehmen()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), aenderungenAnnehmen()");
         Modem modem;
         ModemFirmware firmware;
 
@@ -94,7 +95,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
     protected void initAttributEingabeBox(Box box, Box rightBox) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JModemKonfiguration), initAttributEingabeBox(" + box + ")");
-        
+
         FocusListener configFocusListener = new FocusListener() {
             public void focusGained(FocusEvent arg0) {}
 
@@ -117,7 +118,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         name = new JTextField("");
         name.addActionListener(configActionListener);
         name.addFocusListener(configFocusListener);
-        
+
         Box tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
@@ -208,8 +209,8 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
 
     @Override
     public synchronized void updateAttribute() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (JModemKonfiguration), updateAttribute()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), updateAttribute()");
         Modem modem;
         ModemFirmware firmware;
         boolean aktiv;
@@ -227,14 +228,16 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
             btStartStop.setPreferredSize(new Dimension(300, 30));
             btStartStop.setActionCommand(CMD_START_CLIENT);
             aktiv = modem.istModemVerbindungAktiv();
-            btStartStop.setText(aktiv ? messages.getString("jmodemkonfiguration_msg6") : messages.getString("jmodemkonfiguration_msg5"));
+            btStartStop.setText(aktiv ? messages.getString("jmodemkonfiguration_msg6")
+                    : messages.getString("jmodemkonfiguration_msg5"));
         } else {
             cbServerModus.setSelected(true);
             tfIpAdresse.setEnabled(false);
             btStartStop.setPreferredSize(new Dimension(300, 30));
             btStartStop.setActionCommand(CMD_START_SERVER);
             aktiv = firmware.istServerBereit();
-            btStartStop.setText(aktiv ? messages.getString("jmodemkonfiguration_msg8") : messages.getString("jmodemkonfiguration_msg7"));
+            btStartStop.setText(aktiv ? messages.getString("jmodemkonfiguration_msg8")
+                    : messages.getString("jmodemkonfiguration_msg7"));
         }
 
         if (aktiv) {
@@ -246,6 +249,8 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
             tfPort.setEnabled(true);
             cbServerModus.setEnabled(true);
         }
+
+        GUIContainer.getGUIContainer().updateViewport();
     }
 
     public void update(Observable arg0, Object arg1) {
