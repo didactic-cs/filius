@@ -42,6 +42,8 @@ public class GUIPrintPanel extends JPanel {
 
     public GUIPrintPanel(int width, int height, String footerText) {
         setOpaque(false);
+        footer = new GUIFooterPanel(width, height + 100, StringUtils.isBlank(footerText) ? "Filius" : footerText);
+        add(footer);
 
         networkPanel = new GUINetworkPanel(width, height);
         networkPanel.setBounds(EMPTY_BORDER, EMPTY_BORDER, width, height);
@@ -51,15 +53,12 @@ public class GUIPrintPanel extends JPanel {
         docuPanel.setBounds(EMPTY_BORDER, EMPTY_BORDER, width, height);
         add(docuPanel);
 
-        footer = new GUIFooterPanel(width, height + 100, StringUtils.isBlank(footerText) ? "Filius" : footerText);
-        add(footer);
-
         setSize(footer.getWidth() + 2 * EMPTY_BORDER, footer.getHeight() + 2 * EMPTY_BORDER);
     }
 
     public void updateViewport(List<GUIKnotenItem> knoten, List<GUIKabelItem> kabel, List<GUIDocuItem> docuItems) {
         networkPanel.updateViewport(knoten, kabel);
-        docuPanel.updateViewport(docuItems);
+        docuPanel.updateViewport(docuItems, false);
 
         updateFooterPosition();
         footer.updateViewport();

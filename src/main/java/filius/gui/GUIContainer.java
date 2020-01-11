@@ -680,9 +680,9 @@ public class GUIContainer implements Serializable, I18n {
         networkPanel.updateViewport(nodeItems, cableItems);
         networkPanel.updateUI();
         if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            docuPanel.updateViewport(docuItems);
+            docuPanel.updateViewport(docuItems, false);
         } else {
-            docuPanel.updateViewport(docuItems);
+            docuPanel.updateViewport(docuItems, activeSite == GUIMainMenu.MODUS_DOKUMENTATION);
         }
         docuPanel.updateUI();
     }
