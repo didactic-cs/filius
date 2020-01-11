@@ -25,12 +25,12 @@
  */
 package filius.gui.netzwerksicht;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.util.List;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import org.apache.commons.lang3.StringUtils;
 
 @SuppressWarnings("serial")
 public class GUIPrintPanel extends JPanel {
@@ -38,42 +38,37 @@ public class GUIPrintPanel extends JPanel {
 
     private GUINetworkPanel networkPanel;
     private GUIDocumentationPanel docuPanel;
+    private GUIFooterPanel footer;
 
-    public GUIPrintPanel(int width, int height) {
-        this.setSize(width + 2 * EMPTY_BORDER, height + 2 * EMPTY_BORDER);
+    public GUIPrintPanel(int width, int height, String footerText) {
         setOpaque(false);
 
         networkPanel = new GUINetworkPanel(width, height);
-        add(networkPanel);
         networkPanel.setBounds(EMPTY_BORDER, EMPTY_BORDER, width, height);
+        add(networkPanel);
 
         docuPanel = new GUIDocumentationPanel(width, height);
-        add(docuPanel);
         docuPanel.setBounds(EMPTY_BORDER, EMPTY_BORDER, width, height);
+        add(docuPanel);
+
+        footer = new GUIFooterPanel(width, height + 100, StringUtils.isBlank(footerText) ? "Filius" : footerText);
+        add(footer);
+
+        setSize(footer.getWidth() + 2 * EMPTY_BORDER, footer.getHeight() + 2 * EMPTY_BORDER);
     }
 
-    public void updateViewport(List<GUIKnotenItem> knoten, List<GUIKabelItem> kabel, List<GUIDocuItem> docuItems,
-            boolean docuItemsEnabled) {
+    public void updateViewport(List<GUIKnotenItem> knoten, List<GUIKabelItem> kabel, List<GUIDocuItem> docuItems) {
         networkPanel.updateViewport(knoten, kabel);
-        docuPanel.updateViewport(docuItems, false);
+        docuPanel.updateViewport(docuItems);
+
+        updateFooterPosition();
+        footer.updateViewport();
     }
 
-    public void updateViewport(List<GUIKnotenItem> knoten, List<GUIKabelItem> kabel, List<GUIDocuItem> docuItems,
-            String footerText) {
-        networkPanel.updateViewport(knoten, kabel);
-        docuPanel.updateViewport(docuItems, false);
-
-        JLabel footer = new JLabel(footerText);
-        footer.setForeground(Color.lightGray);
-        int footerWidth = footer.getFontMetrics(footer.getFont()).stringWidth(footerText) + 20;
-        int footerHeight = footer.getFontMetrics(footer.getFont()).getHeight();
+    private void updateFooterPosition() {
         int footerY = (int) Math.max(networkPanel.maxY, docuPanel.maxY) + 30;
-        int footerX = (int) Math.min(networkPanel.minX, docuPanel.minX);
-        footer.setBounds(footerX, footerY, footerWidth, footerHeight);
-        docuPanel.add(footer);
-
-        docuPanel.maxX = Math.max(footerX + footerWidth, docuPanel.maxX);
-        docuPanel.maxY = footerY + footerHeight;
+        int footerX = (int) Math.min(networkPanel.minX, docuPanel.minX) + EMPTY_BORDER;
+        footer.setFooterPos(footerX, footerY);
     }
 
     @Override
@@ -82,20 +77,48 @@ public class GUIPrintPanel extends JPanel {
     }
 
     public int getClipY() {
-        return (int) Math.min(networkPanel.minY, docuPanel.minY);
+        return (int) min(networkPanel.minY, docuPanel.minY, footer.minY);
     }
 
     public int getClipHeight() {
-        int totalMaxY = (int) Math.max(networkPanel.maxY, docuPanel.maxY);
+        int totalMaxY = (int) footer.maxY;
         return totalMaxY - getClipY() + 2 * EMPTY_BORDER;
     }
 
     public int getClipWidth() {
-        int totalMaxX = (int) Math.max(networkPanel.maxX, docuPanel.maxX);
+        int totalMaxX = (int) max(networkPanel.maxX, docuPanel.maxX, footer.maxX);
         return totalMaxX - getClipX() + 2 * EMPTY_BORDER;
     }
 
     public int getClipX() {
-        return (int) Math.min(networkPanel.minX, docuPanel.minX);
+        return (int) min(networkPanel.minX, docuPanel.minX, footer.minX);
+    }
+
+    private double min(double a, double b, double c) {
+        double min = Integer.MAX_VALUE;
+        if (a < min) {
+            min = a;
+        }
+        if (b < min) {
+            min = b;
+        }
+        if (c < min) {
+            min = c;
+        }
+        return min;
+    }
+
+    private double max(double a, double b, double c) {
+        double max = 0;
+        if (a > max) {
+            max = a;
+        }
+        if (b > max) {
+            max = b;
+        }
+        if (c > max) {
+            max = c;
+        }
+        return max;
     }
 }

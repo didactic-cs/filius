@@ -213,8 +213,8 @@ public class GUIEvents implements I18n {
         // Items im Auswahlrahmen verschieben
         else if (!dragVorschau.isVisible()) {
             /* Verschieben mehrerer ausgewaehlter Objekte */
-            if (aufmarkierung && markedlist.size() > 0 && e.getX() >= 0 && e.getX() <= c.getPaneWidth() && e.getY() >= 0
-                    && e.getY() <= c.getPaneHeight()) {
+            if (aufmarkierung && markedlist.size() > 0 && e.getX() >= 0 && e.getX() <= c.getWidth() && e.getY() >= 0
+                    && e.getY() <= c.getHeight()) {
 
                 int verschiebungx = startPosX - e.getX();
                 startPosX = e.getX();

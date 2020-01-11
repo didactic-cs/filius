@@ -51,7 +51,6 @@ public class GUINetworkPanel extends GUIMainArea {
 
     public void updateViewport(List<GUIKnotenItem> knoten, List<GUIKabelItem> kabel) {
         removeAll();
-        resetClipBounds();
 
         for (GUIKnotenItem tempitem : knoten) {
             Knoten tempKnoten = tempitem.getKnoten();
@@ -83,8 +82,6 @@ public class GUINetworkPanel extends GUIMainArea {
 
             templabel.setBounds(tempitem.getImageLabel().getBounds());
             add(templabel);
-
-            updateClipBounds(templabel);
         }
 
         for (GUIKabelItem tempcable : kabel) {

@@ -39,14 +39,12 @@ public class GUIDocumentationPanel extends GUIMainArea {
         setOpaque(false);
     }
 
-    public void updateViewport(List<GUIDocuItem> docuItems, boolean docuItemsEnabled) {
+    public void updateViewport(List<GUIDocuItem> docuItems) {
         removeAll();
-        resetClipBounds();
 
         for (GUIDocuItem item : docuItems) {
             add(item.asDocuElement());
-            updateClipBounds(item.asDocuElement());
-            item.asDocuElement().setEnabled(docuItemsEnabled);
+            item.asDocuElement().setEnabled(false);
         }
     }
 }

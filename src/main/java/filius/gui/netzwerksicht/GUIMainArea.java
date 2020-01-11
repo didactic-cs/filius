@@ -25,9 +25,9 @@
  */
 package filius.gui.netzwerksicht;
 
+import java.awt.Component;
 import java.io.Serializable;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
@@ -38,16 +38,14 @@ public class GUIMainArea extends JPanel implements Serializable {
     private static final long serialVersionUID = 1L;
     protected double minX = Integer.MAX_VALUE, maxX = 0, minY = Integer.MAX_VALUE, maxY = 0;
 
-    
-
-    protected void resetClipBounds() {
+    private void resetClipBounds() {
         minX = Integer.MAX_VALUE;
         maxX = 0;
         minY = Integer.MAX_VALUE;
         maxY = 0;
     }
-    
-    protected void updateClipBounds(JComponent elem) {
+
+    private void updateClipBounds(Component elem) {
         if (elem.getBounds().getMinX() < minX) {
             minX = Math.max(0, elem.getBounds().getMinX());
         }
@@ -60,5 +58,16 @@ public class GUIMainArea extends JPanel implements Serializable {
         if (elem.getBounds().getMaxY() > maxY) {
             maxY = Math.min(elem.getBounds().getMaxY(), this.getHeight());
         }
+    }
+
+    public void removeAll() {
+        super.removeAll();
+        resetClipBounds();
+    }
+
+    public Component add(Component comp) {
+        super.add(comp);
+        updateClipBounds(comp);
+        return comp;
     }
 }

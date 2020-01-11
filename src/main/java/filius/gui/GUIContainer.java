@@ -511,8 +511,8 @@ public class GUIContainer implements Serializable, I18n {
     }
 
     private GUIPrintPanel prepareExportPanel() {
-        GUIPrintPanel printPanel = new GUIPrintPanel(width, height);
-        printPanel.updateViewport(nodeItems, cableItems, docuItems, SzenarioVerwaltung.getInstance().holePfad());
+        GUIPrintPanel printPanel = new GUIPrintPanel(width, height, SzenarioVerwaltung.getInstance().holePfad());
+        printPanel.updateViewport(nodeItems, cableItems, docuItems);
         return printPanel;
     }
 
@@ -680,9 +680,9 @@ public class GUIContainer implements Serializable, I18n {
         networkPanel.updateViewport(nodeItems, cableItems);
         networkPanel.updateUI();
         if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            docuPanel.updateViewport(docuItems, false);
+            docuPanel.updateViewport(docuItems);
         } else {
-            docuPanel.updateViewport(docuItems, activeSite == GUIMainMenu.MODUS_DOKUMENTATION);
+            docuPanel.updateViewport(docuItems);
         }
         docuPanel.updateUI();
     }
@@ -957,14 +957,6 @@ public class GUIContainer implements Serializable, I18n {
 
     public JScrollPane getScrollPane() {
         return designView;
-    }
-
-    public int getPaneWidth() {
-        return layeredPane.getWidth();
-    }
-
-    public int getPaneHeight() {
-        return layeredPane.getHeight();
     }
 
     public int getXOffset() {
