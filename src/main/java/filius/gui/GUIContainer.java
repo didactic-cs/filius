@@ -36,8 +36,11 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +59,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGeneratorContext;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 
 import filius.Main;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
@@ -88,6 +98,10 @@ import filius.rahmenprogramm.SzenarioVerwaltung;
 import filius.software.system.Betriebssystem;
 
 public class GUIContainer implements Serializable, I18n {
+
+    private enum FileType {
+        PNG, SVG
+    }
 
     private static final int MIN_DESKTOP_SPACING = 10;
     private static final Integer ACTIVE_LISTENER_LAYER = Integer.valueOf(1);
@@ -290,12 +304,12 @@ public class GUIContainer implements Serializable, I18n {
         designSidebarScrollpane.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
 
-                JSidebarButton button = designSidebar.findButtonAt(e.getX(), e.getY()
-                        + designSidebarScrollpane.getVerticalScrollBar().getValue());
+                JSidebarButton button = designSidebar.findButtonAt(e.getX(),
+                        e.getY() + designSidebarScrollpane.getVerticalScrollBar().getValue());
                 if (button != null) {
-                    neueVorschau(button.getTyp(), e.getX() - designSidebarScrollpane.getWidth()
-                            + GUIContainer.getGUIContainer().getXOffset(), e.getY()
-                            + GUIContainer.getGUIContainer().getYOffset());
+                    neueVorschau(button.getTyp(),
+                            e.getX() - designSidebarScrollpane.getWidth() + GUIContainer.getGUIContainer().getXOffset(),
+                            e.getY() + GUIContainer.getGUIContainer().getYOffset());
                     GUIEvents.getGUIEvents().resetAndHideCablePreview();
                 }
             }
@@ -320,9 +334,9 @@ public class GUIContainer implements Serializable, I18n {
         designSidebarScrollpane.addMouseMotionListener(new MouseInputAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (designDragPreview.isVisible()) {
-                    designDragPreview.setBounds(e.getX() - designSidebarScrollpane.getWidth()
-                            + GUIContainer.getGUIContainer().getXOffset(), e.getY()
-                            + GUIContainer.getGUIContainer().getYOffset(), designDragPreview.getWidth(),
+                    designDragPreview.setBounds(
+                            e.getX() - designSidebarScrollpane.getWidth() + GUIContainer.getGUIContainer().getXOffset(),
+                            e.getY() + GUIContainer.getGUIContainer().getYOffset(), designDragPreview.getWidth(),
                             designDragPreview.getHeight());
                 }
             }
@@ -338,9 +352,9 @@ public class GUIContainer implements Serializable, I18n {
                         activeDocuElement = new JDocuElement(true);
                     }
                     activeDocuElement.setSelected(true);
-                    activeDocuElement.setLocation(e.getX() - designSidebarScrollpane.getWidth()
-                            + GUIContainer.getGUIContainer().getXOffset(), e.getY()
-                            + GUIContainer.getGUIContainer().getYOffset());
+                    activeDocuElement.setLocation(
+                            e.getX() - designSidebarScrollpane.getWidth() + GUIContainer.getGUIContainer().getXOffset(),
+                            e.getY() + GUIContainer.getGUIContainer().getYOffset());
                     docuDragPanel.add(activeDocuElement);
                 }
             }
@@ -365,9 +379,9 @@ public class GUIContainer implements Serializable, I18n {
         docuSidebarScrollpane.addMouseMotionListener(new MouseInputAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (activeDocuElement != null) {
-                    activeDocuElement.setLocation(e.getX() - designSidebarScrollpane.getWidth()
-                            + GUIContainer.getGUIContainer().getXOffset(), e.getY()
-                            + GUIContainer.getGUIContainer().getYOffset());
+                    activeDocuElement.setLocation(
+                            e.getX() - designSidebarScrollpane.getWidth() + GUIContainer.getGUIContainer().getXOffset(),
+                            e.getY() + GUIContainer.getGUIContainer().getYOffset());
                 }
             }
         });
@@ -418,56 +432,88 @@ public class GUIContainer implements Serializable, I18n {
 
     public void exportAsImage() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.getName().endsWith(".png");
-            }
-
-            @Override
-            public String getDescription() {
-                return "Portable Network Graphics";
-            }
-        });
+        FileNameExtensionFilter pngFileFilter = new FileNameExtensionFilter("Portable Network Graphics", "png");
+        FileNameExtensionFilter svgFileFilter = new FileNameExtensionFilter("Scalable Vector Graphics", "svg");
+        fileChooser.addChoosableFileFilter(pngFileFilter);
+        fileChooser.addChoosableFileFilter(svgFileFilter);
+        fileChooser.setAcceptAllFileFilterUsed(false);
         String path = SzenarioVerwaltung.getInstance().holePfad();
         if (path != null) {
             String szenarioFile = new File(path).getAbsolutePath();
-            File preselectedFile = new File(szenarioFile.substring(0, szenarioFile.lastIndexOf(".")) + ".png");
-
+            File preselectedFile = new File(szenarioFile.substring(0, szenarioFile.lastIndexOf(".")));
             fileChooser.setSelectedFile(preselectedFile);
         }
 
         if (fileChooser.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
-            if (fileChooser.getSelectedFile() != null) {
-                GUIPrintPanel printPanel = new GUIPrintPanel(width, height);
-                printPanel
-                        .updateViewport(nodeItems, cableItems, docuItems, SzenarioVerwaltung.getInstance().holePfad());
-                BufferedImage bi = new BufferedImage(printPanel.getWidth(), printPanel.getHeight(),
-                        BufferedImage.TYPE_INT_ARGB);
-                Graphics g = bi.createGraphics();
-                printPanel.paint(g);
-                g.dispose();
-                BufferedImage printArea = bi.getSubimage(printPanel.getClipX(), printPanel.getClipY(),
-                        printPanel.getClipWidth(), printPanel.getClipHeight());
-                String imagePath = fileChooser.getSelectedFile().getAbsolutePath();
+            FileFilter selectedFileFilter = fileChooser.getFileFilter();
+            FileType type = (svgFileFilter.equals(selectedFileFilter)) ? FileType.SVG : FileType.PNG;
+
+            String imagePath = fileChooser.getSelectedFile().getAbsolutePath();
+            if (FileType.SVG == type) {
+                imagePath = imagePath.endsWith(".svg") ? imagePath : imagePath + ".svg";
+                exportAsSVG(imagePath);
+            } else {
                 imagePath = imagePath.endsWith(".png") ? imagePath : imagePath + ".png";
-                Main.debug.println("export to file: " + imagePath);
-                ImageOutputStream outputStream = null;
+                exportAsPNG(imagePath);
+            }
+            Main.debug.println("export to file: " + imagePath);
+            updateViewport();
+        }
+    }
+
+    private void exportAsPNG(String imagePath) {
+        GUIPrintPanel printPanel = prepareExportPanel();
+        BufferedImage bi = new BufferedImage(printPanel.getWidth(), printPanel.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics g = bi.createGraphics();
+        printPanel.paint(g);
+        g.dispose();
+        BufferedImage printArea = bi.getSubimage(printPanel.getClipX(), printPanel.getClipY(),
+                printPanel.getClipWidth(), printPanel.getClipHeight());
+        ImageOutputStream outputStream = null;
+        try {
+            outputStream = new FileImageOutputStream(new File(imagePath));
+            ImageIO.write(printArea, "png", outputStream);
+        } catch (Exception ex) {
+            Main.debug.println("export of file failed: " + ex.getMessage());
+        } finally {
+            if (outputStream != null) {
                 try {
-                    outputStream = new FileImageOutputStream(new File(imagePath));
-                    ImageIO.write(printArea, "png", outputStream);
-                } catch (Exception ex) {
-                    Main.debug.println("export of file failed: " + ex.getMessage());
-                } finally {
-                    if (outputStream != null) {
-                        try {
-                            outputStream.close();
-                        } catch (IOException e) {}
-                    }
-                }
-                updateViewport();
+                    outputStream.close();
+                } catch (IOException e) {}
             }
         }
+    }
+
+    private void exportAsSVG(String imagePath) {
+        // Get a DOMImplementation.
+        DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+
+        // Create an instance of org.w3c.dom.Document.
+        String svgNS = "http://www.w3.org/2000/svg";
+        Document document = domImpl.createDocument(svgNS, "svg", null);
+
+        SVGGeneratorContext ctx = SVGGeneratorContext.createDefault(document);
+        ctx.setComment("Generated by Filius");
+        ctx.setEmbeddedFontsOn(true);
+        SVGGraphics2D svgGenerator = new SVGGraphics2D(ctx, true);
+
+        GUIPrintPanel printPanel = prepareExportPanel();
+        printPanel.paint(svgGenerator);
+        svgGenerator.dispose();
+
+        try (Writer out = new OutputStreamWriter(new FileOutputStream(new File(imagePath)), "UTF-8");) {
+            svgGenerator.stream(out, true);
+        } catch (IOException e) {
+            Main.debug.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private GUIPrintPanel prepareExportPanel() {
+        GUIPrintPanel printPanel = new GUIPrintPanel(width, height);
+        printPanel.updateViewport(nodeItems, cableItems, docuItems, SzenarioVerwaltung.getInstance().holePfad());
+        return printPanel;
     }
 
     /**
@@ -525,8 +571,8 @@ public class GUIContainer implements Serializable, I18n {
 
         if (tempIcon != null && neuerKnoten != null) {
             templabel = new JSidebarButton(neuerKnoten.holeAnzeigeName(), tempIcon, neuerKnoten.holeHardwareTyp());
-            templabel.setBounds(x + designView.getHorizontalScrollBar().getValue(), y
-                    + designView.getVerticalScrollBar().getValue(), templabel.getWidth(), templabel.getHeight());
+            templabel.setBounds(x + designView.getHorizontalScrollBar().getValue(),
+                    y + designView.getVerticalScrollBar().getValue(), templabel.getWidth(), templabel.getHeight());
 
             item = new GUIKnotenItem();
             item.setKnoten(neuerKnoten);
@@ -836,19 +882,20 @@ public class GUIContainer implements Serializable, I18n {
         if (desktopWindowList.size() < totalNumberOfDesktops
                 && !Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.STACK)) {
             if (Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.COLUMN)) {
-                xPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() / numberOfDesktopsPerColumn)
-                        * (int) desktopSize.getWidth();
-                yPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() % numberOfDesktopsPerColumn)
-                        * (int) desktopSize.getHeight();
+                xPos = MIN_DESKTOP_SPACING
+                        + (desktopWindowList.size() / numberOfDesktopsPerColumn) * (int) desktopSize.getWidth();
+                yPos = MIN_DESKTOP_SPACING
+                        + (desktopWindowList.size() % numberOfDesktopsPerColumn) * (int) desktopSize.getHeight();
             } else {
-                xPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() % numberOfDesktopsPerRow)
-                        * (int) desktopSize.getWidth();
-                yPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() / numberOfDesktopsPerRow)
-                        * (int) desktopSize.getHeight();
+                xPos = MIN_DESKTOP_SPACING
+                        + (desktopWindowList.size() % numberOfDesktopsPerRow) * (int) desktopSize.getWidth();
+                yPos = MIN_DESKTOP_SPACING
+                        + (desktopWindowList.size() / numberOfDesktopsPerRow) * (int) desktopSize.getHeight();
             }
         } else {
-            int overlappingDesktops = Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.STACK) ? desktopWindowList
-                    .size() : desktopWindowList.size() - totalNumberOfDesktops;
+            int overlappingDesktops = Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.STACK)
+                    ? desktopWindowList.size()
+                    : desktopWindowList.size() - totalNumberOfDesktops;
             xPos = (overlappingDesktops + 1) * 20;
             yPos = (overlappingDesktops + 1) * 20;
             if (xPos + desktopSize.getWidth() > screenSize.getWidth()) {
