@@ -213,8 +213,8 @@ public class GUIEvents implements I18n {
         // Items im Auswahlrahmen verschieben
         else if (!dragVorschau.isVisible()) {
             /* Verschieben mehrerer ausgewaehlter Objekte */
-            if (aufmarkierung && markedlist.size() > 0 && e.getX() >= 0 && e.getX() <= c.getScrollPane().getWidth()
-                    && e.getY() >= 0 && e.getY() <= c.getScrollPane().getHeight()) {
+            if (aufmarkierung && markedlist.size() > 0 && e.getX() >= 0 && e.getX() <= c.getPaneWidth() && e.getY() >= 0
+                    && e.getY() <= c.getPaneHeight()) {
 
                 int verschiebungx = startPosX - e.getX();
                 startPosX = e.getX();
@@ -222,6 +222,8 @@ public class GUIEvents implements I18n {
                 startPosY = e.getY();
 
                 c.moveMarker(-verschiebungx, -verschiebungy, markedlist);
+            } else {
+                Main.debug.println("Out of Boundaries!");
             }
         }
     }
@@ -521,8 +523,8 @@ public class GUIEvents implements I18n {
 
                 InternetKnoten node = (InternetKnoten) knotenItem.getKnoten();
                 for (NetzwerkInterface nic : node.getNetzwerkInterfaces()) {
-                    JMenuItem pmDatenAustauschAnzeigen = new JMenuItem(messages.getString("guievents_msg4") + " ("
-                            + nic.getIp() + ")");
+                    JMenuItem pmDatenAustauschAnzeigen = new JMenuItem(
+                            messages.getString("guievents_msg4") + " (" + nic.getIp() + ")");
                     pmDatenAustauschAnzeigen.setActionCommand("datenaustausch-" + nic.getMac());
                     pmDatenAustauschAnzeigen.addActionListener(al);
 
@@ -681,15 +683,19 @@ public class GUIEvents implements I18n {
         filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration ziel1konf = null;
         filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration ziel2konf = null;
 
-        if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel1().getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 --> JVermittlungsrechnerKonfiguration");
-            ziel1konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration.getInstance(cable
-                    .getKabelpanel().getZiel1().getKnoten()));
+        if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel1()
+                .getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
+            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
+            // JVermittlungsrechnerKonfiguration");
+            ziel1konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
+                    .getInstance(cable.getKabelpanel().getZiel1().getKnoten()));
         }
-        if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel2().getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 --> JVermittlungsrechnerKonfiguration");
-            ziel2konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration.getInstance(cable
-                    .getKabelpanel().getZiel2().getKnoten()));
+        if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel2()
+                .getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
+            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
+            // JVermittlungsrechnerKonfiguration");
+            ziel2konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
+                    .getInstance(cable.getKabelpanel().getZiel2().getKnoten()));
         }
         cable.getDasKabel().anschluesseTrennen();
         GUIContainer.getGUIContainer().getCableItems().remove(cable);

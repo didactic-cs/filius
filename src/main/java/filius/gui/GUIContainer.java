@@ -959,6 +959,14 @@ public class GUIContainer implements Serializable, I18n {
         return designView;
     }
 
+    public int getPaneWidth() {
+        return layeredPane.getWidth();
+    }
+
+    public int getPaneHeight() {
+        return layeredPane.getHeight();
+    }
+
     public int getXOffset() {
         if (activeSite == GUIMainMenu.MODUS_AKTION) {
             return simulationView.getHorizontalScrollBar().getValue();
