@@ -5,9 +5,9 @@
 
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>0.7.5</version>
+	<version>1.7.5</version>
 	<properties>
-		<buildDate>11.01.2020</buildDate>
+		<buildDate>20.01.2020</buildDate>
 		<publisher>Stefan Freischlad</publisher>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.10</junit.version>
