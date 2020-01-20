@@ -101,14 +101,14 @@ public class GUIMainMenu implements Serializable, I18n {
 
         btEntwurfsmodus = new JButton();
         btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus_aktiv.png")));
-        btEntwurfsmodus.setBounds(290, 5, btEntwurfsmodus.getIcon().getIconWidth(),
+        btEntwurfsmodus.setBounds(350, 5, btEntwurfsmodus.getIcon().getIconWidth(),
                 btEntwurfsmodus.getIcon().getIconHeight());
         btEntwurfsmodus.setActionCommand("entwurfsmodus");
         btEntwurfsmodus.setToolTipText(messages.getString("guimainmemu_msg3"));
 
         btAktionsmodus = new JButton();
         btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
-        btAktionsmodus.setBounds(360, 5, btAktionsmodus.getIcon().getIconWidth(),
+        btAktionsmodus.setBounds(420, 5, btAktionsmodus.getIcon().getIconWidth(),
                 btAktionsmodus.getIcon().getIconHeight());
         btAktionsmodus.setActionCommand("aktionsmodus");
         btAktionsmodus.setToolTipText(messages.getString("guimainmemu_msg4"));
@@ -121,14 +121,14 @@ public class GUIMainMenu implements Serializable, I18n {
 
         btDokumodus = new JButton();
         btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
-        btDokumodus.setBounds(770, 5, btDokumodus.getIcon().getIconWidth(), btDokumodus.getIcon().getIconHeight());
+        btDokumodus.setBounds(250, 5, btDokumodus.getIcon().getIconWidth(), btDokumodus.getIcon().getIconHeight());
         btDokumodus.setActionCommand("dokumodus");
         btDokumodus.setToolTipText(messages.getString("guimainmemu_msg14"));
 
         if (isSoftwareWizardEnabled()) {
             btWizard = new JButton();
             btWizard.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/button_wizard.png")));
-            btWizard.setBounds(660, 5, btWizard.getIcon().getIconWidth(), btWizard.getIcon().getIconHeight());
+            btWizard.setBounds(720, 5, btWizard.getIcon().getIconWidth(), btWizard.getIcon().getIconHeight());
             btWizard.setActionCommand("wizard");
             btWizard.setToolTipText(messages.getString("guimainmemu_msg6"));
         }
@@ -278,15 +278,17 @@ public class GUIMainMenu implements Serializable, I18n {
 
         geschwindigkeit = new JLabel("100%");
         geschwindigkeit.setVisible(true);
+        geschwindigkeit.setToolTipText(messages.getString("guimainmemu_msg15"));
         geschwindigkeit.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
-        geschwindigkeit.setBounds(552, 10, 120, 44);
+        geschwindigkeit.setBounds(612, 10, 120, 44);
 
         verzoegerung = new JSlider(0, 100);
+        verzoegerung.setToolTipText(messages.getString("guimainmemu_msg16"));
         verzoegerung.setMaximum(10);
         verzoegerung.setMinimum(1);
         verzoegerung.setValue(verzoegerung.getMaximum());
         Verbindung.setzeVerzoegerungsFaktor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
-        verzoegerung.setBounds(450, 10, 100, 44);
+        verzoegerung.setBounds(510, 10, 100, 44);
         verzoegerung.setOpaque(false);
         verzoegerung.addChangeListener(new ChangeListener() {
 
