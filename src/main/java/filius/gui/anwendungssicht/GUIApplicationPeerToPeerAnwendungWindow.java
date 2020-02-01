@@ -182,8 +182,8 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         networkPanel.add(verticalTopBox, BorderLayout.NORTH);
         networkPanel.add(tabellenScrollPane, BorderLayout.CENTER);
 
-        tabbedPane.addTab("Netzwerk", new ImageIcon(getClass()
-                .getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), networkPanel);
+        tabbedPane.addTab(messages.getString("peertopeeranwendung_msg29"),
+                new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), networkPanel);
 
         searchPanel = new JPanel(new BorderLayout());
         searchLabel = new JLabel(messages.getString("peertopeeranwendung_msg11"));
@@ -300,8 +300,8 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
             public void mousePressed(MouseEvent e) {
                 {
                     if (zahlOK == true) {
-                        ((PeerToPeerAnwendung) holeAnwendung()).setMaxTeilnehmerZahl(Integer.parseInt(maxClientsField
-                                .getText()));
+                        ((PeerToPeerAnwendung) holeAnwendung())
+                                .setMaxTeilnehmerZahl(Integer.parseInt(maxClientsField.getText()));
                     } else {
                         JOptionPane.showMessageDialog(desktop, messages.getString("peertopeeranwendung_msg27"));
                     }

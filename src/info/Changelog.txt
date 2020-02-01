@@ -1,10 +1,15 @@
+filius (1.8.1) unstable; urgency=low
+  * Korrekturen zur franzoesischen Typographie
+  * Internationalisierung "Netzwerk" in Gnutella
+ -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 01 Feb 2020 00:00:00 +0000
+ 
 filius (1.8.0) unstable; urgency=low
   * Export aus Dokumentationsmodus als SVG moeglich (zusaetzlich zu PNG)
   * Hinweis/Tooltip zur Einstellung der Simulationsgeschwindigkeit
   * Fehlerbehebung zur Anzeige/Aktualisierung des Modemnamens
   * Verschiedene Fehler im Dokumentationsmodus behoben
   * Korrektur zum Verschieben von mehreren Elementen im Entwurfsmodus 
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Mon, 20 Jan 2019 00:00:00 +0000
+ -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Mon, 20 Jan 2020 00:00:00 +0000
  
 filius (1.7.4) unstable; urgency=low
   * Sprache Franzoesisch hinzugefuegt (Uebersetzung durch Patrice Treton)

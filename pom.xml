@@ -5,7 +5,7 @@
 
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>1.7.5</version>
+	<version>1.8.1</version>
 	<properties>
 		<buildDate>20.01.2020</buildDate>
 		<publisher>Stefan Freischlad</publisher>
