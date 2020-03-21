@@ -5,9 +5,9 @@
 
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>1.8.1</version>
+	<version>1.8.2</version>
 	<properties>
-		<buildDate>20.01.2020</buildDate>
+		<buildDate>21.03.2020</buildDate>
 		<publisher>Stefan Freischlad</publisher>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.10</junit.version>
@@ -19,7 +19,7 @@
 		<java.version>1.8</java.version>
 		<execJre.version>1.8.0</execJre.version>
 		<mavenJar.version>2.4</mavenJar.version>
-		<launch4j.version>1.7.25</launch4j.version>
+		<launch4j.version>1.7.26</launch4j.version>
 		<launch4j.starterName>Filius.exe</launch4j.starterName>
 		<commons-lang3.version>3.3.2</commons-lang3.version>
 		<commons-io.version>2.4</commons-io.version>
@@ -223,7 +223,7 @@
 
 					<!-- Create Filius Executable for Windows -->
 					<plugin>
-						<groupId>com.akathist.maven.plugins.launch4j</groupId>
+						<groupId>org.bidib.com.akathist.maven.plugins.launch4j</groupId>
 						<artifactId>launch4j-maven-plugin</artifactId>
 						<version>${launch4j.version}</version>
 						<executions>

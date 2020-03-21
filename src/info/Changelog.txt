@@ -1,3 +1,7 @@
+filius (1.8.3) unstable; urgency=low
+  * Fehlerbehebung Modem: Verklemmung, wenn beide verbundenen Modems in gleicher Filius-Instanz laufen
+ -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 21 Mar 2020 00:00:00 +0000
+
 filius (1.8.1) unstable; urgency=low
   * Korrekturen zur franzoesischen Typographie
   * Internationalisierung "Netzwerk" in Gnutella

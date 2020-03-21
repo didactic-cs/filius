@@ -90,6 +90,8 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         } else {
             ((ModemFirmware) modem.getSystemSoftware()).setMode(ModemFirmware.CLIENT);
         }
+
+        GUIContainer.getGUIContainer().updateViewport();
     }
 
     protected void initAttributEingabeBox(Box box, Box rightBox) {
@@ -249,8 +251,6 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
             tfPort.setEnabled(true);
             cbServerModus.setEnabled(true);
         }
-
-        GUIContainer.getGUIContainer().updateViewport();
     }
 
     public void update(Observable arg0, Object arg1) {

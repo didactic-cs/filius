@@ -132,18 +132,23 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
             e.printStackTrace(Main.debug);
             benachrichtigeBeobacher(messages.getString("modemfirmware_msg2"));
             ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
+        } catch (InterruptedException e) {
+            e.printStackTrace(Main.debug);
+            benachrichtigeBeobacher(null);
+            ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
         }
     }
 
-    private synchronized void aktiviereModemVerbindung() throws IOException {
+    private synchronized void aktiviereModemVerbindung() throws IOException, InterruptedException {
         OutputStream out = null;
         InputStream in = null;
-        if (socket != null && socket.isConnected()) {
-            benachrichtigeBeobacher(null);
-            in = socket.getInputStream();
-            out = socket.getOutputStream();
-            ((Modem) getKnoten()).setzeModemVerbindungAktiv(true);
+        while (!socket.isConnected()) {
+            Thread.sleep(100);
         }
+        benachrichtigeBeobacher(null);
+        in = socket.getInputStream();
+        out = socket.getOutputStream();
+        ((Modem) getKnoten()).setzeModemVerbindungAktiv(true);
         if (in != null && out != null) {
             leerePortPuffer();
             empfaenger = new ModemEmpfaenger(this, in);
@@ -152,7 +157,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
             sender.starten();
         }
     }
-    
+
     private synchronized void deaktiviereModemVerbindung() {
         if (empfaenger != null) {
             empfaenger.beenden();
