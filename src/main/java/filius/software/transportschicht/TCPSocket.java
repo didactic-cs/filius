@@ -29,6 +29,8 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
+
 import filius.Main;
 import filius.exception.SocketException;
 import filius.exception.TimeOutException;
@@ -162,13 +164,13 @@ public class TCPSocket extends Socket implements Runnable {
      * waehrend des Veringudngsaufbaus erhoeht, wenn das SYN-Flag gesetzt ist und wenn die Verbindung hergestellt ist,
      * wenn in dem Segment Nutzdaten verschickt werden.
      */
-    private long sequenzNummer = 0;
+    private long nextSendSequenceNumber = Math.abs((new Random()).nextLong()) % (long) (Math.pow(2, 32));
+    private long lastSentSequenceNumber;
 
     /**
-     * dieses Attribut ist immer die zuletzt versendete ACK-Sequenznummer <br />
-     * <b> Achtung: </b> Das Segment mit der Sequenznummer x wird mit der Acknowledge-Sequenznummer x+1 bestaetigt!
+     * dieses Attribut ist immer die zuletzt bestaetigte entfernte Sequenznummer <br />
      */
-    private long ackNummer = 0;
+    private long remoteSequenceNumber = 0;
 
     /**
      * Konstruktor ruft den Konstruktor der Oberklasse auf. Ausserdem wird das Attribut protokoll mit dem TCP
@@ -204,20 +206,30 @@ public class TCPSocket extends Socket implements Runnable {
     }
 
     /**
-     * Mit dieser Methode werden die Standardfelder des Kopfteils eines Segments gefuellt und dann wird es versendet. <br />
+     * Mit dieser Methode werden die Standardfelder des Kopfteils eines Segments gefuellt und dann wird es versendet.
+     * <br />
      * Das heisst, dass
      * <ul>
      * <li>lokaler Port und</li>
      * <li>entfernter Port
      * </ul>
      * gesetzt werden.
+     * 
+     * @param repeat
+     *            TODO
      */
-    private void sendeSegment(TcpSegment segment) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), sendeSegment(" + segment
-                + ")");
+    private void sendeSegment(TcpSegment segment, boolean repeat) {
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), sendeSegment(" + segment + ")");
         segment.setQuellPort(lokalerPort);
         segment.setZielPort(zielPort);
-
+        if (repeat) {
+            segment.setSeqNummer(lastSentSequenceNumber);
+        } else {
+            segment.setSeqNummer(nextSendSequenceNumber);
+            nextSendSequenceNumber = nextSequenceNumber(segment);
+        }
+        lastSentSequenceNumber = segment.getSeqNummer();
         protokoll.senden(zielIp, segment);
     }
 
@@ -256,15 +268,13 @@ public class TCPSocket extends Socket implements Runnable {
         // noch Segmente von der alten Verbindung vorhanden sein.
         puffer.clear();
 
-        sequenzNummer = Math.abs((new Random()).nextLong()) % ((long) (Math.pow(2, 32)) - 1);
-
         // -----------------------------------------------
         // passiver Verbindungsaufbau ohne Timeout
         if (modus == PASSIV) {
             zustand = LISTEN;
 
-            Main.debug.println("INFO (" + this.hashCode() + "): verbinden() [passiver Modus], Socket: "
-                    + this.toString());
+            Main.debug.println(
+                    "INFO (" + this.hashCode() + "): verbinden() [passiver Modus], Socket: " + this.toString());
 
             while (zustand == LISTEN) {
                 synchronized (puffer) {
@@ -294,16 +304,14 @@ public class TCPSocket extends Socket implements Runnable {
                         // Initialisierung der zunaechst zu sendenden
                         // ACK-Nummer anhand der empfangenen
                         // Sequenznummer
-                        ackNummer = naechsteSequenznummer(segment.getSeqNummer());
+                        remoteSequenceNumber = nextSequenceNumber(segment);
 
                         zustand = SYN_RCVD;
 
                         tmp = new TcpSegment();
                         tmp.setSyn(true);
-                        tmp.setSeqNummer(sequenzNummer);
                         sendeAck(segment, tmp);
                     } else if (zustand == SYN_RCVD && segment.isAck()) {
-                        sequenzNummer = segment.getAckNummer();
                         zustand = ESTABLISHED;
                     } else {
                         zustand = CLOSED;
@@ -329,15 +337,14 @@ public class TCPSocket extends Socket implements Runnable {
             try {
                 eintragenPort();
 
-                Main.debug.println("INFO (" + this.hashCode() + "): verbinden() [aktiver Modus], Socket: "
-                        + this.toString());
+                Main.debug.println(
+                        "INFO (" + this.hashCode() + "): verbinden() [aktiver Modus], Socket: " + this.toString());
 
                 for (int i = 0; zustand != ESTABLISHED && i < MAX_SENDEVERSUCHE; i++) {
                     tmp = new TcpSegment();
                     tmp.setSyn(true);
-                    tmp.setSeqNummer(sequenzNummer);
 
-                    sendeSegment(tmp);
+                    sendeSegment(tmp, i > 0);
                     zustand = SYN_SENT;
                     synchronized (puffer) {
                         if (puffer.size() < 1) {
@@ -353,9 +360,7 @@ public class TCPSocket extends Socket implements Runnable {
                             // Initialisierung der zunaechst zu sendenden
                             // ACK-Nummer anhand der empfangenen
                             // Sequenznummer
-                            ackNummer = naechsteSequenznummer(segment.getSeqNummer());
-                            sequenzNummer = segment.getAckNummer();
-
+                            remoteSequenceNumber = nextSequenceNumber(segment);
                             zustand = ESTABLISHED;
                             sendeAck(segment, null);
                         } else {
@@ -396,8 +401,8 @@ public class TCPSocket extends Socket implements Runnable {
      * @return - Gibt eine Liste mit den erstellten TcpSegmenten zurueck.
      */
     protected LinkedList<TcpSegment> erstelleSegmente(String daten) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), erstelleSegment(" + daten
-                + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), erstelleSegment(" + daten + ")");
         LinkedList<TcpSegment> segmenteListe;
         int paketeAnzahl;
         TcpSegment segment;
@@ -436,8 +441,8 @@ public class TCPSocket extends Socket implements Runnable {
      *             wenn eine Bestaetigung nicht rechtzeitig eintrifft
      */
     public synchronized void senden(String nachricht) throws VerbindungsException, TimeOutException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), senden(" + nachricht
-                + ")");
+        Main.debug
+                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), senden(" + nachricht + ")");
         TcpSegment segment, antwort;
         boolean bestaetigt = true;
         LinkedList<TcpSegment> liste;
@@ -464,7 +469,6 @@ public class TCPSocket extends Socket implements Runnable {
         while (it.hasNext() && zustand == ESTABLISHED) {
             bestaetigt = false;
             segment = (TcpSegment) it.next();
-            segment.setSeqNummer(sequenzNummer);
 
             // Versand eines einzelnen Segments mit dem
             // Stop-and-Wait-Algorithmus
@@ -480,7 +484,7 @@ public class TCPSocket extends Socket implements Runnable {
                     throw new VerbindungsException(messages.getString("sw_tcpsocket_msg7"));
                 }
 
-                sendeSegment(segment);
+                sendeSegment(segment, i > 0);
                 versendeZeitpunkt = System.currentTimeMillis();
 
                 // In dieser Schleife werden alle eingehenden
@@ -502,8 +506,7 @@ public class TCPSocket extends Socket implements Runnable {
                         while (puffer.size() > 0 && !bestaetigt) {
                             antwort = puffer.removeFirst();
                             if (antwort.isAck()) {
-                                if (antwort.getAckNummer() == naechsteSequenznummer(sequenzNummer)) {
-                                    sequenzNummer = antwort.getAckNummer();
+                                if (antwort.getAckNummer() == nextSendSequenceNumber) {
                                     bestaetigt = true;
                                 }
                             }
@@ -578,11 +581,12 @@ public class TCPSocket extends Socket implements Runnable {
                     }
 
                     // ist das Segment schon bestaetigt worden?
-                    if (segment.getSeqNummer() < ackNummer) {
+                    long ack = nextSequenceNumber(segment);
+                    if (ack < remoteSequenceNumber) {
                         sendeAck(segment, null);
-                    } else if (segment.getSeqNummer() == ackNummer) {
+                    } else if (ack >= remoteSequenceNumber) {
                         sendeAck(segment, null);
-                        ackNummer = naechsteSequenznummer(ackNummer);
+                        remoteSequenceNumber = ack;
                         segmentListe.add(segment);
                         nachricht.append(segment.getDaten());
                     }
@@ -610,7 +614,8 @@ public class TCPSocket extends Socket implements Runnable {
      * <li>LISTEN: Der Zustand wird einfach auf CLOSED gesetzt, weiter passiert nichts.</li>
      * <li>ESTABLISHED: Dann wird ein FIN-Segment verschickt und in den Zustand FIN_WAIT_1 gewechselt. <br />
      * Mit dem Empfang eines ACK-Segments erfolgt der Zustandsuebergang zu FIN_WAIT_2 ohne eine Aktion. <br />
-     * Nach dem Empfang eines FIN-Segments wird ein ACK-Segment versendet und in den Zustand TIME_WAIT gewechselt. <br />
+     * Nach dem Empfang eines FIN-Segments wird ein ACK-Segment versendet und in den Zustand TIME_WAIT gewechselt.
+     * <br />
      * und zugleich wird ein ACK-Segment versendet. <br />
      * Nach einem Timeout, geht der Socket in den Zustand CLOSED ueber. <br />
      * Eine weitere Moeglichkeit ist der Uebergang vom Zustand FIN_WAIT_1 zu TIME_WAIT bei Empfang eines
@@ -649,7 +654,7 @@ public class TCPSocket extends Socket implements Runnable {
             switch (zustand) {
             case ESTABLISHED:
             case SYN_RCVD:
-                sendeSegment(tmp);
+                sendeSegment(tmp, false);
                 zustand = FIN_WAIT_1;
                 break;
             case SYN_SENT:
@@ -659,7 +664,7 @@ public class TCPSocket extends Socket implements Runnable {
                 }
                 break;
             case CLOSE_WAIT:
-                sendeSegment(tmp);
+                sendeSegment(tmp, false);
                 zustand = LAST_ACK;
                 break;
             }
@@ -740,22 +745,18 @@ public class TCPSocket extends Socket implements Runnable {
         }
 
         sendeSegment.setAck(true);
-        sendeSegment.setAckNummer(naechsteSequenznummer(empfangSegment.getSeqNummer()));
-        sendeSegment(sendeSegment);
+        sendeSegment.setAckNummer(nextSequenceNumber(empfangSegment));
+        sendeSegment(sendeSegment, false);
     }
 
-    /**
-     * Zum Erhoehen von Sequenznummern. D. h.: der uebergebene Paramter wird um eins erhoeht und es wird eine
-     * Modulo-Operation durchgefuehrt. Es treten keine Seiteneffekte auf!
-     * 
-     * @return die naechste Sequenznummer
-     */
-    private static long naechsteSequenznummer(long sequenzNummer) {
-        Main.debug.println("INVOKED (static) filius.software.transportschicht.TCPSocket, naechsteSequenznummer("
-                + sequenzNummer + ")");
-        sequenzNummer = (sequenzNummer + 1) % ((long) (Math.pow(2, 32)) - 1);
-
-        return sequenzNummer;
+    static long nextSequenceNumber(TcpSegment segment) {
+        long nextNumber = segment.getSeqNummer();
+        if (segment.isSyn()) {
+            nextNumber++;
+        }
+        nextNumber += StringUtils.length(segment.getDaten());
+        nextNumber %= 4_294_967_296l;
+        return nextNumber;
     }
 
     /**

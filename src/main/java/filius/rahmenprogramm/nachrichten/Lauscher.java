@@ -100,8 +100,8 @@ public class Lauscher implements I18n {
     }
 
     private void benachrichtigeBeobachter(String rechnerId) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", benachrichtigeBeobachter("
-                + rechnerId + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + ", benachrichtigeBeobachter(" + rechnerId + ")");
         LinkedList<LauscherBeobachter> liste;
         Collection<LinkedList<LauscherBeobachter>> collection;
         ListIterator<LauscherBeobachter> it;
@@ -141,10 +141,8 @@ public class Lauscher implements I18n {
         LinkedList<Object[]> liste;
         Object[] frameMitZeitstempel;
 
-        // Main.debug.println("Lauscher: neuer Frame von " + interfaceId
-        // + " hinzugefuegt");
         frameMitZeitstempel = new Object[2];
-        frameMitZeitstempel[0] = new Long(System.currentTimeMillis());
+        frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
         frameMitZeitstempel[1] = frame;
 
         liste = (LinkedList<Object[]>) datenEinheiten.get(interfaceId);
@@ -191,8 +189,8 @@ public class Lauscher implements I18n {
     }
 
     private Vector<Object[]> datenVorbereiten(String interfaceId, boolean inheritAddress) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", datenVorbereiten(" + interfaceId
-                + ")");
+        Main.debug
+                .println("INVOKED (" + this.hashCode() + ") " + getClass() + ", datenVorbereiten(" + interfaceId + ")");
         Vector<Object[]> daten;
         LinkedList<Object[]> liste;
         Object[] frameMitZeitstempel, neuerEintrag;
@@ -221,18 +219,18 @@ public class Lauscher implements I18n {
 
                     zeit = new GregorianCalendar();
                     zeit.setTimeInMillis(((Long) frameMitZeitstempel[0]).longValue());
-                    timestampStr = (zeit.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + zeit.get(Calendar.HOUR_OF_DAY) : zeit
-                            .get(Calendar.HOUR_OF_DAY))
+                    timestampStr = (zeit.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + zeit.get(Calendar.HOUR_OF_DAY)
+                            : zeit.get(Calendar.HOUR_OF_DAY))
                             + ":"
-                            + (zeit.get(Calendar.MINUTE) < 10 ? "0" + zeit.get(Calendar.MINUTE) : zeit
-                                    .get(Calendar.MINUTE))
+                            + (zeit.get(Calendar.MINUTE) < 10 ? "0" + zeit.get(Calendar.MINUTE)
+                                    : zeit.get(Calendar.MINUTE))
                             + ":"
-                            + (zeit.get(Calendar.SECOND) < 10 ? "0" + zeit.get(Calendar.SECOND) : zeit
-                                    .get(Calendar.SECOND))
+                            + (zeit.get(Calendar.SECOND) < 10 ? "0" + zeit.get(Calendar.SECOND)
+                                    : zeit.get(Calendar.SECOND))
                             + "."
-                            + (zeit.get(Calendar.MILLISECOND) < 10 ? "00" + zeit.get(Calendar.MILLISECOND) : (zeit
-                                    .get(Calendar.MILLISECOND) < 100 ? "0" + zeit.get(Calendar.MILLISECOND) : zeit
-                                    .get(Calendar.MILLISECOND)));
+                            + (zeit.get(Calendar.MILLISECOND) < 10 ? "00" + zeit.get(Calendar.MILLISECOND)
+                                    : (zeit.get(Calendar.MILLISECOND) < 100 ? "0" + zeit.get(Calendar.MILLISECOND)
+                                            : zeit.get(Calendar.MILLISECOND)));
 
                     neuerEintrag[1] = timestampStr;
                     frame = (EthernetFrame) frameMitZeitstempel[1];
@@ -281,24 +279,15 @@ public class Lauscher implements I18n {
                             }
                             neuerEintrag[4] = TCP;
                             neuerEintrag[5] = PROTOKOLL_SCHICHTEN[2];
-                            if (tcpSeg.isAck() && !tcpSeg.isSyn() && !tcpSeg.isFin()) {
-                                neuerEintrag[6] = "ACK: " + tcpSeg.getAckNummer();
-                            } else {
-                                if (tcpSeg.isSyn()) {
-                                    neuerEintrag[6] = "SYN";
-                                } else if (tcpSeg.isFin()) {
-                                    neuerEintrag[6] = "FIN";
-                                }
-                                if (tcpSeg.isAck()) {
-                                    neuerEintrag[6] = neuerEintrag[6] + ", ACK:" + tcpSeg.getAckNummer();
-                                }
-
-                                // Sequenznummer nur, wenn SYN-Segment
-                                // oder Nutzdaten-Segment
-                                if (tcpSeg.isSyn() || (!tcpSeg.isAck() && !tcpSeg.isFin())) {
-                                    neuerEintrag[6] = ((neuerEintrag[6] == null) ? "" : neuerEintrag[6])
-                                            + (tcpSeg.isSyn() ? ", " : "") + "SEQ: " + tcpSeg.getSeqNummer();
-                                }
+                            if (tcpSeg.isSyn()) {
+                                neuerEintrag[6] = "SYN";
+                            } else if (tcpSeg.isFin()) {
+                                neuerEintrag[6] = "FIN";
+                            }
+                            neuerEintrag[6] = ((neuerEintrag[6] == null) ? "" : neuerEintrag[6] + ", ") + "SEQ: "
+                                    + tcpSeg.getSeqNummer();
+                            if (tcpSeg.isAck()) {
+                                neuerEintrag[6] = neuerEintrag[6] + ", ACK:" + tcpSeg.getAckNummer();
                             }
                         } else if (ipPaket.getProtocol() == IpPaket.UDP) {
                             udpSeg = (UdpSegment) ipPaket.getSegment();

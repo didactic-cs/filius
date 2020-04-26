@@ -27,42 +27,43 @@ package filius.software.transportschicht;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class Segment implements Serializable {
 
-	private int quellPort;
-	private int zielPort;
-	private int pruefSumme;
-	private String daten;
+    private int quellPort;
+    private int zielPort;
+    private int pruefSumme;
+    private String daten;
 
-	public String getDaten() {
-		return daten;
-	}
+    public String getDaten() {
+        return daten;
+    }
 
-	public void setDaten(String daten) {
-		this.daten = daten;
-	}
+    public void setDaten(String daten) {
+        this.daten = daten;
+    }
 
-	public int getPruefSumme() {
-		return pruefSumme;
-	}
+    public int getPruefSumme() {
+        return pruefSumme;
+    }
 
-	public void setPruefSumme(int pruefSumme) {
-		this.pruefSumme = pruefSumme;
-	}
+    public void setPruefSumme(int pruefSumme) {
+        this.pruefSumme = pruefSumme;
+    }
 
-	public int getQuellPort() {
-		return quellPort;
-	}
+    public int getQuellPort() {
+        return quellPort;
+    }
 
-	public void setQuellPort(int quellPort) {
-		this.quellPort = quellPort;
-	}
+    public void setQuellPort(int quellPort) {
+        this.quellPort = quellPort;
+    }
 
-	public int getZielPort() {
-		return zielPort;
-	}
+    public int getZielPort() {
+        return zielPort;
+    }
 
-	public void setZielPort(int zielPort) {
-		this.zielPort = zielPort;
-	}
+    public void setZielPort(int zielPort) {
+        this.zielPort = zielPort;
+    }
 }
