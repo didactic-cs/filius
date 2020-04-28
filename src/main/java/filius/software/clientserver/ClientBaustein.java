@@ -31,10 +31,8 @@ import filius.software.transportschicht.TCPSocket;
 
 /**
  * <p>
- * In dieser Klasse wird das Client-Programm einer einfachen
- * Client-Server-Anwendung implementiert. Nachrichten an die graphische
- * Benutzungsoberflaeche werden durch den Aufruf
- * banachrichtigeBeobachter(Object) versendet.
+ * In dieser Klasse wird das Client-Programm einer einfachen Client-Server-Anwendung implementiert. Nachrichten an die
+ * graphische Benutzungsoberflaeche werden durch den Aufruf banachrichtigeBeobachter(Object) versendet.
  * </p>
  * <p>
  * Aufrufe folgender Methoden des Sockets blockieren:
@@ -46,16 +44,13 @@ import filius.software.transportschicht.TCPSocket;
  * <li>schliessen()</li>
  * </ul>
  * <p>
- * Deshalb muessen Methoden dieser Klasse, die Aufrufe dieser Methoden
- * enthalten, ueber die Methode <code>ausfuehren(String, Object[])</code>
- * aufgerufen werden. Das bewirkt, dass diese Methoden in einem eigenen Thread
- * ausgefuehrt werden und damit der aufrufende Thread nicht blockiert. Das ist
- * wichtig, wenn die Aufrufe von der graphischen Benutzungsoberflaeche
- * ausgeloest werden.
+ * Deshalb muessen Methoden dieser Klasse, die Aufrufe dieser Methoden enthalten, ueber die Methode
+ * <code>ausfuehren(String, Object[])</code> aufgerufen werden. Das bewirkt, dass diese Methoden in einem eigenen Thread
+ * ausgefuehrt werden und damit der aufrufende Thread nicht blockiert. Das ist wichtig, wenn die Aufrufe von der
+ * graphischen Benutzungsoberflaeche ausgeloest werden.
  * </p>
  * <p>
- * Ein Beispiel fuer die Verwendung von <code>ausfuehren()</code> ist folgendes:
- * <br />
+ * Ein Beispiel fuer die Verwendung von <code>ausfuehren()</code> ist folgendes: <br />
  * <code> public void verbinden(String zielAdresse, Integer port) { <br />
  * &nbsp;&nbsp; Object[] args; <br /> <br />
  * &nbsp;&nbsp; args = new Object[2]; <br />
@@ -66,226 +61,163 @@ import filius.software.transportschicht.TCPSocket;
  * </p>
  * <p>
  * Dabei wird als erstes Argument der auszufuehrenden blockierenden Methode
- * uebergeben (hier: <code> initialisiereSocket</code>) und dann in einem Array
- * die zu uebergebenden Parameter (hier: <code>zielAdresse</code> und
- * <code>port</code>). Der Aufruf der Methode <code>verbinden(zielAdresse, port)
- * </code> bewirkt also das Ausfuehren der Methode
- * <code>initialisiereSocket(zielAdresse, port)</code> in einem anderen Thread.
- * Damit blockiert die Methode <code>verbinden</code> nicht.
+ * uebergeben (hier: <code> initialisiereSocket</code>) und dann in einem Array die zu uebergebenden Parameter (hier:
+ * <code>zielAdresse</code> und <code>port</code>). Der Aufruf der Methode <code>verbinden(zielAdresse, port)
+ * </code> bewirkt also das Ausfuehren der Methode <code>initialisiereSocket(zielAdresse, port)</code> in einem anderen
+ * Thread. Damit blockiert die Methode <code>verbinden</code> nicht.
  * </p>
  * <p>
  * <b> Achtung:</b> Die indirekt aufgerufene Methode (d. h. ueber <code>
- * ausfuehren(String, Object[])</code>) muss als <code>public</code> deklariert
- * sein!
+ * ausfuehren(String, Object[])</code>) muss als <code>public</code> deklariert sein!
  * </p>
  */
 public class ClientBaustein extends ClientAnwendung implements I18n {
 
-	/** Port-Nummer des Servers, an dem Verbindungsanfragen angenommen werden */
-	private int zielPort = 55555;
+    /** Port-Nummer des Servers, an dem Verbindungsanfragen angenommen werden */
+    private int zielPort = 55555;
 
-	/**
-	 * Adresse des Rechners, auf dem der Server laeuft als Domainname oder
-	 * IP-Adresse.
-	 */
-	private String zielIPAdresse;
+    /**
+     * Adresse des Rechners, auf dem der Server laeuft als Domainname oder IP-Adresse.
+     */
+    private String zielIPAdresse;
 
-	/**
-	 * Methode zum Verbindungsaufbau zu einem Server. Hier wird der
-	 * Client-Socket als TCP/IP-Socket erzeugt. Wenn UDP verwendet werden soll,
-	 * muss diese Methode ueberschrieben werden. <br />
-	 * Diese Methode ist <b>nicht blockierend</b>. Diese Methode veranlasst den
-	 * Aufruf von <code>initialisiereSocket</code> in einem anderen Thread.
-	 */
-	public void verbinden() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ClientBaustein), verbinden()");
-		Object[] args;
+    /**
+     * Methode zum Verbindungsaufbau zu einem Server. Hier wird der Client-Socket als TCP/IP-Socket erzeugt. Wenn UDP
+     * verwendet werden soll, muss diese Methode ueberschrieben werden. <br />
+     * Diese Methode ist <b>nicht blockierend</b>. Diese Methode veranlasst den Aufruf von
+     * <code>initialisiereSocket</code> in einem anderen Thread.
+     */
+    public void verbinden() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ClientBaustein), verbinden()");
+        Object[] args;
 
-		args = new Object[2];
-		args[0] = zielIPAdresse;
-		args[1] = new Integer(zielPort);
+        args = new Object[2];
+        args[0] = zielIPAdresse;
+        args[1] = Integer.valueOf(zielPort);
 
-		ausfuehren("initialisiereSocket", args);
+        ausfuehren("initialisiereSocket", args);
 
-		ausfuehren("empfangeNachricht", null);
-	}
+        ausfuehren("empfangeNachricht", null);
+    }
+    
+    /**
+     * Methode zum Aufbau einer Verbindung mit einem TCP-Socket. Diese Methode ist blockierend und sollte nicht direkt
+     * von der GUI aufgerufen werden.
+     */
+    public void initialisiereSocket(String zielAdresse, Integer port) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ClientBaustein), initialisiereSocket(" + zielAdresse + "," + port + ")");
+        try {
+            socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
+            socket.verbinden();
 
-	/**
-	 * Methode zum Verbindungsaufbau zu einem Server. Hier wird der
-	 * Client-Socket als TCP/IP-Socket erzeugt. Wenn UDP verwendet werden soll,
-	 * muss diese Methode ueberschrieben werden. <br />
-	 * Diese Methode ist <b>nicht blockierend</b>. Diese Methode veranlasst den
-	 * Aufruf von <code>initialisiereSocket</code> in einem anderen Thread.
-	 * 
-	 * @param zielAdresse
-	 * @param port
-	 */
-	/*
-	 * private void verbinden(String zielAdresse, Integer port) {
-	 * Main.debug.println
-	 * ("INVOKED ("+this.hashCode()+", T"+this.getId()+") "+getClass
-	 * ()+" (ClientBaustein), verbinden("+zielAdresse+","+port+")"); Object[]
-	 * args;
-	 * 
-	 * args = new Object[2]; args[0] = zielAdresse; args[1] = port;
-	 * 
-	 * ausfuehren("initialisiereSocket", args); }
-	 */
+            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg2"));
+        } catch (Exception e) {
+            e.printStackTrace(Main.debug);
+            socket = null;
+            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg1") + e.getMessage());
+        }
+    }
 
-	/**
-	 * Nicht-blockierende Methode zum Versenden einer Nachricht an den Server.
-	 * Diese Methode veranlasst den Aufruf von <code>versendeNachricht</code> in
-	 * einem anderen Thread.
-	 * 
-	 * @param nachricht
-	 *            die zu versendende Nachricht
-	 */
-	/*
-	 * public void senden(String nachricht) {
-	 * Main.debug.println("INVOKED ("+this
-	 * .hashCode()+", T"+this.getId()+") "+getClass
-	 * ()+" (ClientBaustein), senden("+nachricht+")"); Object[] args;
-	 * 
-	 * args = new Object[1]; args[0] = nachricht;
-	 * 
-	 * ausfuehren("versendeNachricht", args); }
-	 */
+    /**
+     * Methode zum trennen einer Verbindung. Der Socket wird durch den Aufruf der Methode schliessen() geschlossen und
+     * und der Socket fuer diese Anwendung auf null gesetzt. <br />
+     * Diese Methode ist <b> blockierend</b>.
+     */
+    public void trennen() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ClientBaustein), trennen()");
+        if (socket != null) {
+            socket.schliessen();
+            socket = null;
+            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3"));
+        }
+    }
 
-	/*
-	 * public void empfangen() {
-	 * Main.debug.println("INVOKED ("+this.hashCode()+", T"
-	 * +this.getId()+") "+getClass()+" (ClientBaustein), empfangen()");
-	 * ausfuehren("empfangeNachricht", null); }
-	 */
+    /**
+     * Diese Methode ist <b>blockierend</b> und sollte nicht direkt von der GUI aufgerufen werden.
+     */
+    /*
+     * public void schliesseSocket() { Main.debug.println("INVOKED ("+this.hashCode ()+", T"+this.getId()+") "+getClass
+     * ()+" (ClientBaustein), schliesseSocket()"); if (socket != null) { socket.schliessen(); socket = null;
+     * benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3")); } }
+     */
 
-	/**
-	 * Methode zum Aufbau einer Verbindung mit einem TCP-Socket. Diese Methode
-	 * ist blockierend und sollte nicht direkt von der GUI aufgerufen werden.
-	 */
-	public void initialisiereSocket(String zielAdresse, Integer port) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ClientBaustein), initialisiereSocket(" + zielAdresse + "," + port + ")");
-		try {
-			socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
-			socket.verbinden();
+    /**
+     * Diese Methode ist <b>blockierend</b> und sollte nicht direkt von der GUI aufgerufen werden.
+     */
+    public void senden(String nachricht) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ClientBaustein), versendeNachricht(" + nachricht + ")");
 
-			benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg2"));
-		} catch (Exception e) {
-			e.printStackTrace(Main.debug);
-			socket = null;
-			benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg1") + e.getMessage());
-		}
-	}
+        if (socket != null && socket.istVerbunden()) {
+            try {
+                socket.senden(nachricht);
+                benachrichtigeBeobachter("<<" + nachricht);
+            } catch (Exception e) {
+                benachrichtigeBeobachter(e.getMessage());
+                e.printStackTrace(Main.debug);
+            }
+        } else {
+            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
+        }
+    }
 
-	/**
-	 * Methode zum trennen einer Verbindung. Der Socket wird durch den Aufruf
-	 * der Methode schliessen() geschlossen und und der Socket fuer diese
-	 * Anwendung auf null gesetzt. <br />
-	 * Diese Methode ist <b> blockierend</b>.
-	 */
-	public void trennen() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ClientBaustein), trennen()");
-		if (socket != null) {
-			socket.schliessen();
-			socket = null;
-			benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3"));
-		}
-	}
+    /**
+     * Methode zum Empfang einer Nachricht vom Socket. Die empfangene Nachricht wird mit
+     * <code>benachrichtigeBeobachter</code> an die GUI weiter gegeben. Diese Methode ist blockierend und sollte nicht
+     * direkt von der GUI aufgerufen werden.
+     */
+    public void empfangeNachricht() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ClientBaustein), empfangeNachricht()");
+        String nachricht;
 
-	/**
-	 * Diese Methode ist <b>blockierend</b> und sollte nicht direkt von der GUI
-	 * aufgerufen werden.
-	 */
-	/*
-	 * public void schliesseSocket() {
-	 * Main.debug.println("INVOKED ("+this.hashCode
-	 * ()+", T"+this.getId()+") "+getClass
-	 * ()+" (ClientBaustein), schliesseSocket()"); if (socket != null) {
-	 * socket.schliessen(); socket = null;
-	 * benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3")); }
-	 * }
-	 */
+        if (socket != null && socket.istVerbunden()) {
+            try {
+                while (this.istVerbunden()) {
+                    nachricht = socket.empfangen();
+                    if (nachricht != null) {
+                        benachrichtigeBeobachter(">>" + nachricht);
+                    } else {
+                        benachrichtigeBeobachter(
+                                messages.getString("sw_clientbaustein_msg5") + " " + socket.holeZielIPAdresse() + ":"
+                                        + socket.holeZielPort() + " " + messages.getString("sw_clientbaustein_msg6"));
 
-	/**
-	 * Diese Methode ist <b>blockierend</b> und sollte nicht direkt von der GUI
-	 * aufgerufen werden.
-	 */
-	public void senden(String nachricht) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ClientBaustein), versendeNachricht(" + nachricht + ")");
+                        socket.schliessen();
+                    }
+                }
+            } catch (Exception e) {
+                benachrichtigeBeobachter(e.getMessage());
+                e.printStackTrace(Main.debug);
+            }
+        } else {
+            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
+        }
+    }
 
-		if (socket != null && socket.istVerbunden()) {
-			try {
-				socket.senden(nachricht);
-				benachrichtigeBeobachter("<<" + nachricht);
-			} catch (Exception e) {
-				benachrichtigeBeobachter(e.getMessage());
-				e.printStackTrace(Main.debug);
-			}
-		} else {
-			benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
-		}
-	}
+    /** Methode fuer den Zugriff auf die Server-Adresse */
+    public String getZielIPAdresse() {
+        return zielIPAdresse;
+    }
 
-	/**
-	 * Methode zum Empfang einer Nachricht vom Socket. Die empfangene Nachricht
-	 * wird mit <code>benachrichtigeBeobachter</code> an die GUI weiter gegeben.
-	 * Diese Methode ist blockierend und sollte nicht direkt von der GUI
-	 * aufgerufen werden.
-	 */
-	public void empfangeNachricht() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ClientBaustein), empfangeNachricht()");
-		String nachricht;
+    /** Methode fuer den Zugriff auf die Server-Adresse */
+    public void setZielIPAdresse(String zielIPAdresse) {
+        this.zielIPAdresse = zielIPAdresse;
+    }
 
-		if (socket != null && socket.istVerbunden()) {
-			try {
-				while (this.istVerbunden()) {
-					nachricht = socket.empfangen();
-					if (nachricht != null) {
-						benachrichtigeBeobachter(">>" + nachricht);
-					} else {
-						benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg5") + " "
-						        + socket.holeZielIPAdresse() + ":" + socket.holeZielPort() + " "
-						        + messages.getString("sw_clientbaustein_msg6"));
+    /**
+     * Methode fuer den Zugriff auf die Port-Nummer, an dem der Server zu erreichen ist.
+     */
+    public int getZielPort() {
+        return zielPort;
+    }
 
-						socket.schliessen();
-					}
-				}
-			} catch (Exception e) {
-				benachrichtigeBeobachter(e.getMessage());
-				e.printStackTrace(Main.debug);
-			}
-		} else {
-			benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
-		}
-	}
-
-	/** Methode fuer den Zugriff auf die Server-Adresse */
-	public String getZielIPAdresse() {
-		return zielIPAdresse;
-	}
-
-	/** Methode fuer den Zugriff auf die Server-Adresse */
-	public void setZielIPAdresse(String zielIPAdresse) {
-		this.zielIPAdresse = zielIPAdresse;
-	}
-
-	/**
-	 * Methode fuer den Zugriff auf die Port-Nummer, an dem der Server zu
-	 * erreichen ist.
-	 */
-	public int getZielPort() {
-		return zielPort;
-	}
-
-	/**
-	 * Methode fuer den Zugriff auf die Port-Nummer, an dem der Server zu
-	 * erreichen ist.
-	 */
-	public void setZielPort(int zielPort) {
-		this.zielPort = zielPort;
-	}
+    /**
+     * Methode fuer den Zugriff auf die Port-Nummer, an dem der Server zu erreichen ist.
+     */
+    public void setZielPort(int zielPort) {
+        this.zielPort = zielPort;
+    }
 }

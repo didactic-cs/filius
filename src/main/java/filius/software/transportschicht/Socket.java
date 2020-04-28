@@ -121,12 +121,12 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      *            dann verwendet, wenn der Wert groesser 0 ist.
      * @throws VerbindungsException
      */
-    public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort,
-            int transportProtokoll, int lokalerPort) throws VerbindungsException {
+    public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int transportProtokoll,
+            int lokalerPort) throws VerbindungsException {
         this(betriebssystem, zielAdresse, zielPort, transportProtokoll);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket("
-                + betriebssystem + "," + zielAdresse + "," + zielPort + "," + transportProtokoll + "," + lokalerPort
-                + ")");
+        Main.debug.println(
+                "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
+                        + "," + zielAdresse + "," + zielPort + "," + transportProtokoll + "," + lokalerPort + ")");
 
         this.lokalerPort = lokalerPort;
     }
@@ -166,8 +166,17 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
     /** Zum Versenden einer Nachricht ueber den Socket */
     public abstract void senden(String nachricht) throws VerbindungsException, TimeOutException;
 
-    /** Zum Empfangen einer Nachricht ueber den Socket */
+    /**
+     * Zum Empfangen einer Nachricht ueber den Socket
+     */
     public abstract String empfangen() throws VerbindungsException, TimeOutException;
+
+    /**
+     * Zum Empfangen einer Nachricht ueber den Socket
+     * 
+     * @param timeoutMillis
+     */
+    public abstract String empfangen(long timeoutMillis) throws VerbindungsException, TimeOutException;
 
     /**
      * Test, ob der uebergebene String eine gueltige IP-Adresse ist. Zurueckgegeben wird die IP-Adresse ohne

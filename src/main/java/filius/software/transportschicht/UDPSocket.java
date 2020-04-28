@@ -128,8 +128,8 @@ public class UDPSocket extends Socket {
      * @return gibt den empfangenen Datenstring zurueck.
      */
     public synchronized String empfangen(long millis) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), empfangen(" + millis
-                + ")");
+        Main.debug
+                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), empfangen(" + millis + ")");
         UdpSegment segment;
 
         synchronized (puffer) {
@@ -161,8 +161,8 @@ public class UDPSocket extends Socket {
 
     /** Methode zum Senden einer Nachricht ueber UDP */
     public synchronized void senden(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), senden(" + nachricht
-                + ")");
+        Main.debug
+                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), senden(" + nachricht + ")");
         UdpSegment segment;
 
         segment = new UdpSegment();
@@ -179,8 +179,8 @@ public class UDPSocket extends Socket {
     }
 
     public synchronized void sendeBroadcast(String quellIp, String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), sendeBroadcast("
-                + nachricht + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), sendeBroadcast(" + nachricht + ")");
         UdpSegment segment;
 
         segment = new UdpSegment();

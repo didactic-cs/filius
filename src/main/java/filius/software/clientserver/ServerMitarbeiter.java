@@ -97,7 +97,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
         while (running) {
             try {
                 if (socket.istVerbunden()) {
-                    nachricht = socket.empfangen();
+                    nachricht = socket.empfangen(Long.MAX_VALUE);
                 }
 
                 if (nachricht != null) {
@@ -107,9 +107,9 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
                     socket.schliessen();
                     running = false;
 
-                    server.benachrichtigeBeobachter(messages.getString("sw_servermitarbeiter_msg1") + " "
-                            + socket.holeZielIPAdresse() + ":" + socket.holeZielPort() + " "
-                            + messages.getString("sw_servermitarbeiter_msg2"));
+                    server.benachrichtigeBeobachter(
+                            messages.getString("sw_servermitarbeiter_msg1") + " " + socket.holeZielIPAdresse() + ":"
+                                    + socket.holeZielPort() + " " + messages.getString("sw_servermitarbeiter_msg2"));
                 }
                 nachricht = null;
             } catch (VerbindungsException e) {

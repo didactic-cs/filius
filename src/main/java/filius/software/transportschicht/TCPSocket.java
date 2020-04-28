@@ -216,7 +216,6 @@ public class TCPSocket extends Socket implements Runnable {
      * gesetzt werden.
      * 
      * @param repeat
-     *            TODO
      */
     private void sendeSegment(TcpSegment segment, boolean repeat) {
         Main.debug.println(
@@ -450,11 +449,9 @@ public class TCPSocket extends Socket implements Runnable {
         long versendeZeitpunkt = Long.MAX_VALUE;
         long rtt;
 
-        if (zustand != ESTABLISHED) { // if I understand it correctly, then the
-                                      // thrown exception is needed for
-                                      // properly resetting the connection! (no
-                                      // harmful exception, but part of the
-                                      // concept)
+        if (zustand != ESTABLISHED) {
+            // if I understand it correctly, then the thrown exception is needed for properly resetting the connection!
+            // (no harmful exception, but part of the concept)
             Main.debug.println("EXCEPTION: " + getClass() + " (" + this.hashCode() + "); zustand=" + zustand);
             zustand = CLOSED;
             throw new VerbindungsException(messages.getString("sw_tcpsocket_msg6"));
@@ -536,19 +533,35 @@ public class TCPSocket extends Socket implements Runnable {
      *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
      */
     public String empfangen() throws VerbindungsException, TimeOutException {
+        return empfangen(Verbindung.holeRTT());
+    }
+
+    /**
+     * Beim Aufruf dieser Methode werden die eingehenden TCP-Segmente zu einer Nachricht zusammen gefuegt und wenn das
+     * Ende der Nachricht erreicht ist, wird diese zurueck gegeben. Das Ende einer Nachricht wird hier mit dem Flag
+     * 'Ende' gekennzeichnet. <br />
+     * Diese Methode ist <b>blockierend</b>.
+     * 
+     * @return gibt den zusammengesetzten empfangenen Datenstring zurueck. Wenn die Verbindung vor Eingang einer
+     *         Nachricht geschlossen wurde, wird null zurueck gegeben.
+     * @throws VerbindungsException
+     *             - wird geworfen, wenn beim Aufruf keine Verbindung hergestellt ist
+     * @throws TimeOutException
+     *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
+     */
+    public String empfangen(long timeoutMillis) throws VerbindungsException, TimeOutException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), empfangen()");
         StringBuffer nachricht = new StringBuffer();
         LinkedList<TcpSegment> segmentListe = new LinkedList<TcpSegment>();
         boolean beendet = false;
         TcpSegment segment;
-        long zeitpunkt = Long.MAX_VALUE;
+        long zeitpunkt = 0;
 
         // Main.debug.println(getClass().toString() +
         // "\n\tempfangen() aufgerufen"
         // + "\n\tlokaler Port: " + lokalerPort);
 
         if (zustand != ESTABLISHED) {
-            zustand = CLOSED;
             throw new VerbindungsException(messages.getString("sw_tcpsocket_msg9"));
         }
 
@@ -556,13 +569,13 @@ public class TCPSocket extends Socket implements Runnable {
             synchronized (puffer) {
                 if (puffer.size() < 1) {
                     try {
-                        puffer.wait(Verbindung.holeRTT());
+                        puffer.wait(timeoutMillis);
                     } catch (InterruptedException e) {}
                 }
             }
-            zeitpunkt = System.currentTimeMillis();
 
             if (zustand == ESTABLISHED && !beendet && puffer.size() >= 1) {
+                zeitpunkt = System.currentTimeMillis();
                 segment = (TcpSegment) puffer.getFirst();
 
                 // waehrend des Empfangs werden keine ACK-Segmente
@@ -572,7 +585,7 @@ public class TCPSocket extends Socket implements Runnable {
                 if (segment.isAck()) {
                     synchronized (puffer) {
                         try {
-                            puffer.wait(Verbindung.holeRTT());
+                            puffer.wait(timeoutMillis);
                         } catch (InterruptedException e) {}
                     }
                 } else {
@@ -595,15 +608,15 @@ public class TCPSocket extends Socket implements Runnable {
                         beendet = true;
                 }
             }
-            if (System.currentTimeMillis() - zeitpunkt > Verbindung.holeRTT()) {
-                zustand = CLOSED;
+            if (System.currentTimeMillis() - zeitpunkt > timeoutMillis) {
                 throw new TimeOutException(messages.getString("sw_tcpsocket_msg10"));
             }
         }
-        if (zustand == ESTABLISHED)
+        if (zustand == ESTABLISHED) {
             return nachricht.toString();
-        else
+        } else {
             return null;
+        }
     }
 
     /**

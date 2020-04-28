@@ -123,7 +123,8 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
      * Methode zur Verarbeitung einer eingehenden Ping-Nachricht.
      * <ol>
      * <li>Absender des Ping-Pakets wird der Liste der bekannten Teilnehmer im Peer-to-Peer-Netzwerk hinzugefuegt.</li>
-     * <li>Erzeugen einer entsprechenden Pong-Nachricht, wenn auf diese Ping-Nachricht nicht schon geantwortet wurde.</li>
+     * <li>Erzeugen einer entsprechenden Pong-Nachricht, wenn auf diese Ping-Nachricht nicht schon geantwortet
+     * wurde.</li>
      * <li>Erhoehung des Hop-Zahlers und Dekrementierung des TTL-Zaehlers der Ping-Nachricht.</li>
      * <li>Weiterleitung des Ping-Pakets</li>
      * </ol>
@@ -196,11 +197,13 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
                     e.printStackTrace(Main.debug);
                 }
             }
+            socket.schliessen();
         }
     }
 
     /**
-     * Wenn eine Nachricht auf dem zu ueberwachenden Socket eintrifft, wird die Verarbeitung an diese Methode delegiert. <br />
+     * Wenn eine Nachricht auf dem zu ueberwachenden Socket eintrifft, wird die Verarbeitung an diese Methode delegiert.
+     * <br />
      * Unterschieden wird eine HTTP-GET-Anfrage, eine eingehende Ping-Nachricht und eine eingehende Suchanfrage (Query).
      */
     protected void verarbeiteNachricht(String nachricht) {

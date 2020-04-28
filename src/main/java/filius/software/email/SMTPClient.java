@@ -132,9 +132,9 @@ public class SMTPClient extends ClientAnwendung implements I18n {
             socket.verbinden();
 
             if (socket.istVerbunden()) {
-                anwendung.benachrichtigeBeobachter(messages.getString("sw_smtpclient_msg1") + " "
-                        + socket.holeZielIPAdresse() + ":" + socket.holeZielPort() + " "
-                        + messages.getString("sw_smtpclient_msg2"));
+                anwendung.benachrichtigeBeobachter(
+                        messages.getString("sw_smtpclient_msg1") + " " + socket.holeZielIPAdresse() + ":"
+                                + socket.holeZielPort() + " " + messages.getString("sw_smtpclient_msg2"));
             }
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
@@ -151,9 +151,9 @@ public class SMTPClient extends ClientAnwendung implements I18n {
                 + " (SMTPClient), schliesseSocket()");
         if (socket != null) {
             socket.schliessen();
-            anwendung.benachrichtigeBeobachter(messages.getString("sw_smtpclient_msg1") + " "
-                    + socket.holeZielIPAdresse() + ":" + socket.holeZielPort() + " "
-                    + messages.getString("sw_smtpclient_msg3"));
+            anwendung.benachrichtigeBeobachter(
+                    messages.getString("sw_smtpclient_msg1") + " " + socket.holeZielIPAdresse() + ":"
+                            + socket.holeZielPort() + " " + messages.getString("sw_smtpclient_msg3"));
             socket = null;
         }
     }
@@ -259,9 +259,8 @@ public class SMTPClient extends ClientAnwendung implements I18n {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeMailFrom(" + absender + ")");
         AddressEntry senderAddress = new AddressEntry(absender);
-        if (senderAddress.getMailAddress().length() == 0
-                || EingabenUeberpruefung.isGueltig(senderAddress.getMailAddress(),
-                        EingabenUeberpruefung.musterEmailAdresse)) {
+        if (senderAddress.getMailAddress().length() == 0 || EingabenUeberpruefung
+                .isGueltig(senderAddress.getMailAddress(), EingabenUeberpruefung.musterEmailAdresse)) {
 
             socket.senden("MAIL FROM: <" + senderAddress.getMailAddress() + ">");
             String empfangen = socket.empfangen();
