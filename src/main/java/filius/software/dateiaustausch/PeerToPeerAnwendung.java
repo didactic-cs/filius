@@ -123,8 +123,8 @@ public class PeerToPeerAnwendung extends Anwendung {
         Dateisystem dateisystem = betriebssystem.getDateisystem();
 
         dateisystem.erstelleVerzeichnis(betriebssystem.getDateisystem().getRoot(), "peer2peer");
-        verzeichnis = dateisystem.verzeichnisKnoten(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR
-                + "peer2peer");
+        verzeichnis = dateisystem
+                .verzeichnisKnoten(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "peer2peer");
     }
 
     /**
@@ -279,15 +279,17 @@ public class PeerToPeerAnwendung extends Anwendung {
         bs = (Betriebssystem) getSystemSoftware();
 
         if (!bs.holeIPAdresse().equals(teilnehmerIP)) {
-            bekanntePeerToPeerTeilnehmer.clear();
-            benachrichtigeBeobachter(bekanntePeerToPeerTeilnehmer);
-
             pingPaket = new PingPaket();
             pingPaket.setIp(bs.holeIPAdresse());
             eigeneAnfragen.add(pingPaket.getGuid());
 
             peerToPeerClient.sendePing(teilnehmerIP, pingPaket, bs.holeIPAdresse());
         }
+    }
+
+    public void resetNetwork() {
+        bekanntePeerToPeerTeilnehmer.clear();
+        benachrichtigeBeobachter(bekanntePeerToPeerTeilnehmer);
     }
 
     /**

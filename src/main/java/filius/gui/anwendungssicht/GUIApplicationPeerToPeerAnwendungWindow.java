@@ -73,7 +73,8 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
     private JPanel networkPanel;
     private JPanel searchPanel;
     private JLabel networkIpLabel;
-    private JButton networkIpButton;
+    private JButton connectNetworkButton;
+    private JButton quitNetworkButton;
     private JTextField networkIpField;
     private JLabel searchLabel;
     private JButton searchButton, downloadButton, stopSearchButton, emptyListButton;
@@ -95,8 +96,10 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
 
         networkPanel = new JPanel(new BorderLayout());
         networkIpLabel = new JLabel(messages.getString("peertopeeranwendung_msg1"));
-        networkIpButton = new JButton(messages.getString("peertopeeranwendung_msg2"));
-        networkIpButton.setToolTipText(messages.getString("peertopeeranwendung_msg3"));
+        connectNetworkButton = new JButton(messages.getString("peertopeeranwendung_msg2"));
+        connectNetworkButton.setToolTipText(messages.getString("peertopeeranwendung_msg3"));
+        quitNetworkButton = new JButton(messages.getString("peertopeeranwendung_msg30"));
+        quitNetworkButton.setToolTipText(messages.getString("peertopeeranwendung_msg31"));
         tabHead = new JLabel(messages.getString("peertopeeranwendung_msg4"));
         networkIpField = new JTextField("192.168.0.1");
 
@@ -104,22 +107,20 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
             public void keyReleased(KeyEvent e) {
                 ipPruefen(networkIpField);
             }
-
         });
 
-        networkIpButton.addMouseListener(new MouseInputAdapter() {
+        connectNetworkButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
-                {
-                    /*
-                     * Ueberprueft ob es sich ueberhaupt um eine korrekt aufgebaute IP handelt und verhindert das
-                     * Hinzufuegen ggf.
-                     */
-                    if (pruefungOK == true) {
-                        ((PeerToPeerAnwendung) holeAnwendung()).beitretenNetzwerk(networkIpField.getText());
-                    } else {
-                        JOptionPane.showMessageDialog(desktop, messages.getString("peertopeeranwendung_msg5"));
-                    }
+                if (pruefungOK == true) {
+                    ((PeerToPeerAnwendung) holeAnwendung()).beitretenNetzwerk(networkIpField.getText());
+                } else {
+                    JOptionPane.showMessageDialog(desktop, messages.getString("peertopeeranwendung_msg5"));
                 }
+            }
+        });
+        quitNetworkButton.addMouseListener(new MouseInputAdapter() {
+            public void mousePressed(MouseEvent e) {
+                ((PeerToPeerAnwendung) holeAnwendung()).resetNetwork();
             }
         });
 
@@ -170,7 +171,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         topBox.add(Box.createHorizontalStrut(5));
         topBox.add(networkIpField);
         topBox.add(Box.createHorizontalStrut(15));
-        topBox.add(networkIpButton);
+        topBox.add(connectNetworkButton);
         topBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         Box labelBox = Box.createHorizontalBox();
         labelBox.add(tabHead);
@@ -181,6 +182,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
 
         networkPanel.add(verticalTopBox, BorderLayout.NORTH);
         networkPanel.add(tabellenScrollPane, BorderLayout.CENTER);
+        networkPanel.add(quitNetworkButton, BorderLayout.SOUTH);
 
         tabbedPane.addTab(messages.getString("peertopeeranwendung_msg29"),
                 new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), networkPanel);
