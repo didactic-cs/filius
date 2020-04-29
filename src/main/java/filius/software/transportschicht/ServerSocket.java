@@ -107,12 +107,16 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
         return this.lokalerPort;
     }
 
+    public Hashtable<String, Socket> getSockets() {
+        return socketListe;
+    }
+
     /**
      * Methode zum Eintragen eines neuen Sockets in die Socket-Liste
      */
     public void eintragenSocket(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), eintragenSocket("
-                + socket + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), eintragenSocket(" + socket + ")");
         String ziel;
 
         ziel = socket.holeZielIPAdresse() + ":" + socket.holeZielPort();
@@ -125,8 +129,8 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * dann freigegeben.
      */
     public void austragenSocket(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), austragenSocket("
-                + socket + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), austragenSocket(" + socket + ")");
         String ziel;
 
         ziel = socket.holeZielIPAdresse() + ":" + socket.holeZielPort();
@@ -178,8 +182,8 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * Verbindungsanfragen.
      */
     public void hinzufuegen(String startIp, int startPort, Object segment) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), hinzufuegen("
-                + startIp + "," + startPort + "," + segment + ")");
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), hinzufuegen(" + startIp
+                + "," + startPort + "," + segment + ")");
         String start;
         Socket socket;
 

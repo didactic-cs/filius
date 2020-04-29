@@ -25,8 +25,9 @@
  */
 package filius.software.lokal;
 
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -34,7 +35,6 @@ import java.util.concurrent.TimeoutException;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import filius.Main;
-import filius.exception.SocketException;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.software.clientserver.ClientAnwendung;
@@ -103,11 +103,9 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // parameters
         }
         if (pureCopy(args)) { // positive case, everything worked fine
-            this.getSystemSoftware()
-                    .getDateisystem()
-                    .deleteFile(
-                            filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
-                                    + Dateisystem.FILE_SEPARATOR + args[0]);
+            this.getSystemSoftware().getDateisystem()
+                    .deleteFile(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
+                            + Dateisystem.FILE_SEPARATOR + args[0]);
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg35"));
             return messages.getString("sw_terminal_msg35");
         } else {
@@ -137,11 +135,9 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // of
                                                                                                       // parameters
         }
-        if (this.getSystemSoftware()
-                .getDateisystem()
-                .deleteFile(
-                        filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
-                                + Dateisystem.FILE_SEPARATOR + args[0])) {
+        if (this.getSystemSoftware().getDateisystem()
+                .deleteFile(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
+                        + Dateisystem.FILE_SEPARATOR + args[0])) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg37"));
             return messages.getString("sw_terminal_msg37");
         } else {
@@ -159,8 +155,8 @@ public class Terminal extends ClientAnwendung implements I18n {
      */
     // // common functionality for move and copy...
     private boolean pureCopy(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Terminal), pureCopy(");
+        Main.debug.print(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), pureCopy(");
         for (int i = 0; i < args.length; i++) {
             Main.debug.print(i + "='" + args[i] + "' ");
         }
@@ -173,8 +169,9 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // path!
             srcString = Dateisystem.evaluatePathString(srcString);
         } else {
-            srcString = Dateisystem.evaluatePathString(filius.software.system.Dateisystem
-                    .absoluterPfad(getAktuellerOrdner()) + Dateisystem.FILE_SEPARATOR + srcString);
+            srcString = Dateisystem
+                    .evaluatePathString(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
+                            + Dateisystem.FILE_SEPARATOR + srcString);
         }
         String destString = args[1];
         if (destString.length() > 0 && destString.substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // 'pfad'
@@ -183,13 +180,15 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                         // path!
             destString = Dateisystem.evaluatePathString(destString);
         } else {
-            destString = Dateisystem.evaluatePathString(filius.software.system.Dateisystem
-                    .absoluterPfad(getAktuellerOrdner()) + Dateisystem.FILE_SEPARATOR + destString);
+            destString = Dateisystem
+                    .evaluatePathString(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
+                            + Dateisystem.FILE_SEPARATOR + destString);
         }
         String destDir = Dateisystem.getDirectory(destString);
         String destFile = Dateisystem.getBasename(destString);
 
-        // Main.debug.println("DEBUG: pureCopy: source '"+srcDir+"'-'"+srcFile+"', destination '"+destDir+"'-'"+destFile+"'");
+        // Main.debug.println("DEBUG: pureCopy: source '"+srcDir+"'-'"+srcFile+"', destination
+        // '"+destDir+"'-'"+destFile+"'");
         Datei sfile = this.getSystemSoftware().getDateisystem().holeDatei(srcString);
         if (sfile == null)
             return false;
@@ -227,8 +226,8 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     /* */
     public String ipconfig(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-                + " (Terminal), ipconfig(");
+        Main.debug.print(
+                "INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ipconfig(");
         for (int i = 0; i < args.length; i++) {
             Main.debug.print(i + "='" + args[i] + "' ");
         }
@@ -255,8 +254,8 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     /* Entspricht route print unter windows */
     public String route(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-                + " (Terminal), route(");
+        Main.debug
+                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), route(");
         for (int i = 0; i < args.length; i++) {
             Main.debug.print(i + "='" + args[i] + "' ");
         }
@@ -331,14 +330,14 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // as
                                                                                                       // absolute
                                                                                                       // path!
-                liste = getSystemSoftware().getDateisystem().listeVerzeichnis(
-                        getSystemSoftware().getDateisystem().verzeichnisKnoten(args[0]));
+                liste = getSystemSoftware().getDateisystem()
+                        .listeVerzeichnis(getSystemSoftware().getDateisystem().verzeichnisKnoten(args[0]));
                 currPath = Dateisystem.evaluatePathString(args[0]);
             } else {
-                liste = getSystemSoftware().getDateisystem().listeVerzeichnis(
-                        Dateisystem.verzeichnisKnoten(aktuellerOrdner, args[0]));
-                currPath = Dateisystem.evaluatePathString(Dateisystem.absoluterPfad(aktuellerOrdner)
-                        + Dateisystem.FILE_SEPARATOR + args[0]);
+                liste = getSystemSoftware().getDateisystem()
+                        .listeVerzeichnis(Dateisystem.verzeichnisKnoten(aktuellerOrdner, args[0]));
+                currPath = Dateisystem.evaluatePathString(
+                        Dateisystem.absoluterPfad(aktuellerOrdner) + Dateisystem.FILE_SEPARATOR + args[0]);
             }
         }
 
@@ -379,8 +378,8 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String touch(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-                + " (Terminal), touch(");
+        Main.debug
+                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), touch(");
         for (int i = 0; i < args.length; i++) {
             Main.debug.print(i + "='" + args[i] + "' ");
         }
@@ -400,8 +399,8 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                   // path!
             absPath = Dateisystem.evaluatePathString(args[0]);
         } else {
-            absPath = Dateisystem.evaluatePathString(Dateisystem.absoluterPfad(aktuellerOrdner)
-                    + Dateisystem.FILE_SEPARATOR + args[0]);
+            absPath = Dateisystem.evaluatePathString(
+                    Dateisystem.absoluterPfad(aktuellerOrdner) + Dateisystem.FILE_SEPARATOR + args[0]);
         }
         String filePath = Dateisystem.getDirectory(absPath);
         String dateiName = Dateisystem.getBasename(absPath);
@@ -425,8 +424,8 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String mkdir(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-                + " (Terminal), mkdir(");
+        Main.debug
+                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), mkdir(");
         for (int i = 0; i < args.length; i++) {
             Main.debug.print(i + "='" + args[i] + "' ");
         }
@@ -446,8 +445,8 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                   // path!
             absPath = Dateisystem.evaluatePathString(args[0]);
         } else {
-            absPath = Dateisystem.evaluatePathString(Dateisystem.absoluterPfad(aktuellerOrdner)
-                    + Dateisystem.FILE_SEPARATOR + args[0]);
+            absPath = Dateisystem.evaluatePathString(
+                    Dateisystem.absoluterPfad(aktuellerOrdner) + Dateisystem.FILE_SEPARATOR + args[0]);
         }
         String filePath = Dateisystem.getDirectory(absPath);
         String dateiName = Dateisystem.getBasename(absPath);
@@ -490,8 +489,8 @@ public class Terminal extends ClientAnwendung implements I18n {
                 newDir = getSystemSoftware().getDateisystem().changeDirectory(args[0]);
             else
                 // relative path
-                newDir = getSystemSoftware().getDateisystem().changeDirectory(
-                        Dateisystem.absoluterPfad(aktuellerOrdner), args[0]);
+                newDir = getSystemSoftware().getDateisystem()
+                        .changeDirectory(Dateisystem.absoluterPfad(aktuellerOrdner), args[0]);
             if (newDir != null) { // first, check whether directory change was
                                   // successful; otherwise stay in current
                                   // directory
@@ -536,61 +535,73 @@ public class Terminal extends ClientAnwendung implements I18n {
 
         transport = this.getSystemSoftware().holeTcp();
         protocol = "TCP";
-        this.processTransportProtocol(ergebnis, transport, protocol);
+        processSockets(ergebnis, transport, protocol);
 
         transport = this.getSystemSoftware().holeUdp();
         protocol = "UDP";
-        this.processTransportProtocol(ergebnis, transport, protocol);
+        processSockets(ergebnis, transport, protocol);
 
         benachrichtigeBeobachter(ergebnis);
         return ergebnis.toString();
     }
 
-    private void processTransportProtocol(StringBuffer ergebnis, TransportProtokoll transport, String protocol) {
-        Enumeration<Integer> benutztePorts;
-        int port;
-        SocketSchnittstelle tmpSocket;
-        String[] socketData;
-
-        benutztePorts = transport.holeAktiveSockets().keys();
-        while (benutztePorts.hasMoreElements()) {
-            port = benutztePorts.nextElement().intValue();
-
-            try {
-                tmpSocket = transport.holeSocket(port);
-                socketData = this.getSocketInformation(tmpSocket);
-
-                ergebnis.append(String.format("| %-8s ", protocol));
-                ergebnis.append(String.format("| %-6s ", "" + port));
-                ergebnis.append(String.format("| %-15s ", socketData[0]));
-                ergebnis.append(String.format("| %-15s ", socketData[1]));
-                ergebnis.append(String.format("| %-14s |\n", socketData[2]));
-            } catch (SocketException e) {
-                e.printStackTrace();
+    private void processSockets(StringBuffer ergebnis, TransportProtokoll transport, String protocol) {
+        for (SocketSchnittstelle socket : transport.holeAktiveSockets().values()) {
+            for (SocketInformation info : getSocketInfo(socket)) {
+                ergebnis.append(String.format("| %-7s ", protocol));
+                ergebnis.append(String.format("| %15s:%-5s ", info.localHost, info.localPort));
+                ergebnis.append(String.format("| %15s:%-5s ", info.remoteHost, info.remotePort));
+                ergebnis.append(String.format("| %-12s |\n", info.state));
             }
         }
     }
 
-    private String[] getSocketInformation(SocketSchnittstelle socket) {
-        String localAddress = "", remoteAddress = "", state = "";
+    private class SocketInformation {
+        String localHost;
+        String localPort;
+        String remoteHost;
+        String remotePort;
+        String state;
+    }
+
+    private List<SocketInformation> getSocketInfo(SocketSchnittstelle socket) {
+        List<SocketInformation> infoList = new ArrayList<>();
         if (socket instanceof Socket) {
-            remoteAddress = ((Socket) socket).holeZielIPAdresse();
-            try {
-                Route routingEntry = ((InternetKnotenBetriebssystem) this.getSystemSoftware())
-                        .determineRoute(remoteAddress);
-                localAddress = routingEntry.getInterfaceIpAddress();
-            } catch (RouteNotFoundException e) {
-                localAddress = "<unknown>";
-            }
-
-            state = ((Socket) socket).getStateAsString();
+            infoList.add(getSocketInfo((Socket) socket));
         } else if (socket instanceof ServerSocket) {
-            remoteAddress = "-";
-            localAddress = "-";
-            state = "LISTEN";
+            ServerSocket temp = (ServerSocket) socket;
+            infoList.add(getSocketInfo(temp));
+            for (String port : temp.getSockets().keySet()) {
+                infoList.add(getSocketInfo(temp.getSockets().get(port)));
+            }
         }
+        return infoList;
+    }
 
-        return new String[] { localAddress, remoteAddress, state };
+    private SocketInformation getSocketInfo(ServerSocket serverSocket) {
+        SocketInformation info = new SocketInformation();
+        info.remoteHost = "-";
+        info.remotePort = "-";
+        info.localHost = "0.0.0.0";
+        info.localPort = String.valueOf(serverSocket.getLocalPort());
+        info.state = "LISTEN";
+        return info;
+    }
+
+    private SocketInformation getSocketInfo(Socket socket) {
+        SocketInformation info = new SocketInformation();
+        info.remoteHost = socket.holeZielIPAdresse();
+        info.remotePort = String.valueOf(socket.holeZielPort());
+        try {
+            Route routingEntry = ((InternetKnotenBetriebssystem) this.getSystemSoftware())
+                    .determineRoute(info.remoteHost);
+            info.localHost = routingEntry.getInterfaceIpAddress();
+        } catch (RouteNotFoundException e) {
+            info.localHost = "<unknown>";
+        }
+        info.localPort = String.valueOf(socket.holeLokalenPort());
+        info.state = socket.getStateAsString();
+        return info;
     }
 
     /**
@@ -629,7 +640,11 @@ public class Terminal extends ClientAnwendung implements I18n {
             result.append(messages.getString("sw_terminal_msg51"));
         } else {
             Datei file = getSystemSoftware().getDateisystem().holeDatei(this.aktuellerOrdner, args[0]);
-            result.append(file.getDateiInhalt());
+            if (null != file) {
+                result.append(file.getDateiInhalt());
+            } else {
+                result.append(messages.getString("sw_terminal_msg54"));
+            }
         }
         benachrichtigeBeobachter(result.toString());
         return result.toString();
@@ -756,7 +771,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         // second: send several ICMP echo requests
         long timeStart, timeDiff;
         // inform about a multiple data transmission to the observer
-        benachrichtigeBeobachter(new Boolean(true));
+        benachrichtigeBeobachter(Boolean.TRUE);
         benachrichtigeBeobachter("PING " + args[0] + " (" + destIp + ")");
 
         int receivedReplies = 0;
@@ -771,7 +786,8 @@ public class Terminal extends ClientAnwendung implements I18n {
                 // wait 1s between single ping executions subtract needed time
                 // for former ping
                 timeDiff = 1000 - (System.currentTimeMillis() - timeStart);
-                // Main.debug.println("DEBUG: Terminal, ping (num="+(num+1)+"), resTTL="+resTTL+", delay="+(1000-timeDiff)+", timeDiff="+timeDiff);
+                // Main.debug.println("DEBUG: Terminal, ping (num="+(num+1)+"), resTTL="+resTTL+",
+                // delay="+(1000-timeDiff)+", timeDiff="+timeDiff);
                 if (resTTL >= 0) {
                     benachrichtigeBeobachter("\nFrom " + args[0] + " (" + destIp + "): icmp_seq=" + (num + 1) + " ttl="
                             + resTTL + " time=" + (System.currentTimeMillis() - timeStart) + "ms");
@@ -785,15 +801,15 @@ public class Terminal extends ClientAnwendung implements I18n {
                     } catch (InterruptedException e) {}
                 }
             } catch (java.util.concurrent.TimeoutException e) {
-                benachrichtigeBeobachter("\nFrom " + args[0] + " (" + destIp + "): icmp_seq=" + (num + 1)
-                        + "   -- Timeout!");
+                benachrichtigeBeobachter(
+                        "\nFrom " + args[0] + " (" + destIp + "): icmp_seq=" + (num + 1) + "   -- Timeout!");
             } catch (Exception e) {
                 e.printStackTrace(filius.Main.debug);
             }
         }
-        benachrichtigeBeobachter(new Boolean(false)); // inform about a multiple
-                                                      // data transmission to
-                                                      // the observer
+        benachrichtigeBeobachter(Boolean.FALSE); // inform about a multiple
+                                                 // data transmission to
+                                                 // the observer
         // print statistics
         benachrichtigeBeobachter("\n--- " + args[0] + " " + messages.getString("sw_terminal_msg45") + " ---\n" + num
                 + " " + messages.getString("sw_terminal_msg46") + ", " + receivedReplies + " "
@@ -832,13 +848,13 @@ public class Terminal extends ClientAnwendung implements I18n {
             return null;
         }
 
-        benachrichtigeBeobachter(new Boolean(true));
+        benachrichtigeBeobachter(Boolean.TRUE);
         if (destIP.equals(args[0])) {
-            benachrichtigeBeobachter(String.format(messages.getString("sw_terminal_trace_msg4") + "\n", args[0],
-                    maxHops));
+            benachrichtigeBeobachter(
+                    String.format(messages.getString("sw_terminal_trace_msg4") + "\n", args[0], maxHops));
         } else {
-            benachrichtigeBeobachter(String.format(messages.getString("sw_terminal_trace_msg5") + "\n", args[0],
-                    destIP, maxHops));
+            benachrichtigeBeobachter(
+                    String.format(messages.getString("sw_terminal_trace_msg5") + "\n", args[0], destIP, maxHops));
         }
 
         // 2.: Pings senden und gucken, was alles zurueckkommt
@@ -873,33 +889,34 @@ public class Terminal extends ClientAnwendung implements I18n {
             benachrichtigeBeobachter("\n");
         }
 
-        benachrichtigeBeobachter(new Boolean(false));
+        benachrichtigeBeobachter(Boolean.FALSE);
         if (ttl >= maxHops) {
-            benachrichtigeBeobachter("\n\n"
-                    + String.format(messages.getString("sw_terminal_trace_msg6"), args[0], maxHops));
+            benachrichtigeBeobachter(
+                    "\n\n" + String.format(messages.getString("sw_terminal_trace_msg6"), args[0], maxHops));
         } else if (interrupted) {
             benachrichtigeBeobachter("\n\n" + messages.getString("sw_terminal_trace_msg7"));
         } else if (recv != null && recv.getIcmpType() == 3) {
             switch (recv.getIcmpCode()) {
             case 0:
-                benachrichtigeBeobachter("\n\n"
-                        + String.format(messages.getString("sw_terminal_trace_msg8"), recv.getQuellIp()));
+                benachrichtigeBeobachter(
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg8"), recv.getQuellIp()));
                 break;
             case 1:
-                benachrichtigeBeobachter("\n\n"
-                        + String.format(messages.getString("sw_terminal_trace_msg9"), recv.getQuellIp()));
+                benachrichtigeBeobachter(
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg9"), recv.getQuellIp()));
                 break;
             default:
-                benachrichtigeBeobachter("\n\n"
-                        + String.format(messages.getString("sw_terminal_trace_msg10"), recv.getQuellIp()));
+                benachrichtigeBeobachter(
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg10"), recv.getQuellIp()));
                 break;
             }
         } else if (fehler == 0) {
             if (ttl == 1) {
-                benachrichtigeBeobachter("\n\n" + String.format(messages.getString("sw_terminal_trace_msg11"), args[0]));
+                benachrichtigeBeobachter(
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg11"), args[0]));
             } else {
-                benachrichtigeBeobachter("\n\n"
-                        + String.format(messages.getString("sw_terminal_trace_msg12"), args[0], ttl));
+                benachrichtigeBeobachter(
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg12"), args[0], ttl));
             }
         } else {
             benachrichtigeBeobachter("\n\n" + messages.getString("sw_terminal_trace_msg13"));
@@ -929,8 +946,8 @@ public class Terminal extends ClientAnwendung implements I18n {
             setInterrupt(false);
             ausfuehren(enteredCommand, args);
         } catch (NoSuchMethodException e) {
-            benachrichtigeBeobachter(messages.getString("terminal_msg2") + "\n" + messages.getString("terminal_msg3")
-                    + "\n");
+            benachrichtigeBeobachter(
+                    messages.getString("terminal_msg2") + "\n" + messages.getString("terminal_msg3") + "\n");
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
         }
