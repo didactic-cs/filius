@@ -313,11 +313,11 @@ public class TCPSocket extends Socket implements Runnable {
                     } else if (zustand == SYN_RCVD && segment.isAck()) {
                         zustand = ESTABLISHED;
                     } else {
-                        zustand = CLOSED;
+                        beenden();
                         throw new VerbindungsException(messages.getString("sw_tcpsocket_msg1"));
                     }
                 } else if (System.currentTimeMillis() - sendezeit > Verbindung.holeRTT()) {
-                    zustand = CLOSED;
+                    beenden();
                     throw new TimeOutException(messages.getString("sw_tcpsocket_msg2"));
                 }
             }
@@ -363,11 +363,11 @@ public class TCPSocket extends Socket implements Runnable {
                             zustand = ESTABLISHED;
                             sendeAck(segment, null);
                         } else {
-                            zustand = CLOSED;
+                            beenden();
                             throw new VerbindungsException(messages.getString("sw_tcpsocket_msg3"));
                         }
                     } else if (zustand != CLOSED) {
-                        zustand = CLOSED;
+                        beenden();
                         throw new TimeOutException(messages.getString("sw_tcpsocket_msg4"));
                     }
                 }
@@ -406,7 +406,7 @@ public class TCPSocket extends Socket implements Runnable {
         int paketeAnzahl;
         TcpSegment segment;
 
-        paketeAnzahl = (int) Math.ceil((float) daten.length() / (float) MSS);
+        paketeAnzahl = Math.max(1, (int) Math.ceil((float) daten.length() / (float) MSS));
         segmenteListe = new LinkedList<TcpSegment>();
         for (int i = 1; i <= paketeAnzahl; i++) {
             segment = new TcpSegment();
@@ -453,7 +453,7 @@ public class TCPSocket extends Socket implements Runnable {
             // if I understand it correctly, then the thrown exception is needed for properly resetting the connection!
             // (no harmful exception, but part of the concept)
             Main.debug.println("EXCEPTION: " + getClass() + " (" + this.hashCode() + "); zustand=" + zustand);
-            zustand = CLOSED;
+            beenden();
             throw new VerbindungsException(messages.getString("sw_tcpsocket_msg6"));
         }
 
@@ -477,7 +477,7 @@ public class TCPSocket extends Socket implements Runnable {
                 if (zustand != ESTABLISHED) {
                     // Wenn die Verbindung zwischenzeitlich unterbrochen
                     // wurde, wird eine Verbindungsexception ausgeloest.
-                    zustand = CLOSED;
+                    beenden();
                     throw new VerbindungsException(messages.getString("sw_tcpsocket_msg7"));
                 }
 
@@ -513,7 +513,7 @@ public class TCPSocket extends Socket implements Runnable {
                 } while (!bestaetigt && (rtt < Verbindung.holeRTT()) && zustand == ESTABLISHED);
             }
             if (!bestaetigt && zustand != CLOSED) {
-                zustand = CLOSED;
+                beenden();
                 throw new TimeOutException(messages.getString("sw_tcpsocket_msg8"));
             }
         }
@@ -654,15 +654,12 @@ public class TCPSocket extends Socket implements Runnable {
 
     public void run() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), run()");
-        TcpSegment tmp;
+        closeSocket();
+    }
 
-        if (zustand == LISTEN) {
-            zustand = CLOSED;
-            synchronized (puffer) {
-                puffer.notifyAll();
-            }
-        } else if (zustand != CLOSED) {
-            tmp = new TcpSegment();
+    private void closeSocket() {
+        if (zustand != LISTEN && zustand != CLOSED) {
+            TcpSegment tmp = new TcpSegment();
             tmp.setFin(true);
             switch (zustand) {
             case ESTABLISHED:
@@ -726,12 +723,8 @@ public class TCPSocket extends Socket implements Runnable {
                     }
                 }
             }
-
-            austragenPort();
-            if (zustand != CLOSED) {
-                zustand = CLOSED;
-            }
         }
+        beenden();
     }
 
     /**
@@ -814,6 +807,7 @@ public class TCPSocket extends Socket implements Runnable {
         synchronized (puffer) {
             puffer.notifyAll();
         }
+        austragenPort();
     }
 
     /**
