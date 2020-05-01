@@ -1,4 +1,4 @@
-filius (1.8.3) unstable; urgency=low
+filius (1.9.0) unstable; urgency=low
  * Export der Konfiguration und des Datenaustauschs als PDF-Datei
  * Fehlerbehebung im Einfachen Client: Auf Serverantworten erst nach Versand einer Nachricht warten
  * Fehlerbehebung TCP-Server: Sockets beim anhalten des Servers gemaess Spezifikation zum Verbindungsabbau schliessen
