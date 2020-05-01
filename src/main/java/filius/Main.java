@@ -162,7 +162,8 @@ public class Main implements I18n {
         } catch (Exception e) {}
         GUIContainer.getGUIContainer().updateCables();
 
-        splashTime = System.currentTimeMillis() - splashTime; // time difference
+        splashTime = System.currentTimeMillis() - splashTime;
+        // time difference
         // since
         // Splashscreen
         // made visible
