@@ -1,4 +1,19 @@
 filius (1.8.3) unstable; urgency=low
+ * Export der Konfiguration und des Datenaustauschs als PDF-Datei
+ * Fehlerbehebung im Einfachen Client: Auf Serverantworten erst nach Versand einer Nachricht warten
+ * Fehlerbehebung TCP-Server: Sockets beim anhalten des Servers gemaess Spezifikation zum Verbindungsabbau schliessen
+ * Fehlerbehebung: Sockets im Zustand CLOSED immer aus Socket-Liste entfernen
+ * Fehlerbehebung: Versand leerer Nachrichten ermoeglichen (war die Nachricht leer, wurde nichts gesendet)
+ * Verbesserung Source Address Table (SAT): Fenster mit SAT werden nicht mehr mehrfach geoeffnet und automatisch aktualisiert
+ * Fehlerbehebung: Netstat zeigt jetzt auch serverseitig die Verbindungen an
+ * Verbesserung: Netstat zeigt jetzt lokale und entfernte Adresse mit IP-Adresse und Port an
+ * Fehlerbehebung: Der Befehl cat fuer eine nicht vorhandene Datei fuehrte zu einem Fehler
+ * Fehlerbehebung: TCP-Socket-Zeitueberschreitungen wurden nicht korrekt verarbeitet
+ * Verbesserung: Gnutella ermoeglicht jetzt das Zuruecksetzen der bekannten Peers
+ * Fehlerbehebung: Die Sequenznummern in TCP wurden falsch hochgezaehlt
+-- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 02 Mai 2020 00:00:00 +0000
+
+filius (1.8.2) unstable; urgency=low
   * Fehlerbehebung Modem: Verklemmung, wenn beide verbundenen Modems in gleicher Filius-Instanz laufen
  -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 21 Mar 2020 00:00:00 +0000
 
