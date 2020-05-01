@@ -34,36 +34,37 @@ import filius.software.transportschicht.Socket;
  */
 public abstract class ClientAnwendung extends Anwendung {
 
-	/**
-	 * der Socket, der zum Nachrichtenaustausch mit dem Server genutzt wird
-	 */
-	protected Socket socket = null;
+    /**
+     * der Socket, der zum Nachrichtenaustausch mit dem Server genutzt wird
+     */
+    protected Socket socket = null;
 
-	/**
-	 * Methode zur Abfrage, ob der Socket mit einem Server-Socket verbunden ist. <br />
-	 * Diese Methode ist <b>nicht blockierend</b>.
-	 */
-	public boolean istVerbunden() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ClientAnwendung), istVerbunden()");
-		if (socket != null)
-			return socket.istVerbunden();
-		else
-			return false;
-	}
+    /**
+     * Methode zur Abfrage, ob der Socket mit einem Server-Socket verbunden ist. <br />
+     * Diese Methode ist <b>nicht blockierend</b>.
+     */
+    public boolean istVerbunden() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ClientAnwendung), istVerbunden()");
+        if (socket != null) {
+            return socket.istVerbunden();
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * Diese Methode ruft beenden() der Oberklasse auf und loescht die Referenz
-	 * auf den Socket. Der Socket wird also einfach verworfen und nicht
-	 * geschlossen. <br />
-	 * Diese Methode ist <b>nicht blockierend</b>.
-	 */
-	public void beenden() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ClientAnwendung), beenden()");
-		super.beenden();
+    /**
+     * Diese Methode ruft beenden() der Oberklasse auf und loescht die Referenz auf den Socket. Der Socket wird also
+     * einfach verworfen und nicht geschlossen. <br />
+     * Diese Methode ist <b>nicht blockierend</b>.
+     */
+    public void beenden() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ClientAnwendung), beenden()");
+        super.beenden();
 
-		if (socket != null)
-			socket.beenden();
-	}
+        if (socket != null) {
+            socket.beenden();
+        }
+    }
 }

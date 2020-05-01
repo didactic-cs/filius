@@ -108,6 +108,12 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
             if (socket != null) {
                 socket.schliessen();
             }
+            if (null != mitarbeiter) {
+                for (ServerMitarbeiter thread : mitarbeiter) {
+                    thread.shutdown(true);
+                }
+                mitarbeiter.clear();
+            }
             benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg1"));
         } else {
             benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg2"));

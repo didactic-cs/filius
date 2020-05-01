@@ -115,7 +115,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
             } catch (VerbindungsException e) {
                 e.printStackTrace(Main.debug);
                 server.benachrichtigeBeobachter(e.getMessage());
-                socket.schliessen();
+                socket.beenden();
                 running = false;
                 server.entferneMitarbeiter(this);
             } catch (Exception e) {
@@ -151,11 +151,17 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
     public void beenden() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), beenden()");
+        shutdown(false);
+    }
+
+    protected void shutdown(boolean graceful) {
         running = false;
 
-        if (socket != null)
+        if (socket != null && graceful) {
+            socket.schliessen();
+        } else if (socket != null) {
             socket.beenden();
-
+        }
         if (getState().equals(State.WAITING) || getState().equals(State.BLOCKED)) {
             interrupt();
         }

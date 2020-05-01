@@ -97,26 +97,25 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
         args[1] = Integer.valueOf(zielPort);
 
         ausfuehren("initialisiereSocket", args);
-
-        ausfuehren("empfangeNachricht", null);
     }
-    
+
     /**
-     * Methode zum Aufbau einer Verbindung mit einem TCP-Socket. Diese Methode ist blockierend und sollte nicht direkt
-     * von der GUI aufgerufen werden.
+     * Methode zum Aufbau einer Verbindung mit einem TCP-Socket. Diese Methode ist blockierend.
      */
-    public void initialisiereSocket(String zielAdresse, Integer port) {
+    public synchronized void initialisiereSocket(String zielAdresse, Integer port) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), initialisiereSocket(" + zielAdresse + "," + port + ")");
-        try {
-            socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
-            socket.verbinden();
+        if (!istVerbunden()) {
+            try {
+                socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
+                socket.verbinden();
 
-            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg2"));
-        } catch (Exception e) {
-            e.printStackTrace(Main.debug);
-            socket = null;
-            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg1") + e.getMessage());
+                benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg2"));
+            } catch (Exception e) {
+                e.printStackTrace(Main.debug);
+                socket = null;
+                benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg1") + e.getMessage());
+            }
         }
     }
 
@@ -136,16 +135,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
     }
 
     /**
-     * Diese Methode ist <b>blockierend</b> und sollte nicht direkt von der GUI aufgerufen werden.
-     */
-    /*
-     * public void schliesseSocket() { Main.debug.println("INVOKED ("+this.hashCode ()+", T"+this.getId()+") "+getClass
-     * ()+" (ClientBaustein), schliesseSocket()"); if (socket != null) { socket.schliessen(); socket = null;
-     * benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3")); } }
-     */
-
-    /**
-     * Diese Methode ist <b>blockierend</b> und sollte nicht direkt von der GUI aufgerufen werden.
+     * Diese Methode <b>blockiert</b> bis die Nachricht versand wurde. Der Empfang der Antwort erfolgt asynchron.
      */
     public void senden(String nachricht) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
@@ -155,6 +145,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
             try {
                 socket.senden(nachricht);
                 benachrichtigeBeobachter("<<" + nachricht);
+                ausfuehren("empfangeNachricht", null);
             } catch (Exception e) {
                 benachrichtigeBeobachter(e.getMessage());
                 e.printStackTrace(Main.debug);
@@ -176,17 +167,14 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
 
         if (socket != null && socket.istVerbunden()) {
             try {
-                while (this.istVerbunden()) {
-                    nachricht = socket.empfangen();
-                    if (nachricht != null) {
-                        benachrichtigeBeobachter(">>" + nachricht);
-                    } else {
-                        benachrichtigeBeobachter(
-                                messages.getString("sw_clientbaustein_msg5") + " " + socket.holeZielIPAdresse() + ":"
-                                        + socket.holeZielPort() + " " + messages.getString("sw_clientbaustein_msg6"));
-
-                        socket.schliessen();
-                    }
+                nachricht = socket.empfangen();
+                if (nachricht != null) {
+                    benachrichtigeBeobachter(">>" + nachricht);
+                } else {
+                    socket.schliessen();
+                    benachrichtigeBeobachter(
+                            messages.getString("sw_clientbaustein_msg5") + " " + socket.holeZielIPAdresse() + ":"
+                                    + socket.holeZielPort() + " " + messages.getString("sw_clientbaustein_msg6"));
                 }
             } catch (Exception e) {
                 benachrichtigeBeobachter(e.getMessage());
