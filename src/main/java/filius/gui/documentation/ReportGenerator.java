@@ -251,6 +251,7 @@ public class ReportGenerator {
 
     void closeDocument(Document document) {
         document.close();
+        GUIContainer.getGUIContainer().updateViewport();
     }
 
     Document initDocument(String pdfFilepath) throws DocumentException, FileNotFoundException {
