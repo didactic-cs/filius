@@ -32,6 +32,7 @@ import javax.swing.event.MouseInputAdapter;
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
 import filius.gui.GUIMainMenu;
+import filius.gui.SatViewerControl;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
@@ -62,7 +63,7 @@ public class GUIKnotenItem {
                                 || GUIKnotenItem.this.getKnoten() instanceof Notebook) {
                             GUIContainer.getGUIContainer().showDesktop(GUIKnotenItem.this);
                         } else if (GUIKnotenItem.this.getKnoten() instanceof Switch) {
-                            GUIEvents.getGUIEvents().satTabelleAnzeigen(GUIKnotenItem.this);
+                            SatViewerControl.getInstance().showViewer((Switch) GUIKnotenItem.this.getKnoten());
                         }
                     }
                 }

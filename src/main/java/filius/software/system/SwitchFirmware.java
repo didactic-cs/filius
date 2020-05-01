@@ -25,6 +25,7 @@
  */
 package filius.software.system;
 
+import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -119,16 +120,8 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
     public void hinzuSatEintrag(String macAdresse, Port anschluss) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), hinzuSatEintrag("
                 + macAdresse + "," + anschluss + ")");
-        if (!sat.containsKey(macAdresse)) {
-            // Main.debug.println("SwitchFirmware: Neuer Eintrag in SAT-Tabelle: "
-            // + macAdresse + "->" + anschluss.toString());
-        } else {
-            sat.remove(macAdresse);
-            // Main.debug.println("SwitchFirmware: Eintrag fuer " + macAdresse +
-            // " in SAT aktualisiert.");
-        }
-
         sat.put(macAdresse, anschluss);
+        firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, anschluss));
     }
 
     /**

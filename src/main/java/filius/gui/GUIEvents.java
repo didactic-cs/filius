@@ -31,17 +31,11 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
 
 import filius.Main;
 import filius.gui.nachrichtensicht.ExchangeDialog;
@@ -743,30 +737,6 @@ public class GUIEvents implements I18n {
         }
 
         GUIContainer.getGUIContainer().updateViewport();
-
-    }
-
-    public void satTabelleAnzeigen(final GUIKnotenItem aktivesItem) {
-        Switch sw = (Switch) aktivesItem.getKnoten();
-
-        JFrame jfSATTabelle = new JFrame(messages.getString("guievents_msg8") + " " + sw.holeAnzeigeName());
-        jfSATTabelle.setBounds(100, 100, 320, 240);
-
-        ImageIcon icon = new ImageIcon(getClass().getResource("/gfx/hardware/switch.png"));
-        jfSATTabelle.setIconImage(icon.getImage());
-
-        DefaultTableModel dtm = new DefaultTableModel(0, 2);
-        for (Vector<String> zeile : ((SwitchFirmware) sw.getSystemSoftware()).holeSAT()) {
-            dtm.addRow(zeile);
-        }
-
-        JTable tableSATNachrichten = new JTable(dtm);
-        DefaultTableColumnModel dtcm = (DefaultTableColumnModel) tableSATNachrichten.getColumnModel();
-        dtcm.getColumn(0).setHeaderValue(messages.getString("guievents_msg9"));
-        dtcm.getColumn(1).setHeaderValue(messages.getString("guievents_msg10"));
-        JScrollPane spSAT = new JScrollPane(tableSATNachrichten);
-        jfSATTabelle.getContentPane().add(spSAT);
-        jfSATTabelle.setVisible(true);
 
     }
 }

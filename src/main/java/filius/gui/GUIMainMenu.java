@@ -470,6 +470,9 @@ public class GUIMainMenu implements Serializable, I18n {
             geschwindigkeit.setEnabled(true);
             verzoegerung.setEnabled(true);
         }
+        if (mode != MODUS_AKTION && aktuellerModus == MODUS_AKTION) {
+            SatViewerControl.getInstance().hideViewer();
+        }
         aktuellerModus = mode;
     }
 

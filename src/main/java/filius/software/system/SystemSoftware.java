@@ -25,6 +25,9 @@
  */
 package filius.software.system;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.Observable;
 
@@ -58,17 +61,38 @@ public abstract class SystemSoftware extends Observable implements Serializable 
      */
     public abstract void beenden();
 
+    /**
+     * The {@link PropertyChangeSupport} is the new approach for implementing the observable pattern because
+     * {@link Observable} is deprecated since Java 9. Do not use both mechanisms!
+     */
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.removePropertyChangeListener(listener);
+    }
+
+    protected void firePropertyChanged(PropertyChangeEvent event) {
+        this.pcs.firePropertyChange(event);
+    }
+
     public Knoten getKnoten() {
         return hardware;
     }
 
     public void setKnoten(Knoten hardware) {
         this.hardware = hardware;
-        // Main.debug.println("DEBUG: SystemSoftware ("+this.hashCode()+") now is connected to Knoten ("+hardware.hashCode()+")");
+        // Main.debug.println("DEBUG: SystemSoftware ("+this.hashCode()+") now is connected to Knoten
+        // ("+hardware.hashCode()+")");
     }
 
     /**
      * Statusnachrichten werden damit an die Beobachter weitergeleitet.
+     * 
+     * @deprecated Use firePropertyChanged based on the {@link PropertyChangeSupport} mechanism instead.
      */
     public void benachrichtigeBeobacher(Object o) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
