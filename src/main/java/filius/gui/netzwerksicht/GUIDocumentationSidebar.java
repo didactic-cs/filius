@@ -26,22 +26,33 @@
 package filius.gui.netzwerksicht;
 
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.event.MouseInputAdapter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.itextpdf.text.DocumentException;
 
 import filius.gui.GUIContainer;
+import filius.gui.JMainFrame;
+import filius.gui.documentation.ReportGenerator;
 import filius.rahmenprogramm.I18n;
+import filius.rahmenprogramm.SzenarioVerwaltung;
 
 public class GUIDocumentationSidebar extends GUISidebar implements I18n {
 
     public static final String TYPE_TEXTFIELD = "textfield";
     public static final String TYPE_RECTANGLE = "rectangle";
     public static final String TYPE_EXPORT = "export";
+    public static final String TYPE_REPORT = "report";
 
     public static final String ADD_TEXT = "gfx/dokumentation/add_text_small.png";
     public static final String ADD_RECTANGLE = "gfx/dokumentation/add_small.png";
     public static final String EXPORT = "gfx/dokumentation/download_small.png";
+    public static final String REPORT = "gfx/dokumentation/pdf_small.png";
 
     private static GUIDocumentationSidebar sidebar;
 
@@ -74,5 +85,40 @@ public class GUIDocumentationSidebar extends GUISidebar implements I18n {
         });
         buttonList.add(newLabel);
         leistenpanel.add(newLabel);
+
+        icon = new ImageIcon(getClass().getResource("/" + REPORT));
+        newLabel = new JSidebarButton(messages.getString("docusidebar_msg7"), icon, TYPE_REPORT);
+        newLabel.setToolTipText(messages.getString("docusidebar_msg8"));
+        newLabel.addMouseListener(new MouseInputAdapter() {
+            public void mousePressed(MouseEvent e) {
+                GUIDocumentationSidebar.this.generateReport();
+            }
+        });
+        buttonList.add(newLabel);
+        leistenpanel.add(newLabel);
+    }
+
+    private void generateReport() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter pdfFileFilter = new FileNameExtensionFilter("PDF", "pdf");
+        fileChooser.addChoosableFileFilter(pdfFileFilter);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        String path = SzenarioVerwaltung.getInstance().holePfad();
+        if (path != null) {
+            String szenarioFile = new File(path).getAbsolutePath();
+            File preselectedFile = new File(szenarioFile.substring(0, szenarioFile.lastIndexOf(".")));
+            fileChooser.setSelectedFile(preselectedFile);
+        }
+
+        if (fileChooser.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
+            String reportPath = fileChooser.getSelectedFile().getAbsolutePath();
+            reportPath = reportPath.endsWith(".pdf") ? reportPath : reportPath + ".pdf";
+
+            try {
+                ReportGenerator.getInstance().generateReport(reportPath);
+            } catch (DocumentException | IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -462,14 +462,7 @@ public class GUIContainer implements Serializable, I18n {
     }
 
     private void exportAsPNG(String imagePath) {
-        GUIPrintPanel printPanel = prepareExportPanel();
-        BufferedImage bi = new BufferedImage(printPanel.getWidth(), printPanel.getHeight(),
-                BufferedImage.TYPE_INT_ARGB);
-        Graphics g = bi.createGraphics();
-        printPanel.paint(g);
-        g.dispose();
-        BufferedImage printArea = bi.getSubimage(printPanel.getClipX(), printPanel.getClipY(),
-                printPanel.getClipWidth(), printPanel.getClipHeight());
+        BufferedImage printArea = createNetworkImage();
         ImageOutputStream outputStream = null;
         try {
             outputStream = new FileImageOutputStream(new File(imagePath));
@@ -483,6 +476,18 @@ public class GUIContainer implements Serializable, I18n {
                 } catch (IOException e) {}
             }
         }
+    }
+
+    public BufferedImage createNetworkImage() {
+        GUIPrintPanel printPanel = prepareExportPanel();
+        BufferedImage bi = new BufferedImage(printPanel.getWidth(), printPanel.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics g = bi.createGraphics();
+        printPanel.paint(g);
+        g.dispose();
+        BufferedImage printArea = bi.getSubimage(printPanel.getClipX(), printPanel.getClipY(),
+                printPanel.getClipWidth(), printPanel.getClipHeight());
+        return printArea;
     }
 
     private void exportAsSVG(String imagePath) {

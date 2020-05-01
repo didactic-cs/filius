@@ -78,6 +78,10 @@ public class Lauscher implements I18n {
         this.benachrichtigeBeobachter(null);
     }
 
+    public Collection<String> getInterfaceIDs() {
+        return datenEinheiten.keySet();
+    }
+
     public static Lauscher getLauscher() {
         if (lauscher == null) {
             lauscher = new Lauscher();
@@ -384,5 +388,9 @@ public class Lauscher implements I18n {
             }
         }
         return daten;
+    }
+
+    public String[] getHeader() {
+        return Lauscher.SPALTEN;
     }
 }

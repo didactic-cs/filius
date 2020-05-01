@@ -298,11 +298,10 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
         String rowTemplate;
         String lineSeparator;
 
-        Object[] columnNames = new Object[getColumnCount()];
+        Object[] columnNames = getColumnHeader();
         StringBuilder tmplBuilder = new StringBuilder("| ");
         StringBuilder lineSeparatorBuilder = new StringBuilder("+");
         for (int colIdx = 0; colIdx < getColumnCount(); colIdx++) {
-            columnNames[colIdx] = getColumnName(colIdx);
             if (colIdx == BEMERKUNG_SPALTE) {
                 tmplBuilder.append("%-40s | ");
                 lineSeparatorBuilder.append(StringUtils.repeat('-', 42) + "+");
@@ -334,6 +333,14 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
             }
             outputStream.write(lineSeparator.getBytes("UTF8"));
         }
+    }
+
+    public Object[] getColumnHeader() {
+        Object[] columnNames = new Object[getColumnCount()];
+        for (int colIdx = 0; colIdx < getColumnCount(); colIdx++) {
+            columnNames[colIdx] = getColumnName(colIdx);
+        }
+        return columnNames;
     }
 
     static List<String[]> prepareDataArrays(String[] values, int maxRemarkLength) {
