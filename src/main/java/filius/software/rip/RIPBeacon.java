@@ -40,63 +40,62 @@ import filius.software.transportschicht.UDPSocket;
  * @author stefanf
  */
 public class RIPBeacon extends ClientAnwendung {
-	private Random rand;
+    private Random rand;
 
-	public void starten() {
-		super.starten();
+    public void starten() {
+        super.starten();
 
-		rand = new Random();
+        rand = new Random();
 
-		ausfuehren("announce", null);
-	}
+        ausfuehren("announce", null);
+    }
 
-	public void announce() {
-		VermittlungsrechnerBetriebssystem bs = (VermittlungsrechnerBetriebssystem) getSystemSoftware();
-		RIPTable table = bs.getRIPTable();
+    public void announce() {
+        VermittlungsrechnerBetriebssystem bs = (VermittlungsrechnerBetriebssystem) getSystemSoftware();
+        RIPTable table = bs.getRIPTable();
 
-		UDPSocket sock;
-		try {
-			sock = new UDPSocket(bs, "255.255.255.255", 520, 521);
-			sock.verbinden();
-		} catch (VerbindungsException e) {
-			return;
-		}
+        UDPSocket sock;
+        try {
+            sock = new UDPSocket(bs, "255.255.255.255", 520, 521);
+            sock.verbinden();
+        } catch (VerbindungsException e) {
+            return;
+        }
 
-		while (running) {
-			synchronized (table) {
-				while (table.getNextBeacon() - RIPUtil.getTime() > 0) {
-					try {
-						table.wait(table.getNextBeacon() - RIPUtil.getTime());
-					} catch (InterruptedException e) {
-					}
-				}
+        while (running) {
+            synchronized (table) {
+                while (table.getNextBeacon() - RIPUtil.getTime() > 0) {
+                    try {
+                        table.wait(table.getNextBeacon() - RIPUtil.getTime());
+                    } catch (InterruptedException e) {}
+                }
 
-				table.check();
-				broadcast(sock, bs, table);
+                table.check();
+                broadcast(sock, bs, table);
 
-				table.setNextBeacon(RIPUtil.getTime() + (int) (RIPTable.INTERVAL * (rand.nextFloat() / 3 + 0.84)));
-			}
-		}
+                table.setNextBeacon(RIPUtil.getTime() + (int) (RIPTable.INTERVAL * (rand.nextFloat() / 3 + 0.84)));
+            }
+        }
 
-		sock.beenden();
-	}
+        sock.beenden();
+    }
 
-	public void broadcast(UDPSocket sock, VermittlungsrechnerBetriebssystem bs, RIPTable table) {
-		InternetKnoten knoten = (InternetKnoten) bs.getKnoten();
+    public void broadcast(UDPSocket sock, VermittlungsrechnerBetriebssystem bs, RIPTable table) {
+        InternetKnoten knoten = (InternetKnoten) bs.getKnoten();
 
-		RIPMessage msg;
+        RIPMessage msg;
 
-		for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-			msg = new RIPMessage(nic.getIp(), bs.holeIPAdresse(), RIPTable.INFINITY, RIPTable.TIMEOUT);
-			for (RIPRoute route : table.routes) {
-				// split horizon:
-				if (nic.getIp().equals(route.getInterfaceIpAddress())) {
-					continue;
-				}
-				msg.addRoute(new RIPMessageRoute(route.getNetAddress(), route.getNetMask(), route.hops));
-			}
-			sock.bind(nic.getIp());
-			sock.senden(msg.toString());
-		}
-	}
+        for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+            msg = new RIPMessage(nic.getIp(), bs.holeIPAdresse(), RIPTable.INFINITY, RIPTable.TIMEOUT);
+            for (RIPRoute route : table.routes) {
+                // split horizon:
+                if (nic.getIp().equals(route.getInterfaceIpAddress())) {
+                    continue;
+                }
+                msg.addRoute(new RIPMessageRoute(route.getNetAddress(), route.getNetMask(), route.hops));
+            }
+            sock.bind(nic.getIp());
+            sock.senden(msg.toString());
+        }
+    }
 }

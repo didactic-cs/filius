@@ -109,12 +109,13 @@ SectionEnd
 
 Function un.onUninstSuccess
   HideWindow
+  IfSilent +2
   MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) wurde erfolgreich deinstalliert."
 FunctionEnd
 
 Function un.onInit
 !insertmacro MUI_UNGETLANGUAGE
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Sie sind dabei $(^Name) und alle seinen Komponenten zu entfernen. Fortfahren?" IDYES +2
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Sie sind dabei $(^Name) und alle seinen Komponenten zu entfernen. Fortfahren?" /SD IDYES IDYES +2
   Abort
 FunctionEnd
 

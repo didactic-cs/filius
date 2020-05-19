@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeoutException;
 
 import filius.Main;
+import filius.exception.InvalidParameterException;
 import filius.exception.VerbindungsException;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
@@ -63,8 +64,8 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      */
     public ICMP(SystemSoftware systemAnwendung) {
         super(systemAnwendung);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ICMP), constr: ICMP("
-                + systemAnwendung + ")");
+        Main.debug.println(
+                "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ICMP), constr: ICMP(" + systemAnwendung + ")");
     }
 
     public void starten() {
@@ -152,9 +153,9 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      * @throws VerbindungsException
      */
     private void dispatch(IcmpPaket paket, String zielIp, Route route) throws RouteNotFoundException {
-        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaceByIp(route
-                .getInterfaceIpAddress());
-        
+        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten())
+                .getNetzwerkInterfaceByIp(route.getInterfaceIpAddress());
+
         if (isBroadcast(zielIp, route.getInterfaceIpAddress(), nic.getSubnetzMaske())) {
             sendBroadcast(paket, zielIp, nic.getMac());
         } else if (gleichesRechnernetz(zielIp, route.getInterfaceIpAddress(), nic.getSubnetzMaske())) {
@@ -239,8 +240,14 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
         if (response == null) {
             throw new TimeoutException("Destination Host Unreachable");
         } else {
-            if (!(destIp.equals(response.getQuellIp()) && seqNr == response.getSeqNr() && response.isEchoResponse())) {
-                throw new TimeoutException("Destination Host Unreachable");
+            try {
+                IPAddress tmp = new IPAddress(destIp);
+                if (!(tmp.equalAddress(response.getQuellIp()) && seqNr == response.getSeqNr()
+                        && response.isEchoResponse())) {
+                    throw new TimeoutException("Destination Host Unreachable");
+                }
+            } catch (InvalidParameterException e) {
+                e.printStackTrace();
             }
             resultTTL = response.getTtl();
         }

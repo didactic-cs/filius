@@ -44,20 +44,28 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.Main;
+import filius.exception.InvalidParameterException;
 import filius.gui.GUIErrorHandler;
 import filius.gui.netzwerksicht.GUIDocuItem;
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.gui.netzwerksicht.JSidebarButton;
+import filius.software.vermittlungsschicht.IPVersion;
 
 public class SzenarioVerwaltung extends Observable implements I18n {
+    private static final Logger LOG = LoggerFactory.getLogger(SzenarioVerwaltung.class);
 
-    private boolean geaendert = false;
-    private String pfad = null;
     private static SzenarioVerwaltung verwaltung = null;
+    private Scenario activeScenario;
+    private String pfad;
 
-    private SzenarioVerwaltung() {}
+    private SzenarioVerwaltung() {
+        activeScenario = Scenario.createNew();
+    }
 
     public static SzenarioVerwaltung getInstance() {
         Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, getInstance()");
@@ -69,8 +77,8 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
     public void reset() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
+        activeScenario = Scenario.createNew();
         pfad = null;
-        geaendert = false;
 
         setChanged();
         notifyObservers();
@@ -78,18 +86,29 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
     public void setzeGeaendert() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", setzeGeaendert()");
-        geaendert = true;
+        activeScenario.setGeaendert(true);
 
         this.setChanged();
         this.notifyObservers();
     }
 
     public boolean istGeaendert() {
-        return geaendert;
+        return activeScenario.isGeaendert();
     }
 
     public String holePfad() {
         return pfad;
+    }
+
+    public IPVersion ipVersion() {
+        IPVersion version;
+        try {
+            version = IPVersion.fromString(activeScenario.getIpVersion());
+        } catch (InvalidParameterException e) {
+            version = Information.getDefaultIPVersion();
+            LOG.warn("Could not determine IP version. Use default: " + version, e);
+        }
+        return version;
     }
 
     /**
@@ -112,23 +131,28 @@ public class SzenarioVerwaltung extends Observable implements I18n {
         (new File(tmpDir)).mkdirs();
 
         if (!kopiereVerzeichnis(Information.getInformation().getAnwendungenPfad(), tmpDir + "anwendungen")) {
-            Main.debug.println("ERROR (" + this.hashCode() + "): Speicherung der eigenen Anwendungen fehlgeschlagen!");
+            LOG.warn("Speicherung der eigenen Anwendungen fehlgeschlagen!");
             erfolg = false;
         }
 
         if (!netzwerkSpeichern(tmpDir + "konfiguration.xml", hardwareItems, kabelItems, docuItems)) {
-            Main.debug.println("ERROR (" + this.hashCode() + "): Speicherung des Netzwerks fehlgeschlagen!");
+            LOG.warn("Speicherung des Netzwerks fehlgeschlagen!");
             erfolg = false;
         }
 
-        if (!erzeugeZipArchiv(tmpDir, datei)) {
-            Main.debug.println("ERROR (" + this.hashCode() + "): Speicherung der Projektdatei fehlgeschlagen!");
+        if (!metadataSpeichern(tmpDir + "metadata.xml", activeScenario)) {
+            LOG.warn("Speicherung der Metadaten fehlgeschlagen!");
+            erfolg = false;
+        }
+
+        if (erfolg && !erzeugeZipArchiv(tmpDir, datei)) {
+            LOG.warn("Speicherung der Projektdatei fehlgeschlagen!");
             erfolg = false;
         }
 
         if (erfolg) {
             pfad = datei;
-            geaendert = false;
+            activeScenario.setGeaendert(false);
 
             this.setChanged();
             this.notifyObservers();
@@ -139,21 +163,32 @@ public class SzenarioVerwaltung extends Observable implements I18n {
         return erfolg;
     }
 
+    private static boolean metadataSpeichern(String filepath, Scenario scenario) {
+        boolean success = false;
+        try (XMLEncoder mx = new XMLEncoder(new FileOutputStream(filepath))) {
+            mx.writeObject(scenario);
+            success = true;
+        } catch (IOException e) {
+            LOG.warn("Project metadata could not be written to temporary file " + filepath, e);
+        } catch (RuntimeException e) {
+            LOG.warn("Unexpected error while writing project metadata.", e);
+        }
+        return success;
+    }
+
     private static boolean netzwerkSpeichern(String datei, List<GUIKnotenItem> hardwareItems,
             List<GUIKabelItem> kabelItems, List<GUIDocuItem> docuItems) {
-        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkSpeichern(" + datei
-                + "," + hardwareItems + "," + kabelItems + ")");
-        XMLEncoder mx = null;
-        FileOutputStream fos = null;
+        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkSpeichern(" + datei + ","
+                + hardwareItems + "," + kabelItems + ")");
 
-        if (Thread.currentThread().getContextClassLoader() != FiliusClassLoader.getInstance(Thread.currentThread()
-                .getContextClassLoader()))
+        if (Thread.currentThread().getContextClassLoader() != FiliusClassLoader
+                .getInstance(Thread.currentThread().getContextClassLoader())) {
             Thread.currentThread().setContextClassLoader(
                     FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
+        }
 
-        try {
-            fos = new FileOutputStream(datei);
-            mx = new XMLEncoder(new BufferedOutputStream(fos));
+        try (FileOutputStream fos = new FileOutputStream(datei);
+                XMLEncoder mx = new XMLEncoder(new BufferedOutputStream(fos))) {
             mx.setExceptionListener(new ExceptionListener() {
                 public void exceptionThrown(Exception arg0) {
                     arg0.printStackTrace(Main.debug);
@@ -166,25 +201,15 @@ public class SzenarioVerwaltung extends Observable implements I18n {
             mx.writeObject(docuItems);
 
             return true;
-        } catch (java.lang.RuntimeException e) {
-            Main.debug
-                    .println("EXCEPTION: java.lang.RuntimeException raised; Java internal problem, not Filius related!");
+        } catch (RuntimeException e) {
+            Main.debug.println(
+                    "EXCEPTION: java.lang.RuntimeException raised; Java internal problem, not Filius related!");
             return false;
         } catch (FileNotFoundException e2) {
             e2.printStackTrace(Main.debug);
-
             return false;
         } catch (Exception e) {
             return false;
-        } finally {
-
-            if (mx != null)
-                mx.close();
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {}
-            }
         }
     }
 
@@ -210,10 +235,14 @@ public class SzenarioVerwaltung extends Observable implements I18n {
             erfolg = false;
         }
 
-        if (erfolg
-                && !kopiereVerzeichnis(tmpDir + "projekt/anwendungen", Information.getInformation()
-                        .getAnwendungenPfad())) {
+        if (erfolg && !kopiereVerzeichnis(tmpDir + "projekt/anwendungen",
+                Information.getInformation().getAnwendungenPfad())) {
             Main.debug.println("ERROR (" + this.hashCode() + "): Kopieren der Anwendungen fehlgeschlagen");
+        }
+
+        if (erfolg && !metadataLaden(tmpDir + "projekt/metadata.xml")) {
+            Main.debug.println("ERROR (" + this.hashCode() + "): Laden der Projektmetadaten fehlgeschlagen");
+            erfolg = false;
         }
 
         if (erfolg && !netzwerkLaden(tmpDir + "projekt/konfiguration.xml", hardwareItems, kabelItems, docuItems)) {
@@ -223,25 +252,39 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
         if (erfolg) {
             pfad = datei;
-            geaendert = false;
 
             this.setChanged();
             this.notifyObservers();
         }
-
         return erfolg;
     }
 
-    private static boolean netzwerkLaden(String datei, List<GUIKnotenItem> hardwareItems,
-            List<GUIKabelItem> kabelItems, List<GUIDocuItem> docuItems) {
+    private boolean metadataLaden(String filepath) {
+        boolean success = true;
+        try (XMLDecoder xmldec = new XMLDecoder(new FileInputStream(filepath))) {
+            Object tmp = xmldec.readObject();
+            if (tmp instanceof Scenario) {
+                activeScenario = (Scenario) tmp;
+            } else {
+                success = false;
+            }
+        } catch (FileNotFoundException e) {
+            LOG.debug("Could not read project metadata from file " + filepath, e);
+        }
+        return success;
+    }
+
+    private static boolean netzwerkLaden(String datei, List<GUIKnotenItem> hardwareItems, List<GUIKabelItem> kabelItems,
+            List<GUIDocuItem> docuItems) {
         Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkLaden(" + datei + ","
                 + hardwareItems + "," + kabelItems + ")");
         Object tmpObject = null;
 
-        if (Thread.currentThread().getContextClassLoader() != FiliusClassLoader.getInstance(Thread.currentThread()
-                .getContextClassLoader()))
+        if (Thread.currentThread().getContextClassLoader() != FiliusClassLoader
+                .getInstance(Thread.currentThread().getContextClassLoader())) {
             Thread.currentThread().setContextClassLoader(
                     FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
+        }
 
         boolean success = false;
         try (XMLDecoder xmldec = new XMLDecoder(new BufferedInputStream(new FileInputStream(datei)))) {
@@ -262,26 +305,24 @@ public class SzenarioVerwaltung extends Observable implements I18n {
                 String versionInfo = (String) tmpObject;
                 Main.debug.println("File saved by Filius in version '"
                         + versionInfo.substring(versionInfo.indexOf(":") + 2) + "'");
-                if (versionInfo.substring(versionInfo.indexOf(":") + 2).compareTo(
-                        filius.rahmenprogramm.Information.getVersion()) < 0) {
-                    Main.debug
-                            .println("WARNING: current Filius version is newer ("
-                                    + filius.rahmenprogramm.Information.getVersion()
-                                    + ") than version of scenario file, such that certain elements might not be rendered correctly any more!");
-                } else if (versionInfo.substring(versionInfo.indexOf(":") + 2).compareTo(
-                        filius.rahmenprogramm.Information.getVersion()) > 0) {
-                    Main.debug
-                            .println("WARNING: current Filius version is older ("
-                                    + filius.rahmenprogramm.Information.getVersion()
-                                    + ") than version of scenario file, such that certain elements might not be rendered correctly!");
+                if (versionInfo.substring(versionInfo.indexOf(":") + 2)
+                        .compareTo(filius.rahmenprogramm.Information.getVersion()) < 0) {
+                    Main.debug.println("WARNING: current Filius version is newer ("
+                            + filius.rahmenprogramm.Information.getVersion()
+                            + ") than version of scenario file, such that certain elements might not be rendered correctly any more!");
+                } else if (versionInfo.substring(versionInfo.indexOf(":") + 2)
+                        .compareTo(filius.rahmenprogramm.Information.getVersion()) > 0) {
+                    Main.debug.println("WARNING: current Filius version is older ("
+                            + filius.rahmenprogramm.Information.getVersion()
+                            + ") than version of scenario file, such that certain elements might not be rendered correctly!");
                 } else {
                     Main.debug.println("\t...good, current version of Filius is equal to version of scenario file");
                 }
                 tmpObject = null;
             } else {
                 Main.debug.println("WARNING: Version information of Filius scenario file could not be determined!");
-                Main.debug
-                        .println("WARNING: This usually means, the scenario file was created with Filius before version 1.3.0.");
+                Main.debug.println(
+                        "WARNING: This usually means, the scenario file was created with Filius before version 1.3.0.");
                 Main.debug.println("WARNING: Certain elements might not be rendered correctly any more!");
             }
 
@@ -427,8 +468,8 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean entpackeZipArchiv(String archivDatei, String zielOrdner) {
-        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, entpackeZipArchiv("
-                + archivDatei + "," + zielOrdner + ")");
+        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, entpackeZipArchiv(" + archivDatei
+                + "," + zielOrdner + ")");
         ZipFile zf;
         File file;
         InputStream is;
@@ -494,7 +535,8 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean loescheVerzeichnisInhalt(String verzeichnis) {
-        // Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, loescheVerzeichnisInhalt("+verzeichnis+")");
+        // Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung,
+        // loescheVerzeichnisInhalt("+verzeichnis+")");
         File path;
         File file;
         File[] fileListe;
@@ -507,13 +549,13 @@ public class SzenarioVerwaltung extends Observable implements I18n {
                 file = fileListe[i];
                 if (file.isDirectory()) {
                     if (!loescheDateien(file.getAbsolutePath())) {
-                        Main.debug.println("ERROR (static): Ordner " + file.getAbsolutePath()
-                                + " konnte nicht geloescht werden.");
+                        Main.debug.println(
+                                "ERROR (static): Ordner " + file.getAbsolutePath() + " konnte nicht geloescht werden.");
                         return false;
                     }
                 } else if (!file.delete()) {
-                    Main.debug.println("ERROR (static): Datei " + file.getAbsolutePath()
-                            + " konnte nicht geloescht werden.");
+                    Main.debug.println(
+                            "ERROR (static): Datei " + file.getAbsolutePath() + " konnte nicht geloescht werden.");
                     return false;
                 } else {
 
@@ -601,8 +643,8 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean kopiereDatei(String quelldatei, String zieldatei) {
-        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, kopiereDatei(" + quelldatei
-                + "," + zieldatei + ")");
+        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, kopiereDatei(" + quelldatei + ","
+                + zieldatei + ")");
         File srcfile, destfile;
         FileInputStream fis = null;
         FileOutputStream fos = null;

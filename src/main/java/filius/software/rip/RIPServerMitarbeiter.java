@@ -39,83 +39,83 @@ import filius.software.vermittlungsschicht.IP;
  * 
  */
 public class RIPServerMitarbeiter extends ServerMitarbeiter {
-	private RIPTable table;
-	private VermittlungsrechnerBetriebssystem bs;
-	private InternetKnoten knoten;
+    private RIPTable table;
+    private VermittlungsrechnerBetriebssystem bs;
+    private InternetKnoten knoten;
 
-	public RIPServerMitarbeiter(RIPServer server, Socket socket) {
-		super(server, socket);
-		bs = (VermittlungsrechnerBetriebssystem) server.getSystemSoftware();
-		knoten = (InternetKnoten) bs.getKnoten();
-		table = bs.getRIPTable();
-	}
+    public RIPServerMitarbeiter(RIPServer server, Socket socket) {
+        super(server, socket);
+        bs = (VermittlungsrechnerBetriebssystem) server.getSystemSoftware();
+        knoten = (InternetKnoten) bs.getKnoten();
+        table = bs.getRIPTable();
+    }
 
-	protected void verarbeiteNachricht(String nachricht) {
-		RIPMessage msg;
-		try {
-			msg = new RIPMessage(nachricht);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
+    protected void verarbeiteNachricht(String nachricht) {
+        RIPMessage msg;
+        try {
+            msg = new RIPMessage(nachricht);
+        } catch (IllegalArgumentException e) {
+            return;
+        }
 
-		// find the interface that (probably) received the message
-		String nicIp = findeInterfaceIp(msg.ip);
-		if (nicIp == null || nicIp.equals(msg.ip)) {
-			return;
-		}
+        // find the interface that (probably) received the message
+        String nicIp = findeInterfaceIp(msg.ip);
+        if (nicIp == null || nicIp.equals(msg.ip)) {
+            return;
+        }
 
-		RIPRoute route;
-		int hops;
-		synchronized (table) {
-			for (RIPMessageRoute entry : msg.routes) {
-				if (entry.hops >= msg.infinity || entry.hops + 1 >= RIPTable.INFINITY) {
-					hops = RIPTable.INFINITY;
-				} else {
-					hops = entry.hops + 1;
-				}
+        RIPRoute route;
+        int hops;
+        synchronized (table) {
+            for (RIPMessageRoute entry : msg.routes) {
+                if (entry.hops >= msg.infinity || entry.hops + 1 >= RIPTable.INFINITY) {
+                    hops = RIPTable.INFINITY;
+                } else {
+                    hops = entry.hops + 1;
+                }
 
-				route = table.search(entry.ip, entry.mask);
-				if (route != null) {
-					// route exists, just update
-					if (!route.getGateway().equals(msg.ip) && route.hops <= hops) {
-						continue;
-					}
-					if (route.hops > hops) {
-						// found a shorter route
-						route.setGateway(msg.ip);
-						route.hopPublicIp = msg.publicIp;
-						route.setInterfaceIpAddress(nicIp);
-					} else if (route.hops < hops) {
-						// the old route just got worse. this has to be
-						// flushed to other routers immediately
-						table.setNextBeacon(0);
-					}
-					route.hops = hops;
-					route.refresh(msg.timeout);
-				} else {
-					// route is unknown, create it
-					if (hops < RIPTable.INFINITY) {
-						route = new RIPRoute(msg.timeout, entry.ip, entry.mask, msg.ip, msg.publicIp, nicIp, hops);
-						table.addRoute(route);
-						table.setNextBeacon(0);
-					}
-				}
-			}
-			table.notifyAll();
-		}
-	}
+                route = table.search(entry.ip, entry.mask);
+                if (route != null) {
+                    // route exists, just update
+                    if (!route.getGateway().equals(msg.ip) && route.hops <= hops) {
+                        continue;
+                    }
+                    if (route.hops > hops) {
+                        // found a shorter route
+                        route.setGateway(msg.ip);
+                        route.hopPublicIp = msg.publicIp;
+                        route.setInterfaceIpAddress(nicIp);
+                    } else if (route.hops < hops) {
+                        // the old route just got worse. this has to be
+                        // flushed to other routers immediately
+                        table.setNextBeacon(0);
+                    }
+                    route.hops = hops;
+                    route.refresh(msg.timeout);
+                } else {
+                    // route is unknown, create it
+                    if (hops < RIPTable.INFINITY) {
+                        route = new RIPRoute(msg.timeout, entry.ip, entry.mask, msg.ip, msg.publicIp, nicIp, hops);
+                        table.addRoute(route);
+                        table.setNextBeacon(0);
+                    }
+                }
+            }
+            table.notifyAll();
+        }
+    }
 
-	String findeInterfaceIp(String ipStr) {
-		long ip = IP.inetAton(ipStr);
+    String findeInterfaceIp(String ipStr) {
+        long ip = IP.inetAToN(ipStr);
 
-		for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-			long netMask = IP.inetAton(nic.getSubnetzMaske());
-			long netAddr = IP.inetAton(nic.getIp()) & netMask;
+        for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+            long netMask = IP.inetAToN(nic.getSubnetzMaske());
+            long netAddr = IP.inetAToN(nic.getIp()) & netMask;
 
-			if ((ip & netMask) == netAddr) {
-				return nic.getIp();
-			}
-		}
-		return null;
-	}
+            if ((ip & netMask) == netAddr) {
+                return nic.getIp();
+            }
+        }
+        return null;
+    }
 }

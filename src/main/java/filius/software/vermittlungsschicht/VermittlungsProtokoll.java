@@ -26,9 +26,9 @@
 package filius.software.vermittlungsschicht;
 
 import java.util.List;
-import java.util.StringTokenizer;
 
 import filius.Main;
+import filius.exception.InvalidParameterException;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
 import filius.software.Protokoll;
@@ -62,74 +62,50 @@ public abstract class VermittlungsProtokoll extends Protokoll {
      * @return ob die Netz-IDs der zwei Adressen uebereinstimmen
      */
     public static boolean gleichesRechnernetz(String adresseEins, String adresseZwei, String netzmaske) {
-        Main.debug
-                .println("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, gleichesRechnernetz("
+        Main.debug.println(
+                "INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, gleichesRechnernetz("
                         + adresseEins + "," + adresseZwei + "," + netzmaske + ")");
-        int addressOneAsInt = ipAddressToInt(adresseEins);
-        int addressTwoAsInt = ipAddressToInt(adresseZwei);
-        int netmaskAsInt = ipAddressToInt(netzmaske);
 
-        return (addressOneAsInt & netmaskAsInt) == (addressTwoAsInt & netmaskAsInt);
+        boolean isEqual = false;
+        try {
+            IPAddress ipAddress1 = new IPAddress(adresseEins, netzmaske);
+            isEqual = ipAddress1.equalNetwork(adresseZwei);
+        } catch (InvalidParameterException e) {}
+        return isEqual;
     }
 
-    static int ipAddressToInt(String address) {
-        int addressAsInt = 0;
-        StringTokenizer tokenizer = new StringTokenizer(address, ".");
-        while (tokenizer.hasMoreTokens()) {
-            addressAsInt = (addressAsInt << 8) + Integer.parseInt(tokenizer.nextToken());
-        }
-        return addressAsInt;
+    public static boolean isNetworkAddress(String zielIpAdresse, String sendeIpAdresse, String netzmaske) {
+        boolean result = false;
+        try {
+            IPAddress dest = new IPAddress(zielIpAdresse, netzmaske);
+            result = dest.networkAddress().equalsIgnoreCase(dest.address()) && dest.equalNetwork(sendeIpAdresse);
+        } catch (InvalidParameterException e) {}
+        return result;
     }
 
     public static boolean isBroadcast(String zielIpAdresse, String sendeIpAdresse, String netzmaske) {
-        int addressAsInt = ipAddressToInt(zielIpAdresse);
-        int netmaskAsInt = ipAddressToInt(netzmaske);
-        boolean isGenericBroadcast = addressAsInt == 0xffffffff;
-        boolean isNetworkBroadcast = (addressAsInt & ~netmaskAsInt) == (0xffffffff & ~netmaskAsInt)
-                && gleichesRechnernetz(zielIpAdresse, sendeIpAdresse, netzmaske);
-        return isGenericBroadcast || isNetworkBroadcast;
-    }
-
-    /*
-     * Determine subnet address for given IP and netmask.
-     */
-    public static String getSubnetForIp(String ip, String mask) {
-        Main.debug
-                .println("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, getSubnetForIp("
-                        + ip + "," + mask + ")");
-        int[] a1, m;
-        int[] res = new int[4];
-        StringTokenizer tokenizer;
-
-        tokenizer = new StringTokenizer(ip, ".");
-        a1 = new int[4];
-        for (int i = 0; i < a1.length && tokenizer.hasMoreTokens(); i++) {
-            a1[i] = Integer.parseInt(tokenizer.nextToken());
-        }
-        tokenizer = new StringTokenizer(mask, ".");
-        m = new int[4];
-        for (int i = 0; i < m.length && tokenizer.hasMoreTokens(); i++) {
-            m[i] = Integer.parseInt(tokenizer.nextToken());
-        }
-
-        for (int i = 0; i < 4; i++) {
-            res[i] = a1[i] & m[i];
-        }
-
-        return res[0] + "." + res[1] + "." + res[2] + "." + res[3];
+        boolean isBroadcast = false;
+        try {
+            IPAddress tmp = new IPAddress(zielIpAdresse, netzmaske);
+            isBroadcast = tmp.isGlobalBroadcast() || tmp.isLocalBroadcast() && tmp.equalNetwork(sendeIpAdresse);
+        } catch (InvalidParameterException e) {}
+        return isBroadcast;
     }
 
     public boolean isLocalAddress(String ip) {
-        if (gleichesRechnernetz(ip, "127.0.0.0", "255.0.0.0")) {
-            return true;
-        }
-
-        InternetKnoten knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
-        for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-            if (ip.equals(nic.getIp())) {
+        try {
+            IPAddress tmp = new IPAddress(ip);
+            if (tmp.isLoopbackAddress()) {
                 return true;
             }
-        }
+
+            InternetKnoten knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
+            for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+                if (nic.addressIP() != null && nic.addressIP().equals(new IPAddress(ip, nic.addressIP().netmask()))) {
+                    return true;
+                }
+            }
+        } catch (InvalidParameterException e) {}
         return false;
     }
 

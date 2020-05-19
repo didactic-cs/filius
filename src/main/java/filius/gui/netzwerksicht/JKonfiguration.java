@@ -46,6 +46,7 @@ import javax.swing.event.MouseInputAdapter;
 import filius.Main;
 import filius.gui.JBackgroundPanel;
 import filius.gui.JMainFrame;
+import filius.gui.ValidateableTextField;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.Modem;
@@ -245,12 +246,12 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
      * @param pruefRegel
      * @param feld
      */
-    public boolean ueberpruefen(Pattern pruefRegel, JTextField feld) {
+    public boolean ueberpruefen(Pattern pruefRegel, ValidateableTextField feld) {
         if (EingabenUeberpruefung.isGueltig(feld.getText(), pruefRegel)) {
-            feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+            feld.setValid(true);
             return true;
         } else {
-            feld.setForeground(EingabenUeberpruefung.farbeFalsch);
+            feld.setValid(false);
             return false;
         }
     }

@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import filius.Main;
+import filius.software.vermittlungsschicht.IP;
 
 /**
  * 
@@ -41,13 +42,6 @@ import filius.Main;
  * 
  */
 public class EingabenUeberpruefung implements I18n {
-
-    // NOTE: include *.*.*.0 to be able to still use this pattern for routing
-    // table configuration as network identifier
-    public static final Pattern musterIpAdresse = Pattern
-            .compile("^(0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))$");
-    public static final Pattern musterIpAdresseAuchLeer = Pattern
-            .compile("^((0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))){0,1}$");
 
     public static final Pattern musterSubNetz = Pattern
             .compile("^(0*([1-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*([0-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*([0-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))$");
@@ -88,26 +82,9 @@ public class EingabenUeberpruefung implements I18n {
 
     public static boolean isValidSubnetmask(String subnet) {
         Main.debug.println("INVOKED (EingabenUeberpruefung), isValidSubnetmask(" + subnet + ")");
-        String[] token = subnet.split("\\.");
-        String binary = "";
-        Main.debug.println("DEBUG (EingabenUeberpruefung), '" + token + "', length=" + token.length);
-        if (token.length != 4)
-            return false;
-        try {
-            for (int i = 0; i < token.length; i++) {
-                String currBin = Integer.toBinaryString(Integer.parseInt(token[i]));
-                while (currBin.length() < 8)
-                    currBin = "0" + currBin;
-                binary += currBin;
-                Main.debug.println("DEBUG (EingabenUeberpruefung), '" + token[i] + "' ~~> binary (" + i + ") = '"
-                        + binary + "'");
-            }
-        } catch (Exception e) {
-            return false;
-        }
-        if (binary.length() == 32 && isGueltig(binary, EingabenUeberpruefung.musterSubnetBinary))
-            return true;
-        return false;
+        String netmaskAsBinaryString = Long.toBinaryString(IP.inetAToN(subnet));
+        return netmaskAsBinaryString.length() == 32
+                && isGueltig(netmaskAsBinaryString, EingabenUeberpruefung.musterSubnetBinary);
     }
 
 }

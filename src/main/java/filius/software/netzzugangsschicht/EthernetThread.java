@@ -26,10 +26,12 @@
 package filius.software.netzzugangsschicht;
 
 import filius.Main;
+import filius.exception.InvalidParameterException;
 import filius.hardware.NetzwerkInterface;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.ProtokollThread;
 import filius.software.vermittlungsschicht.ArpPaket;
+import filius.software.vermittlungsschicht.IPAddress;
 import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.IpPaket;
 
@@ -88,7 +90,9 @@ public class EthernetThread extends ProtokollThread {
             if (etp.isICMP()) {
                 synchronized (ethernet.holeICMPPuffer()) {
                     ethernet.holeICMPPuffer().add((IcmpPaket) etp.getDaten());
-                    // Main.debug.println("DEBUG ("+this.hashCode()+", T"+this.getId()+") "+getClass()+" (EthernetThread), verarbeiteDateneinheit, ICMPPuffer="+ethernet.holeICMPPuffer().getFirst().toString());
+                    // Main.debug.println("DEBUG ("+this.hashCode()+", T"+this.getId()+") "+getClass()+"
+                    // (EthernetThread), verarbeiteDateneinheit,
+                    // ICMPPuffer="+ethernet.holeICMPPuffer().getFirst().toString());
                     ethernet.holeICMPPuffer().notifyAll(); // 'all' means:
                                                            // Terminal ping
                                                            // command (if any in
@@ -109,14 +113,19 @@ public class EthernetThread extends ProtokollThread {
             // packets meant for some of their NICs
             // without even having received the packet on this specific NIC,
             // i.e., without physical connection)
-            String zielIp = ((ArpPaket) etp.getDaten()).getZielIp();
-            if (!zielIp.equals(netzwerkInterface.getIp()) && !"0.0.0.0".equals(netzwerkInterface.getIp())) {
-                Main.debug.println("ERROR (" + this.hashCode() + "):  ARP packet seems to be sent from a NIC ("
-                        + ((ArpPaket) etp.getDaten()).getQuellIp() + ","
-                        + ((ArpPaket) etp.getDaten()).getQuellMacAdresse()
-                        + ") not connected to the currently considered NIC (" + netzwerkInterface.getIp() + ","
-                        + netzwerkInterface.getMac() + ")");
-                return;
+            try {
+                IPAddress zielIp = new IPAddress(((ArpPaket) etp.getDaten()).getZielIp());
+                if (!zielIp.equalAddress(netzwerkInterface.getIp())
+                        && !netzwerkInterface.addressIP().isUnspecifiedAddress()) {
+                    Main.debug.println("ERROR (" + this.hashCode() + "):  ARP packet seems to be sent from a NIC ("
+                            + ((ArpPaket) etp.getDaten()).getQuellIp() + ","
+                            + ((ArpPaket) etp.getDaten()).getQuellMacAdresse()
+                            + ") not connected to the currently considered NIC (" + netzwerkInterface.getIp() + ","
+                            + netzwerkInterface.getMac() + ")");
+                    return;
+                }
+            } catch (InvalidParameterException e) {
+                e.printStackTrace();
             }
             // otherwise process ARP packet
             synchronized (ethernet.holeARPPuffer()) {

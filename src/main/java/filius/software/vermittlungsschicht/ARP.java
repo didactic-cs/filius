@@ -30,9 +30,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import filius.Main;
+import filius.exception.InvalidParameterException;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Verbindung;
 import filius.hardware.knoten.InternetKnoten;
+import filius.rahmenprogramm.SzenarioVerwaltung;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.system.SystemSoftware;
@@ -61,14 +63,15 @@ public class ARP extends VermittlungsProtokoll {
      */
     public ARP(SystemSoftware systemAnwendung) {
         super(systemAnwendung);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ARP), constr: ARP("
-                + systemAnwendung + ")");
+        Main.debug.println(
+                "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ARP), constr: ARP(" + systemAnwendung + ")");
     }
 
     public void starten() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), starten()");
         arpTabelle = new HashMap<String, String[]>();
-        hinzuARPTabellenEintrag("255.255.255.255", "FF:FF:FF:FF:FF:FF");
+        hinzuARPTabellenEintrag(IPAddress.globalBroadcast(SzenarioVerwaltung.getInstance().ipVersion()),
+                "FF:FF:FF:FF:FF:FF");
         thread = new ARPThread(this);
         thread.starten();
     }
@@ -87,14 +90,13 @@ public class ARP extends VermittlungsProtokoll {
      * @param ipAdresse
      * @param macAdresse
      */
-    public void hinzuARPTabellenEintrag(String ipAdresse, String macAdresse) {
+    public void hinzuARPTabellenEintrag(IPAddress ipAdresse, String macAdresse) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), hinzuARPTabellenEintrag("
                 + ipAdresse + "," + macAdresse + ")");
         String tmpTime = "" + System.currentTimeMillis();
         String[] tmpString = { macAdresse, tmpTime };
-
         synchronized (arpTabelle) {
-            arpTabelle.put(ipAdresse, tmpString);
+            arpTabelle.put(ipAdresse.standardAddress(), tmpString);
             arpTabelle.notify();
         }
     }
@@ -127,46 +129,67 @@ public class ARP extends VermittlungsProtokoll {
      * @return MAC Adresse, zu der die IP Adresse gehoert, oder null, wenn keine MAC-Adresse bestimmt werden konnte
      */
     public String holeARPTabellenEintrag(String zielIp) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag("
-                + zielIp + ")");
-        if (zielIp.equals("127.0.0.1")) {
-            return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
-        }
-        if (holeSystemSoftware() instanceof InternetKnotenBetriebssystem) {
-            if (zielIp.equals(((InternetKnotenBetriebssystem) holeSystemSoftware()).holeIPAdresse())) {
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag(" + zielIp + ")");
+
+        try {
+            IPAddress ipAddress = new IPAddress(zielIp);
+            if (ipAddress.isLoopbackAddress()) {
                 return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
             }
-        }
-        // Eintrag in ARP-Tabelle fuer gesuchte IP-Adresse?
-        if (arpTabelle.get(zielIp) != null) {
-            return ((String[]) arpTabelle.get(zielIp))[0];
-        } else {
-            // ARP-Broadcast und warte auf Antwort
-            for (int i = 0; arpTabelle.get(zielIp) == null && i < 2; i++) {
-                sendeARPBroadcast(zielIp);
-                synchronized (arpTabelle) {
-                    try {
-                        arpTabelle.wait(Verbindung.holeRTT() / 2);
-                    } catch (InterruptedException e) {
-                        Main.debug.println("EXCEPTION (" + this.hashCode()
-                                + "): keine Anwort auf ARP-Broadcast fuer IP-Adresse " + zielIp + " eingegangen!");
-                        e.printStackTrace(Main.debug);
-                    }
+            if (holeSystemSoftware() instanceof InternetKnotenBetriebssystem) {
+                NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten())
+                        .getNetzwerkInterfaceByIp(zielIp);
+                if (nic != null) {
+                    return nic.getMac();
                 }
             }
+            // Eintrag in ARP-Tabelle fuer gesuchte IP-Adresse?
+            if (getArpEntry(ipAddress) != null) {
+                return ((String[]) getArpEntry(ipAddress))[0];
+            } else {
+                // ARP-Broadcast und warte auf Antwort
+                for (int i = 0; getArpEntry(ipAddress) == null && i < 2; i++) {
+                    try {
+                        sendeARPBroadcast(zielIp);
+                        synchronized (arpTabelle) {
+                            try {
+                                arpTabelle.wait(Verbindung.holeRTT() / 2);
+                            } catch (InterruptedException e) {
+                                Main.debug.println("EXCEPTION (" + this.hashCode()
+                                        + "): keine Anwort auf ARP-Broadcast fuer IP-Adresse " + zielIp
+                                        + " eingegangen!");
+                                e.printStackTrace(Main.debug);
+                            }
+                        }
+                    } catch (InvalidParameterException e1) {
+                        e1.printStackTrace();
+                    }
+                }
 
-            // Abfrage in ARP-Tabelle nach Broadcast
-            if (arpTabelle.get(zielIp) != null) {
-                return ((String[]) arpTabelle.get(zielIp))[0];
+                // Abfrage in ARP-Tabelle nach Broadcast
+                if (getArpEntry(ipAddress) != null) {
+                    return ((String[]) getArpEntry(ipAddress))[0];
+                }
             }
+        } catch (InvalidParameterException e2) {
+            e2.printStackTrace();
         }
 
         Main.debug.println("ERROR (" + this.hashCode() + "): kein ARP-Tabellen-Eintrag fuer " + zielIp);
         return null;
     }
 
-    /** Hilfsmethode zum Versenden einer ARP-Anfrage */
-    private void sendeARPBroadcast(String suchIp) {
+    private String[] getArpEntry(IPAddress ipAddress) {
+        return arpTabelle.get(ipAddress.standardAddress());
+    }
+
+    /**
+     * Hilfsmethode zum Versenden einer ARP-Anfrage
+     * 
+     * @throws InvalidParameterException
+     */
+    private void sendeARPBroadcast(String suchIp) throws InvalidParameterException {
         NetzwerkInterface nic = getBroadcastNic(suchIp);
         if (nic == null) {
             return;
@@ -183,25 +206,25 @@ public class ARP extends VermittlungsProtokoll {
                 "FF:FF:FF:FF:FF:FF", EthernetFrame.ARP);
     }
 
-    public NetzwerkInterface getBroadcastNic(String zielStr) {
-        long netAddr, maskAddr, zielAddr = IP.inetAton(zielStr);
+    public static boolean isValidArpEntry(String ipAddress, String localNetmask) {
+        return !VermittlungsProtokoll.isBroadcast(ipAddress, ipAddress, localNetmask)
+                && !VermittlungsProtokoll.isNetworkAddress(ipAddress, ipAddress, localNetmask);
+    }
 
+    public NetzwerkInterface getBroadcastNic(String zielStr) throws InvalidParameterException {
         long bestMask = -1;
         NetzwerkInterface bestNic = null;
 
         for (NetzwerkInterface nic : ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces()) {
-            maskAddr = IP.inetAton(nic.getSubnetzMaske());
-            if (maskAddr <= bestMask) {
-                continue;
-            }
-            netAddr = IP.inetAton(nic.getIp()) & maskAddr;
-            if (netAddr == (maskAddr & zielAddr)) {
-                bestMask = maskAddr;
+            IPAddress senderAddress = nic.addressIP();
+            IPAddress rcptAddress = new IPAddress(zielStr, senderAddress.netmask());
+            if (senderAddress.netmaskLength() > bestMask
+                    && senderAddress.networkAddress().equals(rcptAddress.networkAddress())) {
+                bestMask = senderAddress.netmaskLength();
                 bestNic = nic;
             }
         }
         if (null == bestNic) {
-            bestMask = IP.inetAton(((InternetKnotenBetriebssystem) holeSystemSoftware()).holeNetzmaske());
             bestNic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces().get(0);
         }
         return bestNic;

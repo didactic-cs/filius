@@ -29,40 +29,40 @@ import filius.Main;
 import filius.hardware.NetzwerkInterface;
 import filius.software.system.Betriebssystem;
 
+@SuppressWarnings("serial")
 public abstract class Host extends InternetKnoten {
+    private boolean useIPAsName = false;
 
-	private boolean useIPAsName = false;
+    public boolean isUseIPAsName() {
+        return useIPAsName;
+    }
 
-	public boolean isUseIPAsName() {
-		return useIPAsName;
-	}
+    public void setUseIPAsName(boolean useIPAsName) {
+        this.useIPAsName = useIPAsName;
+    }
 
-	public void setUseIPAsName(boolean useIPAsName) {
-		this.useIPAsName = useIPAsName;
-	}
+    public Host() {
+        super();
+        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Host), constr: Host()");
 
-	public Host() {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Host), constr: Host()");
+        this.setzeAnzahlAnschluesse(1);
+        this.setSystemSoftware(new Betriebssystem());
+        getSystemSoftware().setKnoten(this);
+        Main.debug.println("DEBUG:  Host " + this.hashCode() + " has OS " + getSystemSoftware().hashCode());
+    }
 
-		this.setzeAnzahlAnschluesse(1);
-		this.setSystemSoftware(new Betriebssystem());
-		getSystemSoftware().setKnoten(this);
-		Main.debug.println("DEBUG:  Host " + this.hashCode() + " has OS " + getSystemSoftware().hashCode());
-	}
+    @Override
+    public String holeAnzeigeName() {
+        if (useIPAsName) {
+            return getNetzwerkInterfaces().get(0).getIp();
+        } else {
+            return getName();
+        }
+    }
 
-	@Override
-	public String holeAnzeigeName() {
-		if (useIPAsName) {
-			return getNetzwerkInterfaces().get(0).getIp();
-		} else {
-			return getName();
-		}
-	}
-
-	public void setIpAdresse(String ip) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Host), setIpAdresse(" + ip + ")");
-		NetzwerkInterface nic = (NetzwerkInterface) this.getNetzwerkInterfaces().get(0);
-		nic.setIp(ip);
-	}
+    public void setIpAdresse(String ip) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Host), setIpAdresse(" + ip + ")");
+        NetzwerkInterface nic = (NetzwerkInterface) this.getNetzwerkInterfaces().get(0);
+        nic.setIp(ip);
+    }
 }

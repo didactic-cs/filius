@@ -39,70 +39,68 @@ import filius.software.vermittlungsschicht.IP;
  * 
  */
 public class RIPTable {
-	public static final int INFINITY = 16;
-	/**
-	 * refresh interval in millis. the refresh is used to update the routing
-	 * table in case of changes of the network configuration. the only change
-	 * that can occur during simulation mode is because of firewall
-	 * re-configuration.
-	 */
-	public static final int INTERVAL = 1000 * 30;
-	public static final int TIMEOUT = INTERVAL * 5 / 2;
+    public static final int INFINITY = 16;
+    /**
+     * refresh interval in millis. the refresh is used to update the routing table in case of changes of the network
+     * configuration. the only change that can occur during simulation mode is because of firewall re-configuration.
+     */
+    public static final int INTERVAL = 1000 * 30;
+    public static final int TIMEOUT = INTERVAL * 5 / 2;
 
-	public LinkedList<RIPRoute> routes;
+    public LinkedList<RIPRoute> routes;
 
-	private long nextBeacon;
+    private long nextBeacon;
 
-	private InternetKnotenBetriebssystem bs;
+    private InternetKnotenBetriebssystem bs;
 
-	public RIPTable(InternetKnotenBetriebssystem bs) {
-		this.bs = bs;
-		reset();
-	}
+    public RIPTable(InternetKnotenBetriebssystem bs) {
+        this.bs = bs;
+        reset();
+    }
 
-	public void reset() {
-		this.routes = new LinkedList<RIPRoute>();
-		this.setNextBeacon(RIPUtil.getTime() + 1000);
-	}
+    public void reset() {
+        this.routes = new LinkedList<RIPRoute>();
+        this.setNextBeacon(RIPUtil.getTime() + 1000);
+    }
 
-	public void addRoute(RIPRoute route) {
-		routes.add(route);
-	}
+    public void addRoute(RIPRoute route) {
+        routes.add(route);
+    }
 
-	public void addLocalRoutes(InternetKnoten knoten) {
-		long netMask, netAddr;
+    public void addLocalRoutes(InternetKnoten knoten) {
+        long netMask, netAddr;
 
-		for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-			netMask = IP.inetAton(nic.getSubnetzMaske());
-			netAddr = IP.inetAton(nic.getIp()) & netMask;
+        for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+            netMask = IP.inetAToN(nic.getSubnetzMaske());
+            netAddr = IP.inetAToN(nic.getIp()) & netMask;
 
-			addRoute(new RIPRoute(0, IP.inetNtoa(netAddr), IP.inetNtoa(netMask), nic.getIp(), bs.holeIPAdresse(),
-			        nic.getIp(), 0));
-		}
-	}
+            addRoute(new RIPRoute(0, IP.inetNtoa(netAddr), IP.inetNtoa(netMask), nic.getIp(),
+                    bs.holeIPAdresse(), nic.getIp(), 0));
+        }
+    }
 
-	public RIPRoute search(String net, String mask) {
-		for (RIPRoute route : routes) {
-			if (route.getNetAddress().equals(net) && route.getNetMask().equals(mask)) {
-				return route;
-			}
-		}
-		return null;
-	}
+    public RIPRoute search(String net, String mask) {
+        for (RIPRoute route : routes) {
+            if (route.getNetAddress().equals(net) && route.getNetMask().equals(mask)) {
+                return route;
+            }
+        }
+        return null;
+    }
 
-	public void check() {
-		for (RIPRoute route : routes) {
-			if (route.isExpired()) {
-				route.hops = INFINITY;
-			}
-		}
-	}
+    public void check() {
+        for (RIPRoute route : routes) {
+            if (route.isExpired()) {
+                route.hops = INFINITY;
+            }
+        }
+    }
 
-	public long getNextBeacon() {
-		return nextBeacon;
-	}
+    public long getNextBeacon() {
+        return nextBeacon;
+    }
 
-	public void setNextBeacon(long nextBeacon) {
-		this.nextBeacon = nextBeacon;
-	}
+    public void setNextBeacon(long nextBeacon) {
+        this.nextBeacon = nextBeacon;
+    }
 }

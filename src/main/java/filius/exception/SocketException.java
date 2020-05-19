@@ -25,13 +25,14 @@
  */
 package filius.exception;
 
-public class SocketException extends StilleException {
+@SuppressWarnings("serial")
+public class SocketException extends Exception {
 
-	public SocketException() {
-		super();
-	}
+    public SocketException() {
+        super();
+    }
 
-	public SocketException(String s) {
-		super(s);
-	}
+    public SocketException(String s) {
+        super(s);
+    }
 }

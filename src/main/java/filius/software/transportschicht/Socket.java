@@ -31,7 +31,7 @@ import filius.exception.TimeOutException;
 import filius.exception.VerbindungsException;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.InternetKnotenBetriebssystem;
-import filius.software.vermittlungsschicht.IP;
+import filius.software.vermittlungsschicht.IPAddress;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /**
@@ -83,7 +83,6 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
             throws VerbindungsException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + "," + transportProtokoll + ")");
-        String ip;
 
         modus = AKTIV;
         if (transportProtokoll == IpPaket.TCP)
@@ -91,9 +90,8 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
         else
             protokoll = betriebssystem.holeUdp();
 
-        ip = ipCheck(zielAdresse);
-        if (ip != null) {
-            this.zielIp = ip;
+        if (IPAddress.verifyAddress(zielAdresse)) {
+            this.zielIp = zielAdresse;
         } else {
             try {
                 this.zielIp = betriebssystem.holeDNSClient().holeIPAdresse(zielAdresse);
@@ -168,18 +166,6 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
 
     /** Zum Empfangen einer Nachricht ueber den Socket */
     public abstract String empfangen() throws VerbindungsException, TimeOutException;
-
-    /**
-     * Test, ob der uebergebene String eine gueltige IP-Adresse ist. Zurueckgegeben wird die IP-Adresse ohne
-     * ueberfluessige Nullen.
-     * 
-     * @param ip
-     *            die zu pruefende IP-Adresse
-     * @return
-     */
-    protected String ipCheck(String ip) {
-        return IP.ipCheck(ip);
-    }
 
     /**
      * Methode zum Versenden eines Segments an die Ziel-IP-Adresse mit Hilfe des Transport-Protokolls

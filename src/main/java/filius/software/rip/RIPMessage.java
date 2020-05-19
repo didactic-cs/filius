@@ -27,7 +27,7 @@ package filius.software.rip;
 
 import java.util.LinkedList;
 
-import filius.software.vermittlungsschicht.IP;
+import filius.software.vermittlungsschicht.IPAddress;
 
 /**
  * 
@@ -35,68 +35,68 @@ import filius.software.vermittlungsschicht.IP;
  *
  */
 public class RIPMessage {
-	public String ip;
-	public String publicIp;
-	public int infinity;
-	public int timeout;
+    public String ip;
+    public String publicIp;
+    public int infinity;
+    public int timeout;
 
-	public LinkedList<RIPMessageRoute> routes;
+    public LinkedList<RIPMessageRoute> routes;
 
-	public RIPMessage(String ip, String publicIp, int infinity, int timeout) {
-		this.ip = ip;
-		this.publicIp = publicIp;
-		this.infinity = infinity;
-		this.timeout = timeout;
+    public RIPMessage(String ip, String publicIp, int infinity, int timeout) {
+        this.ip = ip;
+        this.publicIp = publicIp;
+        this.infinity = infinity;
+        this.timeout = timeout;
 
-		routes = new LinkedList<RIPMessageRoute>();
-	}
+        routes = new LinkedList<RIPMessageRoute>();
+    }
 
-	public RIPMessage(String msg) throws IllegalArgumentException {
-		String[] lines = msg.split("\n");
+    public RIPMessage(String msg) throws IllegalArgumentException {
+        String[] lines = msg.split("\n");
 
-		try {
-			ip = IP.ipCheck(lines[0]);
-			publicIp = IP.ipCheck(lines[1]);
-			infinity = Integer.parseInt(lines[2]);
-			timeout = Integer.parseInt(lines[3]);
-		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalArgumentException();
-		}
+        try {
+            ip = IPAddress.verifyAddress(lines[0]) ? lines[0] : null;
+            publicIp = IPAddress.verifyAddress(lines[1]) ? lines[1] : null;
+            infinity = Integer.parseInt(lines[2]);
+            timeout = Integer.parseInt(lines[3]);
+        } catch (IndexOutOfBoundsException e) {
+            throw new IllegalArgumentException();
+        }
 
-		if (ip == null || publicIp == null || timeout <= 0 || infinity <= 0) {
-			throw new IllegalArgumentException();
-		}
+        if (ip == null || publicIp == null || timeout <= 0 || infinity <= 0) {
+            throw new IllegalArgumentException();
+        }
 
-		routes = new LinkedList<RIPMessageRoute>();
+        routes = new LinkedList<RIPMessageRoute>();
 
-		for (int i = 4; i < lines.length; i++) {
-			routes.add(new RIPMessageRoute(lines[i]));
-		}
-	}
+        for (int i = 4; i < lines.length; i++) {
+            routes.add(new RIPMessageRoute(lines[i]));
+        }
+    }
 
-	public String toString() {
-		String res = "";
-		res += ip + "\n";
-		res += publicIp + "\n";
-		res += infinity + "\n";
-		res += timeout;
+    public String toString() {
+        String res = "";
+        res += ip + "\n";
+        res += publicIp + "\n";
+        res += infinity + "\n";
+        res += timeout;
 
-		for (RIPMessageRoute route : routes) {
-			res += "\n" + route.toString();
-		}
+        for (RIPMessageRoute route : routes) {
+            res += "\n" + route.toString();
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	public void addRoute(RIPMessageRoute newRoute) {
-		for (RIPMessageRoute route : routes) {
-			if (route.ip.equals(newRoute.ip) && route.mask.equals(newRoute.mask)) {
-				if (newRoute.hops < route.hops) {
-					route.hops = newRoute.hops;
-				}
-				return;
-			}
-		}
-		routes.add(newRoute);
-	}
+    public void addRoute(RIPMessageRoute newRoute) {
+        for (RIPMessageRoute route : routes) {
+            if (route.ip.equals(newRoute.ip) && route.mask.equals(newRoute.mask)) {
+                if (newRoute.hops < route.hops) {
+                    route.hops = newRoute.hops;
+                }
+                return;
+            }
+        }
+        routes.add(newRoute);
+    }
 }

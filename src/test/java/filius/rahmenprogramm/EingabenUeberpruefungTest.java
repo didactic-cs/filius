@@ -1,8 +1,6 @@
 package filius.rahmenprogramm;
 
 import static filius.rahmenprogramm.EingabenUeberpruefung.musterEmailAdresse;
-import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresse;
-import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresseAuchLeer;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -48,15 +46,5 @@ public class EingabenUeberpruefungTest {
     @Test
     public void testEmailAdresse_Erweitert() throws Exception {
         assertTrue(EingabenUeberpruefung.isGueltig("Thomas <thomas@mustermann.de>", musterEmailAdresse));
-    }
-
-    @Test
-    public void testIpAdresse_AktuellesNetzwerk() throws Exception {
-        assertTrue(EingabenUeberpruefung.isGueltig("0.0.0.0", musterIpAdresse));
-    }
-
-    @Test
-    public void testIpAdresseAuchLeer_AktuellesNetzwerk() throws Exception {
-        assertTrue(EingabenUeberpruefung.isGueltig("0.0.0.0", musterIpAdresseAuchLeer));
     }
 }

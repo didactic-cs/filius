@@ -215,7 +215,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
             if (nic.getPort() != null) {
                 if (nic.getPort().getVerbindung() != null) {
                     nic.getPort().getVerbindung().addObserver(this);
-                    lbNetzwerk.setToolTipText("" + nic.getIp());
+                    lbNetzwerk.setToolTipText(nic.getIp());
                 }
             }
         }

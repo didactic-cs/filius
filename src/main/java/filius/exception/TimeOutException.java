@@ -25,13 +25,14 @@
  */
 package filius.exception;
 
-public class TimeOutException extends HauptException {
+@SuppressWarnings("serial")
+public class TimeOutException extends Exception {
 
-	public TimeOutException() {
-		super();
-	}
+    public TimeOutException() {
+        super();
+    }
 
-	public TimeOutException(String s) {
-		super(s);
-	}
+    public TimeOutException(String s) {
+        super(s);
+    }
 }

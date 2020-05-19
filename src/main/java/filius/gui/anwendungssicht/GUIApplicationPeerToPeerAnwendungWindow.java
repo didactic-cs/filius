@@ -55,9 +55,11 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
+import filius.gui.ValidateableTextField;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.software.dateiaustausch.PeerToPeerAnwendung;
 import filius.software.system.Datei;
+import filius.software.vermittlungsschicht.IPAddress;
 
 /**
  * Diese Klasse ist die grafische Benutzungsoberflaeche fuer die Peer2Peer Anwendung.
@@ -74,7 +76,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
     private JPanel searchPanel;
     private JLabel networkIpLabel;
     private JButton networkIpButton;
-    private JTextField networkIpField;
+    private ValidateableTextField networkIpField;
     private JLabel searchLabel;
     private JButton searchButton, downloadButton, stopSearchButton, emptyListButton;
     private JTextField searchField;
@@ -98,7 +100,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         networkIpButton = new JButton(messages.getString("peertopeeranwendung_msg2"));
         networkIpButton.setToolTipText(messages.getString("peertopeeranwendung_msg3"));
         tabHead = new JLabel(messages.getString("peertopeeranwendung_msg4"));
-        networkIpField = new JTextField("192.168.0.1");
+        networkIpField = new ValidateableTextField("192.168.0.1");
 
         networkIpField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
@@ -423,16 +425,9 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
      * @param pruefRegel
      * @param feld
      */
-    public void ipPruefen(JTextField feld) {
-        if (EingabenUeberpruefung.isGueltig(feld.getText(), EingabenUeberpruefung.musterIpAdresse)) {
-            feld.setForeground(EingabenUeberpruefung.farbeRichtig);
-            pruefungOK = true;
-        } else {
-            feld.setForeground(EingabenUeberpruefung.farbeFalsch);
-            pruefungOK = false;
-
-        }
-
+    public void ipPruefen(ValidateableTextField feld) {
+        pruefungOK = IPAddress.verifyAddress(feld.getText());
+        feld.setValid(pruefungOK);
     }
 
     /**

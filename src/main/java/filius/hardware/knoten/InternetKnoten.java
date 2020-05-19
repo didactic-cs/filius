@@ -30,8 +30,10 @@ import java.util.List;
 import java.util.ListIterator;
 
 import filius.Main;
+import filius.exception.InvalidParameterException;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
+import filius.software.vermittlungsschicht.IPAddress;
 
 public abstract class InternetKnoten extends Knoten {
 
@@ -91,17 +93,18 @@ public abstract class InternetKnoten extends Knoten {
     public NetzwerkInterface getNetzwerkInterfaceByIp(String ip) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnoten), getNetzwerkInterfaceByIp(" + ip + ")");
-        if (ip.equals("127.0.0.1")) {
-            return (NetzwerkInterface) netzwerkInterfaces.get(0);
-        }
         NetzwerkInterface rueckgabe = null;
-        ListIterator<NetzwerkInterface> it = this.netzwerkInterfaces.listIterator();
-        while (it.hasNext()) {
-            NetzwerkInterface ni = (NetzwerkInterface) it.next();
-            if (ni.getIp().equals(ip)) {
-                rueckgabe = ni;
+        try {
+            IPAddress ipAddress = new IPAddress(ip);
+            if (ipAddress.isLoopbackAddress()) {
+                return (NetzwerkInterface) netzwerkInterfaces.get(0);
             }
-        }
+            for (NetzwerkInterface ni : netzwerkInterfaces) {
+                if (ipAddress.equalAddress(ni.getIp())) {
+                    rueckgabe = ni;
+                }
+            }
+        } catch (InvalidParameterException e) {}
         return rueckgabe;
     }
 

@@ -25,13 +25,15 @@
  */
 package filius.exception;
 
+@SuppressWarnings("serial")
 public class CreateAccountException extends Exception {
-	public CreateAccountException() {
-		super();
-	}
 
-	public CreateAccountException(String s) {
-		super(s);
-	}
+    public CreateAccountException() {
+        super();
+    }
+
+    public CreateAccountException(String s) {
+        super(s);
+    }
 
 }

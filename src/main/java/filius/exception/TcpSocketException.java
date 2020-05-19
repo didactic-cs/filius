@@ -25,13 +25,14 @@
  */
 package filius.exception;
 
-public class TcpSocketException extends HauptException {
+@SuppressWarnings("serial")
+public class TcpSocketException extends Exception {
 
-	public TcpSocketException() {
-		super();
-	}
+    public TcpSocketException() {
+        super();
+    }
 
-	public TcpSocketException(String s) {
-		super(s);
-	}
+    public TcpSocketException(String s) {
+        super(s);
+    }
 }

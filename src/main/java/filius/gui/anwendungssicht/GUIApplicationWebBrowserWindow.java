@@ -55,252 +55,251 @@ import org.htmlparser.util.NodeList;
 import filius.Main;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.Information;
+import filius.software.vermittlungsschicht.IPAddress;
 import filius.software.www.HTTPNachricht;
 import filius.software.www.WebBrowser;
 
 public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private JPanel browserPanel;
+    private JPanel browserPanel;
 
-	private JTextField urlFeld;
+    private JTextField urlFeld;
 
-	private JEditorPane anzeigeFeld;
+    private JEditorPane anzeigeFeld;
 
-	private JButton goButton;
+    private JButton goButton;
 
-	public GUIApplicationWebBrowserWindow(final GUIDesktopPanel desktop, String appName) {
-		super(desktop, appName);
+    public GUIApplicationWebBrowserWindow(final GUIDesktopPanel desktop, String appName) {
+        super(desktop, appName);
 
-		HTMLEditorKit ek;
+        HTMLEditorKit ek;
 
-		browserPanel = new JPanel(new BorderLayout());
-		getContentPane().add(browserPanel);
+        browserPanel = new JPanel(new BorderLayout());
+        getContentPane().add(browserPanel);
 
-		Box topBox = Box.createHorizontalBox();
+        Box topBox = Box.createHorizontalBox();
 
-		urlFeld = new JTextField("http://");
-		urlFeld.setVisible(true);
+        urlFeld = new JTextField("http://");
+        urlFeld.setVisible(true);
 
-		topBox.add(urlFeld);
-		topBox.add(Box.createHorizontalStrut(5)); // Platz zw. urlFeld und
-		// senden
+        topBox.add(urlFeld);
+        topBox.add(Box.createHorizontalStrut(5)); // Platz zw. urlFeld und
+        // senden
 
-		goButton = new JButton(messages.getString("webbrowser_msg2"));
-		topBox.add(goButton);
-		topBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        goButton = new JButton(messages.getString("webbrowser_msg2"));
+        topBox.add(goButton);
+        topBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		browserPanel.add(topBox, BorderLayout.NORTH);
+        browserPanel.add(topBox, BorderLayout.NORTH);
 
-		Box middleBox = Box.createHorizontalBox();
-		middleBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        Box middleBox = Box.createHorizontalBox();
+        middleBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		/* ActionListener */
-		ActionListener al = new ActionListener() {
+        /* ActionListener */
+        ActionListener al = new ActionListener() {
 
-			public void actionPerformed(ActionEvent arg0) {
-				URL url;
+            public void actionPerformed(ActionEvent arg0) {
+                URL url;
 
-				url = erzeugeURL(urlFeld.getText());
-				abrufenWebseite(url, null);
-			}
-		};
-		goButton.addActionListener(al);
+                url = erzeugeURL(urlFeld.getText());
+                abrufenWebseite(url, null);
+            }
+        };
+        goButton.addActionListener(al);
 
-		/* KeyListener */
-		urlFeld.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				URL url;
+        /* KeyListener */
+        urlFeld.addKeyListener(new KeyListener() {
+            public void keyPressed(KeyEvent e) {
+                URL url;
 
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					// Main.debug.println("\t"+getClass()+": enter pressed");
-					url = erzeugeURL(urlFeld.getText());
-					abrufenWebseite(url, null);
-				}
-			}
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    // Main.debug.println("\t"+getClass()+": enter pressed");
+                    url = erzeugeURL(urlFeld.getText());
+                    abrufenWebseite(url, null);
+                }
+            }
 
-			public void keyReleased(KeyEvent arg0) {
-			}
+            public void keyReleased(KeyEvent arg0) {}
 
-			public void keyTyped(KeyEvent arg0) {
-			}
-		});
+            public void keyTyped(KeyEvent arg0) {}
+        });
 
-		ek = new HTMLEditorKit(); // Braucht er für SubmitEvent!
-		ek.setAutoFormSubmission(false); // muss!
+        ek = new HTMLEditorKit(); // Braucht er für SubmitEvent!
+        ek.setAutoFormSubmission(false); // muss!
 
-		anzeigeFeld = new JEditorPane();
-		anzeigeFeld.setEditorKit(ek);
-		anzeigeFeld.setContentType("text/html"); // text/html muss bleiben
-		// wegen folgendem Quelltext:
-		anzeigeFeld.setText("<html><head><base href=\"file:bilder\"></head><body margin=\"0\">"
-		        + "<center><img src=\"browser_waterwolf_logo.png\" align=\"top\"></center>" + "</font>"
-		        + "</body></html>");
+        anzeigeFeld = new JEditorPane();
+        anzeigeFeld.setEditorKit(ek);
+        anzeigeFeld.setContentType("text/html"); // text/html muss bleiben
+        // wegen folgendem Quelltext:
+        anzeigeFeld.setText("<html><head><base href=\"file:bilder\"></head><body margin=\"0\">"
+                + "<center><img src=\"browser_waterwolf_logo.png\" align=\"top\"></center>" + "</font>"
+                + "</body></html>");
 
-		// filius.rahmenprogramm.SzenarioVerwaltung.kopiereDatei(Information
-		// .getInformation().getProgrammPfad()
-		// + "gfx/desktop/browser_waterwolf_logo.png", Information
-		// .getInformation().getTempPfad()
-		// + "browser_waterwolf_logo.png");
-		filius.rahmenprogramm.SzenarioVerwaltung.saveStream(
-		        getClass().getResourceAsStream("/gfx/desktop/browser_waterwolf_logo.png"), Information.getInformation()
-		                .getTempPfad() + "browser_waterwolf_logo.png");
-		try {
-			((HTMLDocument) anzeigeFeld.getDocument()).setBase(new URL("file:"
-			        + Information.getInformation().getTempPfad()));
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace(Main.debug);
-		}
-		anzeigeFeld.setEditable(false);
-		anzeigeFeld.setBorder(null);
-		hyperLinkListener(anzeigeFeld);
-		anzeigeFeld.setVisible(true);
-		JScrollPane spAnzeige = new JScrollPane(anzeigeFeld);
+        // filius.rahmenprogramm.SzenarioVerwaltung.kopiereDatei(Information
+        // .getInformation().getProgrammPfad()
+        // + "gfx/desktop/browser_waterwolf_logo.png", Information
+        // .getInformation().getTempPfad()
+        // + "browser_waterwolf_logo.png");
+        filius.rahmenprogramm.SzenarioVerwaltung.saveStream(
+                getClass().getResourceAsStream("/gfx/desktop/browser_waterwolf_logo.png"), Information.getInformation()
+                        .getTempPfad() + "browser_waterwolf_logo.png");
+        try {
+            ((HTMLDocument) anzeigeFeld.getDocument()).setBase(new URL("file:"
+                    + Information.getInformation().getTempPfad()));
+        } catch (MalformedURLException e1) {
+            e1.printStackTrace(Main.debug);
+        }
+        anzeigeFeld.setEditable(false);
+        anzeigeFeld.setBorder(null);
+        hyperLinkListener(anzeigeFeld);
+        anzeigeFeld.setVisible(true);
+        JScrollPane spAnzeige = new JScrollPane(anzeigeFeld);
 
-		middleBox.add(spAnzeige);
+        middleBox.add(spAnzeige);
 
-		browserPanel.add(middleBox, BorderLayout.CENTER);
+        browserPanel.add(middleBox, BorderLayout.CENTER);
 
-		this.pack();
-	}
+        this.pack();
+    }
 
-	private URL erzeugeURL(String ressource) {
-		URL url = null;
-		String[] teilstrings;
-		String host = null, pfad = "";
+    private URL erzeugeURL(String ressource) {
+        URL url = null;
+        String[] teilstrings;
+        String host = null, pfad = "";
 
-		teilstrings = ressource.split("/");
-		// Fuer den Fall, dass URL-Eingabe mit Hostadresse beginnt
-		if (teilstrings.length > 0 && !teilstrings[0].equalsIgnoreCase("http:")) {
-			if (EingabenUeberpruefung.isGueltig(teilstrings[0], EingabenUeberpruefung.musterDomain)
-			        || EingabenUeberpruefung.isGueltig(teilstrings[0], EingabenUeberpruefung.musterIpAdresse)) {
-				host = teilstrings[0];
+        teilstrings = ressource.split("/");
+        // Fuer den Fall, dass URL-Eingabe mit Hostadresse beginnt
+        if (teilstrings.length > 0 && !teilstrings[0].equalsIgnoreCase("http:")) {
+            if (EingabenUeberpruefung.isGueltig(teilstrings[0], EingabenUeberpruefung.musterDomain)
+                    || IPAddress.verifyAddress(teilstrings[0])) {
+                host = teilstrings[0];
 
-				for (int i = 1; i < teilstrings.length; i++) {
-					pfad = pfad + "/" + teilstrings[i];
-				}
-			}
-		}
-		// Fuer den Fall, dass URL-Eingabe mit http:// beginnt
-		if (teilstrings.length > 2 && teilstrings[0].equalsIgnoreCase("http:")) {
-			if (EingabenUeberpruefung.isGueltig(teilstrings[2], EingabenUeberpruefung.musterDomain)
-			        || EingabenUeberpruefung.isGueltig(teilstrings[2], EingabenUeberpruefung.musterIpAdresse)) {
-				host = teilstrings[2];
-			}
-			for (int i = 3; i < teilstrings.length; i++) {
-				pfad = pfad + "/" + teilstrings[i];
-			}
-		}
+                for (int i = 1; i < teilstrings.length; i++) {
+                    pfad = pfad + "/" + teilstrings[i];
+                }
+            }
+        }
+        // Fuer den Fall, dass URL-Eingabe mit http:// beginnt
+        if (teilstrings.length > 2 && teilstrings[0].equalsIgnoreCase("http:")) {
+            if (EingabenUeberpruefung.isGueltig(teilstrings[2], EingabenUeberpruefung.musterDomain)
+                    || IPAddress.verifyAddress(teilstrings[2])) {
+                host = teilstrings[2];
+            }
+            for (int i = 3; i < teilstrings.length; i++) {
+                pfad = pfad + "/" + teilstrings[i];
+            }
+        }
 
-		if (host != null) {
-			if (pfad.equals(""))
-				pfad = "/";
+        if (host != null) {
+            if (pfad.equals(""))
+                pfad = "/";
 
-			try {
-				url = new URL("http", host, pfad);
-			} catch (MalformedURLException e) {
-				e.printStackTrace(Main.debug);
-			}
-		}
+            try {
+                url = new URL("http", host, pfad);
+            } catch (MalformedURLException e) {
+                e.printStackTrace(Main.debug);
+            }
+        }
 
-		return url;
-	}
+        return url;
+    }
 
-	private void abrufenWebseite(URL url, String postDaten) {
-		String host;
+    private void abrufenWebseite(URL url, String postDaten) {
+        String host;
 
-		if (url != null) {
-			if (postDaten == null)
-				((WebBrowser) holeAnwendung()).holeWebseite(url);
-			else
-				((WebBrowser) holeAnwendung()).holeWebseite(url, postDaten);
+        if (url != null) {
+            if (postDaten == null)
+                ((WebBrowser) holeAnwendung()).holeWebseite(url);
+            else
+                ((WebBrowser) holeAnwendung()).holeWebseite(url, postDaten);
 
-			if (url.getHost() == null || url.getHost().equals("")) {
-				host = ((WebBrowser) holeAnwendung()).holeHost();
-			} else {
-				host = url.getHost();
-			}
-			urlFeld.setText(url.getProtocol() + "://" + host + url.getPath());
-			setTitle(url.getProtocol() + "://" + host + url.getPath());
+            if (url.getHost() == null || url.getHost().equals("")) {
+                host = ((WebBrowser) holeAnwendung()).holeHost();
+            } else {
+                host = url.getHost();
+            }
+            urlFeld.setText(url.getProtocol() + "://" + host + url.getPath());
+            setTitle(url.getProtocol() + "://" + host + url.getPath());
 
-		} else {
-			urlFeld.setText("http://");
-		}
-	}
+        } else {
+            urlFeld.setText("http://");
+        }
+    }
 
-	private void initialisiereWebseite(String quelltext) {
-		Parser parser;
-		NodeList liste;
-		Tag tag;
+    private void initialisiereWebseite(String quelltext) {
+        Parser parser;
+        NodeList liste;
+        Tag tag;
 
-		anzeigeFeld.setContentType("text/html");
-		anzeigeFeld.setText(quelltext);
+        anzeigeFeld.setContentType("text/html");
+        anzeigeFeld.setText(quelltext);
 
-		parser = Parser.createParser(quelltext, null);
+        parser = Parser.createParser(quelltext, null);
 
-		try {
-			liste = parser.parse(new TagNameFilter("title"));
-			if (liste.size() > 0) {
-				tag = (Tag) liste.elementAt(0);
-				if (tag.getChildren() != null && tag.getChildren().size() > 0)
-					setTitle(tag.getChildren().elementAt(0).toHtml());
-			}
-		} catch (Exception e) {
-			e.printStackTrace(Main.debug);
-		}
-	}
+        try {
+            liste = parser.parse(new TagNameFilter("title"));
+            if (liste.size() > 0) {
+                tag = (Tag) liste.elementAt(0);
+                if (tag.getChildren() != null && tag.getChildren().size() > 0)
+                    setTitle(tag.getChildren().elementAt(0).toHtml());
+            }
+        } catch (Exception e) {
+            e.printStackTrace(Main.debug);
+        }
+    }
 
-	private void hyperLinkListener(JEditorPane editorPane) {
-		editorPane.addHyperlinkListener(new HyperlinkListener() {
-			public void hyperlinkUpdate(HyperlinkEvent e) {
-				URL url = null, tmp;
-				String pfad;
+    private void hyperLinkListener(JEditorPane editorPane) {
+        editorPane.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                URL url = null, tmp;
+                String pfad;
 
-				// Hier wird auf einen Klick reagiert
-				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-					tmp = ((HTMLDocument) anzeigeFeld.getDocument()).getBase();
+                // Hier wird auf einen Klick reagiert
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    tmp = ((HTMLDocument) anzeigeFeld.getDocument()).getBase();
 
-					if (e.getURL().getProtocol().equals(tmp.getProtocol())) {
-						try {
-							pfad = e.getURL().getFile().replace(tmp.getFile(), "/");
-							url = new URL("http", "", pfad);
-						} catch (MalformedURLException e1) {
-							e1.printStackTrace(Main.debug);
-						}
-					} else {
-						url = e.getURL();
-					}
+                    if (e.getURL().getProtocol().equals(tmp.getProtocol())) {
+                        try {
+                            pfad = e.getURL().getFile().replace(tmp.getFile(), "/");
+                            url = new URL("http", "", pfad);
+                        } catch (MalformedURLException e1) {
+                            e1.printStackTrace(Main.debug);
+                        }
+                    } else {
+                        url = e.getURL();
+                    }
 
-					// in diesem Fall kam das Event vom Submit-Button:
-					if (e instanceof FormSubmitEvent) {
-						FormSubmitEvent evt = (FormSubmitEvent) e;
-						// Zerlegen erfolgt erst im Server
-						String postDatenteil = evt.getData();
-						abrufenWebseite(url, postDatenteil);
-					} else {
-						abrufenWebseite(url, null);
-					}
+                    // in diesem Fall kam das Event vom Submit-Button:
+                    if (e instanceof FormSubmitEvent) {
+                        FormSubmitEvent evt = (FormSubmitEvent) e;
+                        // Zerlegen erfolgt erst im Server
+                        String postDatenteil = evt.getData();
+                        abrufenWebseite(url, postDatenteil);
+                    } else {
+                        abrufenWebseite(url, null);
+                    }
 
-				}
+                }
 
-			}
-		});
-	}
+            }
+        });
+    }
 
-	public void update(Observable arg0, Object arg1) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (GUIApplicationWebBrowserWindow), update(" + arg0 + "," + arg1 + ")");
-		if (arg1 == null) {
-			anzeigeFeld.updateUI();
-		} else if (arg1 instanceof HTTPNachricht) {
-			if (((HTTPNachricht) arg1).getDaten() == null) {
-				anzeigeFeld.updateUI();
-			} else {
-				initialisiereWebseite(((HTTPNachricht) arg1).getDaten());
-			}
-		} else {
-			// Main.debug.println(arg1);
-		}
-	}
+    public void update(Observable arg0, Object arg1) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+                + " (GUIApplicationWebBrowserWindow), update(" + arg0 + "," + arg1 + ")");
+        if (arg1 == null) {
+            anzeigeFeld.updateUI();
+        } else if (arg1 instanceof HTTPNachricht) {
+            if (((HTTPNachricht) arg1).getDaten() == null) {
+                anzeigeFeld.updateUI();
+            } else {
+                initialisiereWebseite(((HTTPNachricht) arg1).getDaten());
+            }
+        } else {
+            // Main.debug.println(arg1);
+        }
+    }
 }

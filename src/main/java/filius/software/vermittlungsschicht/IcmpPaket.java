@@ -27,6 +27,8 @@ package filius.software.vermittlungsschicht;
 
 import java.io.Serializable;
 
+import filius.exception.InvalidParameterException;
+
 /** Diese Klasse umfasst die Attribute eines ARP-Pakets */
 public class IcmpPaket implements Serializable, Cloneable {
 
@@ -85,7 +87,7 @@ public class IcmpPaket implements Serializable, Cloneable {
     public boolean isEchoResponse() {
         return icmpType == ICMP.TYPE_ECHO_REPLY && icmpCode == ICMP.CODE_ECHO;
     }
-    
+
     public boolean isEchoRequest() {
         return icmpType == ICMP.TYPE_ECHO_REQUEST && icmpCode == ICMP.CODE_ECHO;
     }
@@ -112,7 +114,9 @@ public class IcmpPaket implements Serializable, Cloneable {
     }
 
     public void setQuellIp(String quellIp) {
-        this.quellIp = quellIp;
+        try {
+            this.quellIp = new IPAddress(quellIp).standardAddress();
+        } catch (InvalidParameterException e) {}
     }
 
     public String getZielIp() {
@@ -120,7 +124,9 @@ public class IcmpPaket implements Serializable, Cloneable {
     }
 
     public void setZielIp(String zielIp) {
-        this.zielIp = zielIp;
+        try {
+            this.zielIp = new IPAddress(zielIp).standardAddress();
+        } catch (InvalidParameterException e) {}
     }
 
     public String toString() {

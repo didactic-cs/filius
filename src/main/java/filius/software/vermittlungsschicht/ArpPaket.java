@@ -27,71 +27,80 @@ package filius.software.vermittlungsschicht;
 
 import java.io.Serializable;
 
+import filius.exception.InvalidParameterException;
+
 /** Diese Klasse umfasst die Attribute eines ARP-Pakets */
 public class ArpPaket implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Protokoll-Typ der Vermittlungsschicht */
-	private String protokollTyp;
+    /** Protokoll-Typ der Vermittlungsschicht */
+    private String protokollTyp;
 
-	/** MAC-Adresse des sendenden Knotens */
-	private String quellMacAdresse;
+    /** MAC-Adresse des sendenden Knotens */
+    private String quellMacAdresse;
 
-	/** IP-Adresse des sendenden Knotens */
-	private String quellIp;
+    /** IP-Adresse des sendenden Knotens */
+    private String quellIp;
 
-	/** MAC-Adresse des Zielknotens (i.d.R. Broadcast) */
-	private String zielMacAdresse;
+    /** MAC-Adresse des Zielknotens (i.d.R. Broadcast) */
+    private String zielMacAdresse;
 
-	/**
-	 * Ziel-IP-Adresse bzw. die Adresse des Knotens, zu dem die MAC-Adresse
-	 * gesucht wird
-	 */
-	private String zielIp;
+    /**
+     * Ziel-IP-Adresse bzw. die Adresse des Knotens, zu dem die MAC-Adresse gesucht wird
+     */
+    private String zielIp;
 
-	public String getProtokollTyp() {
-		return protokollTyp;
-	}
+    public String getProtokollTyp() {
+        return protokollTyp;
+    }
 
-	public void setProtokollTyp(String protokollTyp) {
-		this.protokollTyp = protokollTyp;
-	}
+    public void setProtokollTyp(String protokollTyp) {
+        this.protokollTyp = protokollTyp;
+    }
 
-	public String getQuellIp() {
-		return quellIp;
-	}
+    public String getQuellIp() {
+        return quellIp;
+    }
 
-	public void setQuellIp(String quellIp) {
-		this.quellIp = quellIp;
-	}
+    public void setQuellIp(String quellIp) {
+        try {
+            this.quellIp = new IPAddress(quellIp).standardAddress();
+        } catch (InvalidParameterException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public String getQuellMacAdresse() {
-		return quellMacAdresse;
-	}
+    public String getQuellMacAdresse() {
+        return quellMacAdresse;
+    }
 
-	public void setQuellMacAdresse(String quellMacAdresse) {
-		this.quellMacAdresse = quellMacAdresse;
-	}
+    public void setQuellMacAdresse(String quellMacAdresse) {
+        this.quellMacAdresse = quellMacAdresse;
+    }
 
-	public String getZielIp() {
-		return zielIp;
-	}
+    public String getZielIp() {
+        return zielIp;
+    }
 
-	public void setZielIp(String zielIp) {
-		this.zielIp = zielIp;
-	}
+    public void setZielIp(String zielIp) {
+        try {
+            this.zielIp = new IPAddress(zielIp).standardAddress();
+        } catch (InvalidParameterException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public String getZielMacAdresse() {
-		return zielMacAdresse;
-	}
+    public String getZielMacAdresse() {
+        return zielMacAdresse;
+    }
 
-	public void setZielMacAdresse(String zielMacAdresse) {
-		this.zielMacAdresse = zielMacAdresse;
-	}
+    public void setZielMacAdresse(String zielMacAdresse) {
+        this.zielMacAdresse = zielMacAdresse;
+    }
 
-	public String toString() {
-		return "[" + "protokollTyp=" + protokollTyp + ", " + "quellMacAdresse=" + quellMacAdresse + ", " + "quellIp="
-		        + quellIp + ", " + "zielMacAdresse=" + zielMacAdresse + ", " + "zielIp=" + zielIp + "]";
-	}
+    public String toString() {
+        return "[" + "protokollTyp=" + protokollTyp + ", " + "quellMacAdresse=" + quellMacAdresse + ", " + "quellIp="
+                + quellIp + ", " + "zielMacAdresse=" + zielMacAdresse + ", " + "zielIp=" + zielIp + "]";
+    }
 }

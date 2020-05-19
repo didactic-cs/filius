@@ -25,6 +25,9 @@
  */
 package filius.rahmenprogramm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.Main;
 
 /**
@@ -32,105 +35,104 @@ import filius.Main;
  * 
  * 
  *         Aus der Java-Doc fuer die Klasse ClassLoader: <br />
- *         The ClassLoader class uses a delegation model to search for classes
- *         and resources. Each instance of ClassLoader has an associated parent
- *         class loader. When requested to find a class or resource, a
- *         ClassLoader instance will delegate the search for the class or
- *         resource to its parent class loader before attempting to find the
- *         class or resource itself. The virtual machine's built-in class
- *         loader, called the "bootstrap class loader", does not itself have a
- *         parent but may serve as the parent of a ClassLoader instance.
+ *         The ClassLoader class uses a delegation model to search for classes and resources. Each instance of
+ *         ClassLoader has an associated parent class loader. When requested to find a class or resource, a ClassLoader
+ *         instance will delegate the search for the class or resource to its parent class loader before attempting to
+ *         find the class or resource itself. The virtual machine's built-in class loader, called the
+ *         "bootstrap class loader", does not itself have a parent but may serve as the parent of a ClassLoader
+ *         instance.
  */
 public class FiliusClassLoader extends ClassLoader implements I18n {
+    private static final Logger LOG = LoggerFactory.getLogger(FiliusClassLoader.class);
 
-	private static FiliusClassLoader classLoader;
+    private static FiliusClassLoader classLoader;
 
-	protected FiliusClassLoader(ClassLoader parent) {
-		super(parent);
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: FiliusClassLoader("
-		        + parent + ")");
-	}
+    protected FiliusClassLoader(ClassLoader parent) {
+        super(parent);
+        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: FiliusClassLoader("
+                + parent + ")");
+    }
 
-	public static FiliusClassLoader getInstance(ClassLoader parent) {
-		Main.debug.println("INVOKED (static) filius.rahmenprogramm.FiliusClassLoader, getInstance()");
-		if (classLoader == null) {
-			classLoader = new FiliusClassLoader(parent);
-		}
+    public static FiliusClassLoader getInstance(ClassLoader parent) {
+        Main.debug.println("INVOKED (static) filius.rahmenprogramm.FiliusClassLoader, getInstance()");
+        if (classLoader == null) {
+            classLoader = new FiliusClassLoader(parent);
+        }
 
-		return classLoader;
-	}
+        return classLoader;
+    }
 
-	public Class<?> loadClass(String name) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", loadClass(" + name + ")");
-		Class<?> klasse = null;
+    public Class<?> loadClass(String name) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", loadClass(" + name + ")");
+        Class<?> klasse = null;
 
-		try {
-			klasse = getParent().loadClass(name);
-			return klasse;
-		} catch (Exception e2) {
-		}
+        try {
+            klasse = getParent().loadClass(name);
+            return klasse;
+        } catch (Exception e2) {
+            LOG.debug("Could not find class " + name + " with Filius class loader.", e2);
+        }
 
-		try {
-			klasse = findClass(name);
-		} catch (Exception e) {
-			e.printStackTrace(Main.debug);
-		}
+        try {
+            klasse = findClass(name);
+        } catch (Exception e) {
+            LOG.debug("Could not find class " + name + " with Filius class loader.", e);
+        }
 
-		return klasse;
-	}
+        return klasse;
+    }
 
-	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", findClass(" + name + ")");
-		Class c = null;
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", findClass(" + name + ")");
+        Class<?> c = null;
 
-		if (name.endsWith("BeanInfo"))
-			return null;
+        if (name.endsWith("BeanInfo"))
+            return null;
 
-		byte[] b = loadClassData(name);
+        byte[] b = loadClassData(name);
 
-		if (b != null) {
-			c = defineClass(name, b, 0, b.length);
-		} else {
-			throw new ClassNotFoundException(messages.getString("rp_filiusclassloader_msg1") + " " + name + " "
-			        + messages.getString("rp_filiusclassloader_msg2"));
-		}
-		return c;
-	}
+        if (b != null) {
+            c = defineClass(name, b, 0, b.length);
+        } else {
+            throw new ClassNotFoundException(messages.getString("rp_filiusclassloader_msg1") + " " + name + " "
+                    + messages.getString("rp_filiusclassloader_msg2"));
+        }
+        return c;
+    }
 
-	private byte[] loadClassData(String className) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", loadClassData(" + className + ")");
-		java.io.CharArrayWriter byteInputFromClassFile = new java.io.CharArrayWriter();
-		java.io.FileInputStream fileInput = null;
-		int temp;
-		char[] tempCharArray;
-		byte[] classData = null;
+    private byte[] loadClassData(String className) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", loadClassData(" + className + ")");
+        java.io.CharArrayWriter byteInputFromClassFile = new java.io.CharArrayWriter();
+        java.io.FileInputStream fileInput = null;
+        int temp;
+        char[] tempCharArray;
+        byte[] classData = null;
 
-		String classPath = Information.getInformation().getAnwendungenPfad()
-		        + className.replace('.', System.getProperty("file.separator").charAt(0)) + ".class";
+        String classPath = Information.getInformation().getAnwendungenPfad()
+                + className.replace('.', System.getProperty("file.separator").charAt(0)) + ".class";
 
-		if ((new java.io.File(classPath)).exists()) {
-			try {
-				fileInput = new java.io.FileInputStream(classPath);
-				while ((temp = fileInput.read()) != -1) {
-					byteInputFromClassFile.append((char) temp);
-				}
-				tempCharArray = byteInputFromClassFile.toCharArray();
-				classData = new byte[tempCharArray.length];
-				for (int i = 0; i < classData.length; i++) {
-					classData[i] = (byte) tempCharArray[i];
-				}
-			} catch (Exception e) {
-				e.printStackTrace(Main.debug);
-				classData = null;
-			} finally {
-				try {
-					fileInput.close();
-				} catch (Exception e) {
-				}
-			}
-		}
+        if ((new java.io.File(classPath)).exists()) {
+            try {
+                fileInput = new java.io.FileInputStream(classPath);
+                while ((temp = fileInput.read()) != -1) {
+                    byteInputFromClassFile.append((char) temp);
+                }
+                tempCharArray = byteInputFromClassFile.toCharArray();
+                classData = new byte[tempCharArray.length];
+                for (int i = 0; i < classData.length; i++) {
+                    classData[i] = (byte) tempCharArray[i];
+                }
+            } catch (Exception e) {
+                e.printStackTrace(Main.debug);
+                classData = null;
+            } finally {
+                try {
+                    fileInput.close();
+                } catch (Exception e) {}
+            }
+        }
 
-		return classData;
-	}
+        return classData;
+    }
 
 }

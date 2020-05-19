@@ -33,7 +33,7 @@ import filius.exception.VerbindungsException;
 import filius.hardware.Verbindung;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.transportschicht.UDPSocket;
-import filius.software.vermittlungsschicht.IP;
+import filius.software.vermittlungsschicht.IPAddress;
 
 /**
  * Ausschnitt aus dem RFC 1035: <br />
@@ -145,10 +145,8 @@ public class Resolver extends ClientAnwendung {
             return "127.0.0.1";
         }
 
-        adresse = IP.ipCheck(domainname);
-        if (adresse != null) { // is domainname already a valid IPv4 address?
-                               // then return its content without leading zeros
-            return adresse;
+        if (IPAddress.verifyAddress(domainname)) {
+            return domainname;
         }
 
         if (!domainname.matches(".*\\.$")) {
