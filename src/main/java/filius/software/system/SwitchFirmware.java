@@ -78,6 +78,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
             anschlussBeobachter.starten();
             switchBeobachter.add(anschlussBeobachter);
         }
+        firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, null));
     }
 
     /** Hier wird die Netzzugangsschicht des Switch gestoppt. */
