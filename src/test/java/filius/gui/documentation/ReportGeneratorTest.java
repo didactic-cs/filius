@@ -18,7 +18,7 @@ import filius.Main;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 
 public class ReportGeneratorTest {
-    private static final String PDF_OUTPUT = "iTextHelloWorld.pdf";
+    private static final String PDF_OUTPUT = "test.pdf";
     private static final Object[][] DATA = {
             { "5", "16:49:09.224", "141.99.5.11", "141.99.5.10", "ARP", "Vermittlung",
                     "Suche nach MAC für 141.99.5.10, 141.99.5.11: 73:E5:39:B7:DC:79" },

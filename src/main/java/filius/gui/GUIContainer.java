@@ -36,10 +36,12 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -451,30 +453,36 @@ public class GUIContainer implements Serializable, I18n {
             String imagePath = fileChooser.getSelectedFile().getAbsolutePath();
             if (FileType.SVG == type) {
                 imagePath = imagePath.endsWith(".svg") ? imagePath : imagePath + ".svg";
-                exportAsSVG(imagePath);
             } else {
                 imagePath = imagePath.endsWith(".png") ? imagePath : imagePath + ".png";
-                exportAsPNG(imagePath);
+            }
+
+            int entscheidung = JOptionPane.YES_OPTION;
+            if (imagePath != null && new File(imagePath).exists()) {
+                entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
+                        messages.getString("guimainmemu_msg17"), messages.getString("guimainmemu_msg10"),
+                        JOptionPane.YES_NO_OPTION);
+            }
+            if (entscheidung == JOptionPane.YES_OPTION) {
+                try {
+                    if (FileType.SVG == type) {
+                        exportAsSVG(imagePath);
+                    } else {
+                        exportAsPNG(imagePath);
+                    }
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), messages.getString("guimainmemu_msg11"));
+                }
             }
             Main.debug.println("export to file: " + imagePath);
             updateViewport();
         }
     }
 
-    private void exportAsPNG(String imagePath) {
+    private void exportAsPNG(String imagePath) throws IOException {
         BufferedImage printArea = createNetworkImage();
-        ImageOutputStream outputStream = null;
-        try {
-            outputStream = new FileImageOutputStream(new File(imagePath));
+        try (ImageOutputStream outputStream = new FileImageOutputStream(new File(imagePath))) {
             ImageIO.write(printArea, "png", outputStream);
-        } catch (Exception ex) {
-            Main.debug.println("export of file failed: " + ex.getMessage());
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {}
-            }
         }
     }
 
@@ -490,7 +498,7 @@ public class GUIContainer implements Serializable, I18n {
         return printArea;
     }
 
-    private void exportAsSVG(String imagePath) {
+    private void exportAsSVG(String imagePath) throws UnsupportedEncodingException, FileNotFoundException, IOException {
         // Get a DOMImplementation.
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
 
@@ -509,9 +517,6 @@ public class GUIContainer implements Serializable, I18n {
 
         try (Writer out = new OutputStreamWriter(new FileOutputStream(new File(imagePath)), "UTF-8");) {
             svgGenerator.stream(out, true);
-        } catch (IOException e) {
-            Main.debug.println(e.getMessage());
-            e.printStackTrace();
         }
     }
 

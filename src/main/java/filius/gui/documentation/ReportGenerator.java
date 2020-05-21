@@ -83,8 +83,14 @@ public class ReportGenerator {
         return singleton;
     }
 
+    private void resetSections() {
+        sectionNoLevel1 = 0;
+        sectionNoLevel2 = 0;
+    }
+
     public void generateReport(String pdfFilepath) throws DocumentException, IOException {
         Document document = initDocument(pdfFilepath);
+        resetSections();
 
         addOverviewSection(document);
         document.add(Chunk.NEXTPAGE);

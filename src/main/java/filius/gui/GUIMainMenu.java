@@ -148,7 +148,6 @@ public class GUIMainMenu implements Serializable, I18n {
         ActionListener al = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                int entscheidung = JOptionPane.YES_OPTION;
                 boolean erfolg;
 
                 if (isSoftwareWizardEnabled() && e.getActionCommand().equals(btWizard.getActionCommand())) {
@@ -161,6 +160,7 @@ public class GUIMainMenu implements Serializable, I18n {
                 }
 
                 if (e.getActionCommand().equals(btNeu.getActionCommand())) {
+                    int entscheidung = JOptionPane.YES_OPTION;
                     try {
                         if (SzenarioVerwaltung.getInstance().istGeaendert()) {
                             entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
@@ -197,13 +197,26 @@ public class GUIMainMenu implements Serializable, I18n {
                                 } else {
                                     targetFilePath = fcSpeichern.getSelectedFile().getPath() + ".fls";
                                 }
-                                erfolg = SzenarioVerwaltung.getInstance().speichern(targetFilePath,
-                                        GUIContainer.getGUIContainer().getKnotenItems(),
-                                        GUIContainer.getGUIContainer().getCableItems(),
-                                        GUIContainer.getGUIContainer().getDocuItems());
-                                if (!erfolg) {
-                                    JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(),
-                                            messages.getString("guimainmemu_msg11"));
+
+                                int entscheidung = JOptionPane.YES_OPTION;
+                                if (SzenarioVerwaltung.getInstance().holePfad() != null && targetFilePath != null
+                                        && new File(targetFilePath).exists()
+                                        && !new File(SzenarioVerwaltung.getInstance().holePfad())
+                                                .equals(new File(targetFilePath))) {
+                                    entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
+                                            messages.getString("guimainmemu_msg17"),
+                                            messages.getString("guimainmemu_msg10"), JOptionPane.YES_NO_OPTION);
+                                }
+
+                                if (entscheidung == JOptionPane.YES_OPTION) {
+                                    erfolg = SzenarioVerwaltung.getInstance().speichern(targetFilePath,
+                                            GUIContainer.getGUIContainer().getKnotenItems(),
+                                            GUIContainer.getGUIContainer().getCableItems(),
+                                            GUIContainer.getGUIContainer().getDocuItems());
+                                    if (!erfolg) {
+                                        JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(),
+                                                messages.getString("guimainmemu_msg11"));
+                                    }
                                 }
                             }
                         }
@@ -211,6 +224,7 @@ public class GUIMainMenu implements Serializable, I18n {
                 }
 
                 if (e.getActionCommand().equals(btOeffnen.getActionCommand())) {
+                    int entscheidung = JOptionPane.YES_OPTION;
                     try {
                         if (SzenarioVerwaltung.getInstance().istGeaendert()) {
                             entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),

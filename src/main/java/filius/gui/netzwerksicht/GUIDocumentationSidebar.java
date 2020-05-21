@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -114,10 +115,18 @@ public class GUIDocumentationSidebar extends GUISidebar implements I18n {
             String reportPath = fileChooser.getSelectedFile().getAbsolutePath();
             reportPath = reportPath.endsWith(".pdf") ? reportPath : reportPath + ".pdf";
 
-            try {
-                ReportGenerator.getInstance().generateReport(reportPath);
-            } catch (DocumentException | IOException e) {
-                e.printStackTrace();
+            int entscheidung = JOptionPane.YES_OPTION;
+            if (reportPath != null && new File(reportPath).exists()) {
+                entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
+                        messages.getString("guimainmemu_msg17"), messages.getString("guimainmemu_msg10"),
+                        JOptionPane.YES_NO_OPTION);
+            }
+            if (entscheidung == JOptionPane.YES_OPTION) {
+                try {
+                    ReportGenerator.getInstance().generateReport(reportPath);
+                } catch (DocumentException | IOException e) {
+                    JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), messages.getString("guimainmemu_msg11"));
+                }
             }
         }
     }
