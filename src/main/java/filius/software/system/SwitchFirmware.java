@@ -67,6 +67,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      * Hier wird die Netzzugangsschicht des Switch initialisiert und gestartet. Ausserdem wird die SAT zurueckgesetzt.
      */
     public void starten() {
+        super.starten();
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), starten()");
         SwitchPortBeobachter anschlussBeobachter;
 
@@ -83,6 +84,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
 
     /** Hier wird die Netzzugangsschicht des Switch gestoppt. */
     public void beenden() {
+        super.beenden();
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), beenden()");
         for (SwitchPortBeobachter anschlussBeobachter : switchBeobachter) {
             anschlussBeobachter.beenden();

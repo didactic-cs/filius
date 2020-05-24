@@ -96,7 +96,7 @@ public class ModemEmpfaenger extends ProtokollThread {
                 + " (ModemAnschlussBeobachterExtern), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
         EthernetFrame frame;
 
-        if (firmware.istGestartet()) {
+        if (firmware.isStarted()) {
             frame = (EthernetFrame) datenEinheit;
 
             synchronized (((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer()) {

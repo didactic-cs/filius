@@ -42,6 +42,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -62,6 +63,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 
@@ -137,6 +139,7 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
             @Override
             public void windowActivated(WindowEvent e) {
                 AggregatedExchangeDialog.this.updateTabTitle();
+                AggregatedExchangeDialog.this.clearUnavailableComponents();
             }
         });
 
@@ -180,7 +183,7 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
             tabbedPane.add(panel);
             tabbedPane.setSelectedComponent(panel);
 
-            TabTitle title = new TabTitle(this, identifier, panel);
+            TabTitle title = new TabTitle(this, identifier);
             tabbedPane.setTabComponentAt(tabbedPane.getSelectedIndex(), title);
 
             openedTabs.put(identifier, panel);
@@ -200,18 +203,20 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
     private class TabTitle extends JPanel {
         private JLabel label;
 
-        TabTitle(AggregatedExchangeDialog parent, String identifier, JPanel tabContent) {
+        TabTitle(AggregatedExchangeDialog parent, String identifier) {
             setOpaque(false);
             label = new JLabel();
             add(label, BorderLayout.WEST);
-            JButton btnClose = new JButton("x");
+            JButton btnClose = new JButton("X");
+            btnClose.setUI(new BasicButtonUI());
+            btnClose.setForeground(Color.GRAY);
             btnClose.setBorder(BorderFactory.createEmptyBorder());
-            btnClose.setPreferredSize(new Dimension(15, 15));
+            btnClose.setPreferredSize(new Dimension(18, 18));
             btnClose.setToolTipText(messages.getString("buttontabcomponent_msg1"));
             add(btnClose, BorderLayout.EAST);
             btnClose.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
-                    parent.removeTable(identifier, tabContent);
+                    parent.removeTable(identifier);
                 }
             });
         }
@@ -244,6 +249,18 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
                 }
             }
         }
+    }
+
+    private void clearUnavailableComponents() {
+        for (Entry<String, InternetKnotenBetriebssystem> system : systems.entrySet()) {
+            if (!system.getValue().isStarted()) {
+                removeTable(system.getKey());
+            }
+        }
+    }
+
+    private void removeTable(String mac) {
+        removeTable(mac, openedTabs.get(mac));
     }
 
     @Override

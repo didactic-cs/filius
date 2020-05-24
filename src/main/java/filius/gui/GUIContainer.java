@@ -87,7 +87,9 @@ import filius.gui.netzwerksicht.JDocuElement;
 import filius.gui.netzwerksicht.JKonfiguration;
 import filius.gui.netzwerksicht.JSidebarButton;
 import filius.hardware.Kabel;
+import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.Host;
+import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Notebook;
@@ -97,6 +99,7 @@ import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
+import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.system.Betriebssystem;
 
 public class GUIContainer implements Serializable, I18n {
@@ -172,6 +175,16 @@ public class GUIContainer implements Serializable, I18n {
 
     public List<GUIKnotenItem> getKnotenItems() {
         return nodeItems;
+    }
+
+    public void removeNodeItem(GUIKnotenItem item) {
+        nodeItems.remove(item);
+        Knoten node = item.getKnoten();
+        if (node instanceof InternetKnoten) {
+            for (NetzwerkInterface nic : ((InternetKnoten) node).getNetzwerkInterfaces()) {
+                Lauscher.getLauscher().removeIdentifier(nic.getMac());
+            }
+        }
     }
 
     public JSidebarButton getZiel2Label() {
@@ -683,6 +696,7 @@ public class GUIContainer implements Serializable, I18n {
         nodeItems.clear();
         cableItems.clear();
         docuItems.clear();
+        Lauscher.getLauscher().reset();
         updateViewport();
     }
 

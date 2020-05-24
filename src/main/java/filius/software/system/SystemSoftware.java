@@ -45,13 +45,17 @@ public abstract class SystemSoftware extends Observable implements Serializable 
     /** Die Hardware, auf der diese Systemsoftware laeuft. */
     private Knoten hardware;
 
+    private boolean started;
+
     /**
      * Diese Methode wird beim Wechsel vom Konfigurationsmodus (zum Aufbau des Rechnernetzes und Konfiguration der
      * Komponenten) zum Aktionsmodus (mit der Moeglichkeit den Datenaustausch zu simulieren) ausgefuehrt! <br />
      * In den implementierenden Unterklassen sollen an dieser Stelle alle Threads zur Simulation des virtuellen
      * Netzwerks gestartet werden.
      */
-    public abstract void starten();
+    public void starten() {
+        started = true;
+    }
 
     /**
      * Diese Methode wird beim Wechsel vom Aktionsmodus (mit der Moeglichkeit den Datenaustausch zu simulieren) zum
@@ -59,7 +63,13 @@ public abstract class SystemSoftware extends Observable implements Serializable 
      * In den implementierenden Unterklassen sollen an dieser Stelle alle Threads zur Simulation des virtuellen
      * Netzwerks angehalten werden.
      */
-    public abstract void beenden();
+    public void beenden() {
+        started = false;
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
 
     /**
      * The {@link PropertyChangeSupport} is the new approach for implementing the observable pattern because

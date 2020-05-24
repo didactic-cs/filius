@@ -192,7 +192,6 @@ public class ReportGenerator {
     }
 
     void addNetworkTrafficSection(Document document) throws BadElementException, IOException, DocumentException {
-
         String[] columnHeader = lauscher.getHeader();
         Collection<String> interfaceIDs = lauscher.getInterfaceIDs();
         if (interfaceIDs.size() > 0) {
@@ -200,16 +199,19 @@ public class ReportGenerator {
         }
         for (String interfaceId : interfaceIDs) {
             String hostname = "Unknown";
+            String ipAddress = "0.0.0.0";
             for (GUIKnotenItem item : GUIContainer.getGUIContainer().getKnotenItems()) {
                 if (item.getKnoten() instanceof InternetKnoten) {
                     InternetKnoten node = (InternetKnoten) item.getKnoten();
-                    if (node.getNetzwerkInterfaceByMac(interfaceId) != null) {
+                    NetzwerkInterface nic = node.getNetzwerkInterfaceByMac(interfaceId);
+                    if (nic != null) {
                         hostname = item.getKnoten().holeAnzeigeName();
+                        ipAddress = nic.getIp();
                         break;
                     }
                 }
             }
-            createSection(document, hostname + " - " + interfaceId, 2);
+            createSection(document, hostname + " - " + ipAddress, 2);
             document.add(Chunk.NEWLINE);
 
             PdfPTable table = new PdfPTable(columnHeader.length);

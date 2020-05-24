@@ -676,7 +676,7 @@ public class GUIEvents implements I18n {
             this.removeSingleCable(kabel);
         }
 
-        GUIContainer.getGUIContainer().getKnotenItems().remove(loeschitem);
+        GUIContainer.getGUIContainer().removeNodeItem(loeschitem);
         GUIContainer.getGUIContainer().getDesignpanel().remove(loeschlabel);
         GUIContainer.getGUIContainer().getDesignpanel().updateUI();
         GUIContainer.getGUIContainer().updateViewport();

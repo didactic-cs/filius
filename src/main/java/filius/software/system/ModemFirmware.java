@@ -97,13 +97,6 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      */
     private int mode = CLIENT;
 
-    /** Ob ein zuvor verschickter Teststring erfolgreich empfangen wurde */
-
-    /**
-     * Ob das Modem bereits gestartet wurde und damit eingehende Daten auch verarbeitet werden.
-     */
-    private boolean gestartet = false;
-
     /**
      * Diese Methode dient dazu, ein Modem zu starten, dass im Server-Modus betrieben wird. Damit wird der TCP-Port
      * geoeffnet und eingehende Verbindungsanfragen koennen entgegen genommen werden. Das Warten auf eingehende
@@ -183,28 +176,6 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
 
     public int getMode() {
         return mode;
-    }
-
-    public boolean istGestartet() {
-        return gestartet;
-    }
-
-    /**
-     * In dieser Methode werden die Portbeobachter gegebenenfalls gestartet. Der Verbindungsaufbau erfolgt im
-     * Entwurfsmodus durch Benutzerinteraktion.
-     */
-    @Override
-    public void starten() {
-        gestartet = true;
-    }
-
-    /**
-     * In dieser Methode wird nichts ausgefuehrt. Der Verbindungsabbau wird in beiden Modi erst durch
-     * Benutzerinteraktion initiiert.
-     */
-    @Override
-    public void beenden() {
-        gestartet = false;
     }
 
     public boolean istServerBereit() {

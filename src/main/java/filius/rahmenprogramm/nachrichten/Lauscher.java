@@ -86,13 +86,17 @@ public class Lauscher implements I18n {
         if (lauscher == null) {
             lauscher = new Lauscher();
         }
-
         return lauscher;
     }
 
-    public void addBeobachter(String rechnerId, LauscherBeobachter beobachter) {
+    public void removeIdentifier(String identifier) {
+        datenEinheiten.remove(identifier);
+        beobachter.remove(identifier);
+    }
+
+    public void addBeobachter(String rechnerId, LauscherBeobachter newObserver) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", addBeobachter(" + rechnerId + ","
-                + beobachter + ")");
+                + newObserver + ")");
         LinkedList<LauscherBeobachter> liste;
 
         liste = this.beobachter.get(rechnerId);
@@ -100,7 +104,7 @@ public class Lauscher implements I18n {
             liste = new LinkedList<LauscherBeobachter>();
             this.beobachter.put(rechnerId, liste);
         }
-        liste.add(beobachter);
+        liste.add(newObserver);
     }
 
     private void benachrichtigeBeobachter(String rechnerId) {
