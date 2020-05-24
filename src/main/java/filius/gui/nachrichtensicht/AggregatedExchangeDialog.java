@@ -34,6 +34,8 @@ import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -44,6 +46,7 @@ import java.util.Hashtable;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -102,7 +105,6 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
         if (instance != null) {
             instance.setVisible(false);
         }
-
         instance = null;
     }
 
@@ -176,8 +178,10 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
             panel.add(splitPane, BorderLayout.CENTER);
 
             tabbedPane.add(panel);
-
             tabbedPane.setSelectedComponent(panel);
+
+            TabTitle title = new TabTitle(this, identifier, panel);
+            tabbedPane.setTabComponentAt(tabbedPane.getSelectedIndex(), title);
 
             openedTabs.put(identifier, panel);
             systems.put(identifier, (InternetKnotenBetriebssystem) system);
@@ -192,8 +196,37 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
         }
     }
 
+    @SuppressWarnings("serial")
+    private class TabTitle extends JPanel {
+        private JLabel label;
+
+        TabTitle(AggregatedExchangeDialog parent, String identifier, JPanel tabContent) {
+            setOpaque(false);
+            label = new JLabel();
+            add(label, BorderLayout.WEST);
+            JButton btnClose = new JButton("x");
+            btnClose.setBorder(BorderFactory.createEmptyBorder());
+            btnClose.setPreferredSize(new Dimension(15, 15));
+            btnClose.setToolTipText(messages.getString("buttontabcomponent_msg1"));
+            add(btnClose, BorderLayout.EAST);
+            btnClose.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    parent.removeTable(identifier, tabContent);
+                }
+            });
+        }
+
+        void setTitle(String title) {
+            label.setText(title);
+        }
+
+        String getTitle() {
+            return label.getText();
+        }
+    }
+
     private void updateTabTitle() {
-        for (int i = 0; i < tabbedPane.getComponentCount(); i++) {
+        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
             for (String identifier : openedTabs.keySet()) {
                 if (tabbedPane.getComponentAt(i).equals(openedTabs.get(identifier))) {
                     SystemSoftware system = systems.get(identifier);
@@ -205,7 +238,8 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
                     } else {
                         tabTitle = system.getKnoten().holeAnzeigeName() + " - " + ipAddress;
                     }
-                    tabbedPane.setTitleAt(i, tabTitle);
+                    TabTitle titlePanel = (TabTitle) tabbedPane.getTabComponentAt(i);
+                    titlePanel.setTitle(tabTitle);
                     break;
                 }
             }
@@ -300,6 +334,7 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
 
     // This code is based on an example published at
     // http://www.java2s.com/Code/Java/Swing-Components/MultiLineTreeExample.htm
+    @SuppressWarnings("serial")
     class MultiLineCellRenderer extends JPanel implements TreeCellRenderer {
         protected JLabel icon;
 
@@ -418,7 +453,7 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
         for (int i = 0; i < tabbedPane.getTabCount(); i++) {
             Component tab = tabbedPane.getComponentAt(i);
             if (tab == openedTabs.get(interfaceId)) {
-                title = tabbedPane.getTitleAt(i);
+                title = ((TabTitle) tabbedPane.getTabComponentAt(i)).getTitle();
                 break;
             }
         }
