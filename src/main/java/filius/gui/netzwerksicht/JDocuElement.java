@@ -66,6 +66,8 @@ public class JDocuElement extends JPanel implements I18n {
     private JTextArea textArea;
 
     private static final int TEXT_BORDER_WIDTH = 5;
+    private static final int TEXT_MIN_WIDTH = 20;
+    private static final int TEXT_MIN_HEIGHT = 20;
 
     @Override
     public void setEnabled(boolean enabled) {
@@ -168,24 +170,62 @@ public class JDocuElement extends JPanel implements I18n {
         comp.addMouseMotionListener(new MouseInputAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
+                boolean left = ((JDocuElement.this.updateType & GUIContainer.LEFT_SIZING) != 0);
+                boolean right = ((JDocuElement.this.updateType & GUIContainer.RIGHT_SIZING) != 0);
+                boolean upper = ((JDocuElement.this.updateType & GUIContainer.UPPER_SIZING) != 0);
+                boolean lower = ((JDocuElement.this.updateType & GUIContainer.LOWER_SIZING) != 0);
+
+                int elemX = JDocuElement.this.getX();
+                int elemY = JDocuElement.this.getY();
+                int elemW = JDocuElement.this.getWidth();
+                int elemH = JDocuElement.this.getHeight();
+
+                int newX, newY, newW, newH;
+
                 if (JDocuElement.this.enabled) {
                     if (JDocuElement.this.updateType == GUIContainer.MOVE) {
                         JDocuElement.this.setLocation(
-                                e.getX() - (int) JDocuElement.this.elemMoveOffset.getWidth() + JDocuElement.this.getX(),
-                                e.getY() - (int) JDocuElement.this.elemMoveOffset.getHeight()
-                                        + JDocuElement.this.getY());
-                    } else if (JDocuElement.this.updateType == GUIContainer.LEFT_SIZING) {
-                        JDocuElement.this.setBounds(JDocuElement.this.getX() + e.getX(), JDocuElement.this.getY(),
-                                JDocuElement.this.getWidth() - e.getX(), JDocuElement.this.getHeight());
-                    } else if (JDocuElement.this.updateType == GUIContainer.RIGHT_SIZING) {
-                        JDocuElement.this.setBounds(JDocuElement.this.getX(), JDocuElement.this.getY(), e.getX(),
-                                JDocuElement.this.getHeight());
-                    } else if (JDocuElement.this.updateType == GUIContainer.LOWER_SIZING) {
-                        JDocuElement.this.setBounds(JDocuElement.this.getX(), JDocuElement.this.getY(),
-                                JDocuElement.this.getWidth(), e.getY());
-                    } else if (JDocuElement.this.updateType == GUIContainer.UPPER_SIZING) {
-                        JDocuElement.this.setBounds(JDocuElement.this.getX(), JDocuElement.this.getY() + e.getY(),
-                                JDocuElement.this.getWidth(), JDocuElement.this.getHeight() - e.getY());
+                                e.getX() - (int) JDocuElement.this.elemMoveOffset.getWidth() + elemX,
+                                e.getY() - (int) JDocuElement.this.elemMoveOffset.getHeight() + elemY);
+
+                    } else if (JDocuElement.this.updateType != GUIContainer.NONE) {
+                        if (left) {
+                            newX = elemX + e.getX();
+                            newW = elemW - e.getX();
+                            if (newW < TEXT_MIN_WIDTH) {
+                                newX = newX - (TEXT_MIN_WIDTH - newW);
+                                newW = TEXT_MIN_WIDTH;
+                            }
+                        } else if (right) {
+                            newX = elemX;
+                            newW = e.getX();
+                            if (newW < TEXT_MIN_WIDTH) {
+                                newW = TEXT_MIN_WIDTH;
+                            }
+                        } else {
+                            newX = elemX;
+                            newW = elemW;
+                        }
+
+                        if (upper) {
+                            newY = elemY + e.getY();
+                            newH = elemH - e.getY();
+                            if (newH < TEXT_MIN_HEIGHT) {
+                                newY = newY - (TEXT_MIN_HEIGHT - newH);
+                                newH = TEXT_MIN_HEIGHT;
+                            }
+                        } else if (lower) {
+                            newY = elemY;
+                            newH = e.getY();
+                            if (newH < TEXT_MIN_HEIGHT) {
+                                newH = TEXT_MIN_HEIGHT;
+                            }
+                        } else {
+                            newY = elemY;
+                            newH = elemH;
+                        }
+
+                        JDocuElement.this.setBounds(newX, newY, newW, newH);
                     }
                 }
             }
@@ -193,20 +233,35 @@ public class JDocuElement extends JPanel implements I18n {
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (JDocuElement.this.enabled) {
-                    int x = e.getX();
-                    int y = e.getY();
-                    if (x <= TEXT_BORDER_WIDTH) {
-                        updateType = GUIContainer.LEFT_SIZING;
-                    } else if (x >= JDocuElement.this.getWidth() - TEXT_BORDER_WIDTH) {
-                        updateType = GUIContainer.RIGHT_SIZING;
-                    } else if (y <= TEXT_BORDER_WIDTH) {
+                    boolean left = (e.getX() <= TEXT_BORDER_WIDTH);
+                    boolean right = (e.getX() >= JDocuElement.this.getWidth() - TEXT_BORDER_WIDTH);
+                    boolean upper = (e.getY() <= TEXT_BORDER_WIDTH);
+                    boolean lower = (e.getY() >= JDocuElement.this.getHeight() - TEXT_BORDER_WIDTH);
+
+                    if (left) {
+                        if (upper) {
+                            updateType = GUIContainer.LEFT_SIZING | GUIContainer.UPPER_SIZING;
+                        } else if (lower) {
+                            updateType = GUIContainer.LEFT_SIZING | GUIContainer.LOWER_SIZING;
+                        } else {
+                            updateType = GUIContainer.LEFT_SIZING;
+                        }
+                    } else if (right) {
+                        if (upper) {
+                            updateType = GUIContainer.RIGHT_SIZING | GUIContainer.UPPER_SIZING;
+                        } else if (lower) {
+                            updateType = GUIContainer.RIGHT_SIZING | GUIContainer.LOWER_SIZING;
+                        } else {
+                            updateType = GUIContainer.RIGHT_SIZING;
+                        }
+                    } else if (upper) {
                         updateType = GUIContainer.UPPER_SIZING;
-                    } else if (y >= JDocuElement.this.getHeight() - TEXT_BORDER_WIDTH) {
+                    } else if (lower) {
                         updateType = GUIContainer.LOWER_SIZING;
                     } else if (JDocuElement.this.textArea != null) {
                         try {
-                            Rectangle charPos = JDocuElement.this.textArea.modelToView(JDocuElement.this.textArea
-                                    .viewToModel(e.getPoint()));
+                            Rectangle charPos = JDocuElement.this.textArea
+                                    .modelToView(JDocuElement.this.textArea.viewToModel(e.getPoint()));
                             if (e.getY() >= charPos.getY() && e.getY() <= charPos.getY() + charPos.getHeight()) {
                                 updateType = GUIContainer.NONE;
                             } else {
@@ -216,17 +271,36 @@ public class JDocuElement extends JPanel implements I18n {
                     } else {
                         updateType = GUIContainer.MOVE;
                     }
-                    if (updateType == GUIContainer.MOVE) {
+
+                    switch (updateType) {
+                    case GUIContainer.MOVE:
                         JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.MOVE_CURSOR));
-                    } else if (updateType == GUIContainer.RIGHT_SIZING) {
-                        JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.E_RESIZE_CURSOR));
-                    } else if (updateType == GUIContainer.LEFT_SIZING) {
+                        break;
+                    case GUIContainer.LEFT_SIZING:
                         JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.W_RESIZE_CURSOR));
-                    } else if (updateType == GUIContainer.UPPER_SIZING) {
+                        break;
+                    case GUIContainer.RIGHT_SIZING:
+                        JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.E_RESIZE_CURSOR));
+                        break;
+                    case GUIContainer.UPPER_SIZING:
                         JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.N_RESIZE_CURSOR));
-                    } else if (updateType == GUIContainer.LOWER_SIZING) {
+                        break;
+                    case GUIContainer.LOWER_SIZING:
                         JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
-                    } else {
+                        break;
+                    case GUIContainer.LEFT_SIZING | GUIContainer.UPPER_SIZING:
+                        JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.NW_RESIZE_CURSOR));
+                        break;
+                    case GUIContainer.RIGHT_SIZING | GUIContainer.UPPER_SIZING:
+                        JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.NE_RESIZE_CURSOR));
+                        break;
+                    case GUIContainer.LEFT_SIZING | GUIContainer.LOWER_SIZING:
+                        JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.SW_RESIZE_CURSOR));
+                        break;
+                    case GUIContainer.RIGHT_SIZING | GUIContainer.LOWER_SIZING:
+                        JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.SE_RESIZE_CURSOR));
+                        break;
+                    default:
                         JMainFrame.getJMainFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                     }
                 }

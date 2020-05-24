@@ -112,9 +112,9 @@ public class GUIContainer implements Serializable, I18n {
     public static final int NONE = 0;
     public static final int MOVE = 1;
     public static final int LEFT_SIZING = 2;
-    public static final int RIGHT_SIZING = 3;
-    public static final int UPPER_SIZING = 4;
-    public static final int LOWER_SIZING = 5;
+    public static final int RIGHT_SIZING = 4;
+    public static final int UPPER_SIZING = 8;
+    public static final int LOWER_SIZING = 16;
     private static final long serialVersionUID = 1L;
 
     public static final int FLAECHE_BREITE = 2000;
