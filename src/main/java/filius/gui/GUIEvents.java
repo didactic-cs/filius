@@ -317,7 +317,6 @@ public class GUIEvents implements I18n {
     public void processCableConnection(int currentPosX, int currentPosY) {
         if (neuesKabel.getKabelpanel().getZiel1() == null) {
             connectCableToFirstComponent(currentPosX, currentPosY);
-
         } else {
             if (neuesKabel.getKabelpanel().getZiel2() == null && neuesKabel.getKabelpanel().getZiel1() != aktivesItem) {
                 connectCableToSecondComponent(aktivesItem);
@@ -450,24 +449,31 @@ public class GUIEvents implements I18n {
     }
 
     public void resetAndHideCablePreview() {
-        resetCable();
-
-        GUIContainer.getGUIContainer().getKabelvorschau().setVisible(false);
-
-        if (kabelPanelVorschau != null)
-            kabelPanelVorschau.setVisible(false);
+        resetCableTool();
+        hideCableToolPanel();
     }
 
-    private void resetCable() {
+    private void hideCableToolPanel() {
+        GUIContainer.getGUIContainer().getKabelvorschau().setVisible(false);
+    }
+
+    private void resetCableTool() {
         neuesKabel = new GUIKabelItem();
         GUIContainer.getGUIContainer().getKabelvorschau()
                 .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel1.png")));
         ziel2 = null;
+
+        if (kabelPanelVorschau != null) {
+            kabelPanelVorschau.setVisible(false);
+        }
     }
 
     public void resetAndShowCablePreview(int currentPosX, int currentPosY) {
-        resetCable();
+        resetCableTool();
+        showCableToolPanel(currentPosX, currentPosY);
+    }
 
+    private void showCableToolPanel(int currentPosX, int currentPosY) {
         JSidebarButton cablePreview = GUIContainer.getGUIContainer().getKabelvorschau();
         cablePreview.setBounds(currentPosX, currentPosY, cablePreview.getWidth(), cablePreview.getHeight());
         cablePreview.setVisible(true);

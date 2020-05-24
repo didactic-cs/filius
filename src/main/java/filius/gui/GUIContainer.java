@@ -418,8 +418,9 @@ public class GUIContainer implements Serializable, I18n {
                 if (designCablePreview.isVisible()) {
                     designCablePreview.setBounds(e.getX(), e.getY(), designCablePreview.getWidth(),
                             designCablePreview.getHeight());
-                    if (ziel2Label != null)
+                    if (ziel2Label != null) {
                         ziel2Label.setLocation(e.getX(), e.getY());
+                    }
                     if (kabelPanelVorschau != null) {
                         kabelPanelVorschau.updateBounds();
                     }
@@ -717,10 +718,6 @@ public class GUIContainer implements Serializable, I18n {
         return designCablePreview;
     }
 
-    public void setKabelvorschau(JSidebarButton kabelvorschau) {
-        this.designCablePreview = kabelvorschau;
-    }
-
     public int getActiveSite() {
         return activeSite;
     }
@@ -1004,10 +1001,6 @@ public class GUIContainer implements Serializable, I18n {
 
     public GUIMainMenu getMenu() {
         return menu;
-    }
-
-    public JCablePanel getKabelPanelVorschau() {
-        return kabelPanelVorschau;
     }
 
     public void setKabelPanelVorschau(JCablePanel kabelPanelVorschau) {

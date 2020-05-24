@@ -76,17 +76,13 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                     /* ignore space bar pressing on buttons */
                     if ((e.getKeyChar() == KeyEvent.VK_SPACE)
                             && (e.getSource().getClass().getSimpleName() == "JButton")) {
-                        return true; // no further action by 'clicking'
-                                     // involuntarily via the space bar;
-                                     // other shortcuts will be given for this
+                        return true;
                     }
                     /* delete item on deletion key press */
                     if ((e.getKeyChar() == KeyEvent.VK_DELETE) && (frame.isFocused())
                             && GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF) {
-                        if (GUIContainer.getGUIContainer().isMarkerVisible()) { // several
-                            // items
-                            // are
-                            // selected
+                        if (GUIContainer.getGUIContainer().isMarkerVisible()) {
+                            // multiple items are selected
                             List<GUIKnotenItem> itemlist = GUIContainer.getGUIContainer().getKnotenItems();
                             JMarkerPanel auswahl = GUIContainer.getGUIContainer().getAuswahl();
                             JScrollPane scrollPane = GUIContainer.getGUIContainer().getScrollPane();
@@ -124,22 +120,14 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             auswahl.setVisible(false);
                             GUIContainer.getGUIContainer().getMarkierung().setVisible(false);
                             return true;
-                        } else if (GUIEvents.getGUIEvents().getActiveItem() != null) { // single
-                                                                                       // item
-                                                                                       // active
-                            // Main.debug.println("KeyDispatcher: delete item
-                            // '"+(GUIEvents.getGUIEvents().getActiveItem()!=null
-                            // ?
-                            // GUIEvents.getGUIEvents().getActiveItem().getKnoten().getName()
-                            // : "<null>"));
+                        } else if (GUIEvents.getGUIEvents().getActiveItem() != null) {
+                            // single item active
                             GUIEvents.getGUIEvents().itemLoeschen(
                                     GUIEvents.getGUIEvents().getActiveItem().getImageLabel(),
                                     GUIEvents.getGUIEvents().getActiveItem());
                             return true;
                         }
-                        // else
-                        // Main.debug.println("DEL pressed, but nothing selected");
-                    } // del key
+                    }
                     if (e.getModifiers() == 2) { // CTRL key pressed
                         // Main.debug.println("KeyDispatcher: CTRL-Key pressed, waiting for additional key!");
                         switch (e.getKeyCode()) {
@@ -184,15 +172,16 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             GUIContainer.getGUIContainer().getMenu().doClick("btInfo");
                             return true;
                         }
-                    } // CTRL key pressed, i.e., menu command
-                    if (e.getModifiers() == 8) { // ALT key pressed; only makes
-                                                 // sense for cables!
-                        if (e.getKeyCode() == 49) { // key '1' (cable)
+                    }
+                    // ALT key pressed; only makes sense for cables!
+                    if (e.getModifiers() == 8) {
+                        // key '1' (cable)
+                        if (e.getKeyCode() == 49) {
                             // Main.debug.println("KeyDispatcher: ALT+1 recognised");
                             switchCablePreview();
                             return true;
                         }
-                    } // ALT key pressed, i.e., sidebar item selected
+                    }
                     if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                         GUIEvents.getGUIEvents().resetAndHideCablePreview();
                     }
