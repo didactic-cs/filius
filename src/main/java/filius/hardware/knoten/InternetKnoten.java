@@ -25,6 +25,7 @@
  */
 package filius.hardware.knoten;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -32,6 +33,7 @@ import java.util.ListIterator;
 import filius.Main;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
+import filius.hardware.Verbindung;
 
 public abstract class InternetKnoten extends Knoten {
 
@@ -49,8 +51,36 @@ public abstract class InternetKnoten extends Knoten {
                 return anschluss;
             }
         }
-        // Main.debug.println("\tno free port available");
         return null;
+    }
+
+    protected List<Port> defineConnectedPorts() {
+        List<Port> connectedPorts = new ArrayList<>();
+        for (NetzwerkInterface nic : netzwerkInterfaces) {
+            Verbindung connection = nic.getPort().getVerbindung();
+            if (connection != null) {
+                try {
+                    connectedPorts.add(connection.findConnectedPort(nic.getPort()));
+                } catch (Exception e) {
+                    Main.debug.println(e.getMessage());
+                }
+            }
+        }
+        return connectedPorts;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected boolean hasPort(Port portToLookup) {
+        boolean result = false;
+        for (NetzwerkInterface nic : netzwerkInterfaces) {
+            if (nic.getPort().equals(portToLookup)) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
     /**

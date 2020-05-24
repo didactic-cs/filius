@@ -25,6 +25,9 @@
  */
 package filius.hardware.knoten;
 
+import java.util.List;
+
+import filius.Main;
 import filius.hardware.Hardware;
 import filius.hardware.Port;
 import filius.software.system.SystemSoftware;
@@ -32,32 +35,50 @@ import filius.software.system.SystemSoftware;
 @SuppressWarnings("serial")
 public abstract class Knoten extends Hardware {
 
-	private String name; 
-	private SystemSoftware systemAnwendung; 
+    private String name;
+    private SystemSoftware systemAnwendung;
 
-	public abstract Port holeFreienPort();
+    public abstract Port holeFreienPort();
 
-	public String holeAnzeigeName() {
-		return name;
-	}
+    /**
+     * Check whether this given port is one of the node's ports.
+     */
+    protected abstract boolean hasPort(Port portToLookup);
 
-	public String getName() {
-		return name;
-	}
+    protected abstract List<Port> defineConnectedPorts();
 
-	public void setName(String name) {
-		this.name = name;
-		if (systemAnwendung != null) {
-			filius.Main.debug.println("DEBUG: node with SystemSoftware (" + systemAnwendung.hashCode()
-			        + ") now has name '" + name + "'");
-		}
-	}
+    public boolean checkConnected(Knoten knoten) {
+        boolean alreadyConnected = false;
+        for (Port port : defineConnectedPorts()) {
+            if (knoten.hasPort(port)) {
+                alreadyConnected = true;
+                break;
+            }
+        }
+        return alreadyConnected;
+    }
 
-	public SystemSoftware getSystemSoftware() {
-		return systemAnwendung;
-	}
+    public String holeAnzeigeName() {
+        return name;
+    }
 
-	public void setSystemSoftware(SystemSoftware systemAnwendung) {
-		this.systemAnwendung = systemAnwendung;
-	}
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        if (systemAnwendung != null) {
+            Main.debug.println(
+                    "DEBUG: node with SystemSoftware (" + systemAnwendung.hashCode() + ") now has name '" + name + "'");
+        }
+    }
+
+    public SystemSoftware getSystemSoftware() {
+        return systemAnwendung;
+    }
+
+    public void setSystemSoftware(SystemSoftware systemAnwendung) {
+        this.systemAnwendung = systemAnwendung;
+    }
 }

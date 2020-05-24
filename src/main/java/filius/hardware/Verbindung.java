@@ -108,6 +108,24 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
         return anschluesse;
     }
 
+    /**
+     * Define the port that is connected to the given port.
+     * 
+     * @throws Exception
+     *             If the given parameter is not a port of this connection.
+     */
+    public Port findConnectedPort(Port port) throws Exception {
+        Port connectedPort = null;
+        if (port == anschluesse[0]) {
+            connectedPort = anschluesse[1];
+        } else if (port == anschluesse[1]) {
+            connectedPort = anschluesse[0];
+        } else {
+            throw new Exception("Invalid Parameter");
+        }
+        return connectedPort;
+    }
+
     public void anschluesseTrennen() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), anschluesseTrennen()");
         simplexEins.anschluesseTrennen();
@@ -129,8 +147,8 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
      * @param verzoegerungsFaktor
      */
     public static void setzeVerzoegerungsFaktor(int verzoegerungsFaktor) {
-        Main.debug.println("INVOKED (static) filius.hardware.Verbindung, setzeVerzoegerungsFaktor("
-                + verzoegerungsFaktor + ")");
+        Main.debug.println(
+                "INVOKED (static) filius.hardware.Verbindung, setzeVerzoegerungsFaktor(" + verzoegerungsFaktor + ")");
         if (verzoegerungsFaktor < 1) {
             Verbindung.verzoegerungsFaktor = 1;
         } else if (verzoegerungsFaktor > 100) {

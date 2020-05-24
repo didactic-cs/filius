@@ -25,10 +25,13 @@
  */
 package filius.hardware.knoten;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import filius.Main;
 import filius.hardware.Port;
+import filius.hardware.Verbindung;
 
 @SuppressWarnings("serial")
 public abstract class LokalerKnoten extends Knoten {
@@ -43,6 +46,35 @@ public abstract class LokalerKnoten extends Knoten {
             }
         }
         return null;
+    }
+
+    protected List<Port> defineConnectedPorts() {
+        List<Port> connectedPorts = new ArrayList<>();
+        for (Port port : anschluesse) {
+            Verbindung connection = port.getVerbindung();
+            if (connection != null) {
+                try {
+                    connectedPorts.add(connection.findConnectedPort(port));
+                } catch (Exception e) {
+                    Main.debug.println(e.getMessage());
+                }
+            }
+        }
+        return connectedPorts;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected boolean hasPort(Port portToLookup) {
+        boolean result = false;
+        for (Port port : anschluesse) {
+            if (port.equals(portToLookup)) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
     public Port getErstenAnschluss() {

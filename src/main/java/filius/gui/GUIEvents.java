@@ -226,9 +226,6 @@ public class GUIEvents implements I18n {
         GUIContainer c = GUIContainer.getGUIContainer();
         JMarkerPanel auswahl = c.getAuswahl();
 
-        Port anschluss = null;
-        Knoten tempKnoten;
-
         SzenarioVerwaltung.getInstance().setzeGeaendert();
 
         if (neuesKabel == null) {
@@ -280,16 +277,29 @@ public class GUIEvents implements I18n {
                         GUIContainer.getGUIContainer().getProperty().minimieren();
 
                         if (aktivesItem.getKnoten() instanceof Knoten) {
-                            tempKnoten = (Knoten) aktivesItem.getKnoten();
-                            anschluss = tempKnoten.holeFreienPort();
+                            Knoten tempKnoten = (Knoten) aktivesItem.getKnoten();
+                            boolean success = true;
+                            if (aktivesItem.getKnoten() instanceof Knoten) {
+                                tempKnoten = (Knoten) aktivesItem.getKnoten();
+                                Port anschluss = tempKnoten.holeFreienPort();
+                                if (anschluss == null) {
+                                    success = false;
+                                    GUIErrorHandler.getGUIErrorHandler()
+                                            .DisplayError(messages.getString("guievents_msg1"));
+                                }
+                            }
+                            if (success && neuesKabel.getKabelpanel().getZiel1() != null) {
+                                Knoten quellKnoten = neuesKabel.getKabelpanel().getZiel1().getKnoten();
+                                if (tempKnoten.checkConnected(quellKnoten)) {
+                                    success = false;
+                                    GUIErrorHandler.getGUIErrorHandler()
+                                            .DisplayError(messages.getString("guievents_msg12"));
+                                }
+                            }
+                            if (success) {
+                                processCableConnection(e.getX(), e.getY());
+                            }
                         }
-
-                        if (anschluss != null) {
-                            processCableConnection(e.getX(), e.getY());
-                        } else {
-                            GUIErrorHandler.getGUIErrorHandler().DisplayError(messages.getString("guievents_msg1"));
-                        }
-
                     } else {
                         // einen Knoten zur Bearbeitung der Eigenschaften
                         // auswaehlen
