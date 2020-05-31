@@ -44,9 +44,11 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
@@ -101,6 +103,7 @@ import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.system.Betriebssystem;
+import filius.software.system.SystemSoftware;
 
 public class GUIContainer implements Serializable, I18n {
 
@@ -161,6 +164,7 @@ public class GUIContainer implements Serializable, I18n {
     private List<GUIKnotenItem> nodeItems = new LinkedList<GUIKnotenItem>();
     private List<GUIKabelItem> cableItems = new LinkedList<GUIKabelItem>();
     private List<GUIDocuItem> docuItems = new ArrayList<GUIDocuItem>();
+    private Set<SystemSoftware> visibleSystems = new HashSet<>();
 
     private GUIContainer(int width, int height) {
         this.width = width;
@@ -778,6 +782,7 @@ public class GUIContainer implements Serializable, I18n {
             docuSidebarScrollpane.updateUI();
             designView.updateUI();
         } else if (activeSite == GUIMainMenu.MODUS_AKTION) {
+            reopenDesktops();
             simulationView.getVerticalScrollBar().setValue(designView.getVerticalScrollBar().getValue());
             simulationView.getHorizontalScrollBar().setValue(designView.getHorizontalScrollBar().getValue());
             layeredPane.setLayer(docuPanel, INACTIVE_LISTENER_LAYER);
@@ -941,12 +946,31 @@ public class GUIContainer implements Serializable, I18n {
     }
 
     public void closeDesktops() {
-        ListIterator<GUIDesktopWindow> it;
+        visibleSystems.clear();
+        for (GUIDesktopWindow window : desktopWindowList) {
+            if (window.isVisible()) {
+                visibleSystems.add(window.getBetriebssystem());
+            }
+            window.setVisible(false);
+        }
+    }
 
-        it = desktopWindowList.listIterator();
-        while (it.hasNext()) {
-            it.next().setVisible(false);
-            it.remove();
+    public void reopenDesktops() {
+        Set<SystemSoftware> systemSoftware = new HashSet<>();
+        for (GUIKnotenItem node : nodeItems) {
+            systemSoftware.add(node.getKnoten().getSystemSoftware());
+        }
+        Set<GUIDesktopWindow> desktopsToRemove = new HashSet<>();
+        for (GUIDesktopWindow window : desktopWindowList) {
+            if (!systemSoftware.contains(window.getBetriebssystem())) {
+                desktopsToRemove.add(window);
+            } else if (visibleSystems.contains(window.getBetriebssystem())) {
+                window.setVisible(true);
+            }
+        }
+        JMainFrame.getJMainFrame().setVisible(true);
+        for (GUIDesktopWindow window : desktopsToRemove) {
+            desktopWindowList.remove(window);
         }
     }
 
