@@ -68,6 +68,10 @@ public class SatViewer extends JFrame implements I18n, PropertyChangeListener {
         getContentPane().add(spSAT);
     }
 
+    public Switch getSwitch() {
+        return sw;
+    }
+
     private void updateSat() {
         dtm.setRowCount(0);
         for (Vector<String> zeile : ((SwitchFirmware) sw.getSystemSoftware()).holeSAT()) {

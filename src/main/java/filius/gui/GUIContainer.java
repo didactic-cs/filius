@@ -747,7 +747,7 @@ public class GUIContainer implements Serializable, I18n {
             layeredPane.remove(background);
         }
         if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
-            closeDesktops();
+            closeDialogs();
             designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
             designView.getHorizontalScrollBar().setValue(simulationView.getHorizontalScrollBar().getValue());
             JMainFrame.getJMainFrame().removeFromContentPane(this.docuSidebarScrollpane);
@@ -764,7 +764,7 @@ public class GUIContainer implements Serializable, I18n {
             designView.updateUI();
             designItemConfig.updateUI();
         } else if (activeSite == GUIMainMenu.MODUS_DOKUMENTATION) {
-            closeDesktops();
+            closeDialogs();
             designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
             designView.getHorizontalScrollBar().setValue(simulationView.getHorizontalScrollBar().getValue());
             JMainFrame.getJMainFrame().removeFromContentPane(this.designSidebarScrollpane);
@@ -782,7 +782,7 @@ public class GUIContainer implements Serializable, I18n {
             docuSidebarScrollpane.updateUI();
             designView.updateUI();
         } else if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            reopenDesktops();
+            reopenDialogs();
             simulationView.getVerticalScrollBar().setValue(designView.getVerticalScrollBar().getValue());
             simulationView.getHorizontalScrollBar().setValue(designView.getHorizontalScrollBar().getValue());
             layeredPane.setLayer(docuPanel, INACTIVE_LISTENER_LAYER);
@@ -945,7 +945,7 @@ public class GUIContainer implements Serializable, I18n {
         }
     }
 
-    public void closeDesktops() {
+    public void closeDialogs() {
         visibleSystems.clear();
         for (GUIDesktopWindow window : desktopWindowList) {
             if (window.isVisible()) {
@@ -953,9 +953,10 @@ public class GUIContainer implements Serializable, I18n {
             }
             window.setVisible(false);
         }
+        SatViewerControl.getInstance().hideViewer();
     }
 
-    public void reopenDesktops() {
+    public void reopenDialogs() {
         Set<SystemSoftware> systemSoftware = new HashSet<>();
         for (GUIKnotenItem node : nodeItems) {
             systemSoftware.add(node.getKnoten().getSystemSoftware());
@@ -968,10 +969,13 @@ public class GUIContainer implements Serializable, I18n {
                 window.setVisible(true);
             }
         }
-        JMainFrame.getJMainFrame().setVisible(true);
+
         for (GUIDesktopWindow window : desktopsToRemove) {
             desktopWindowList.remove(window);
         }
+
+        SatViewerControl.getInstance().reshowViewer(systemSoftware);
+        JMainFrame.getJMainFrame().setVisible(true);
     }
 
     public void setProperty(GUIKnotenItem hardwareItem) {

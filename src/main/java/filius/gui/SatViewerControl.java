@@ -26,18 +26,20 @@
 package filius.gui;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-
-import javax.swing.JFrame;
+import java.util.Set;
 
 import filius.gui.anwendungssicht.SatViewer;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
+import filius.software.system.SystemSoftware;
 
 /** Controller of viewer components for Source Address Tables used by Switches. */
 public class SatViewerControl implements I18n {
 
-    private Map<Switch, SatViewer> satViewer = new HashMap<>();
+    private Map<SystemSoftware, SatViewer> satViewer = new HashMap<>();
+    private Set<SystemSoftware> visibleViewer = new HashSet<>();
     private static SatViewerControl singleton;
 
     private SatViewerControl() {}
@@ -50,17 +52,39 @@ public class SatViewerControl implements I18n {
     }
 
     public void hideViewer() {
-        for (JFrame viewer : satViewer.values()) {
+        visibleViewer.clear();
+        for (SatViewer viewer : satViewer.values()) {
+            if (viewer.isVisible()) {
+                visibleViewer.add(viewer.getSwitch().getSystemSoftware());
+            }
             viewer.setVisible(false);
         }
     }
 
     public void showViewer(Switch sw) {
-        if (!satViewer.containsKey(sw)) {
+        if (!satViewer.containsKey(sw.getSystemSoftware())) {
             SatViewer viewer = new SatViewer(sw);
             sw.getSystemSoftware().addPropertyChangeListener(viewer);
-            satViewer.put(sw, viewer);
+            satViewer.put(sw.getSystemSoftware(), viewer);
         }
-        satViewer.get(sw).setVisible(true);
+        satViewer.get(sw.getSystemSoftware()).setVisible(true);
+    }
+
+    public void removeViewer(SystemSoftware systemSoftware) {
+        satViewer.remove(systemSoftware);
+    }
+
+    public void reshowViewer(Set<SystemSoftware> activeSystemSoftware) {
+        Set<SystemSoftware> satToRemove = new HashSet<>();
+        for (SystemSoftware sysSoftawre : satViewer.keySet()) {
+            if (!activeSystemSoftware.contains(sysSoftawre)) {
+                satToRemove.add(sysSoftawre);
+            } else if (visibleViewer.contains(sysSoftawre)) {
+                satViewer.get(sysSoftawre).setVisible(true);
+            }
+        }
+        for (SystemSoftware sysSoftware : satToRemove) {
+            satViewer.remove(sysSoftware);
+        }
     }
 }
