@@ -91,21 +91,18 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             LinkedList<GUIKnotenItem> markedlist = new LinkedList<GUIKnotenItem>();
                             ListIterator<GUIKnotenItem> it = itemlist.listIterator();
                             while (it.hasNext()) {
-                                tempitem = (GUIKnotenItem) it.next();
-                                tx = tempitem.getImageLabel().getX();
+                            	// Code adapted from GUIEvents.mausReleased
+                            	tempitem = (GUIKnotenItem) it.next();
+                            	tx = tempitem.getImageLabel().getX();
                                 twidth = tempitem.getImageLabel().getWidth();
                                 ty = tempitem.getImageLabel().getY();
                                 theight = tempitem.getImageLabel().getHeight();
-                                if (tx > auswahl.getX() - GUIContainer.getGUIContainer().getAbstandLinks()
-                                        + scrollPane.getHorizontalScrollBar().getValue()
-                                        && tx + twidth < auswahl.getX() + auswahl.getWidth()
-                                                - GUIContainer.getGUIContainer().getAbstandLinks()
-                                                + scrollPane.getHorizontalScrollBar().getValue()
-                                        && ty > auswahl.getY() - GUIContainer.getGUIContainer().getAbstandOben()
-                                                + scrollPane.getVerticalScrollBar().getValue()
-                                        && ty + theight < auswahl.getY() + auswahl.getHeight()
-                                                - GUIContainer.getGUIContainer().getAbstandOben()
-                                                + scrollPane.getVerticalScrollBar().getValue()) {
+
+                                int itemPosX = tx + twidth / 2;
+                                int itemPosY = ty + theight / 2;
+
+                                if (itemPosX >= auswahl.getX() && itemPosX <= auswahl.getX() + auswahl.getWidth()
+                                        && itemPosY >= auswahl.getY() && itemPosY <= auswahl.getY() + auswahl.getHeight()) {
                                     markedlist.add(tempitem);
                                 }
                             }

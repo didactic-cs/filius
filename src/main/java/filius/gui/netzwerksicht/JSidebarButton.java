@@ -113,10 +113,6 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
         return width;
     }
 
-    public Dimension getPreferredSize() {
-        return new Dimension(getWidth(), getHeight());
-    }
-
     public int getHeight() {
         int height;
 
@@ -128,7 +124,27 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
 
         return height;
     }
+    
+    public Dimension getPreferredSize() {
+        return new Dimension(getWidth(), getHeight());
+    }
 
+    // Update location after a text change so that the icon does not move 
+    public void setTextAndUpdateLocation(String text) {
+    	int icoW = (getIcon() != null ? getIcon().getIconWidth() : 0);
+    	if (icoW % 2 == 1) icoW--;  // Trick to avoid a one pixel shift when the icon's width is odd
+    	int dW = (getWidth() - icoW)/2;    	
+    	super.setText(text);
+    	int dW2 = (getWidth() - icoW)/2;    	
+    	setBounds(getX() - dW2 + dW, getY(), getWidth(), getHeight());  // SetLocation won't be enough here
+    }
+    
+    // Update location after the initial text assignment so that the icon does not move
+    public void initTextAndUpdateLocation(String text) {
+    	setTextAndUpdateLocation(text);    	 	
+    	setLocation(getX(), getY() + 10);  // The reason for this 10px down is not clear but it is necessary to fix the icon at the end of the drag-and-drop creation 
+    }
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -141,8 +157,8 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
             Stroke stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1, new float[] { 2 }, 0);
             g2.setStroke(stroke);
             g2.drawRect(0, 0, this.getWidth() - 1, this.getHeight() - 1);
-            g.setColor(new Color(128, 200, 255));
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
+            // Use same color as the one used for multiple selection 
+            g2.setColor(new Color(0.80f, 0.92f, 1f, 0.2f)); 
             g2.fillRect(0, 0, this.getWidth() - 1, this.getHeight() - 1);
         }
 
