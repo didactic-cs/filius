@@ -61,6 +61,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
 
     /** Creates new form NewJFrame */
     private JMainFrame() {
+    	JFrameList.gI().addMain(this);
         this.addWindowListener(this);
         SzenarioVerwaltung.getInstance().addObserver(this);
         initComponents();
@@ -173,7 +174,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                     // ALT key pressed; only makes sense for cables!
                     if (e.getModifiers() == 8) {
                         // key '1' (cable)
-                        if (e.getKeyCode() == 49) {
+                        if ((e.getKeyCode() == 49) && (GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF)) {
                             // Main.debug.println("KeyDispatcher: ALT+1 recognised");
                             switchCablePreview();
                             return true;
@@ -258,8 +259,8 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
         if (GUIContainer.getGUIContainer().getKabelvorschau().isVisible()) {
             GUIEvents.getGUIEvents().resetAndHideCablePreview();
         } else {
-            int currentPosX = (int) (MouseInfo.getPointerInfo().getLocation().getX() - getLocationOnScreen().getX());
-            int currentPosY = (int) (MouseInfo.getPointerInfo().getLocation().getY() - getLocationOnScreen().getY());
+            int currentPosX = (int) (MouseInfo.getPointerInfo().getLocation().getX() - GUIContainer.getGUIContainer().getDesignpanel().getLocationOnScreen().getX());
+            int currentPosY = (int) (MouseInfo.getPointerInfo().getLocation().getY() - GUIContainer.getGUIContainer().getDesignpanel().getLocationOnScreen().getY());
             GUIEvents.getGUIEvents().resetAndShowCablePreview(currentPosX, currentPosY);
         }
     }

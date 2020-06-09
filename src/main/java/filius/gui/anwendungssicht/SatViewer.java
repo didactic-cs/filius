@@ -36,6 +36,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 
+import filius.gui.JFrameList;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.SwitchFirmware;
@@ -48,6 +49,7 @@ public class SatViewer extends JFrame implements I18n, PropertyChangeListener {
 
     public SatViewer(Switch sw) {
         super(messages.getString("guievents_msg8") + " " + sw.holeAnzeigeName());
+        JFrameList.gI().add(this);
         this.sw = sw;
         init();
         updateSat();

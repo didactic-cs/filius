@@ -34,6 +34,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,8 +56,8 @@ import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -73,6 +74,7 @@ import org.w3c.dom.Document;
 
 import filius.Main;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
+import filius.gui.anwendungssicht.SatViewer;
 import filius.gui.nachrichtensicht.AggregatedExchangeDialog;
 import filius.gui.nachrichtensicht.ExchangeDialog;
 import filius.gui.nachrichtensicht.LayeredExchangeDialog;
@@ -142,7 +144,7 @@ public class GUIContainer implements Serializable, I18n {
     private JScrollPane docuSidebarScrollpane;
     private JPanel docuDragPanel = new JPanel();
     private JDocuElement activeDocuElement;
-
+    
     private GUIDesignSidebar designSidebar;
     private JBackgroundPanel designBackgroundPanel = new JBackgroundPanel();
     private JKonfiguration designItemConfig = JKonfiguration.getInstance(null);
@@ -164,7 +166,7 @@ public class GUIContainer implements Serializable, I18n {
     private List<GUIKnotenItem> nodeItems = new LinkedList<GUIKnotenItem>();
     private List<GUIKabelItem> cableItems = new LinkedList<GUIKabelItem>();
     private List<GUIDocuItem> docuItems = new ArrayList<GUIDocuItem>();
-    private Set<SystemSoftware> visibleSystems = new HashSet<>();
+//    private Set<SystemSoftware> visibleSystems = new HashSet<>();
 
     private GUIContainer(int width, int height) {
         this.width = width;
@@ -199,9 +201,10 @@ public class GUIContainer implements Serializable, I18n {
         this.ziel2Label = ziel2Label;
     }
 
-    public void nachrichtenDialogAnzeigen() {
-        ((JDialog) getExchangeDialog()).setVisible(true);
-    }
+    // Seems never to be used
+//    public void nachrichtenDialogAnzeigen() {
+//    	((JFrame) getExchangeDialog()).setVisible(true);
+//    }
 
     public ExchangeDialog getExchangeDialog() {
         ExchangeDialog exchangeDialog;
@@ -333,7 +336,7 @@ public class GUIContainer implements Serializable, I18n {
                     // only in method neueVorschau. Hence the call below. 
                     designDragPreview.setLocation(designDragPreview.getX() - designDragPreview.getWidth()/2,
                         		                  designDragPreview.getY() - designDragPreview.getHeight()/2); 
-                    GUIEvents.getGUIEvents().resetAndHideCablePreview();
+                    GUIEvents.getGUIEvents().resetAndHideCablePreview();                    
                 }
             }
 
@@ -447,6 +450,18 @@ public class GUIContainer implements Serializable, I18n {
                 }
             }
         });
+        
+        // Should have been simulationBackgroundPanel.addMouseListener()
+        // but docupanel transparently covers simulationBackgroundPanel
+        docuPanel.addMouseListener(new MouseInputAdapter() {
+        	public void mouseClicked(MouseEvent e) {
+              if (activeSite == GUIMainMenu.MODUS_AKTION) {
+            	  if (e.getClickCount() == 2) {
+            		  JFrameList.gI().putMasterInTheBackground();
+                  }
+              }
+          }
+        });        
 
         JMainFrame.getJMainFrame().setVisible(true);
         setActiveSite(GUIMainMenu.MODUS_ENTWURF);
@@ -757,7 +772,7 @@ public class GUIContainer implements Serializable, I18n {
             layeredPane.remove(background);
         }
         if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
-            closeDialogs();
+        	JFrameList.gI().hideAll(); 
             designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
             designView.getHorizontalScrollBar().setValue(simulationView.getHorizontalScrollBar().getValue());
             JMainFrame.getJMainFrame().removeFromContentPane(this.docuSidebarScrollpane);
@@ -769,12 +784,12 @@ public class GUIContainer implements Serializable, I18n {
             designView.setViewportView(layeredPane);
             JMainFrame.getJMainFrame().addToContentPane(this.designView, BorderLayout.CENTER);
             JMainFrame.getJMainFrame().addToContentPane(designItemConfig, BorderLayout.SOUTH);
-            docuDragPanel.setEnabled(false);
+            docuDragPanel.setVisible(false);
             designSidebarScrollpane.updateUI();
             designView.updateUI();
             designItemConfig.updateUI();
         } else if (activeSite == GUIMainMenu.MODUS_DOKUMENTATION) {
-            closeDialogs();
+        	JFrameList.gI().hideAll(); 
             designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
             designView.getHorizontalScrollBar().setValue(simulationView.getHorizontalScrollBar().getValue());
             JMainFrame.getJMainFrame().removeFromContentPane(this.designSidebarScrollpane);
@@ -786,13 +801,13 @@ public class GUIContainer implements Serializable, I18n {
             designView.setViewportView(layeredPane);
             designSelection.setVisible(false);
             designSelectionArea.setVisible(false);
-            docuDragPanel.setEnabled(true);
+            docuDragPanel.setVisible(true);
             JMainFrame.getJMainFrame().addToContentPane(this.designView, BorderLayout.CENTER);
             JMainFrame.getJMainFrame().removeFromContentPane(designItemConfig);
             docuSidebarScrollpane.updateUI();
             designView.updateUI();
         } else if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            reopenDialogs();
+        	JFrameList.gI().restoreAll();  
             simulationView.getVerticalScrollBar().setValue(designView.getVerticalScrollBar().getValue());
             simulationView.getHorizontalScrollBar().setValue(designView.getHorizontalScrollBar().getValue());
             layeredPane.setLayer(docuPanel, INACTIVE_LISTENER_LAYER);
@@ -803,7 +818,7 @@ public class GUIContainer implements Serializable, I18n {
             JMainFrame.getJMainFrame().removeFromContentPane(this.designSidebarScrollpane);
             designSelection.setVisible(false);
             designSelectionArea.setVisible(false);
-            docuDragPanel.setEnabled(false);
+            docuDragPanel.setVisible(false);
             JMainFrame.getJMainFrame().removeFromContentPane(this.designView);
             JMainFrame.getJMainFrame().addToContentPane(this.simulationView, BorderLayout.CENTER);
             JMainFrame.getJMainFrame().removeFromContentPane(designItemConfig);
@@ -954,38 +969,20 @@ public class GUIContainer implements Serializable, I18n {
             desktopWindowList.add(tmpDesktop);
         }
     }
-
-    public void closeDialogs() {
-        visibleSystems.clear();
-        for (GUIDesktopWindow window : desktopWindowList) {
-            if (window.isVisible()) {
-                visibleSystems.add(window.getBetriebssystem());
-            }
-            window.setVisible(false);
-        }
-        SatViewerControl.getInstance().hideViewer();
-    }
-
-    public void reopenDialogs() {
-        Set<SystemSoftware> systemSoftware = new HashSet<>();
-        for (GUIKnotenItem node : nodeItems) {
-            systemSoftware.add(node.getKnoten().getSystemSoftware());
-        }
-        Set<GUIDesktopWindow> desktopsToRemove = new HashSet<>();
-        for (GUIDesktopWindow window : desktopWindowList) {
-            if (!systemSoftware.contains(window.getBetriebssystem())) {
-                desktopsToRemove.add(window);
-            } else if (visibleSystems.contains(window.getBetriebssystem())) {
-                window.setVisible(true);
-            }
-        }
-
-        for (GUIDesktopWindow window : desktopsToRemove) {
-            desktopWindowList.remove(window);
-        }
-
-        SatViewerControl.getInstance().reshowViewer(systemSoftware);
-        JMainFrame.getJMainFrame().setVisible(true);
+    
+    public void removeDesktopWindow(GUIKnotenItem item) {
+    	if (!(item.getKnoten() instanceof Host)) return;
+    	
+    	Betriebssystem bs = (Betriebssystem)((Host) item.getKnoten()).getSystemSoftware();
+    	
+    	for (GUIDesktopWindow desktop: desktopWindowList) {
+    		if (desktop.getBetriebssystem() == bs) {
+    			desktop.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    	        desktop.dispatchEvent(new WindowEvent(desktop, WindowEvent.WINDOW_CLOSING));
+    	        desktopWindowList.remove(desktop);
+    	        return;
+    		}
+    	}
     }
 
     public void setProperty(GUIKnotenItem hardwareItem) {

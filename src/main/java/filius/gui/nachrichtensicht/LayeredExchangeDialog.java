@@ -31,22 +31,22 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.util.Hashtable;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import filius.gui.JFrameList;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.SystemSoftware;
 
-public class LayeredExchangeDialog extends JDialog implements ExchangeDialog, I18n {
+public class LayeredExchangeDialog extends JFrame implements ExchangeDialog, I18n {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	private JTabbedPane tabbedPane;
 
 	private static LayeredExchangeDialog lauscherDialog = null;
@@ -73,7 +73,8 @@ public class LayeredExchangeDialog extends JDialog implements ExchangeDialog, I1
 	}
 
 	private LayeredExchangeDialog(Frame owner) {
-		super(owner);
+		super();
+		JFrameList.gI().add(this);
 		((JFrame) owner).getLayeredPane().setLayer(this, JLayeredPane.PALETTE_LAYER);
 
 		Image image;
@@ -84,8 +85,6 @@ public class LayeredExchangeDialog extends JDialog implements ExchangeDialog, I1
 		image = Toolkit.getDefaultToolkit().getImage(
 		        getClass().getResource("/gfx/allgemein/nachrichtenfenster_icon.png"));
 		setIconImage(image);
-
-		this.setModal(false);
 
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
@@ -136,6 +135,7 @@ public class LayeredExchangeDialog extends JDialog implements ExchangeDialog, I1
 	@Override
 	public void removeTable(String mac, JPanel panel) {
 		if (mac != null) {
+			if (panel == null) panel = openedTabs.get(mac);
 			openedTabs.remove(mac);
 			tabellen.remove(mac);
 			tabbedPane.remove(panel);

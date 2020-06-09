@@ -35,8 +35,8 @@ import java.io.Serializable;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
@@ -448,7 +448,7 @@ public class GUIMainMenu implements Serializable, I18n {
             btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus_aktiv.png")));
             GUIContainer.getGUIContainer().setActiveSite(MODUS_DOKUMENTATION);
 
-            GUIHilfe.getGUIHilfe().laden("entwurfsmodus");
+            GUIHilfe.getGUIHilfe().laden("dokumodus");
 
             stopSimulation();
 
@@ -495,7 +495,7 @@ public class GUIMainMenu implements Serializable, I18n {
                 system.beenden();
             } catch (Exception e) {}
         }
-        ((JDialog) GUIContainer.getGUIContainer().getExchangeDialog()).setVisible(false);
+        ((JFrame) GUIContainer.getGUIContainer().getExchangeDialog()).setVisible(false);
     }
 
     public JBackgroundPanel getMenupanel() {

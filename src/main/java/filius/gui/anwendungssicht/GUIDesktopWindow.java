@@ -31,6 +31,7 @@ import java.util.Observer;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
+import filius.gui.JFrameList;
 import filius.gui.netzwerksicht.GUIDesignSidebar;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Host;
@@ -67,6 +68,7 @@ public class GUIDesktopWindow extends JFrame implements Observer {
 
 	public GUIDesktopWindow(Betriebssystem bs) {
 		super();
+		JFrameList.gI().add(this);
 
 		bs.addObserver(this);
 

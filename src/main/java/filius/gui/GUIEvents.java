@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -48,6 +48,7 @@ import filius.gui.netzwerksicht.JSidebarButton;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
+import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Modem;
@@ -496,6 +497,7 @@ public class GUIEvents implements I18n {
     public void resetAndShowCablePreview(int currentPosX, int currentPosY) {
         resetCableTool();
         showCableToolPanel(currentPosX, currentPosY);
+        cancelMultipleSelection();
     }
 
     private void showCableToolPanel(int currentPosX, int currentPosY) {
@@ -570,7 +572,7 @@ public class GUIEvents implements I18n {
         if (item.getKnoten() instanceof InternetKnoten) {
             bs = (InternetKnotenBetriebssystem) ((InternetKnoten) item.getKnoten()).getSystemSoftware();
             exchangeDialog.addTable(bs, macAddress);
-            ((JDialog) exchangeDialog).setVisible(true);
+            ((JFrame) exchangeDialog).setVisible(true);
         }
     }
 
@@ -690,12 +692,30 @@ public class GUIEvents implements I18n {
 
             this.removeSingleCable(kabel);
         }
+        
+        // Remove the simulation mode's elements related to the item
+        if (loeschitem.getKnoten() instanceof Host) {
+        	// Remove the desktop's JFrame
+        	GUIContainer.getGUIContainer().removeDesktopWindow(loeschitem);
+        	
+        	// Remove the table in ExchangeDialog        	
+        	String mac = ((Host)loeschitem.getKnoten()).getMac();
+        	GUIContainer.getGUIContainer().getExchangeDialog().removeTable(mac, null);
+        	
+        } else if (loeschitem.getKnoten() instanceof Switch) {
+        	// Remove the SATtable's JFrame
+        	SatViewerControl.getInstance().removeViewer((Switch)loeschitem.getKnoten());
+        	
+        } else if (loeschitem.getKnoten() instanceof Vermittlungsrechner) {
+        	// Remove the tables in ExchangeDialog
+        	List<String> macs = ((Vermittlungsrechner)loeschitem.getKnoten()).getMacs();
+        	for (String mac: macs) GUIContainer.getGUIContainer().getExchangeDialog().removeTable(mac, null);
+        }
 
         GUIContainer.getGUIContainer().removeNodeItem(loeschitem);
         GUIContainer.getGUIContainer().getDesignpanel().remove(loeschlabel);
         GUIContainer.getGUIContainer().getDesignpanel().updateUI();
         GUIContainer.getGUIContainer().updateViewport();
-
     }
 
     // remove a single cable without using touching the connected node

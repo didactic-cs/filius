@@ -65,4 +65,9 @@ public abstract class Host extends InternetKnoten {
 		NetzwerkInterface nic = (NetzwerkInterface) this.getNetzwerkInterfaces().get(0);
 		nic.setIp(ip);
 	}
+	
+	public String getMac() {	
+		NetzwerkInterface nic = (NetzwerkInterface) this.getNetzwerkInterfaces().get(0);
+		return nic.getMac(); 
+	}
 }
