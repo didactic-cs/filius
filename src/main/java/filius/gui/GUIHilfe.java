@@ -105,8 +105,8 @@ public class GUIHilfe implements I18n {
         if (modus.equalsIgnoreCase("entwurfsmodus")) {
             file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_entwurf"));
         } else if (modus.equalsIgnoreCase("dokumodus")) {
-            file = ResourceUtil.getResourceFile("hilfe/documentation_mode_fr_FR.html");                // <-- i18n
-        } else{
+            file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_documentation"));
+        } else {
             file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_simulation"));
         }
         String gfxPath = "file:" + file.getParentFile().getAbsolutePath() + "/gfx/";
@@ -121,7 +121,7 @@ public class GUIHilfe implements I18n {
             }
             String newText = sb.toString();
             newText = newText.replaceAll("hilfe/gfx/", gfxPath);
-            //System.out.println(newText);
+            // System.out.println(newText);
             epHtml.read(new java.io.StringReader(newText), null);
             epHtml.setCaretPosition(0);
         } catch (FileNotFoundException e) {
