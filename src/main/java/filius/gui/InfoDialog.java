@@ -119,7 +119,8 @@ public class InfoDialog extends JDialog implements I18n {
                     + "<p> Andr&eacute; Asschoff, " + "Johannes Bade, " + "Carsten Dittich, " + "Thomas Gerding, "
                     + "Nadja Ha&szlig;ler, " + "Ernst Johannes Klebert, " + "Michell Weyer </p>" + "<b>"
                     + messages.getString("infodialog_msg4") + "</b>" + "<p> Stefan Freischlad, " + "Peer Stechert </p>"
-                    + "<b>" + messages.getString("infodialog_msg11") + "</b><p>Christian Eibl</p>" + "</html>");
+                    + "<b>" + messages.getString("infodialog_msg11")
+                    + "</b><p>Christian Eibl, Patrice Treton, pyropeter</p>" + "</html>");
             personen.setVerticalAlignment(SwingConstants.TOP);
             personen.setForeground(Color.WHITE);
             personen.setFont(new Font("Dialog", Font.PLAIN, 12));
