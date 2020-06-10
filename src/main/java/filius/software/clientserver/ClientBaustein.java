@@ -97,6 +97,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
         args[1] = Integer.valueOf(zielPort);
 
         ausfuehren("initialisiereSocket", args);
+        ausfuehren("empfangeNachricht", null);
     }
 
     /**
@@ -145,7 +146,6 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
             try {
                 socket.senden(nachricht);
                 benachrichtigeBeobachter("<<" + nachricht);
-                ausfuehren("empfangeNachricht", null);
             } catch (Exception e) {
                 benachrichtigeBeobachter(e.getMessage());
                 e.printStackTrace(Main.debug);
@@ -165,9 +165,9 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 + " (ClientBaustein), empfangeNachricht()");
         String nachricht;
 
-        if (socket != null && socket.istVerbunden()) {
+        while (socket != null && socket.istVerbunden()) {
             try {
-                nachricht = socket.empfangen();
+                nachricht = socket.empfangen(Long.MAX_VALUE);
                 if (nachricht != null) {
                     benachrichtigeBeobachter(">>" + nachricht);
                 } else {
@@ -180,8 +180,6 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 benachrichtigeBeobachter(e.getMessage());
                 e.printStackTrace(Main.debug);
             }
-        } else {
-            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
         }
     }
 
