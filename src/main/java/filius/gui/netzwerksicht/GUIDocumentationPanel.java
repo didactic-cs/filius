@@ -41,32 +41,42 @@ public class GUIDocumentationPanel extends GUIMainArea {
         setPreferredSize(new Dimension(width, height));
         setBounds(0, 0, width, height);
         setOpaque(false);
-        
+
         // A click on the background removes the focus from any JDocuElement
         addMouseListener(new MouseInputAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-            	removeElementsFocus();
+                removeElementsFocus();
             }
         });
     }
-    
+
     public void removeElementsFocus() {
-    	getRootPane().requestFocusInWindow();
-    	Component[] c = getComponents();
-    	for (int i = 0; i < c.length; i++) {       
-    		if ( c[i] instanceof JDocuElement &&  c[i] != this) {
-    			((JDocuElement) c[i]).setLocalFocus(false);
-    		}
-    	}
+        getRootPane().requestFocusInWindow();
+        Component[] c = getComponents();
+        for (int i = 0; i < c.length; i++) {
+            if (c[i] instanceof JDocuElement && c[i] != this) {
+                ((JDocuElement) c[i]).setLocalFocus(false);
+            }
+        }
     }
 
     public void updateViewport(List<GUIDocuItem> docuItems, boolean elementsEnabled) {
         removeAll();
-
         for (GUIDocuItem item : docuItems) {
-            add(item.asDocuElement());
-            item.asDocuElement().setEnabled(elementsEnabled);
+            if (item.getType() == GUIDocuItem.TEXT) {
+                addItem(elementsEnabled, item);
+            }
         }
+        for (GUIDocuItem item : docuItems) {
+            if (item.getType() == GUIDocuItem.RECT) {
+                addItem(elementsEnabled, item);
+            }
+        }
+    }
+
+    private void addItem(boolean elementsEnabled, GUIDocuItem item) {
+        add(item.asDocuElement());
+        item.asDocuElement().setEnabled(elementsEnabled);
     }
 }

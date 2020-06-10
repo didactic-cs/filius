@@ -106,9 +106,11 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
     }
 
     public int getWidth() {
-        int width;
+        int width = 0;
 
-        width = this.getFontMetrics(this.getFont()).stringWidth(this.getText());
+        if (null != this.getText()) {
+            width = this.getFontMetrics(this.getFont()).stringWidth(this.getText());
+        }
         width += 5;
         if (this.getIcon() != null && this.getIcon().getIconWidth() > width)
             width = this.getIcon().getIconWidth();
