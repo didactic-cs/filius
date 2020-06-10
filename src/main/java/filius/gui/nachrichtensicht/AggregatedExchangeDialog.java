@@ -48,6 +48,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -66,7 +67,6 @@ import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 
-import filius.gui.JFrameList;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
@@ -80,10 +80,10 @@ import filius.software.system.SystemSoftware;
  * 
  * @author stefan
  */
-public class AggregatedExchangeDialog extends JFrame implements ExchangeDialog, I18n {
+public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog, I18n {
 
     private static final long serialVersionUID = 1L;
-    
+
     private JTabbedPane tabbedPane;
 
     private static AggregatedExchangeDialog instance = null;
@@ -114,8 +114,7 @@ public class AggregatedExchangeDialog extends JFrame implements ExchangeDialog, 
     public AggregatedExchangeDialog() {}
 
     private AggregatedExchangeDialog(Frame owner) {
-        super(); 
-        JFrameList.gI().add(this);
+        super(owner);
         ((JFrame) owner).getLayeredPane().setLayer(this, JLayeredPane.PALETTE_LAYER);
 
         Image image;
@@ -127,6 +126,8 @@ public class AggregatedExchangeDialog extends JFrame implements ExchangeDialog, 
         image = Toolkit.getDefaultToolkit()
                 .getImage(getClass().getResource("/gfx/allgemein/nachrichtenfenster_icon.png"));
         setIconImage(image);
+
+        this.setModal(false);
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
@@ -259,15 +260,14 @@ public class AggregatedExchangeDialog extends JFrame implements ExchangeDialog, 
     }
 
     private void removeTable(String mac) {
-        removeTable(mac, null);
+        removeTable(mac, openedTabs.get(mac));
     }
 
     @Override
     public void removeTable(String mac, JPanel panel) {
         if (mac != null) {
-        	if (panel == null) panel = openedTabs.get(mac);
             openedTabs.remove(mac);
-            tabellen.remove(mac);            
+            tabellen.remove(mac);
             tabbedPane.remove(panel);
         }
     }

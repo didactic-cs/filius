@@ -69,7 +69,7 @@ public class JDocuElement extends JPanel implements I18n {
 
     private static final long serialVersionUID = 1L;
 
-    private boolean selected = false;            
+    private boolean selected = false;
     private int updateType;
     private Dimension elemMoveOffset;
 
@@ -100,65 +100,73 @@ public class JDocuElement extends JPanel implements I18n {
     private static final int TEXT_BORDER_WIDTH = 7;
     private static final int TEXT_BORDER_BOTTOM = 30;
 
-    private static final String fontSizeText[] = {"Normal (12pt)", "Gross (18pt)", "Grösser (24pt)", "Sehr Gross (36pt)", "Riesig (48pt)"};
-    private static final float fontSize[]      = {12f, 18f, 24f, 36f, 48f};
+    private static final String fontSizeText[] = { "Normal (12pt)", "Gross (18pt)", "Grösser (24pt)",
+            "Sehr Gross (36pt)", "Riesig (48pt)" };
+    private static final float fontSize[] = { 12f, 18f, 24f, 36f, 48f };
 
-    private static final String fontStyleText[] = {"Normal", "Kursiv", "Fett"}; // Normal, gras, italique
+    private static final String fontStyleText[] = { "Normal", "Kursiv", "Fett" }; // Normal, gras, italique
 
-    private static final Color fontColor[]      = {Color.BLACK, new Color(0.4f, 0.4f, 0.4f), new Color(0.6f, 0.6f, 0.6f), new Color(0.7f, 0.7f, 0.7f), Color.WHITE,
-    										       new Color(1f, 0, 0), new Color(0.70f, 0.64f, 0.78f), new Color(0.31f, 0.51f, 0.74f), new Color(0.61f, 0.73f, 0.35f), new Color(0.58f, 0.54f, 0.33f),
-    											   new Color(0.58f, 0.22f, 0.21f), new Color(0.37f, 0.29f, 0.48f), new Color(0.12f, 0.29f, 0.49f), new Color(0.43f, 0.53f, 0.22f), new Color(0.35f, 0.33f, 0.19f)};
+    private static final Color fontColor[] = { Color.BLACK, new Color(0.4f, 0.4f, 0.4f), new Color(0.6f, 0.6f, 0.6f),
+            new Color(0.7f, 0.7f, 0.7f), Color.WHITE, new Color(1f, 0, 0), new Color(0.70f, 0.64f, 0.78f),
+            new Color(0.31f, 0.51f, 0.74f), new Color(0.61f, 0.73f, 0.35f), new Color(0.58f, 0.54f, 0.33f),
+            new Color(0.58f, 0.22f, 0.21f), new Color(0.37f, 0.29f, 0.48f), new Color(0.12f, 0.29f, 0.49f),
+            new Color(0.43f, 0.53f, 0.22f), new Color(0.35f, 0.33f, 0.19f) };
 
-    private static final Color panelColor[]      = {Color.BLACK, new Color(0.8f, 0.8f, 0.8f), new Color(0.92f, 0.92f, 0.92f), Color.WHITE,
-													new Color(1f, 0.79f, 0.79f), new Color(0.99f, 0.79f, 0.64f), new Color(1f, 1f, 0.89f), new Color(0.83f, 0.81f, 0.71f),
-													new Color(0.87f, 0.83f, 1f), new Color(0.82f, 0.91f, 1f), new Color(0.75f, 1f, 0.86f), new Color(0.80f, 0.87f, 0.68f)};
+    private static final Color panelColor[] = { Color.BLACK, new Color(0.8f, 0.8f, 0.8f),
+            new Color(0.92f, 0.92f, 0.92f), Color.WHITE, new Color(1f, 0.79f, 0.79f), new Color(0.99f, 0.79f, 0.64f),
+            new Color(1f, 1f, 0.89f), new Color(0.83f, 0.81f, 0.71f), new Color(0.87f, 0.83f, 1f),
+            new Color(0.82f, 0.91f, 1f), new Color(0.75f, 1f, 0.86f), new Color(0.80f, 0.87f, 0.68f) };
 
-    private static final Color panelFocusColor               = new Color(0.22f, 0.6f, 0.98f, 0.3f); // Translucent light blue
-    private static final Color borderFocusColor              = new Color(0.48f, 0.73f, 0.98f);      // Opaque light blue
-    private static final Color textPanelBorderNormalColor    = new Color(0.7f, 0.7f, 0.7f);         // Light gray
-    private static final Color transparent                   = new Color(0, 0, 0, 0);
+    private static final Color panelFocusColor = new Color(0.22f, 0.6f, 0.98f, 0.3f); // Translucent light blue
+    private static final Color borderFocusColor = new Color(0.48f, 0.73f, 0.98f); // Opaque light blue
+    private static final Color textPanelBorderNormalColor = new Color(0.7f, 0.7f, 0.7f); // Light gray
+    private static final Color transparent = new Color(0, 0, 0, 0);
 
     // JDocuTextArea
-    //--------------------------------------------------------
+    // --------------------------------------------------------
 
     private class JDocuTextArea extends JTextArea {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		private JDocuTextArea() {
+        private JDocuTextArea() {
 
-    		setBackground(transparent);      
-    		setEnabled(enabled);
-    		setWrapping();
+            setBackground(transparent);
+            setEnabled(enabled);
+            setWrapping();
 
-    		initListeners();
-    	}
+            initListeners();
+        }
 
-    	private void initListeners() {
+        private void initListeners() {
 
-    		addKeyListener(new KeyAdapter() {
-    			@Override
-        		public void keyPressed(KeyEvent e) {
-        			switch (e.getKeyCode()) {
-        				case KeyEvent.VK_DELETE:
-        					if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) delete();
-        					break;
-        				case KeyEvent.VK_ESCAPE:
-        					setLocalFocus(false);
-        					// Also release the real focus   
-        					getRootPane().requestFocusInWindow();
-        			}
-        		}
-        	});
-    		
-    		addMouseListener(new MouseInputAdapter() {   
-    			@Override
-                public void mouseEntered(MouseEvent e) {
-                    if (enabled) setPanelCursor(Cursor.TEXT_CURSOR);
+            addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    switch (e.getKeyCode()) {
+                    case KeyEvent.VK_DELETE:
+                        if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK)
+                            delete();
+                        break;
+                    case KeyEvent.VK_ESCAPE:
+                        setLocalFocus(false);
+                        // Also release the real focus
+                        getRootPane().requestFocusInWindow();
+                    }
                 }
+            });
+
+            addMouseListener(new MouseInputAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (enabled)
+                        setPanelCursor(Cursor.TEXT_CURSOR);
+                }
+
                 @Override
                 public void mouseExited(MouseEvent e) {
-                    if (enabled) setPanelCursor(Cursor.DEFAULT_CURSOR);
+                    if (enabled)
+                        setPanelCursor(Cursor.DEFAULT_CURSOR);
                 }
             });
 
@@ -167,131 +175,129 @@ public class JDocuElement extends JPanel implements I18n {
                 public void mousePressed(MouseEvent e) {
                     requestFocusInWindow();
                     if (enabled && e.getButton() == MouseEvent.BUTTON3) {
-                 		showPopupMenu(e.getX(), e.getY());
-                 	}  
+                        showPopupMenu(e.getX(), e.getY());
+                    }
                 }
             });
 
             addFocusListener(new FocusListener() {
-            	@Override
-            	public void focusGained(FocusEvent e) {
-            		setLocalFocus(true);
-            	}
-            	@Override
-            	public void focusLost(FocusEvent e) {
-            	}
+                @Override
+                public void focusGained(FocusEvent e) {
+                    setLocalFocus(true);
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {}
             });
-    	}
+        }
 
-    	private void setWrapping() {
+        private void setWrapping() {
 
-    		// There is something wrong in the behaviour of JTextArea when lineWrap is set from the constructor
-    		// with the following two lines:
-    		//   textArea.setLineWrap(true);
-    		//   setWrapStyleWord(true);
-    		//
-    		// The trick to bypass it is to set the line wrap when the text is modified.
-    		// Since JTextArea.text is initially empty, that works OK.
-    		getDocument().addDocumentListener(new DocumentListener() {
-    			@Override
-    			public void insertUpdate(DocumentEvent e) {
-    				setLineWrap(true);
-    				setWrapStyleWord(true);
-    				
-    				// Remove it since it is usefull only once
-    				getDocument().removeDocumentListener(this); 
-    			}
-    			@Override
-    			public void removeUpdate(DocumentEvent e) {}
-    			@Override
-    			public void changedUpdate(DocumentEvent e) {}
-    		});
-    	}
+            // There is something wrong in the behaviour of JTextArea when lineWrap is set from the constructor
+            // with the following two lines:
+            // textArea.setLineWrap(true);
+            // setWrapStyleWord(true);
+            //
+            // The trick to bypass it is to set the line wrap when the text is modified.
+            // Since JTextArea.text is initially empty, that works OK.
+            getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    setLineWrap(true);
+                    setWrapStyleWord(true);
+
+                    // Remove it since it is usefull only once
+                    getDocument().removeDocumentListener(this);
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {}
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {}
+            });
+        }
     }
 
-
     // JDocuElement
-    //--------------------------------------------------------
+    // --------------------------------------------------------
 
     public JDocuElement(boolean isText) {
 
-    	if (isText) {
-    		// A text area
+        if (isText) {
+            // A text area
             textArea = new JDocuTextArea();
             add(textArea);
-            this.isText = true;    // isText must be set to true only when the text area has been added
-            
-    		// The panel is used to move and resize the text area that it contains
-    		// It is only visible in documentation mode when the text area has the local focus            
+            this.isText = true; // isText must be set to true only when the text area has been added
+
+            // The panel is used to move and resize the text area that it contains
+            // It is only visible in documentation mode when the text area has the local focus
             setColor(Color.BLACK);
             setOpaque(false);
-            setLayout(null);           
+            setLayout(null);
             setSize(100, 50);
             // Direct call since the listener is not yet set
-            updateTextAreaBounds();              
+            updateTextAreaBounds();
 
         } else {
-        	// A simple color panel
-        	setSize(100, 50);
-        	setColor(panelColor[1]);
-        	setOpaque(false);
-        	setFocusable(true);
+            // A simple color panel
+            setSize(100, 50);
+            setColor(panelColor[1]);
+            setOpaque(false);
+            setFocusable(true);
         }
 
         initListeners();
     }
-    
+
     public JDocuElement(boolean isText, boolean dragDropCreation) {
 
-    	this(isText);
-    	this.dragDropCreation = dragDropCreation;
+        this(isText);
+        this.dragDropCreation = dragDropCreation;
     }
-
 
     // Called just after the component has been assigned a parent
     // Handy to do things that can't be done at creation time when the text area lacks a parent
     public void addNotify() {
 
         super.addNotify();
-        
-        if (! (getParent() instanceof GUIDocumentationPanel)) return;  
-        
+
+        if (!(getParent() instanceof GUIDocumentationPanel))
+            return;
+
         // There is a special treatment when the panel is created by drag-drop
         if (dragDropCreation) {
-        	setLocalFocus(true);   
-        	// Every newly added Text component is located on top
-            // (which is more natural than the default behaviour which sets them at the bottom, behind all the others)
-        	if (isText) setOnTop();
-        } 
+            setLocalFocus(true);
+        }
     }
 
     // Initialization of the listeners
     private void initListeners() {
 
         addComponentListener(new ComponentAdapter() {
-        	@Override
-        	public void componentResized(ComponentEvent e) {
-        		if (isText) {
-        			updateTextAreaBounds();
-        			repaint();
-        		}
-        	}
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (isText) {
+                    updateTextAreaBounds();
+                    repaint();
+                }
+            }
         });
 
-    	addKeyListener(new KeyAdapter() {
+        addKeyListener(new KeyAdapter() {
 
-    		// Automatic adjustment of the dimensions of the textArea to the panel's dimensions
-    		@Override
-    		public void keyPressed(KeyEvent e) {
-    			switch (e.getKeyCode()) {
-    				case KeyEvent.VK_DELETE:
-    					delete();
-    					break;
-    				case KeyEvent.VK_ESCAPE:
-    					setLocalFocus(false);
-    			}
-    		}
-    	});
+            // Automatic adjustment of the dimensions of the textArea to the panel's dimensions
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                case KeyEvent.VK_DELETE:
+                    delete();
+                    break;
+                case KeyEvent.VK_ESCAPE:
+                    setLocalFocus(false);
+                }
+            }
+        });
 
         addMouseListener(new MouseInputAdapter() {
             @Override
@@ -299,22 +305,25 @@ public class JDocuElement extends JPanel implements I18n {
 
                 if (enabled) {
 
-                	selected = true;
-                	
-                	if (! isText) {
-                		requestFocusInWindow();
-                		if (! localFocus) setLocalFocus(true);
-                	}
-                	
-                	switch (e.getButton()) {
-                		case MouseEvent.BUTTON1:
-                			if (updateType == GUIContainer.MOVE) elemMoveOffset = new Dimension(e.getX(), e.getY());
-                			break;
-                		case MouseEvent.BUTTON3:	
-                			showPopupMenu(e.getX(), e.getY());
-                	}
+                    selected = true;
+
+                    if (!isText) {
+                        requestFocusInWindow();
+                        if (!localFocus)
+                            setLocalFocus(true);
+                    }
+
+                    switch (e.getButton()) {
+                    case MouseEvent.BUTTON1:
+                        if (updateType == GUIContainer.MOVE)
+                            elemMoveOffset = new Dimension(e.getX(), e.getY());
+                        break;
+                    case MouseEvent.BUTTON3:
+                        showPopupMenu(e.getX(), e.getY());
+                    }
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (enabled) {
@@ -324,10 +333,11 @@ public class JDocuElement extends JPanel implements I18n {
                     SzenarioVerwaltung.getInstance().setzeGeaendert();
                 }
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
                 if (enabled) {
-                	setPanelCursor(Cursor.DEFAULT_CURSOR);
+                    setPanelCursor(Cursor.DEFAULT_CURSOR);
                 }
             }
         });
@@ -335,7 +345,7 @@ public class JDocuElement extends JPanel implements I18n {
         addMouseMotionListener(new MouseInputAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (enabled && !(isText && ! enlargedPanel)) {
+                if (enabled && !(isText && !enlargedPanel)) {
                     boolean left = (e.getX() <= TEXT_BORDER_WIDTH);
                     boolean right = (e.getX() >= getWidth() - TEXT_BORDER_WIDTH);
                     boolean upper = (e.getY() <= TEXT_BORDER_WIDTH);
@@ -343,217 +353,198 @@ public class JDocuElement extends JPanel implements I18n {
 
                     if (left) {
                         if (upper) {
-                        	updateType = GUIContainer.LEFT_SIZING | GUIContainer.UPPER_SIZING;
+                            updateType = GUIContainer.LEFT_SIZING | GUIContainer.UPPER_SIZING;
                         } else if (lower) {
-                        	updateType = GUIContainer.LEFT_SIZING | GUIContainer.LOWER_SIZING;
+                            updateType = GUIContainer.LEFT_SIZING | GUIContainer.LOWER_SIZING;
                         } else {
-                        	updateType = GUIContainer.LEFT_SIZING;
+                            updateType = GUIContainer.LEFT_SIZING;
                         }
                     } else if (right) {
                         if (upper) {
-                        	updateType = GUIContainer.RIGHT_SIZING | GUIContainer.UPPER_SIZING;
+                            updateType = GUIContainer.RIGHT_SIZING | GUIContainer.UPPER_SIZING;
                         } else if (lower) {
-                        	updateType = GUIContainer.RIGHT_SIZING | GUIContainer.LOWER_SIZING;
+                            updateType = GUIContainer.RIGHT_SIZING | GUIContainer.LOWER_SIZING;
                         } else {
-                        	updateType = GUIContainer.RIGHT_SIZING;
+                            updateType = GUIContainer.RIGHT_SIZING;
                         }
                     } else if (upper) {
-                    	updateType = GUIContainer.UPPER_SIZING;
+                        updateType = GUIContainer.UPPER_SIZING;
                     } else if (lower) {
-                    	updateType = GUIContainer.LOWER_SIZING;
+                        updateType = GUIContainer.LOWER_SIZING;
                     } else {
                         updateType = GUIContainer.MOVE;
                     }
 
                     switch (updateType) {
-                        case GUIContainer.MOVE:
-                        	setPanelCursor(Cursor.MOVE_CURSOR);
-                            break;
-                        case GUIContainer.LEFT_SIZING:
-                        	setPanelCursor(Cursor.W_RESIZE_CURSOR);
-                            break;
-                        case GUIContainer.RIGHT_SIZING:
-                        	setPanelCursor(Cursor.E_RESIZE_CURSOR);
-                            break;
-                        case GUIContainer.UPPER_SIZING:
-                        	setPanelCursor(Cursor.N_RESIZE_CURSOR);
-                            break;
-                        case GUIContainer.LOWER_SIZING:
-                        	setPanelCursor(Cursor.S_RESIZE_CURSOR);
-                            break;
-                        case GUIContainer.LEFT_SIZING | GUIContainer.UPPER_SIZING:
-                        	setPanelCursor(Cursor.S_RESIZE_CURSOR);
-                            break;
-                        case GUIContainer.RIGHT_SIZING | GUIContainer.UPPER_SIZING:
-                        	setPanelCursor(Cursor.NE_RESIZE_CURSOR);
-                            break;
-                        case GUIContainer.LEFT_SIZING | GUIContainer.LOWER_SIZING:
-                        	setPanelCursor(Cursor.SW_RESIZE_CURSOR);
-                            break;
-                        case GUIContainer.RIGHT_SIZING | GUIContainer.LOWER_SIZING:
-                        	setPanelCursor(Cursor.SE_RESIZE_CURSOR);
-                            break;
-                        default:
-                        	setPanelCursor(Cursor.DEFAULT_CURSOR);
+                    case GUIContainer.MOVE:
+                        setPanelCursor(Cursor.MOVE_CURSOR);
+                        break;
+                    case GUIContainer.LEFT_SIZING:
+                        setPanelCursor(Cursor.W_RESIZE_CURSOR);
+                        break;
+                    case GUIContainer.RIGHT_SIZING:
+                        setPanelCursor(Cursor.E_RESIZE_CURSOR);
+                        break;
+                    case GUIContainer.UPPER_SIZING:
+                        setPanelCursor(Cursor.N_RESIZE_CURSOR);
+                        break;
+                    case GUIContainer.LOWER_SIZING:
+                        setPanelCursor(Cursor.S_RESIZE_CURSOR);
+                        break;
+                    case GUIContainer.LEFT_SIZING | GUIContainer.UPPER_SIZING:
+                        setPanelCursor(Cursor.S_RESIZE_CURSOR);
+                        break;
+                    case GUIContainer.RIGHT_SIZING | GUIContainer.UPPER_SIZING:
+                        setPanelCursor(Cursor.NE_RESIZE_CURSOR);
+                        break;
+                    case GUIContainer.LEFT_SIZING | GUIContainer.LOWER_SIZING:
+                        setPanelCursor(Cursor.SW_RESIZE_CURSOR);
+                        break;
+                    case GUIContainer.RIGHT_SIZING | GUIContainer.LOWER_SIZING:
+                        setPanelCursor(Cursor.SE_RESIZE_CURSOR);
+                        break;
+                    default:
+                        setPanelCursor(Cursor.DEFAULT_CURSOR);
                     }
                 }
             }
+
             @Override
             public void mouseDragged(MouseEvent e) {
-            	if (SwingUtilities.isLeftMouseButton(e)) {
-            		if (isText && ! enlargedPanel) return;
-            		
-            		boolean left  = ((updateType & GUIContainer.LEFT_SIZING) != 0);
-            		boolean right = ((updateType & GUIContainer.RIGHT_SIZING) != 0);
-            		boolean upper = ((updateType & GUIContainer.UPPER_SIZING) != 0);
-            		boolean lower = ((updateType & GUIContainer.LOWER_SIZING) != 0);
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    if (isText && !enlargedPanel)
+                        return;
 
-            		int elemX = getX();
-            		int elemY = getY();
-            		int elemW = getWidth();
-            		int elemH = getHeight();
+                    boolean left = ((updateType & GUIContainer.LEFT_SIZING) != 0);
+                    boolean right = ((updateType & GUIContainer.RIGHT_SIZING) != 0);
+                    boolean upper = ((updateType & GUIContainer.UPPER_SIZING) != 0);
+                    boolean lower = ((updateType & GUIContainer.LOWER_SIZING) != 0);
 
-            		int newX, newY, newW, newH;
+                    int elemX = getX();
+                    int elemY = getY();
+                    int elemW = getWidth();
+                    int elemH = getHeight();
 
-            		if (enabled) {
-            			if (updateType == GUIContainer.MOVE) {
-            				setLocation(e.getX() - (int) JDocuElement.this.elemMoveOffset.getWidth()  + elemX,
-            						    e.getY() - (int) JDocuElement.this.elemMoveOffset.getHeight() + elemY);
+                    int newX, newY, newW, newH;
 
-            			} else if (updateType != GUIContainer.NONE) {
-            				int minW = (isText ? TEXT_MIN_WIDTH : RECT_MIN_WIDTH);
-            				int minH = (isText ? TEXT_MIN_HEIGHT : RECT_MIN_HEIGHT);
+                    if (enabled) {
+                        if (updateType == GUIContainer.MOVE) {
+                            setLocation(e.getX() - (int) JDocuElement.this.elemMoveOffset.getWidth() + elemX,
+                                    e.getY() - (int) JDocuElement.this.elemMoveOffset.getHeight() + elemY);
 
-            				if (left) {
-            					newX = elemX + e.getX();
-            					newW = elemW - e.getX();
-            					if (newW < minW) {
-            						newX = newX - (minW - newW);
-            						newW = minW;
-            					}
-            				} else if (right) {
-            					newX = elemX;
-            					newW = e.getX();
-            					if (newW < minW) {
-            						newW = minW;
-            					}
-            				} else {
-            					newX = elemX;
-            					newW = elemW;
-            				}
+                        } else if (updateType != GUIContainer.NONE) {
+                            int minW = (isText ? TEXT_MIN_WIDTH : RECT_MIN_WIDTH);
+                            int minH = (isText ? TEXT_MIN_HEIGHT : RECT_MIN_HEIGHT);
 
-            				if (upper) {
-            					newY = elemY + e.getY();
-            					newH = elemH - e.getY();
-            					if (newH < minH) {
-            						newY = newY - (minH - newH);
-            						newH = minH;
-            					}
-            				} else if (lower) {
-            					newY = elemY;
-            					newH = e.getY();
-            					if (newH < minH) {
-            						newH = minH;
-            					}
-            				} else {
-            					newY = elemY;
-            					newH = elemH;
-            				}
+                            if (left) {
+                                newX = elemX + e.getX();
+                                newW = elemW - e.getX();
+                                if (newW < minW) {
+                                    newX = newX - (minW - newW);
+                                    newW = minW;
+                                }
+                            } else if (right) {
+                                newX = elemX;
+                                newW = e.getX();
+                                if (newW < minW) {
+                                    newW = minW;
+                                }
+                            } else {
+                                newX = elemX;
+                                newW = elemW;
+                            }
 
-            				setBounds(newX, newY, newW, newH);
-            			}
-            		}
-            	}
+                            if (upper) {
+                                newY = elemY + e.getY();
+                                newH = elemH - e.getY();
+                                if (newH < minH) {
+                                    newY = newY - (minH - newH);
+                                    newH = minH;
+                                }
+                            } else if (lower) {
+                                newY = elemY;
+                                newH = e.getY();
+                                if (newH < minH) {
+                                    newH = minH;
+                                }
+                            } else {
+                                newY = elemY;
+                                newH = elemH;
+                            }
+
+                            setBounds(newX, newY, newW, newH);
+                        }
+                    }
+                }
             }
         });
-    }   
-    
+    }
+
     // popupmenu
     private void showPopupMenu(int x, int y) {
 
-    	JPopupMenu menu = new JPopupMenu();
+        JPopupMenu menu = new JPopupMenu();
 
-    	if (isText) {
-    		// Font size
-    		JMenu mFontSize = new JMenu("Schriftgrösse");  // Taille de police
-    		float tafs = textArea.getFont().getSize();
-    		for (int i = 0; i<fontSize.length; i++) {
-    			JRadioButtonMenuItem mi = new JRadioButtonMenuItem(fontSizeText[i]);
-    			mi.putClientProperty("fontSize", fontSize[i]);
-    			mi.setSelected(tafs == fontSize[i]);
-        		mi.addActionListener(new ActionListener() {
-        			public void actionPerformed(ActionEvent e) {
-        				JMenuItem smi = (JMenuItem) e.getSource();
-        				float fs = (float) smi.getClientProperty("fontSize");
-        				textArea.setFont(textArea.getFont().deriveFont(fs));
-        				repaint();
-        			}
-        		});
-        		mFontSize.add(mi);
-    		}
-    		menu.add(mFontSize);
+        if (isText) {
+            // Font size
+            JMenu mFontSize = new JMenu("Schriftgrösse"); // Taille de police
+            float tafs = textArea.getFont().getSize();
+            for (int i = 0; i < fontSize.length; i++) {
+                JRadioButtonMenuItem mi = new JRadioButtonMenuItem(fontSizeText[i]);
+                mi.putClientProperty("fontSize", fontSize[i]);
+                mi.setSelected(tafs == fontSize[i]);
+                mi.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        JMenuItem smi = (JMenuItem) e.getSource();
+                        float fs = (float) smi.getClientProperty("fontSize");
+                        textArea.setFont(textArea.getFont().deriveFont(fs));
+                        repaint();
+                    }
+                });
+                mFontSize.add(mi);
+            }
+            menu.add(mFontSize);
 
-    		// Font style
-    		int[] fontStyles = {Font.PLAIN, Font.ITALIC, Font.BOLD};
-    		JMenu mFontStyle = new JMenu("Schriftstil");  // Style de police
-    		int tafst = textArea.getFont().getStyle();
-    		for (int i = 0; i<fontStyles.length; i++) {
-    			JRadioButtonMenuItem mi = new JRadioButtonMenuItem(fontStyleText[i]);
-    			mi.putClientProperty("fontStyle", i);
-    			mi.setSelected(tafst == fontStyles[i]);
-        		mi.addActionListener(new ActionListener() {
-        			public void actionPerformed(ActionEvent e) {
-        				JMenuItem smi = (JMenuItem) e.getSource();
-        				int fs = (int) smi.getClientProperty("fontStyle");
-        				textArea.setFont(textArea.getFont().deriveFont(fontStyles[fs]));
-        				repaint();
-        			}
-        		});
-        		mFontStyle.add(mi);
-    		}
-    		menu.add(mFontStyle);
+            // Font style
+            int[] fontStyles = { Font.PLAIN, Font.ITALIC, Font.BOLD };
+            JMenu mFontStyle = new JMenu("Schriftstil"); // Style de police
+            int tafst = textArea.getFont().getStyle();
+            for (int i = 0; i < fontStyles.length; i++) {
+                JRadioButtonMenuItem mi = new JRadioButtonMenuItem(fontStyleText[i]);
+                mi.putClientProperty("fontStyle", i);
+                mi.setSelected(tafst == fontStyles[i]);
+                mi.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        JMenuItem smi = (JMenuItem) e.getSource();
+                        int fs = (int) smi.getClientProperty("fontStyle");
+                        textArea.setFont(textArea.getFont().deriveFont(fontStyles[fs]));
+                        repaint();
+                    }
+                });
+                mFontStyle.add(mi);
+            }
+            menu.add(mFontStyle);
 
-    		// Font color
-    		JDocuColorSelector mFontColor = new JDocuColorSelector("Farbe", fontColor, 3, getColor());  // Couleur
-    		mFontColor.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent e) {
-    				setColor(mFontColor.getColor());
-    				repaint();
-    			}
-    		});
-    		menu.add(mFontColor);
-
-    		// Set panel in the foreground
-            JMenuItem miMoveToTop = new JMenuItem("In den Vordergrund");  // Mettre au premier plan
-            miMoveToTop.addActionListener(new ActionListener() {
+            // Font color
+            JDocuColorSelector mFontColor = new JDocuColorSelector("Farbe", fontColor, 3, getColor()); // Couleur
+            mFontColor.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                	setOnTop();
-                	repaint();
+                    setColor(mFontColor.getColor());
+                    repaint();
                 }
             });
-            menu.add(miMoveToTop);
-
-    	} else {
-    		// Color of the Panel
-    		JDocuColorSelector mPanelColor = new JDocuColorSelector("Farbe", panelColor, 3, getColor()); // Couleur
-    		mPanelColor.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent e) {
-    				setColor(mPanelColor.getColor());
-    				repaint();
-    			}
-    		});
-    		menu.add(mPanelColor);
-
-    		// Set panel in the background
-            JMenuItem miMoveToBottom = new JMenuItem("In den Hintergrund");   // Mettre à l'arrière plan
-            miMoveToBottom.addActionListener(new ActionListener() {
+            menu.add(mFontColor);
+        } else {
+            // Color of the Panel
+            JDocuColorSelector mPanelColor = new JDocuColorSelector("Farbe", panelColor, 3, getColor()); // Couleur
+            mPanelColor.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                	setAtBottom();
-                	repaint();
+                    setColor(mPanelColor.getColor());
+                    repaint();
                 }
             });
-            menu.add(miMoveToBottom);
-    	};
+            menu.add(mPanelColor);
+        }
 
         menu.addSeparator();
 
@@ -565,87 +556,72 @@ public class JDocuElement extends JPanel implements I18n {
             }
         });
         menu.add(miDelete);
-        
+
         menu.show(this, x, y);
     }
-        
-    // Set the component on top (textAreas are always above the rectangles)
-    private void setOnTop() {
-    	if (getParent().getComponentZOrder(this) == 0) return;
-    	
-    	getParent().setComponentZOrder(this, 0);
-    	// Update the GUIContainer.docuItems list (necessary for the order to be saved)
-    	GUIContainer.getGUIContainer().setDocuItemOnTop(this);
-    }
-    
-    // Set the component at the bottom (rectangles are always behind the textAreas)
-    private void setAtBottom() {
-    	if (getParent().getComponentZOrder(this) == getParent().getComponentCount() - 1) return;
-    	
-    	getParent().setComponentZOrder(this, getParent().getComponentCount() - 1);
-    	// Update the GUIContainer.docuItems list (necessary for the order to be saved)
-    	GUIContainer.getGUIContainer().setDocuItemAtBottom(this);
-    }
-    
-    private void setPanelCursor(int cursor) {
-    	JMainFrame.getJMainFrame().setCursor(Cursor.getPredefinedCursor(cursor));
-    }
-    
-    private void delete() {
 
-    	GUIContainer.getGUIContainer().removeDocuElement(this);
+    private void setPanelCursor(int cursor) {
+        JMainFrame.getJMainFrame().setCursor(Cursor.getPredefinedCursor(cursor));
+    }
+
+    private void delete() {
+        GUIContainer.getGUIContainer().removeDocuElement(this);
         GUIContainer.getGUIContainer().updateViewport();
         setPanelCursor(Cursor.DEFAULT_CURSOR);
     }
 
     public String getText() {
-
-        if (isText) return textArea.getText();
+        if (isText)
+            return textArea.getText();
         return null;
     }
 
     public void setText(String text) {
 
-        if (isText) textArea.setText(text);
+        if (isText)
+            textArea.setText(text);
     }
 
-	public Color getColor() {
-		
-		return referenceColor;
-	}
+    public Color getColor() {
 
-	public void setColor(Color color) {
+        return referenceColor;
+    }
 
-		referenceColor = color;
+    public void setColor(Color color) {
 
-		if (isText) {
+        referenceColor = color;
+
+        if (isText) {
             textArea.setForeground(color);
         } else {
-        	int R = color.getRed(); R = 255 + (R-255)*8/10;
-        	int G = color.getGreen(); G = 255 + (G-255)*8/10;
-        	int B = color.getBlue(); B = 255 + (B-255)*8/10;
-        	opaqueColor = new Color(R,G,B);
-        	transparentColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 200);
-        	borderColor = new Color(color.getRed()*4/5, color.getGreen()*4/5, color.getBlue()*4/5);
+            int R = color.getRed();
+            R = 255 + (R - 255) * 8 / 10;
+            int G = color.getGreen();
+            G = 255 + (G - 255) * 8 / 10;
+            int B = color.getBlue();
+            B = 255 + (B - 255) * 8 / 10;
+            opaqueColor = new Color(R, G, B);
+            transparentColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 200);
+            borderColor = new Color(color.getRed() * 4 / 5, color.getGreen() * 4 / 5, color.getBlue() * 4 / 5);
         }
-	}
-	
+    }
+
     public Font getFont() {
 
-		if (isText) {
-			return textArea.getFont();
+        if (isText) {
+            return textArea.getFont();
         } else {
-        	return null;
+            return null;
         }
-	}
+    }
 
-	public void setFont(Font font) {
+    public void setFont(Font font) {
 
-		if (isText) {
+        if (isText) {
             textArea.setFont(font);
         }
-	}
-	
+    }
+
     public void setSelected(boolean selected) {
 
         this.selected = selected;
@@ -654,8 +630,9 @@ public class JDocuElement extends JPanel implements I18n {
 
     @Override
     public void setEnabled(boolean enabled) {
-    	
-    	if (enabled == this.enabled) return;
+
+        if (enabled == this.enabled)
+            return;
 
         this.enabled = enabled;
         setFocusable(enabled);
@@ -665,79 +642,85 @@ public class JDocuElement extends JPanel implements I18n {
             textArea.setFocusable(enabled);
         }
 
-        if (! enabled) setLocalFocus(false);
+        if (!enabled)
+            setLocalFocus(false);
     }
 
     public void setLocalFocus(boolean focused) {
 
-        if (focused == localFocus) return;
+        if (focused == localFocus)
+            return;
 
         // Remove the localFocus from any sibling
         if (focused) {
-        	Component[] c = getParent().getComponents();
-        	for (int i = 0; i < c.length; i++) {       
-        		if ( c[i] instanceof JDocuElement &&  c[i] != this) {
-        			((JDocuElement) c[i]).setLocalFocus(false);
-        		}
-        	}
+            Component[] c = getParent().getComponents();
+            for (int i = 0; i < c.length; i++) {
+                if (c[i] instanceof JDocuElement && c[i] != this) {
+                    ((JDocuElement) c[i]).setLocalFocus(false);
+                }
+            }
         }
         localFocus = focused;
-        
-        if (isText) updatePanelSize();
-        
+
+        if (isText)
+            updatePanelSize();
+
         repaint();
-        
+
         if (dragDropCreation) {
-        	if (isText) delayFocusOnTextArea();
-        	dragDropCreation = false;
-        }        
+            if (isText)
+                delayFocusOnTextArea();
+            dragDropCreation = false;
+        }
     }
-    
+
     // When created with drag-drop, textArea.requestFocusInWindow() does not work when called within setLocalFocus
-    // A delayed call fixes it 
+    // A delayed call fixes it
     private void delayFocusOnTextArea() {
 
-    	new java.util.Timer().schedule( 
-    		new java.util.TimerTask() {
-    			@Override
-    			public void run() {
-    				textArea.requestFocusInWindow(); 
-    			}
-    		}, 
-    		100
-    	);
+        new java.util.Timer().schedule(new java.util.TimerTask() {
+            @Override
+            public void run() {
+                textArea.requestFocusInWindow();
+            }
+        }, 100);
     }
-    
+
     private void updateTextAreaBounds() {
-    	
-    	if (localFocus) {
-    		textArea.setBounds(TEXT_BORDER_WIDTH, TEXT_BORDER_WIDTH, getBounds().width-2*TEXT_BORDER_WIDTH, getBounds().height-TEXT_BORDER_BOTTOM);
-    	} else {
-    		textArea.setBounds(1, 1, getBounds().width-2, getBounds().height-2);
-    	}    		
+
+        if (localFocus) {
+            textArea.setBounds(TEXT_BORDER_WIDTH, TEXT_BORDER_WIDTH, getBounds().width - 2 * TEXT_BORDER_WIDTH,
+                    getBounds().height - TEXT_BORDER_BOTTOM);
+        } else {
+            textArea.setBounds(1, 1, getBounds().width - 2, getBounds().height - 2);
+        }
     }
-    
+
     private void updatePanelSize() {
-    	
-    	if (localFocus) {
-    		// enlarge the panel
-    		if (enlargedPanel) return;  // Just in case...
-    		
-    		Rectangle b = getBounds();
-    		setBounds(b.x-TEXT_BORDER_WIDTH+1, b.y-TEXT_BORDER_WIDTH+1, b.width-2+2*TEXT_BORDER_WIDTH, b.height-2+TEXT_BORDER_BOTTOM);
-    		
-    		enlargedPanel = true;
-    	} else {
-    		// reduce the panel
-    		if (! enlargedPanel) return;  // Just in case...		// System.out.println("!!!");
-    		
-    		Rectangle b = getBounds();
-    		setBounds(b.x-1+TEXT_BORDER_WIDTH, b.y-1+TEXT_BORDER_WIDTH, b.width-2*TEXT_BORDER_WIDTH+2, b.height-TEXT_BORDER_BOTTOM+2);
-    		
-    		enlargedPanel = false;
-    	}   
-    	
-    	updateTextAreaBounds();
+
+        if (localFocus) {
+            // enlarge the panel
+            if (enlargedPanel)
+                return; // Just in case...
+
+            Rectangle b = getBounds();
+            setBounds(b.x - TEXT_BORDER_WIDTH + 1, b.y - TEXT_BORDER_WIDTH + 1, b.width - 2 + 2 * TEXT_BORDER_WIDTH,
+                    b.height - 2 + TEXT_BORDER_BOTTOM);
+
+            enlargedPanel = true;
+        } else {
+            // reduce the panel
+            if (!enlargedPanel)
+                return; // Just in case... // System.out.println("!!!");
+
+            Rectangle b = getBounds();
+            setBounds(b.x - 1 + TEXT_BORDER_WIDTH, b.y - 1 + TEXT_BORDER_WIDTH, b.width - 2 * TEXT_BORDER_WIDTH + 2,
+                    b.height - TEXT_BORDER_BOTTOM + 2);
+
+            enlargedPanel = false;
+        }
+
+        updateTextAreaBounds();
     }
 
     // Returns a polygon wrapping the area outside the given rectangle
@@ -745,93 +728,97 @@ public class JDocuElement extends JPanel implements I18n {
     // if corner is not 0, the corners of the rectangle are clipped triangularly to fit the fillRoundRect
     private Polygon invertRectangle(Rectangle R, int corner) {
 
-    	int extW = getBounds().width;
-    	int extH = getBounds().height;
-    	int inW = R.width;
-    	int inH = R.height;
-    	Polygon clip;
+        int extW = getBounds().width;
+        int extH = getBounds().height;
+        int inW = R.width;
+        int inH = R.height;
+        Polygon clip;
 
-    	if (corner == 0) {
-    		clip = new Polygon(new int[]{ 0, extW, extW,    0,   0, R.x,     R.x, R.x+inW, R.x+inW,   0 }, // x values
-    						   new int[]{ 0,    0, extH, extH, R.y, R.y, R.y+inH, R.y+inH,     R.y, R.y }, // y values
-    						   10);
-    	} else {
-    		int ct = corner;
-    		int cb = corner + 1; // bottom corners clipping is 1 pixel larger
-    		clip = new Polygon(new int[]{ 0, extW, extW,    0,   0, R.x+ct,    R.x,        R.x,  R.x+cb, R.x+inW-cb,    R.x+inW, R.x+inW, R.x+inW-ct,   0 }, // x values
-					   		   new int[]{ 0,    0, extH, extH, R.y,    R.y, R.y+ct, R.y+inH-cb, R.y+inH,    R.y+inH, R.y+inH-cb,  R.y+ct,        R.y, R.y }, // y values
-							   14);
-    	}
+        if (corner == 0) {
+            clip = new Polygon(new int[] { 0, extW, extW, 0, 0, R.x, R.x, R.x + inW, R.x + inW, 0 }, // x values
+                    new int[] { 0, 0, extH, extH, R.y, R.y, R.y + inH, R.y + inH, R.y, R.y }, // y values
+                    10);
+        } else {
+            int ct = corner;
+            int cb = corner + 1; // bottom corners clipping is 1 pixel larger
+            clip = new Polygon(
+                    new int[] { 0, extW, extW, 0, 0, R.x + ct, R.x, R.x, R.x + cb, R.x + inW - cb, R.x + inW, R.x + inW,
+                            R.x + inW - ct, 0 }, // x values
+                    new int[] { 0, 0, extH, extH, R.y, R.y, R.y + ct, R.y + inH - cb, R.y + inH, R.y + inH,
+                            R.y + inH - cb, R.y + ct, R.y, R.y }, // y values
+                    14);
+        }
 
-    	return clip;
+        return clip;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
 
-    	Graphics2D g2 = (Graphics2D) g;
-    	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         if (isText) {
-        	// Paint the background
-        	if (enabled) {
-        		if (localFocus) {
-        			// Paint the part of the Panel not hidden by the textArea
-        			// in order that the user can move and resize it
-        			g2.setColor(panelFocusColor);
-        			Shape prevClip = g2.getClip();
-        			g2.setClip(invertRectangle(textArea.getBounds(), 0));
-        			g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, TEXT_CORNER_SIZE, TEXT_CORNER_SIZE);
-        			g2.setClip(prevClip);
+            // Paint the background
+            if (enabled) {
+                if (localFocus) {
+                    // Paint the part of the Panel not hidden by the textArea
+                    // in order that the user can move and resize it
+                    g2.setColor(panelFocusColor);
+                    Shape prevClip = g2.getClip();
+                    g2.setClip(invertRectangle(textArea.getBounds(), 0));
+                    g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, TEXT_CORNER_SIZE, TEXT_CORNER_SIZE);
+                    g2.setClip(prevClip);
 
-        			// Draw the border
-        			g2.setColor(borderFocusColor);
-        			Stroke stroke = new BasicStroke(2);
-        			g2.setStroke(stroke);
-        			g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, TEXT_CORNER_SIZE, TEXT_CORNER_SIZE);
-        		} else {        			
-        			// Draw the border       
-        			g2.setColor(textPanelBorderNormalColor); 
-        			Stroke stroke = new BasicStroke(1);
-        			g2.setStroke(stroke);
-        			g2.drawRect(textArea.getX()-1, textArea.getY()-1, textArea.getWidth()+1, textArea.getHeight()+1);
-        		}
-        	}
+                    // Draw the border
+                    g2.setColor(borderFocusColor);
+                    Stroke stroke = new BasicStroke(2);
+                    g2.setStroke(stroke);
+                    g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, TEXT_CORNER_SIZE, TEXT_CORNER_SIZE);
+                } else {
+                    // Draw the border
+                    g2.setColor(textPanelBorderNormalColor);
+                    Stroke stroke = new BasicStroke(1);
+                    g2.setStroke(stroke);
+                    g2.drawRect(textArea.getX() - 1, textArea.getY() - 1, textArea.getWidth() + 1,
+                            textArea.getHeight() + 1);
+                }
+            }
 
         } else {
             if (enabled && localFocus) {
-    			// Paint the border with a distinctive color
-    			g2.setColor(panelFocusColor);
-    			Shape prevClip = g2.getClip();
-    			Rectangle R = getBounds();
-    			R.x = 0;
-    			R.y = 0;
-    			R.grow(-TEXT_BORDER_WIDTH,-TEXT_BORDER_WIDTH);
-    			g2.setClip(invertRectangle(R, 3));
-    			g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
-    			g2.setClip(prevClip);
+                // Paint the border with a distinctive color
+                g2.setColor(panelFocusColor);
+                Shape prevClip = g2.getClip();
+                Rectangle R = getBounds();
+                R.x = 0;
+                R.y = 0;
+                R.grow(-TEXT_BORDER_WIDTH, -TEXT_BORDER_WIDTH);
+                g2.setClip(invertRectangle(R, 3));
+                g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
+                g2.setClip(prevClip);
 
-    			// Paint the background with the panel color
-    			g2.setColor(transparentColor);
-    			//g2.fillRect(R.x, R.y,R.width, R.height);
-    			g2.fillRoundRect(R.x, R.y,R.width, R.height, TEXT_CORNER_SIZE, TEXT_CORNER_SIZE);
+                // Paint the background with the panel color
+                g2.setColor(transparentColor);
+                // g2.fillRect(R.x, R.y,R.width, R.height);
+                g2.fillRoundRect(R.x, R.y, R.width, R.height, TEXT_CORNER_SIZE, TEXT_CORNER_SIZE);
 
-    			// Draw the border
-    			g2.setColor(borderFocusColor);
-    			Stroke stroke = new BasicStroke(2);
-    			g2.setStroke(stroke);
-    			g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
-    		} else {
-    			// Paint the background
-    			g2.setColor(enabled ? transparentColor : opaqueColor);
-    			g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
+                // Draw the border
+                g2.setColor(borderFocusColor);
+                Stroke stroke = new BasicStroke(2);
+                g2.setStroke(stroke);
+                g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
+            } else {
+                // Paint the background
+                g2.setColor(enabled ? transparentColor : opaqueColor);
+                g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
 
-    			// Draw the border
-    			g2.setColor(borderColor);
-    			Stroke stroke = new BasicStroke(2);
-    			g2.setStroke(stroke);
-    			g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
-    		}
+                // Draw the border
+                g2.setColor(borderColor);
+                Stroke stroke = new BasicStroke(2);
+                g2.setStroke(stroke);
+                g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
+            }
         }
     }
 }

@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -48,7 +48,6 @@ import filius.gui.netzwerksicht.JSidebarButton;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
-import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Modem;
@@ -66,7 +65,7 @@ public class GUIEvents implements I18n {
     private int auswahlx, auswahly, auswahlx2, auswahly2, mausposx, mausposy;
 
     private int startPosX, startPosY;
-    
+
     private int shiftX, shiftY;
 
     private GUIKabelItem neuesKabel;
@@ -158,26 +157,26 @@ public class GUIEvents implements I18n {
         // Einzelnes Item verschieben
         if (!c.isMarkerVisible()) {
             if (aktiveslabel != null && !dragVorschau.isVisible()) {
-            	neuX = e.getX() + shiftX;
-            	if (neuX < 0) {
-            		neuX = 0;
-            	} else {
-            		int maxX = GUIContainer.getGUIContainer().getWidth() - aktiveslabel.getWidth();
-            		if (neuX > maxX) {
-            			neuX = maxX - 1;
-            	    }            		
-            	}
-            	
-            	neuY = e.getY() + shiftY;
-            	if (neuY < 0) {
-            		neuY = 0;
-            	} else {
-            		int maxY = GUIContainer.getGUIContainer().getHeight() - aktiveslabel.getHeight();
-            		if (neuY > maxY) {
-            			neuY = maxY - 1;
-            	    }            		
-            	}
-            	
+                neuX = e.getX() + shiftX;
+                if (neuX < 0) {
+                    neuX = 0;
+                } else {
+                    int maxX = GUIContainer.getGUIContainer().getWidth() - aktiveslabel.getWidth();
+                    if (neuX > maxX) {
+                        neuX = maxX - 1;
+                    }
+                }
+
+                neuY = e.getY() + shiftY;
+                if (neuY < 0) {
+                    neuY = 0;
+                } else {
+                    int maxY = GUIContainer.getGUIContainer().getHeight() - aktiveslabel.getHeight();
+                    if (neuY > maxY) {
+                        neuY = maxY - 1;
+                    }
+                }
+
                 aktiveslabel.setLocation(neuX, neuY);
                 c.updateCables();
             } else {
@@ -316,12 +315,12 @@ public class GUIEvents implements I18n {
                         if (e.getClickCount() == 2) {
                             GUIContainer.getGUIContainer().getProperty().maximieren();
                         }
-                        if (! aktiveslabel.isSelektiert()) {                        	
-                        	aktiveslabel.setSelektiert(true);
-                        	// Die Verschiebung speichern für spätere Verwendung in mausDragged
-                        	shiftX = aktiveslabel.getX() - e.getX();                           
-                        	shiftY = aktiveslabel.getY() - e.getY();                        	
-                        }   
+                        if (!aktiveslabel.isSelektiert()) {
+                            aktiveslabel.setSelektiert(true);
+                            // Die Verschiebung speichern für spätere Verwendung in mausDragged
+                            shiftX = aktiveslabel.getX() - e.getX();
+                            shiftY = aktiveslabel.getY() - e.getY();
+                        }
                     }
                 } else {
                     // wurde Maus ueber leerem Bereich betaetigt? -> Markierung
@@ -333,7 +332,7 @@ public class GUIEvents implements I18n {
             }
         }
     }
-    
+
     public void cancelMultipleSelection() {
         aufmarkierung = false;
         GUIContainer.getGUIContainer().getMarkierung().setVisible(false);
@@ -417,10 +416,6 @@ public class GUIEvents implements I18n {
      */
     public void setNewItemActive(GUIKnotenItem item) {
         aktivesItem = item;
-    }
-
-    private void desktopAnzeigen(GUIKnotenItem aktivesItem) {
-        GUIContainer.getGUIContainer().showDesktop(aktivesItem);
     }
 
     private void connectCableToSecondComponent(GUIKnotenItem tempitem) {
@@ -526,7 +521,7 @@ public class GUIEvents implements I18n {
                 ActionListener al = new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         if (e.getActionCommand().equals("desktopanzeigen")) {
-                            desktopAnzeigen(knotenItem);
+                            GUIContainer.getGUIContainer().showDesktop(knotenItem);
                         }
 
                         if (e.getActionCommand().startsWith("datenaustausch")) {
@@ -572,7 +567,7 @@ public class GUIEvents implements I18n {
         if (item.getKnoten() instanceof InternetKnoten) {
             bs = (InternetKnotenBetriebssystem) ((InternetKnoten) item.getKnoten()).getSystemSoftware();
             exchangeDialog.addTable(bs, macAddress);
-            ((JFrame) exchangeDialog).setVisible(true);
+            ((JDialog) exchangeDialog).setVisible(true);
         }
     }
 
@@ -691,25 +686,6 @@ public class GUIEvents implements I18n {
             kabel = iteratorLoeschKabel.next();
 
             this.removeSingleCable(kabel);
-        }
-        
-        // Remove the simulation mode's elements related to the item
-        if (loeschitem.getKnoten() instanceof Host) {
-        	// Remove the desktop's JFrame
-        	GUIContainer.getGUIContainer().removeDesktopWindow(loeschitem);
-        	
-        	// Remove the table in ExchangeDialog        	
-        	String mac = ((Host)loeschitem.getKnoten()).getMac();
-        	GUIContainer.getGUIContainer().getExchangeDialog().removeTable(mac, null);
-        	
-        } else if (loeschitem.getKnoten() instanceof Switch) {
-        	// Remove the SATtable's JFrame
-        	SatViewerControl.getInstance().removeViewer((Switch)loeschitem.getKnoten());
-        	
-        } else if (loeschitem.getKnoten() instanceof Vermittlungsrechner) {
-        	// Remove the tables in ExchangeDialog
-        	List<String> macs = ((Vermittlungsrechner)loeschitem.getKnoten()).getMacs();
-        	for (String mac: macs) GUIContainer.getGUIContainer().getExchangeDialog().removeTable(mac, null);
         }
 
         GUIContainer.getGUIContainer().removeNodeItem(loeschitem);

@@ -25,7 +25,6 @@
  */
 package filius.gui.netzwerksicht;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -74,21 +73,25 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
     }
 
     public JSidebarButton() {
-        this.setVerticalTextPosition(SwingConstants.BOTTOM);
-        this.setHorizontalTextPosition(SwingConstants.CENTER);
+        initAlignment();
     }
 
-    private JSidebarButton(String text, Icon icon) {
-        super(text, icon, JLabel.CENTER);
-
+    private void initAlignment() {
         this.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.setHorizontalTextPosition(SwingConstants.CENTER);
+        this.setAlignmentX(0.5f);
+    }
+
+    public JSidebarButton(Icon icon, String typ) {
+        super(icon, JLabel.CENTER);
+        this.typ = typ;
+        initAlignment();
     }
 
     public JSidebarButton(String text, Icon icon, String typ) {
-        this(text, icon);
+        super(text, icon, JLabel.CENTER);
         this.typ = typ;
-        this.setAlignmentX(0.5f);
+        initAlignment();
     }
 
     @Override
@@ -124,27 +127,29 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
 
         return height;
     }
-    
+
     public Dimension getPreferredSize() {
         return new Dimension(getWidth(), getHeight());
     }
 
-    // Update location after a text change so that the icon does not move 
+    // Update location after a text change so that the icon does not move
     public void setTextAndUpdateLocation(String text) {
-    	int icoW = (getIcon() != null ? getIcon().getIconWidth() : 0);
-    	if (icoW % 2 == 1) icoW--;  // Trick to avoid a one pixel shift when the icon's width is odd
-    	int dW = (getWidth() - icoW)/2;    	
-    	super.setText(text);
-    	int dW2 = (getWidth() - icoW)/2;    	
-    	setBounds(getX() - dW2 + dW, getY(), getWidth(), getHeight());  // SetLocation won't be enough here
+        int icoW = (getIcon() != null ? getIcon().getIconWidth() : 0);
+        if (icoW % 2 == 1)
+            icoW--; // Trick to avoid a one pixel shift when the icon's width is odd
+        int dW = (getWidth() - icoW) / 2;
+        super.setText(text);
+        int dW2 = (getWidth() - icoW) / 2;
+        setBounds(getX() - dW2 + dW, getY(), getWidth(), getHeight()); // SetLocation won't be enough here
     }
-    
+
     // Update location after the initial text assignment so that the icon does not move
     public void initTextAndUpdateLocation(String text) {
-    	setTextAndUpdateLocation(text);    	 	
-    	setLocation(getX(), getY() + 10);  // The reason for this 10px down is not clear but it is necessary to fix the icon at the end of the drag-and-drop creation 
+        setTextAndUpdateLocation(text);
+        setLocation(getX(), getY() + 10); // The reason for this 10px down is not clear but it is necessary to fix the
+                                          // icon at the end of the drag-and-drop creation
     }
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -157,8 +162,8 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
             Stroke stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1, new float[] { 2 }, 0);
             g2.setStroke(stroke);
             g2.drawRect(0, 0, this.getWidth() - 1, this.getHeight() - 1);
-            // Use same color as the one used for multiple selection 
-            g2.setColor(new Color(0.80f, 0.92f, 1f, 0.2f)); 
+            // Use same color as the one used for multiple selection
+            g2.setColor(new Color(0.80f, 0.92f, 1f, 0.2f));
             g2.fillRect(0, 0, this.getWidth() - 1, this.getHeight() - 1);
         }
 
@@ -170,8 +175,8 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
     }
 
     public void update(Observable o, Object arg) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JSidebarButton), update(" + o + ","
-                + arg + ")");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (JSidebarButton), update(" + o + "," + arg + ")");
 
         if (arg != null && arg.equals(Boolean.TRUE)) {
             modemVerbunden = true;

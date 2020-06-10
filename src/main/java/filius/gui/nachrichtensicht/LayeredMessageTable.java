@@ -38,7 +38,6 @@ import java.util.Vector;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -73,12 +72,12 @@ public class LayeredMessageTable extends JTable implements LauscherBeobachter, I
 
     private JDialog schichtenKonfigDialog;
 
-    private JFrame dialog;
+    private JDialog dialog;
     private JScrollPane scrollPane = null;
     private boolean autoscroll = true;
     private JPopupMenu menu;
 
-    public LayeredMessageTable(JFrame dialog, String macAddress) {
+    public LayeredMessageTable(JDialog dialog, String macAddress) {
         super();
 
         TableColumn col;
@@ -140,7 +139,7 @@ public class LayeredMessageTable extends JTable implements LauscherBeobachter, I
         this.scrollPane = scrollPane;
     }
 
-    private JFrame getDialog() {
+    private JDialog getDialog() {
         return dialog;
     }
 
