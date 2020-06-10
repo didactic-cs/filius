@@ -69,7 +69,6 @@ public class JDocuElement extends JPanel implements I18n {
 
     private static final long serialVersionUID = 1L;
 
-    private boolean selected = false;
     private int updateType;
     private Dimension elemMoveOffset;
 
@@ -99,12 +98,6 @@ public class JDocuElement extends JPanel implements I18n {
     private static final int TEXT_MIN_HEIGHT = 48;
     private static final int TEXT_BORDER_WIDTH = 7;
     private static final int TEXT_BORDER_BOTTOM = 30;
-
-    private static final String fontSizeText[] = { "Normal (12pt)", "Gross (18pt)", "Grösser (24pt)",
-            "Sehr Gross (36pt)", "Riesig (48pt)" };
-    private static final float fontSize[] = { 12f, 18f, 24f, 36f, 48f };
-
-    private static final String fontStyleText[] = { "Normal", "Kursiv", "Fett" }; // Normal, gras, italique
 
     private static final Color fontColor[] = { Color.BLACK, new Color(0.4f, 0.4f, 0.4f), new Color(0.6f, 0.6f, 0.6f),
             new Color(0.7f, 0.7f, 0.7f), Color.WHITE, new Color(1f, 0, 0), new Color(0.70f, 0.64f, 0.78f),
@@ -304,9 +297,6 @@ public class JDocuElement extends JPanel implements I18n {
             public void mousePressed(MouseEvent e) {
 
                 if (enabled) {
-
-                    selected = true;
-
                     if (!isText) {
                         requestFocusInWindow();
                         if (!localFocus)
@@ -327,7 +317,6 @@ public class JDocuElement extends JPanel implements I18n {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (enabled) {
-                    selected = false;
                     updateType = GUIContainer.NONE;
                     updateUI();
                     SzenarioVerwaltung.getInstance().setzeGeaendert();
@@ -487,7 +476,11 @@ public class JDocuElement extends JPanel implements I18n {
 
         if (isText) {
             // Font size
-            JMenu mFontSize = new JMenu("Schriftgrösse"); // Taille de police
+            JMenu mFontSize = new JMenu(messages.getString("guievents_msg15"));
+            String fontSizeText[] = { messages.getString("guievents_msg16"), messages.getString("guievents_msg17"),
+                    messages.getString("guievents_msg18") };
+            float fontSize[] = { 12f, 18f, 24f };
+
             float tafs = textArea.getFont().getSize();
             for (int i = 0; i < fontSize.length; i++) {
                 JRadioButtonMenuItem mi = new JRadioButtonMenuItem(fontSizeText[i]);
@@ -507,7 +500,10 @@ public class JDocuElement extends JPanel implements I18n {
 
             // Font style
             int[] fontStyles = { Font.PLAIN, Font.ITALIC, Font.BOLD };
-            JMenu mFontStyle = new JMenu("Schriftstil"); // Style de police
+            String fontStyleText[] = { messages.getString("guievents_msg19"), messages.getString("guievents_msg20"),
+                    messages.getString("guievents_msg21") };
+
+            JMenu mFontStyle = new JMenu(messages.getString("guievents_msg14"));
             int tafst = textArea.getFont().getStyle();
             for (int i = 0; i < fontStyles.length; i++) {
                 JRadioButtonMenuItem mi = new JRadioButtonMenuItem(fontStyleText[i]);
@@ -526,7 +522,8 @@ public class JDocuElement extends JPanel implements I18n {
             menu.add(mFontStyle);
 
             // Font color
-            JDocuColorSelector mFontColor = new JDocuColorSelector("Farbe", fontColor, 3, getColor()); // Couleur
+            JDocuColorSelector mFontColor = new JDocuColorSelector(messages.getString("guievents_msg13"), fontColor, 3,
+                    getColor()); // Couleur
             mFontColor.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     setColor(mFontColor.getColor());
@@ -536,7 +533,8 @@ public class JDocuElement extends JPanel implements I18n {
             menu.add(mFontColor);
         } else {
             // Color of the Panel
-            JDocuColorSelector mPanelColor = new JDocuColorSelector("Farbe", panelColor, 3, getColor()); // Couleur
+            JDocuColorSelector mPanelColor = new JDocuColorSelector(messages.getString("guievents_msg13"), panelColor,
+                    3, getColor()); // Couleur
             mPanelColor.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     setColor(mPanelColor.getColor());
@@ -623,8 +621,6 @@ public class JDocuElement extends JPanel implements I18n {
     }
 
     public void setSelected(boolean selected) {
-
-        this.selected = selected;
         repaint();
     }
 
