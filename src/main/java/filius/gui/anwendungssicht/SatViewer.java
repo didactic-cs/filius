@@ -30,24 +30,25 @@ import java.beans.PropertyChangeListener;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 
+import filius.gui.JMainFrame;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.SwitchFirmware;
 
 @SuppressWarnings("serial")
-public class SatViewer extends JFrame implements I18n, PropertyChangeListener {
+public class SatViewer extends JDialog implements I18n, PropertyChangeListener {
 
     private Switch sw;
     private DefaultTableModel dtm;
 
     public SatViewer(Switch sw) {
-        super(messages.getString("guievents_msg8") + " " + sw.holeAnzeigeName());
+        super(JMainFrame.getJMainFrame(), messages.getString("guievents_msg8") + " " + sw.holeAnzeigeName());
         this.sw = sw;
         init();
         updateSat();

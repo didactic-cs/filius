@@ -26,7 +26,11 @@
 //Netzwerkziel, Netzwerkmaske, ZielIp, Schnittstelle
 package filius.hardware.knoten;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import filius.Main;
+import filius.hardware.NetzwerkInterface;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.VermittlungsrechnerBetriebssystem;
 
@@ -49,4 +53,11 @@ public class Vermittlungsrechner extends InternetKnoten implements I18n {
         getSystemSoftware().setKnoten(this);
         this.setName(TYPE);
     }
+    
+    public List<String> getMacs() {	
+    	List<String> macs = new ArrayList<String>();
+    	int count = getNetzwerkInterfaces().size();
+    	for (int i = 0; i<count; i++) macs.add(getNetzwerkInterfaces().get(0).getMac());
+		return macs;
+	}
 }

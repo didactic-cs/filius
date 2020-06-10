@@ -51,5 +51,4 @@ public interface ExchangeDialog {
      * 
      */
 	void reset();
-
 }

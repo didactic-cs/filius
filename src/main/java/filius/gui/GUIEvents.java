@@ -66,6 +66,8 @@ public class GUIEvents implements I18n {
 
     private int startPosX, startPosY;
 
+    private int shiftX, shiftY;
+
     private GUIKabelItem neuesKabel;
 
     private static GUIEvents ref;
@@ -155,25 +157,27 @@ public class GUIEvents implements I18n {
         // Einzelnes Item verschieben
         if (!c.isMarkerVisible()) {
             if (aktiveslabel != null && !dragVorschau.isVisible()) {
-                tmpX = e.getX() - (aktiveslabel.getWidth() / 2);
-                if (tmpX < -(aktiveslabel.getWidth() / 2)) {
-                    neuX = -(aktiveslabel.getWidth() / 2);
-                } else if (tmpX > (GUIContainer.getGUIContainer().getWidth() - (aktiveslabel.getWidth() / 2))) {
-                    neuX = GUIContainer.getGUIContainer().getWidth() - (aktiveslabel.getWidth() / 2);
+                neuX = e.getX() + shiftX;
+                if (neuX < 0) {
+                    neuX = 0;
                 } else {
-                    neuX = tmpX;
+                    int maxX = GUIContainer.getGUIContainer().getWidth() - aktiveslabel.getWidth();
+                    if (neuX > maxX) {
+                        neuX = maxX - 1;
+                    }
                 }
-                tmpY = e.getY() - (aktiveslabel.getHeight() / 2);
-                if (tmpY < -(aktiveslabel.getHeight() / 2)) {
-                    neuY = -(aktiveslabel.getHeight() / 2);
-                } else if (tmpY > (GUIContainer.getGUIContainer().getHeight() - (aktiveslabel.getHeight() / 2))) {
-                    neuY = (GUIContainer.getGUIContainer().getHeight() - (aktiveslabel.getHeight() / 2));
+
+                neuY = e.getY() + shiftY;
+                if (neuY < 0) {
+                    neuY = 0;
                 } else {
-                    neuY = tmpY;
+                    int maxY = GUIContainer.getGUIContainer().getHeight() - aktiveslabel.getHeight();
+                    if (neuY > maxY) {
+                        neuY = maxY - 1;
+                    }
                 }
-                neuWidth = aktiveslabel.getWidth();
-                neuHeight = aktiveslabel.getHeight();
-                aktiveslabel.setBounds(neuX, neuY, neuWidth, neuHeight);
+
+                aktiveslabel.setLocation(neuX, neuY);
                 c.updateCables();
             } else {
                 mausposx = e.getX();
@@ -311,7 +315,12 @@ public class GUIEvents implements I18n {
                         if (e.getClickCount() == 2) {
                             GUIContainer.getGUIContainer().getProperty().maximieren();
                         }
-                        aktiveslabel.setSelektiert(true);
+                        if (!aktiveslabel.isSelektiert()) {
+                            aktiveslabel.setSelektiert(true);
+                            // Die Verschiebung speichern für spätere Verwendung in mausDragged
+                            shiftX = aktiveslabel.getX() - e.getX();
+                            shiftY = aktiveslabel.getY() - e.getY();
+                        }
                     }
                 } else {
                     // wurde Maus ueber leerem Bereich betaetigt? -> Markierung
@@ -322,6 +331,12 @@ public class GUIEvents implements I18n {
                 }
             }
         }
+    }
+
+    public void cancelMultipleSelection() {
+        aufmarkierung = false;
+        GUIContainer.getGUIContainer().getMarkierung().setVisible(false);
+        GUIContainer.getGUIContainer().getAuswahl().setBounds(0, 0, 0, 0);
     }
 
     public void processCableConnection(int currentPosX, int currentPosY) {
@@ -403,10 +418,6 @@ public class GUIEvents implements I18n {
         aktivesItem = item;
     }
 
-    private void desktopAnzeigen(GUIKnotenItem aktivesItem) {
-        GUIContainer.getGUIContainer().showDesktop(aktivesItem);
-    }
-
     private void connectCableToSecondComponent(GUIKnotenItem tempitem) {
         GUIContainer c = GUIContainer.getGUIContainer();
         GUINetworkPanel draftpanel = c.getDesignpanel();
@@ -481,6 +492,7 @@ public class GUIEvents implements I18n {
     public void resetAndShowCablePreview(int currentPosX, int currentPosY) {
         resetCableTool();
         showCableToolPanel(currentPosX, currentPosY);
+        cancelMultipleSelection();
     }
 
     private void showCableToolPanel(int currentPosX, int currentPosY) {
@@ -509,7 +521,7 @@ public class GUIEvents implements I18n {
                 ActionListener al = new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         if (e.getActionCommand().equals("desktopanzeigen")) {
-                            desktopAnzeigen(knotenItem);
+                            GUIContainer.getGUIContainer().showDesktop(knotenItem);
                         }
 
                         if (e.getActionCommand().startsWith("datenaustausch")) {
@@ -680,7 +692,6 @@ public class GUIEvents implements I18n {
         GUIContainer.getGUIContainer().getDesignpanel().remove(loeschlabel);
         GUIContainer.getGUIContainer().getDesignpanel().updateUI();
         GUIContainer.getGUIContainer().updateViewport();
-
     }
 
     // remove a single cable without using touching the connected node

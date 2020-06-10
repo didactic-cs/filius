@@ -25,6 +25,9 @@
  */
 package filius.gui.netzwerksicht;
 
+import java.awt.Color;
+import java.awt.Font;
+
 public class GUIDocuItem {
     public static final int RECT = 1, TEXT = 2;
 
@@ -34,9 +37,36 @@ public class GUIDocuItem {
     private int y;
     private int width;
     private int height;
-
+    private Color color; 
+    private Font font;
     private JDocuElement elem;
 
+    public static GUIDocuItem createDocuItem(JDocuElement elem) {
+        GUIDocuItem item = new GUIDocuItem();
+        item.text = elem.getText();
+        item.type = item.text != null ? TEXT : RECT;
+        item.x = elem.getX();
+        item.y = elem.getY();
+        item.width = elem.getWidth();
+        item.height = elem.getHeight();
+        item.color = elem.getColor();
+        item.font = elem.getFont();
+        item.elem = elem;
+        return item;
+    }
+    
+    public JDocuElement asDocuElement() {
+        if (elem == null) {
+            elem = new JDocuElement(type == TEXT);
+            elem.setText(text);
+            elem.setBounds(x, y, width, height);
+            elem.setColor(color);
+            elem.setFont(font);
+            elem.setEnabled(false);
+        }
+        return elem;
+    }
+    
     public int getType() {
         return type;
     }
@@ -57,28 +87,6 @@ public class GUIDocuItem {
         if (elem != null) {
             elem.setText(this.text);
         }
-    }
-
-    public JDocuElement asDocuElement() {
-        if (elem == null) {
-            elem = new JDocuElement(type == TEXT);
-            elem.setText(text);
-            elem.setBounds(x, y, width, height);
-            elem.setEnabled(false);
-        }
-        return elem;
-    }
-
-    public static GUIDocuItem createDocuItem(JDocuElement elem) {
-        GUIDocuItem item = new GUIDocuItem();
-        item.text = elem.getText();
-        item.type = item.text != null ? TEXT : RECT;
-        item.x = elem.getX();
-        item.y = elem.getY();
-        item.width = elem.getWidth();
-        item.height = elem.getHeight();
-        item.elem = elem;
-        return item;
     }
 
     public int getX() {
@@ -134,6 +142,34 @@ public class GUIDocuItem {
         this.height = height;
         if (elem != null) {
             elem.setBounds(x, y, width, height);
+        }
+    }
+    
+    public Color getColor() {
+        if (elem != null) {
+            color = elem.getColor();
+        }
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+        if (elem != null) {
+            elem.setColor(color);
+        }
+    }
+    
+    public Font getFont() {
+        if (elem != null) {
+            font = elem.getFont();
+        }
+        return font;
+    }
+
+    public void setFont(Font font) {
+        this.font = font;
+        if (elem != null) {
+            elem.setFont(font);
         }
     }
 }

@@ -64,6 +64,10 @@ public class SatViewerControl implements I18n {
     public void showViewer(Switch sw) {
         if (!satViewer.containsKey(sw.getSystemSoftware())) {
             SatViewer viewer = new SatViewer(sw);
+            viewer.setLocation(
+                    JMainFrame.getJMainFrame().getX() + (JMainFrame.getJMainFrame().getWidth() - viewer.getWidth()) / 2,
+                    JMainFrame.getJMainFrame().getY()
+                            + (JMainFrame.getJMainFrame().getHeight() - viewer.getHeight()) / 2);
             sw.getSystemSoftware().addPropertyChangeListener(viewer);
             satViewer.put(sw.getSystemSoftware(), viewer);
         }
