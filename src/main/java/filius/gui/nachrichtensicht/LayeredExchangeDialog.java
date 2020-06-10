@@ -45,100 +45,100 @@ import filius.software.system.SystemSoftware;
 
 public class LayeredExchangeDialog extends JDialog implements ExchangeDialog, I18n {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private JTabbedPane tabbedPane;
+    private JTabbedPane tabbedPane;
 
-	private static LayeredExchangeDialog lauscherDialog = null;
+    private static LayeredExchangeDialog lauscherDialog = null;
 
-	private Hashtable<String, JPanel> openedTabs = new Hashtable<String, JPanel>();
+    private Hashtable<String, JPanel> openedTabs = new Hashtable<String, JPanel>();
 
-	private Hashtable<String, LayeredMessageTable> tabellen = new Hashtable<String, LayeredMessageTable>();
+    private Hashtable<String, LayeredMessageTable> tabellen = new Hashtable<String, LayeredMessageTable>();
 
-	public static synchronized LayeredExchangeDialog getInstance(Frame owner) {
-		if (lauscherDialog == null) {
-			lauscherDialog = new LayeredExchangeDialog(owner);
-		}
+    public static synchronized LayeredExchangeDialog getInstance(Frame owner) {
+        if (lauscherDialog == null) {
+            lauscherDialog = new LayeredExchangeDialog(owner);
+        }
 
-		return lauscherDialog;
-	}
+        return lauscherDialog;
+    }
 
-	@Override
-	public void reset() {
-		if (lauscherDialog != null) {
-			lauscherDialog.setVisible(false);
-		}
+    @Override
+    public void reset() {
+        if (lauscherDialog != null) {
+            lauscherDialog.setVisible(false);
+        }
 
-		lauscherDialog = null;
-	}
+        lauscherDialog = null;
+    }
 
-	private LayeredExchangeDialog(Frame owner) {
-		super(owner);
-		((JFrame) owner).getLayeredPane().setLayer(this, JLayeredPane.PALETTE_LAYER);
+    private LayeredExchangeDialog(Frame owner) {
+        super(owner);
+        ((JFrame) owner).getLayeredPane().setLayer(this, JLayeredPane.PALETTE_LAYER);
 
-		Image image;
+        Image image;
 
-		setTitle(messages.getString("lauscherdialog_msg1"));
-		setBounds(20, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 350, ((int) Toolkit
-		        .getDefaultToolkit().getScreenSize().getWidth()) - 40, 300);
-		image = Toolkit.getDefaultToolkit().getImage(
-		        getClass().getResource("/gfx/allgemein/nachrichtenfenster_icon.png"));
-		setIconImage(image);
+        setTitle(messages.getString("lauscherdialog_msg1"));
+        setBounds(20, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 350,
+                ((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth()) - 40, 300);
+        image = Toolkit.getDefaultToolkit()
+                .getImage(getClass().getResource("/gfx/allgemein/nachrichtenfenster_icon.png"));
+        setIconImage(image);
 
-		this.setModal(false);
+        this.setModal(false);
 
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-		openedTabs.clear();
-		tabbedPane = new JTabbedPane();
-		getContentPane().add(tabbedPane, BorderLayout.CENTER);
-		this.setVisible(false);
-	}
+        openedTabs.clear();
+        tabbedPane = new JTabbedPane();
+        getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        this.setVisible(false);
+    }
 
-	/**
-	 * Diese Methode fuegt eine Tabelle hinzu
-	 */
-	@Override
-	public void addTable(SystemSoftware system, String identifier) {
-		LayeredMessageTable tabelle;
-		JPanel panel;
-		JScrollPane scrollPane;
+    /**
+     * Diese Methode fuegt eine Tabelle hinzu
+     */
+    @Override
+    public void addTable(SystemSoftware system, String identifier) {
+        LayeredMessageTable tabelle;
+        JPanel panel;
+        JScrollPane scrollPane;
 
-		if (openedTabs.get(identifier) == null) {
-			tabelle = new LayeredMessageTable(this, identifier);
-			tabelle.update();
-			panel = new JPanel(new BorderLayout());
-			scrollPane = new JScrollPane(tabelle);
-			tabelle.setScrollPane(scrollPane);
-			panel.add(scrollPane, BorderLayout.CENTER);
+        if (openedTabs.get(identifier) == null) {
+            tabelle = new LayeredMessageTable(this, identifier);
+            tabelle.update();
+            panel = new JPanel(new BorderLayout());
+            scrollPane = new JScrollPane(tabelle);
+            tabelle.setScrollPane(scrollPane);
+            panel.add(scrollPane, BorderLayout.CENTER);
 
-			String ipAddress = ((InternetKnoten) system.getKnoten()).getNetzwerkInterfaceByMac(identifier).getIp();
-			String tabTitle;
-			if (system.getKnoten() instanceof Host && ((Host) system.getKnoten()).isUseIPAsName()) {
-				tabTitle = ipAddress;
-			} else {
-				tabTitle = system.getKnoten().holeAnzeigeName() + " - " + ipAddress;
-			}
-			tabbedPane.add(tabTitle, panel);
+            String ipAddress = ((InternetKnoten) system.getKnoten()).getNetzwerkInterfaceByMac(identifier).getIp();
+            String tabTitle;
+            if (system.getKnoten() instanceof Host && ((Host) system.getKnoten()).isUseIPAsName()) {
+                tabTitle = ipAddress;
+            } else {
+                tabTitle = system.getKnoten().holeAnzeigeName() + " - " + ipAddress;
+            }
+            tabbedPane.add(tabTitle, panel);
 
-			tabbedPane.setSelectedComponent(panel);
+            tabbedPane.setSelectedComponent(panel);
 
-			openedTabs.put(identifier, panel);
-			tabellen.put(identifier, tabelle);
-		}
-		// if there is already a tab opened for this system set it to selected
-		else {
-			tabbedPane.setSelectedComponent(openedTabs.get(identifier));
-			tabellen.get(identifier).update();
-		}
-	}
+            openedTabs.put(identifier, panel);
+            tabellen.put(identifier, tabelle);
+        }
+        // if there is already a tab opened for this system set it to selected
+        else {
+            tabbedPane.setSelectedComponent(openedTabs.get(identifier));
+            tabellen.get(identifier).update();
+        }
+    }
 
-	@Override
-	public void removeTable(String mac, JPanel panel) {
-		if (mac != null) {
-			openedTabs.remove(mac);
-			tabellen.remove(mac);
-			tabbedPane.remove(panel);
-		}
-	}
+    @Override
+    public void removeTable(String mac, JPanel panel) {
+        if (mac != null) {
+            openedTabs.remove(mac);
+            tabellen.remove(mac);
+            tabbedPane.remove(panel);
+        }
+    }
 }

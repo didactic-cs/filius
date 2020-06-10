@@ -25,8 +25,12 @@
  */
 package filius.gui.netzwerksicht;
 
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
 import java.util.List;
+
+import javax.swing.event.MouseInputAdapter;
 
 public class GUIDocumentationPanel extends GUIMainArea {
 
@@ -37,6 +41,24 @@ public class GUIDocumentationPanel extends GUIMainArea {
         setPreferredSize(new Dimension(width, height));
         setBounds(0, 0, width, height);
         setOpaque(false);
+        
+        // A click on the background removes the focus from any JDocuElement
+        addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+            	removeElementsFocus();
+            }
+        });
+    }
+    
+    public void removeElementsFocus() {
+    	getRootPane().requestFocusInWindow();
+    	Component[] c = getComponents();
+    	for (int i = 0; i < c.length; i++) {       
+    		if ( c[i] instanceof JDocuElement &&  c[i] != this) {
+    			((JDocuElement) c[i]).setLocalFocus(false);
+    		}
+    	}
     }
 
     public void updateViewport(List<GUIDocuItem> docuItems, boolean elementsEnabled) {

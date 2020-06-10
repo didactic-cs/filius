@@ -91,21 +91,19 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             LinkedList<GUIKnotenItem> markedlist = new LinkedList<GUIKnotenItem>();
                             ListIterator<GUIKnotenItem> it = itemlist.listIterator();
                             while (it.hasNext()) {
+                                // Code adapted from GUIEvents.mausReleased
                                 tempitem = (GUIKnotenItem) it.next();
                                 tx = tempitem.getImageLabel().getX();
                                 twidth = tempitem.getImageLabel().getWidth();
                                 ty = tempitem.getImageLabel().getY();
                                 theight = tempitem.getImageLabel().getHeight();
-                                if (tx > auswahl.getX() - GUIContainer.getGUIContainer().getAbstandLinks()
-                                        + scrollPane.getHorizontalScrollBar().getValue()
-                                        && tx + twidth < auswahl.getX() + auswahl.getWidth()
-                                                - GUIContainer.getGUIContainer().getAbstandLinks()
-                                                + scrollPane.getHorizontalScrollBar().getValue()
-                                        && ty > auswahl.getY() - GUIContainer.getGUIContainer().getAbstandOben()
-                                                + scrollPane.getVerticalScrollBar().getValue()
-                                        && ty + theight < auswahl.getY() + auswahl.getHeight()
-                                                - GUIContainer.getGUIContainer().getAbstandOben()
-                                                + scrollPane.getVerticalScrollBar().getValue()) {
+
+                                int itemPosX = tx + twidth / 2;
+                                int itemPosY = ty + theight / 2;
+
+                                if (itemPosX >= auswahl.getX() && itemPosX <= auswahl.getX() + auswahl.getWidth()
+                                        && itemPosY >= auswahl.getY()
+                                        && itemPosY <= auswahl.getY() + auswahl.getHeight()) {
                                     markedlist.add(tempitem);
                                 }
                             }
@@ -176,7 +174,8 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                     // ALT key pressed; only makes sense for cables!
                     if (e.getModifiers() == 8) {
                         // key '1' (cable)
-                        if (e.getKeyCode() == 49) {
+                        if ((e.getKeyCode() == 49)
+                                && (GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF)) {
                             // Main.debug.println("KeyDispatcher: ALT+1 recognised");
                             switchCablePreview();
                             return true;
@@ -207,12 +206,10 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
     }
 
     private void initComponents() {
-
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setSize(1000, 700);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation(screenSize.width / 2 - (getWidth() / 2), screenSize.height / 2 - (getHeight() / 2));
-
     }
 
     public void windowActivated(WindowEvent e) {}
@@ -261,8 +258,10 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
         if (GUIContainer.getGUIContainer().getKabelvorschau().isVisible()) {
             GUIEvents.getGUIEvents().resetAndHideCablePreview();
         } else {
-            int currentPosX = (int) (MouseInfo.getPointerInfo().getLocation().getX() - getLocationOnScreen().getX());
-            int currentPosY = (int) (MouseInfo.getPointerInfo().getLocation().getY() - getLocationOnScreen().getY());
+            int currentPosX = (int) (MouseInfo.getPointerInfo().getLocation().getX()
+                    - GUIContainer.getGUIContainer().getDesignpanel().getLocationOnScreen().getX());
+            int currentPosY = (int) (MouseInfo.getPointerInfo().getLocation().getY()
+                    - GUIContainer.getGUIContainer().getDesignpanel().getLocationOnScreen().getY());
             GUIEvents.getGUIEvents().resetAndShowCablePreview(currentPosX, currentPosY);
         }
     }

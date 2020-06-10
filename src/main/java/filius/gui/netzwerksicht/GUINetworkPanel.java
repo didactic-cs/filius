@@ -60,7 +60,8 @@ public class GUINetworkPanel extends GUIMainArea {
             tempKnoten.getSystemSoftware().addObserver(templabel);
 
             templabel.setSelektiert(false);
-            templabel.setText(tempKnoten.holeAnzeigeName());
+            // When the text is changed, the location is recomputed so that the icon does not move (which might happen when the text is wider than the icon)
+            templabel.setTextAndUpdateLocation(tempKnoten.holeAnzeigeName());
             templabel.setTyp(tempKnoten.holeHardwareTyp());
             if (tempitem.getKnoten() instanceof InternetKnoten) {
                 templabel.updateTooltip((InternetKnoten) tempitem.getKnoten());
