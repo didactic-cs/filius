@@ -47,7 +47,7 @@ import javax.swing.event.InternalFrameEvent;
 
 import filius.Main;
 import filius.software.lokal.Terminal;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 
 /**
  * Applikationsfenster fuer ein Terminal
@@ -246,7 +246,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         pack();
 
         inputField.requestFocus();
-        this.inputLabel.setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+        this.inputLabel.setText(FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
     }
 
     public void setMultipleObserverEvents(boolean flag) {}
@@ -320,7 +320,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                 this.tpPane.repaint();
                 if (!multipleObserverEvents) {
                     this.inputLabel.setText(
-                            Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+                            FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
                     this.inputLabel.setVisible(true);
                     jobRunning = false;
                 }

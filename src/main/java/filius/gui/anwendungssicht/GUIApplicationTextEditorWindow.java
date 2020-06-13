@@ -81,7 +81,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 		editorField.setEditable(true);
 		editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
 
-		this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getArbeitsVerzeichnis();
+		this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getWorkingDirectory();
 
 		String dateiName = holeParameter()[0];
 		if (!dateiName.equals("")) {
@@ -91,7 +91,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 				this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
 
 			}
-			Datei datei = holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(arbeitsVerzeichnis, dateiName);
+			Datei datei = holeAnwendung().getSystemSoftware().getDateisystem().getDatei(arbeitsVerzeichnis, dateiName);
 			if (datei != null) {
 				this.setTitle(dateiName);
 				editorField.setText(datei.getContent());
@@ -184,7 +184,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 		if (rueckgabe == DMTNFileChooser.OK) {
 			String dateiNameNeu = fc.getAktuellerDateiname();
 			Datei tmpFile = new Datei(dateiNameNeu, messages.getString("texteditor_msg8"), editorField.getText());
-			this.holeAnwendung().getSystemSoftware().getDateisystem().speicherDatei(fc.getAktuellerOrdner(), tmpFile);
+			this.holeAnwendung().getSystemSoftware().getDateisystem().saveDatei(fc.getAktuellerOrdner(), tmpFile);
 			changeCurrentFile(tmpFile);
 		}
 	}
@@ -206,7 +206,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 		if (rueckgabe == DMTNFileChooser.OK) {
 			String aktuellerDateiname = fc.getAktuellerDateiname();
 			Datei tmpFile = holeAnwendung().getSystemSoftware().getDateisystem()
-			        .holeDatei(fc.getAktuellerOrdner(), aktuellerDateiname);
+			        .getDatei(fc.getAktuellerOrdner(), aktuellerDateiname);
 			changeCurrentFile(tmpFile);
 		} else {
 			Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
@@ -238,12 +238,12 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 	public void starten(String[] param) {
 		String dateiName = holeParameter()[0];
 		if (!dateiName.equals("")) {
-			this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getArbeitsVerzeichnis();
+			this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getWorkingDirectory();
 			if (this.arbeitsVerzeichnis == null) {
 				this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
 			}
 			Datei datei = this.holeAnwendung().getSystemSoftware().getDateisystem()
-			        .holeDatei(arbeitsVerzeichnis, dateiName);
+			        .getDatei(arbeitsVerzeichnis, dateiName);
 			if (datei != null) {
 				editorField = new JTextArea();
 				editorField.setFont(new Font("Courier New", Font.PLAIN, 11));

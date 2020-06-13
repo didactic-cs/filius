@@ -41,7 +41,7 @@ import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.Anwendung;
 import filius.software.system.Datei;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 
 /**
@@ -119,10 +119,10 @@ public class EmailServer extends Anwendung implements I18n {
                 + " (EmailServer), starten()");
         super.starten();
 
-        Datei konten = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, "konten.txt");
+        Datei konten = getSystemSoftware().getDateisystem().getDatei(verzeichnis, "konten.txt");
         if (konten == null) {
             konten = new Datei("konten.txt", "txt", "");
-            getSystemSoftware().getDateisystem().speicherDatei(verzeichnis, konten);
+            getSystemSoftware().getDateisystem().saveDatei(verzeichnis, konten);
         }
         kontenLaden();
 
@@ -283,7 +283,7 @@ public class EmailServer extends Anwendung implements I18n {
                 + " (EmailServer), kontenSpeichern()");
 
         String tmp = listeBenutzerkontenZuString(listeBenutzerkonten);
-        Datei konten = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, "konten.txt");
+        Datei konten = getSystemSoftware().getDateisystem().getDatei(verzeichnis, "konten.txt");
         konten.setContent(tmp);
     }
 
@@ -400,7 +400,7 @@ public class EmailServer extends Anwendung implements I18n {
     public void kontenLaden() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), kontenLaden()");
-        Datei konten = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, "konten.txt");
+        Datei konten = getSystemSoftware().getDateisystem().getDatei(verzeichnis, "konten.txt");
 
         if (konten != null) {
             setListeBenutzerkonten(stringZuListeBenutzerkonten(konten.getContent()));
@@ -413,9 +413,9 @@ public class EmailServer extends Anwendung implements I18n {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), setSystemSoftware(" + bs + ")");
         super.setSystemSoftware(bs);
-        getSystemSoftware().getDateisystem().erstelleVerzeichnis(getSystemSoftware().getDateisystem().getRoot(),
+        getSystemSoftware().getDateisystem().createDirectory(getSystemSoftware().getDateisystem().getRoot(),
                 "mailserver");
-        this.verzeichnis = Dateisystem.verzeichnisKnoten(getSystemSoftware().getDateisystem().getRoot(), "mailserver");
+        this.verzeichnis = FiliusFileSystem.pathToNode(getSystemSoftware().getDateisystem().getRoot(), "mailserver");
     }
 
     public synchronized void setListeBenutzerkonten(List<EmailKonto> listeBenutzerkonten) {

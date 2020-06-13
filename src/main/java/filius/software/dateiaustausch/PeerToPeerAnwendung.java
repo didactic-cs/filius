@@ -35,7 +35,7 @@ import filius.Main;
 import filius.software.Anwendung;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 
 /**
@@ -120,11 +120,11 @@ public class PeerToPeerAnwendung extends Anwendung {
                 + " (PeerToPeerAnwendung), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
 
-        Dateisystem dateisystem = betriebssystem.getDateisystem();
+        FiliusFileSystem dateisystem = betriebssystem.getDateisystem();
 
-        dateisystem.erstelleVerzeichnis(betriebssystem.getDateisystem().getRoot(), "peer2peer");
+        dateisystem.createDirectory(betriebssystem.getDateisystem().getRoot(), "peer2peer");
         verzeichnis = dateisystem
-                .verzeichnisKnoten(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "peer2peer");
+                .absolutePathToNode(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "peer2peer");
     }
 
     /**
@@ -181,7 +181,7 @@ public class PeerToPeerAnwendung extends Anwendung {
         } else {
             bs = (Betriebssystem) getSystemSoftware();
 
-            dateien = bs.getDateisystem().holeDateien(verzeichnis);
+            dateien = bs.getDateisystem().getDateiList(verzeichnis);
 
             for (int i = 0; i < dateien.size(); i++) {
                 aktuelle = (Datei) dateien.get(i);
@@ -234,7 +234,7 @@ public class PeerToPeerAnwendung extends Anwendung {
             fremdeAnfragen.add(anfrage.getGuid());
             schonmalVerschicktListe.add(anfrage.getGuid());
 
-            dateien = getSystemSoftware().getDateisystem().holeDateien(verzeichnis);
+            dateien = getSystemSoftware().getDateisystem().getDateiList(verzeichnis);
             ergebnisListe = new LinkedList<Datei>();
             for (int i = 0; i < dateien.size(); i++) {
                 ergebnis = (Datei) dateien.get(i);
@@ -358,7 +358,7 @@ public class PeerToPeerAnwendung extends Anwendung {
                 + " (PeerToPeerAnwendung), holeDatei()");
         Datei datei;
 
-        datei = (Datei) getSystemSoftware().getDateisystem().holeDatei(verzeichnis, dateiName);
+        datei = (Datei) getSystemSoftware().getDateisystem().getDatei(verzeichnis, dateiName);
         return datei;
     }
 
@@ -368,7 +368,7 @@ public class PeerToPeerAnwendung extends Anwendung {
     void speicherDatei(Datei datei) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), speicherDatei(" + datei + ")");
-        getSystemSoftware().getDateisystem().speicherDatei(verzeichnis, datei);
+        getSystemSoftware().getDateisystem().saveDatei(verzeichnis, datei);
     }
 
     /**

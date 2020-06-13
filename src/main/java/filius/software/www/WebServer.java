@@ -40,7 +40,7 @@ import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
 import filius.software.clientserver.TCPServerAnwendung;
 import filius.software.system.Datei;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
@@ -128,14 +128,14 @@ public class WebServer extends TCPServerAnwendung {
     private void erzeugeStandardVerzeichnis() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeStandardVerzeichnis()");
-        Dateisystem dateisystem;
+        FiliusFileSystem dateisystem;
 
         dateisystem = getSystemSoftware().getDateisystem();
-        dateisystem.erstelleVerzeichnis(dateisystem.getRoot(), "webserver");
+        dateisystem.createDirectory(dateisystem.getRoot(), "webserver");
         verzeichnis = dateisystem
-                .verzeichnisKnoten(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "webserver");
+                .absolutePathToNode(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "webserver");
         try {
-            if (!dateisystem.dateiVorhanden(verzeichnis, "index.html")) {
+            if (!dateisystem.existsFile(verzeichnis, "index.html")) {
 
                 erzeugeIndexDatei(ResourceUtil
                         .getResourcePath("tmpl/webserver_index_" + Information.getInformation().getLocale() + ".txt"));
@@ -162,7 +162,7 @@ public class WebServer extends TCPServerAnwendung {
                 + " (WebServer), erzeugeDatei(" + dateiname + "," + endung + "," + quellcode + ")");
         String kompletteDateiName = dateiname + "." + endung;
         Datei datei = new Datei(kompletteDateiName, endung, quellcode);
-        getSystemSoftware().getDateisystem().speicherDatei(verzeichnis, datei);
+        getSystemSoftware().getDateisystem().saveDatei(verzeichnis, datei);
     }
 
     /**
@@ -173,7 +173,7 @@ public class WebServer extends TCPServerAnwendung {
                 + " (WebServer), dateiLiefern(" + relativerPfad + ")");
         Datei tmpDatei;
 
-        tmpDatei = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, relativerPfad);
+        tmpDatei = getSystemSoftware().getDateisystem().getDatei(verzeichnis, relativerPfad);
         return tmpDatei;
     }
 
@@ -264,8 +264,8 @@ public class WebServer extends TCPServerAnwendung {
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
         super.starten();
 
-        if (!getSystemSoftware().getDateisystem().dateiVorhanden("www.conf", "vhosts")) {
-            getSystemSoftware().getDateisystem().erstelleVerzeichnis("root", "www.conf");
+        if (!getSystemSoftware().getDateisystem().existsFile("www.conf", "vhosts")) {
+            getSystemSoftware().getDateisystem().createDirectory("root", "www.conf");
         }
 
         initialisiereVHosts();
@@ -282,7 +282,7 @@ public class WebServer extends TCPServerAnwendung {
                 + " (DNSServer), schreibeRecordListe()");
         Datei vhosts;
         StringBuffer text;
-        Dateisystem dateisystem;
+        FiliusFileSystem dateisystem;
         String host, directory;
 
         dateisystem = getSystemSoftware().getDateisystem();
@@ -299,7 +299,7 @@ public class WebServer extends TCPServerAnwendung {
         vhosts.setContent(text.toString());
         vhosts.setName("vhosts");
 
-        dateisystem.speicherDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "www.conf", vhosts);
+        dateisystem.saveDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "www.conf", vhosts);
     }
 
     private void initialisiereVHosts() {
@@ -308,15 +308,15 @@ public class WebServer extends TCPServerAnwendung {
         Datei vhosts;
         StringTokenizer tokenizer;
         String line;
-        Dateisystem dateisystem;
+        FiliusFileSystem dateisystem;
 
         vHostArray = new String[5][2];
         int row = 0;
         int col = 0;
 
         dateisystem = getSystemSoftware().getDateisystem();
-        vhosts = dateisystem.holeDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "www.conf"
-                + Dateisystem.FILE_SEPARATOR + "vhosts");
+        vhosts = dateisystem.getDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "www.conf"
+                + FiliusFileSystem.FILE_SEPARATOR + "vhosts");
 
         if (vhosts != null) {
             tokenizer = new StringTokenizer(vhosts.getContent(), "\n");

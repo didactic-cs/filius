@@ -31,9 +31,9 @@ import java.util.Observable;
 import filius.rahmenprogramm.Base64;
 
 /**
- * Dateien sind Objekte, die vom Betriebssystem verwaltet werden. Jede Datei hat
- * einen Dateinamen (der eindeutig sein sollte, einen Datei Typ (�hnlich einem
- * mime/type) und nat�rlich den Dateiinhalt selber.
+ * In Filius, the class <b>Datei</b> is used to model a file.
+ * The content of the file is stored in a string. Consequently, binary
+ * contents need to be Base64 encoded to String.
  *
  * @author Nadja & Thomas Gerding
  *

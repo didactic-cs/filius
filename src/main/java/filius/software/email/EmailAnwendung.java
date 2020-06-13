@@ -172,13 +172,13 @@ public class EmailAnwendung extends Anwendung {
         datei.setContent(konto.toString());
         datei.setName("konten.txt");
         datei.setType("text/txt");
-        getSystemSoftware().getDateisystem().speicherDatei(getSystemSoftware().getDateisystem().getRoot(), datei);
+        getSystemSoftware().getDateisystem().saveDatei(getSystemSoftware().getDateisystem().getRoot(), datei);
     }
 
     public void laden() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), laden()");
-        Datei datei = getSystemSoftware().getDateisystem().holeDatei(getSystemSoftware().getDateisystem().getRoot(),
+        Datei datei = getSystemSoftware().getDateisystem().getDatei(getSystemSoftware().getDateisystem().getRoot(),
                 "konten.txt");
         if (datei != null) {
             String kontenString = datei.getContent();

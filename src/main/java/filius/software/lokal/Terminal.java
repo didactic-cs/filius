@@ -41,7 +41,7 @@ import filius.software.clientserver.ClientAnwendung;
 import filius.software.dns.Resolver;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.transportschicht.ServerSocket;
 import filius.software.transportschicht.Socket;
@@ -104,8 +104,8 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
         if (pureCopy(args)) { // positive case, everything worked fine
             this.getSystemSoftware().getDateisystem()
-                    .deleteFile(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
-                            + Dateisystem.FILE_SEPARATOR + args[0]);
+                    .deleteFile(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
+                            + FiliusFileSystem.FILE_SEPARATOR + args[0]);
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg35"));
             return messages.getString("sw_terminal_msg35");
         } else {
@@ -136,8 +136,8 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // parameters
         }
         if (this.getSystemSoftware().getDateisystem()
-                .deleteFile(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
-                        + Dateisystem.FILE_SEPARATOR + args[0])) {
+                .deleteFile(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
+                        + FiliusFileSystem.FILE_SEPARATOR + args[0])) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg37"));
             return messages.getString("sw_terminal_msg37");
         } else {
@@ -163,37 +163,37 @@ public class Terminal extends ClientAnwendung implements I18n {
         Main.debug.println(")");
         this.getSystemSoftware().getDateisystem().printTree();
         String srcString = args[0];
-        if (srcString.length() > 0 && srcString.substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // 'pfad'
+        if (srcString.length() > 0 && srcString.substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
                                                                                                       // is
                                                                                                       // absolute
                                                                                                       // path!
-            srcString = Dateisystem.evaluatePathString(srcString);
+            srcString = FiliusFileSystem.evaluatePath(srcString);
         } else {
-            srcString = Dateisystem
-                    .evaluatePathString(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
-                            + Dateisystem.FILE_SEPARATOR + srcString);
+            srcString = FiliusFileSystem
+                    .evaluatePath(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
+                            + FiliusFileSystem.FILE_SEPARATOR + srcString);
         }
         String destString = args[1];
-        if (destString.length() > 0 && destString.substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // 'pfad'
+        if (destString.length() > 0 && destString.substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
                                                                                                         // is
                                                                                                         // absolute
                                                                                                         // path!
-            destString = Dateisystem.evaluatePathString(destString);
+            destString = FiliusFileSystem.evaluatePath(destString);
         } else {
-            destString = Dateisystem
-                    .evaluatePathString(filius.software.system.Dateisystem.absoluterPfad(getAktuellerOrdner())
-                            + Dateisystem.FILE_SEPARATOR + destString);
+            destString = FiliusFileSystem
+                    .evaluatePath(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
+                            + FiliusFileSystem.FILE_SEPARATOR + destString);
         }
-        String destDir = Dateisystem.getDirectory(destString);
-        String destFile = Dateisystem.getBasename(destString);
+        String destDir = FiliusFileSystem.getPathDirectory(destString);
+        String destFile = FiliusFileSystem.getPathBasename(destString);
 
         // Main.debug.println("DEBUG: pureCopy: source '"+srcDir+"'-'"+srcFile+"', destination
         // '"+destDir+"'-'"+destFile+"'");
-        Datei sfile = this.getSystemSoftware().getDateisystem().holeDatei(srcString);
+        Datei sfile = this.getSystemSoftware().getDateisystem().getDatei(srcString);
         if (sfile == null)
             return false;
         Datei dfile = new Datei(destFile, sfile.getType(), sfile.getContent());
-        return this.getSystemSoftware().getDateisystem().speicherDatei(destDir, dfile);
+        return this.getSystemSoftware().getDateisystem().saveDatei(destDir, dfile);
     }
 
     // individual functionality for copy only
@@ -322,22 +322,22 @@ public class Terminal extends ClientAnwendung implements I18n {
         int leerzeichen;
 
         if (args[0].isEmpty()) {
-            liste = getSystemSoftware().getDateisystem().listeVerzeichnis(aktuellerOrdner);
-            currPath = Dateisystem.absoluterPfad(aktuellerOrdner);
+            liste = getSystemSoftware().getDateisystem().getDirectoryObjects(aktuellerOrdner);
+            currPath = FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner);
         } else {
-            if (args[0].length() > 0 && args[0].substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // argument
+            if (args[0].length() > 0 && args[0].substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // argument
                                                                                                       // given
                                                                                                       // as
                                                                                                       // absolute
                                                                                                       // path!
                 liste = getSystemSoftware().getDateisystem()
-                        .listeVerzeichnis(getSystemSoftware().getDateisystem().verzeichnisKnoten(args[0]));
-                currPath = Dateisystem.evaluatePathString(args[0]);
+                        .getDirectoryObjects(getSystemSoftware().getDateisystem().absolutePathToNode(args[0]));
+                currPath = FiliusFileSystem.evaluatePath(args[0]);
             } else {
                 liste = getSystemSoftware().getDateisystem()
-                        .listeVerzeichnis(Dateisystem.verzeichnisKnoten(aktuellerOrdner, args[0]));
-                currPath = Dateisystem.evaluatePathString(
-                        Dateisystem.absoluterPfad(aktuellerOrdner) + Dateisystem.FILE_SEPARATOR + args[0]);
+                        .getDirectoryObjects(FiliusFileSystem.pathToNode(aktuellerOrdner, args[0]));
+                currPath = FiliusFileSystem.evaluatePath(
+                        FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
             }
         }
 
@@ -393,20 +393,20 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
         String ergebnis = messages.getString("sw_terminal_msg12");
         String absPath;
-        if (args[0].length() > 0 && args[0].substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // 'pfad'
+        if (args[0].length() > 0 && args[0].substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
                                                                                                   // is
                                                                                                   // absolute
                                                                                                   // path!
-            absPath = Dateisystem.evaluatePathString(args[0]);
+            absPath = FiliusFileSystem.evaluatePath(args[0]);
         } else {
-            absPath = Dateisystem.evaluatePathString(
-                    Dateisystem.absoluterPfad(aktuellerOrdner) + Dateisystem.FILE_SEPARATOR + args[0]);
+            absPath = FiliusFileSystem.evaluatePath(
+                    FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
         }
-        String filePath = Dateisystem.getDirectory(absPath);
-        String dateiName = Dateisystem.getBasename(absPath);
+        String filePath = FiliusFileSystem.getPathDirectory(absPath);
+        String dateiName = FiliusFileSystem.getPathBasename(absPath);
         if (!dateiName.equals("")) {
-            if (!getSystemSoftware().getDateisystem().dateiVorhanden(filePath, dateiName)) {
-                getSystemSoftware().getDateisystem().speicherDatei(filePath, new Datei(dateiName, "text/txt", ""));
+            if (!getSystemSoftware().getDateisystem().existsFile(filePath, dateiName)) {
+                getSystemSoftware().getDateisystem().saveDatei(filePath, new Datei(dateiName, "text/txt", ""));
                 ergebnis = messages.getString("sw_terminal_msg13");
             } else {
                 ergebnis = messages.getString("sw_terminal_msg14");
@@ -439,20 +439,20 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
         String ergebnis = messages.getString("sw_terminal_msg16");
         String absPath;
-        if (args[0].length() > 0 && args[0].substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // 'pfad'
+        if (args[0].length() > 0 && args[0].substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
                                                                                                   // is
                                                                                                   // absolute
                                                                                                   // path!
-            absPath = Dateisystem.evaluatePathString(args[0]);
+            absPath = FiliusFileSystem.evaluatePath(args[0]);
         } else {
-            absPath = Dateisystem.evaluatePathString(
-                    Dateisystem.absoluterPfad(aktuellerOrdner) + Dateisystem.FILE_SEPARATOR + args[0]);
+            absPath = FiliusFileSystem.evaluatePath(
+                    FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
         }
-        String filePath = Dateisystem.getDirectory(absPath);
-        String dateiName = Dateisystem.getBasename(absPath);
+        String filePath = FiliusFileSystem.getPathDirectory(absPath);
+        String dateiName = FiliusFileSystem.getPathBasename(absPath);
         if (!dateiName.equals("")) {
-            if (!getSystemSoftware().getDateisystem().dateiVorhanden(filePath, dateiName)
-                    && getSystemSoftware().getDateisystem().erstelleVerzeichnis(filePath, dateiName)) {
+            if (!getSystemSoftware().getDateisystem().existsFile(filePath, dateiName)
+                    && getSystemSoftware().getDateisystem().createDirectory(filePath, dateiName)) {
                 ergebnis = messages.getString("sw_terminal_msg17");
             } else {
                 ergebnis = messages.getString("sw_terminal_msg18");
@@ -486,11 +486,11 @@ public class Terminal extends ClientAnwendung implements I18n {
         if (numParams(args, 1)) {
             DefaultMutableTreeNode newDir;
             if (args[0].charAt(0) == '/') // absolute path
-                newDir = getSystemSoftware().getDateisystem().changeDirectory(args[0]);
+                newDir = getSystemSoftware().getDateisystem().absolutePathToNode(args[0]);
             else
                 // relative path
                 newDir = getSystemSoftware().getDateisystem()
-                        .changeDirectory(Dateisystem.absoluterPfad(aktuellerOrdner), args[0]);
+                        .absolutePathToNode(FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
             if (newDir != null) { // first, check whether directory change was
                                   // successful; otherwise stay in current
                                   // directory
@@ -499,7 +499,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 ergebnis = messages.getString("sw_terminal_msg20");
             }
         } else {
-            ergebnis = Dateisystem.absoluterPfad(aktuellerOrdner);
+            ergebnis = FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner);
         }
 
         benachrichtigeBeobachter(ergebnis);
@@ -520,7 +520,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // of
                                                                                                       // parameters
         }
-        String ergebnis = Dateisystem.absoluterPfad(aktuellerOrdner);
+        String ergebnis = FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner);
         benachrichtigeBeobachter(ergebnis);
         return ergebnis;
     }
@@ -612,7 +612,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     public String test(String[] args) {
         String ergebnis = messages.getString("sw_terminal_msg23");
 
-        if (this.getSystemSoftware().getDateisystem().speicherDatei(args[0], new Datei("test", "txt", "blaaa"))) {
+        if (this.getSystemSoftware().getDateisystem().saveDatei(args[0], new Datei("test", "txt", "blaaa"))) {
             ergebnis = messages.getString("sw_terminal_msg24");
         }
 
@@ -639,7 +639,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         if (args == null || args.length < 1 || args[0] == null || "".equals(args[0])) {
             result.append(messages.getString("sw_terminal_msg51"));
         } else {
-            Datei file = getSystemSoftware().getDateisystem().holeDatei(this.aktuellerOrdner, args[0]);
+            Datei file = getSystemSoftware().getDateisystem().getDatei(this.aktuellerOrdner, args[0]);
             if (null != file) {
                 result.append(file.getContent());
             } else {

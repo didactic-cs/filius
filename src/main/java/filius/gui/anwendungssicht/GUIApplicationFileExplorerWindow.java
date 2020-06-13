@@ -67,7 +67,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import filius.Main;
 import filius.software.lokal.FileExplorer;
 import filius.software.system.Datei;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 
 public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
@@ -178,7 +178,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                                     String ordnerName = JOptionPane.showInputDialog("");
                                     if (!ordnerName.equals("")) {
                                         holeAnwendung().getSystemSoftware().getDateisystem()
-                                                .erstelleVerzeichnis(aktuellerOrdner, ordnerName);
+                                                .createDirectory(aktuellerOrdner, ordnerName);
                                         aktualisieren();
                                     }
                                 }
@@ -229,7 +229,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                                             messages.getString("fileexplorer_msg9"));
                                     if (neuerName != null && !neuerName.trim().isEmpty()) {
                                         if (!holeAnwendung().getSystemSoftware().getDateisystem()
-                                                .dateiVorhanden(aktuellerOrdner, neuerName)) {
+                                                .existsFile(aktuellerOrdner, neuerName)) {
                                             if (selektierteNode.getUserObject().getClass().equals(Datei.class)) {
                                                 /* Datei umbenennen */
                                                 Datei dat = (Datei) selektierteNode.getUserObject();
@@ -259,7 +259,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                         } else {
                             String[] teile = lm.getElementAt(index).toString().split(";");
                             if (teile.length > 0) {
-                                selektierteNode = Dateisystem.verzeichnisKnoten(aktuellerOrdner, teile[1]);
+                                selektierteNode = FiliusFileSystem.pathToNode(aktuellerOrdner, teile[1]);
                                 dateiListe.setSelectedIndex(index);
                             }
                             popmen.add(miLoeschen);

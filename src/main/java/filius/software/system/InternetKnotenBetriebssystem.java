@@ -71,7 +71,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     private static final long serialVersionUID = 1L;
 
     /** Das lokale Dateisystem eines Rechners */
-    private Dateisystem dateisystem;
+    private FiliusFileSystem dateisystem;
 
     /**
      * Die installierten Anwendungen. Sie werden mit dem Anwendungsnamen als Schluessel in einer HashMap gespeichert.
@@ -145,7 +145,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         tcp = new TCP(this);
         udp = new UDP(this);
 
-        this.dateisystem = new Dateisystem();
+        this.dateisystem = new FiliusFileSystem();
 
         dnsclient = new Resolver();
         dnsclient.setSystemSoftware(this);
@@ -334,7 +334,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Methode fuer den Zugriff auf das Dateisystem Diese Methode wird fuer das Speichern des Dateisystems in einer
      * Projektdatei benoetigt. (JavaBean- konformer Zugriff erforderlich)
      */
-    public Dateisystem getDateisystem() {
+    public FiliusFileSystem getDateisystem() {
         return dateisystem;
     }
 
@@ -344,7 +344,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * 
      * @param dateisystem
      */
-    public void setDateisystem(Dateisystem dateisystem) {
+    public void setDateisystem(FiliusFileSystem dateisystem) {
         this.dateisystem = dateisystem;
     }
 

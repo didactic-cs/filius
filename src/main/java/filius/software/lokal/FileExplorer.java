@@ -110,7 +110,7 @@ public class FileExplorer extends Anwendung implements I18n {
 				tempDatei.setSize(file.length());
 				ergebnis = messages.getString("sw_fileexplorer_msg2");
 			}
-			getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
+			getSystemSoftware().getDateisystem().saveDatei(ordner, tempDatei);
 		}
 
 		return ergebnis;

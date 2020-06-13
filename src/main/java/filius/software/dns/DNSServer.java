@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 import filius.Main;
 import filius.software.clientserver.UDPServerAnwendung;
 import filius.software.system.Datei;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 import filius.software.transportschicht.Socket;
 
 public class DNSServer extends UDPServerAnwendung {
@@ -60,13 +60,13 @@ public class DNSServer extends UDPServerAnwendung {
                 + " (DNSServer), starten()");
         super.starten();
 
-        Dateisystem dateisystem = getSystemSoftware().getDateisystem();
-        if (!dateisystem.dateiVorhanden(Dateisystem.FILE_SEPARATOR + "dns", "hosts")) {
-            dateisystem.erstelleVerzeichnis(dateisystem.getRoot(), "dns");
+        FiliusFileSystem dateisystem = getSystemSoftware().getDateisystem();
+        if (!dateisystem.existsFile(FiliusFileSystem.FILE_SEPARATOR + "dns", "hosts")) {
+            dateisystem.createDirectory(dateisystem.getRoot(), "dns");
             Datei hostsFile = new Datei();
             hostsFile.setName("hosts");
             hostsFile.setContent("");
-            dateisystem.speicherDatei(Dateisystem.FILE_SEPARATOR + "dns", hostsFile);
+            dateisystem.saveDatei(FiliusFileSystem.FILE_SEPARATOR + "dns", hostsFile);
         }
     }
 
@@ -95,8 +95,8 @@ public class DNSServer extends UDPServerAnwendung {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + ", initialisiereRecordListe()");
 
-        Dateisystem dateisystem = getSystemSoftware().getDateisystem();
-        Datei hosts = dateisystem.holeDatei(Dateisystem.FILE_SEPARATOR + "dns" + Dateisystem.FILE_SEPARATOR + "hosts");
+        FiliusFileSystem dateisystem = getSystemSoftware().getDateisystem();
+        Datei hosts = dateisystem.getDatei(FiliusFileSystem.FILE_SEPARATOR + "dns" + FiliusFileSystem.FILE_SEPARATOR + "hosts");
 
         List<ResourceRecord> resourceRecords = new LinkedList<ResourceRecord>();
         if (hosts != null) {
@@ -122,13 +122,13 @@ public class DNSServer extends UDPServerAnwendung {
             text.append(resourceRecord.toString() + "\n");
         }
 
-        Dateisystem dateisystem = getSystemSoftware().getDateisystem();
-        Datei hostsFile = dateisystem.holeDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "dns",
+        FiliusFileSystem dateisystem = getSystemSoftware().getDateisystem();
+        Datei hostsFile = dateisystem.getDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "dns",
                 "hosts");
         if (hostsFile == null) {
             hostsFile = new Datei();
             hostsFile.setName("hosts");
-            dateisystem.speicherDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "dns", hostsFile);
+            dateisystem.saveDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "dns", hostsFile);
         }
 
         hostsFile.setContent(text.toString());

@@ -358,7 +358,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         tabellenModell.setRowCount(0);
 
         List<Datei> tempListe = holeAnwendung().getSystemSoftware().getDateisystem()
-                .holeDateien(((PeerToPeerAnwendung) holeAnwendung()).holeVerzeichnis());
+                .getDateiList(((PeerToPeerAnwendung) holeAnwendung()).holeVerzeichnis());
 
         for (Datei tmpDatei : tempListe) {
             Vector<String> v = new Vector<>();

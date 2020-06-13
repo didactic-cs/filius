@@ -96,14 +96,14 @@ public class FileImporter extends Anwendung implements I18n {
 					if (dateityp.equals("text")) {
 						tempDatei.setContent(Base64.decodeToObject(tempDatei.getContent()).toString());
 					}
-					getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
+					getSystemSoftware().getDateisystem().saveDatei(ordner, tempDatei);
 				} else {
 					dateityp = this.getFileType(dateiname);
 					tempDatei = new Datei(dateiname, dateityp, Base64.encodeFromFile(pfadname + dateiname));
 					if (dateityp.equals("text")) {
 						tempDatei.setContent(Base64.decodeToObject(tempDatei.getContent()).toString());
 					}
-					getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
+					getSystemSoftware().getDateisystem().saveDatei(ordner, tempDatei);
 				}
 				ergebnis = messages.getString("sw_fileimporter_msg2") + "\n\t" + pfadname + dateiname;
 			}

@@ -89,7 +89,7 @@ public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 
 		if (rueckgabe == DMTNFileChooser.OK) {
 			aktuelleDatei = holeAnwendung().getSystemSoftware().getDateisystem()
-			        .holeDatei(fc.getAktuellerOrdner(), fc.getAktuellerDateiname());
+			        .getDatei(fc.getAktuellerOrdner(), fc.getAktuellerDateiname());
 			if (aktuelleDatei != null) {
 				this.setTitle(aktuelleDatei.getName());
 				Base64.decodeToFile(aktuelleDatei.getContent(), Information.getInformation().getTempPfad()

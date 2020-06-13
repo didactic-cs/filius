@@ -48,7 +48,7 @@ import filius.gui.JMainFrame;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
-import filius.software.system.Dateisystem;
+import filius.software.system.FiliusFileSystem;
 
 public class DMTNFileChooser implements I18n {
 
@@ -124,13 +124,13 @@ public class DMTNFileChooser implements I18n {
 						String[] teile = lm.getElementAt(index).toString().split(";");
 						if (teile.length > 0) {
 							if (teile[0].equals("Ordner")) {
-								DefaultMutableTreeNode ordnerNode = Dateisystem.verzeichnisKnoten(aktuellerOrdner,
+								DefaultMutableTreeNode ordnerNode = FiliusFileSystem.pathToNode(aktuellerOrdner,
 								        teile[1]);
 								aktuellerOrdner = ordnerNode;
 								ordnerInhaltAnzeigen(ordnerNode);
 							}
 							if (teile[0].equals("Datei")) {
-								Datei datei = betriebssystem.getDateisystem().holeDatei(aktuellerOrdner, teile[1]);
+								Datei datei = betriebssystem.getDateisystem().getDatei(aktuellerOrdner, teile[1]);
 								tfDateiname.setText(datei.getName());
 							}
 
