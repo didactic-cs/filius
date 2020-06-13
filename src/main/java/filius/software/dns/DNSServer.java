@@ -65,7 +65,7 @@ public class DNSServer extends UDPServerAnwendung {
             dateisystem.erstelleVerzeichnis(dateisystem.getRoot(), "dns");
             Datei hostsFile = new Datei();
             hostsFile.setName("hosts");
-            hostsFile.setDateiInhalt("");
+            hostsFile.setContent("");
             dateisystem.speicherDatei(Dateisystem.FILE_SEPARATOR + "dns", hostsFile);
         }
     }
@@ -100,7 +100,7 @@ public class DNSServer extends UDPServerAnwendung {
 
         List<ResourceRecord> resourceRecords = new LinkedList<ResourceRecord>();
         if (hosts != null) {
-            StringTokenizer tokenizer = new StringTokenizer(hosts.getDateiInhalt(), "\n");
+            StringTokenizer tokenizer = new StringTokenizer(hosts.getContent(), "\n");
 
             while (tokenizer.hasMoreTokens()) {
                 String line = tokenizer.nextToken().trim();
@@ -131,7 +131,7 @@ public class DNSServer extends UDPServerAnwendung {
             dateisystem.speicherDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "dns", hostsFile);
         }
 
-        hostsFile.setDateiInhalt(text.toString());
+        hostsFile.setContent(text.toString());
     }
 
     public void changeSingleEntry(int recordIdx, int partIdx, String type, String newValue) {

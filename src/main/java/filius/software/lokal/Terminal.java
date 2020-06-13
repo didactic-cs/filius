@@ -192,7 +192,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         Datei sfile = this.getSystemSoftware().getDateisystem().holeDatei(srcString);
         if (sfile == null)
             return false;
-        Datei dfile = new Datei(destFile, sfile.getDateiTyp(), sfile.getDateiInhalt());
+        Datei dfile = new Datei(destFile, sfile.getType(), sfile.getContent());
         return this.getSystemSoftware().getDateisystem().speicherDatei(destDir, dfile);
     }
 
@@ -354,7 +354,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                     anzahlDateien++;
                     tmpDatei = (Datei) tmp;
                     leerzeichen = 40 - tmpDatei.getName().length();
-                    inhalt.append(tmpDatei.getName() + stringFuellen(leerzeichen, ".") + tmpDatei.holeGroesse() + "\n");
+                    inhalt.append(tmpDatei.getName() + stringFuellen(leerzeichen, ".") + tmpDatei.getSize() + "\n");
                 }
                 // Fall Ordner:
                 else {
@@ -641,7 +641,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         } else {
             Datei file = getSystemSoftware().getDateisystem().holeDatei(this.aktuellerOrdner, args[0]);
             if (null != file) {
-                result.append(file.getDateiInhalt());
+                result.append(file.getContent());
             } else {
                 result.append(messages.getString("sw_terminal_msg54"));
             }

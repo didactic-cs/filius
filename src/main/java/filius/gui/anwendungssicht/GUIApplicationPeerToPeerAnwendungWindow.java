@@ -363,7 +363,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         for (Datei tmpDatei : tempListe) {
             Vector<String> v = new Vector<>();
             v.add(tmpDatei.getName());
-            v.add(tmpDatei.getDateiTyp());
+            v.add(tmpDatei.getType());
             tabellenModell.addRow(v);
         }
     }

@@ -92,7 +92,7 @@ public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 			        .holeDatei(fc.getAktuellerOrdner(), fc.getAktuellerDateiname());
 			if (aktuelleDatei != null) {
 				this.setTitle(aktuelleDatei.getName());
-				Base64.decodeToFile(aktuelleDatei.getDateiInhalt(), Information.getInformation().getTempPfad()
+				Base64.decodeToFile(aktuelleDatei.getContent(), Information.getInformation().getTempPfad()
 				        + aktuelleDatei.getName());
 
 				path = Information.getInformation().getTempPfad() + aktuelleDatei.getName();

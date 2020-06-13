@@ -185,7 +185,7 @@ public class PeerToPeerAnwendung extends Anwendung {
 
             for (int i = 0; i < dateien.size(); i++) {
                 aktuelle = (Datei) dateien.get(i);
-                anzahlBytes = anzahlBytes + aktuelle.holeGroesse();
+                anzahlBytes = anzahlBytes + aktuelle.getSize();
             }
             pong = new PongPaket(bs.holeIPAdresse(), 6346, dateien.size(), anzahlBytes);
             pong.setGuid(ping.getGuid());

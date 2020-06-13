@@ -284,7 +284,7 @@ public class EmailServer extends Anwendung implements I18n {
 
         String tmp = listeBenutzerkontenZuString(listeBenutzerkonten);
         Datei konten = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, "konten.txt");
-        konten.setDateiInhalt(tmp);
+        konten.setContent(tmp);
     }
 
     private String nltobr(String originalText) {
@@ -403,7 +403,7 @@ public class EmailServer extends Anwendung implements I18n {
         Datei konten = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, "konten.txt");
 
         if (konten != null) {
-            setListeBenutzerkonten(stringZuListeBenutzerkonten(konten.getDateiInhalt()));
+            setListeBenutzerkonten(stringZuListeBenutzerkonten(konten.getContent()));
         } else {
             Main.debug.println("ERROR (" + this.hashCode() + "): Konten laden fehlgeschlagen");
         }

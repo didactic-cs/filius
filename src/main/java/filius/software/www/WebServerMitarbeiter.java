@@ -88,7 +88,7 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
         } else {
             datei = ((WebServer) server).dateiLiefern(dateipfad);
             if (datei != null) {
-                antwort.setDaten(datei.getDateiInhalt());
+                antwort.setDaten(datei.getContent());
                 if (datei.getName().endsWith("html") || datei.getName().endsWith("htm")) {
                     antwort.setContentType(HTTPNachricht.TEXT_HTML);
                     antwort.setStatusCode(200);

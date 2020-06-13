@@ -106,8 +106,8 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
 
         if (datei != null) {
             antwort.setStatusCode(200);
-            antwort.setContentType(datei.getDateiTyp());
-            antwort.setDaten(datei.getDateiInhalt());
+            antwort.setContentType(datei.getType());
+            antwort.setDaten(datei.getContent());
         } else {
             antwort.setStatusCode(404);
         }
@@ -189,7 +189,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
                 antwortPaket.setGuid(queryPaket.getGuid());
                 antwortPaket.setHops(0);
                 antwortPaket.setTtl(8);
-                antwortPaket.setErgebnis(aktuelleDatei.getName() + ": " + aktuelleDatei.holeGroesse() + " B");
+                antwortPaket.setErgebnis(aktuelleDatei.getName() + ": " + aktuelleDatei.getSize() + " B");
 
                 try {
                     socket.senden(antwortPaket.toString());

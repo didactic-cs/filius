@@ -296,7 +296,7 @@ public class WebServer extends TCPServerAnwendung {
         }
 
         vhosts = new Datei();
-        vhosts.setDateiInhalt(text.toString());
+        vhosts.setContent(text.toString());
         vhosts.setName("vhosts");
 
         dateisystem.speicherDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "www.conf", vhosts);
@@ -319,7 +319,7 @@ public class WebServer extends TCPServerAnwendung {
                 + Dateisystem.FILE_SEPARATOR + "vhosts");
 
         if (vhosts != null) {
-            tokenizer = new StringTokenizer(vhosts.getDateiInhalt(), "\n");
+            tokenizer = new StringTokenizer(vhosts.getContent(), "\n");
 
             while (tokenizer.hasMoreTokens()) {
                 line = tokenizer.nextToken().trim();

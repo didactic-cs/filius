@@ -161,9 +161,9 @@ class PeerToPeerClientMitarbeiter extends Thread {
                 if (http.getStatusCode() == 200) {
                     abfrage = new HTTPNachricht(nachricht);
                     datei = new Datei();
-                    datei.setDateiTyp(http.getContentType());
+                    datei.setType(http.getContentType());
                     datei.setName(abfrage.getPfad());
-                    datei.setDateiInhalt(http.getDaten());
+                    datei.setContent(http.getDaten());
                     peerToPeerAnwendung.speicherDatei(datei);
                 }
             } else if (modus == QUERY) {

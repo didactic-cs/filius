@@ -169,9 +169,9 @@ public class EmailAnwendung extends Anwendung {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), speichern()");
         Datei datei = new Datei();
-        datei.setDateiInhalt(konto.toString());
+        datei.setContent(konto.toString());
         datei.setName("konten.txt");
-        datei.setDateiTyp("text/txt");
+        datei.setType("text/txt");
         getSystemSoftware().getDateisystem().speicherDatei(getSystemSoftware().getDateisystem().getRoot(), datei);
     }
 
@@ -181,7 +181,7 @@ public class EmailAnwendung extends Anwendung {
         Datei datei = getSystemSoftware().getDateisystem().holeDatei(getSystemSoftware().getDateisystem().getRoot(),
                 "konten.txt");
         if (datei != null) {
-            String kontenString = datei.getDateiInhalt();
+            String kontenString = datei.getContent();
             String[] konten = kontenString.split("\n");
             for (int i = 0; i < konten.length; i++) {
                 this.konto = new EmailKonto(konten[i]);

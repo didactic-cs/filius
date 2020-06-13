@@ -94,8 +94,8 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 			Datei datei = holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(arbeitsVerzeichnis, dateiName);
 			if (datei != null) {
 				this.setTitle(dateiName);
-				editorField.setText(datei.getDateiInhalt());
-				original = datei.getDateiInhalt();
+				editorField.setText(datei.getContent());
+				original = datei.getContent();
 				aktuelleDatei = datei;
 			}
 		}
@@ -171,7 +171,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 	public void speichern() {
 		if (aktuelleDatei != null) {
 			original = editorField.getText();
-			aktuelleDatei.setDateiInhalt(original);
+			aktuelleDatei.setContent(original);
 		} else {
 			speichernUnter();
 		}
@@ -216,7 +216,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 	private void updateFromFile() {
 		if (aktuelleDatei != null) {
 			this.setTitle(aktuelleDatei.getName());
-			original = aktuelleDatei.getDateiInhalt();
+			original = aktuelleDatei.getContent();
 			editorField.setText(original);
 		} else {
 			Main.debug.println("ERROR (" + this.hashCode()
@@ -248,8 +248,8 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 				editorField = new JTextArea();
 				editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
 				this.setTitle(dateiName);
-				editorField.setText(datei.getDateiInhalt());
-				original = datei.getDateiInhalt();
+				editorField.setText(datei.getContent());
+				original = datei.getContent();
 				aktuelleDatei = datei;
 
 				JScrollPane tpPane = new JScrollPane(editorField);
@@ -351,7 +351,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 
 	public void updateUnchangedTextFromFile() {
 		if (original != null && editorField != null && aktuelleDatei != null && original.equals(editorField.getText())) {
-			original = aktuelleDatei.getDateiInhalt();
+			original = aktuelleDatei.getContent();
 			editorField.setText(original);
 		}
 	}
