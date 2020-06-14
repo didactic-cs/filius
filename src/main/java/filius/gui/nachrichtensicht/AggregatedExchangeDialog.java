@@ -217,6 +217,9 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
             btnClose.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     parent.removeTable(identifier);
+                    if (parent.openedTabs.size() == 0) {
+                        parent.setVisible(false);
+                    }
                 }
             });
         }

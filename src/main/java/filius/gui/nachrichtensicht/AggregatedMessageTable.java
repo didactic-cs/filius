@@ -157,15 +157,15 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
         this.getColumnModel().getColumn(1).setMaxWidth(120);
         this.getColumnModel().getColumn(1).setPreferredWidth(90);
         this.getColumnModel().getColumn(2).setMaxWidth(180);
-        this.getColumnModel().getColumn(2).setPreferredWidth(140);
+        this.getColumnModel().getColumn(2).setPreferredWidth(160);
         this.getColumnModel().getColumn(3).setMaxWidth(180);
-        this.getColumnModel().getColumn(3).setPreferredWidth(140);
+        this.getColumnModel().getColumn(3).setPreferredWidth(160);
         this.getColumnModel().getColumn(4).setMaxWidth(100);
         this.getColumnModel().getColumn(4).setPreferredWidth(70);
         this.getColumnModel().getColumn(5).setMaxWidth(140);
         this.getColumnModel().getColumn(5).setPreferredWidth(100);
         this.getColumnModel().getColumn(6).setMaxWidth(Integer.MAX_VALUE);
-        this.getColumnModel().getColumn(6).setPreferredWidth(500);
+        this.getColumnModel().getColumn(6).setPreferredWidth(460);
         this.getColumnModel().getColumn(6).setResizable(true);
     }
 
