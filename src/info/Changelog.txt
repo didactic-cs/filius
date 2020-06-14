@@ -1,3 +1,18 @@
+filius (1.10.0) unstable; urgency=low
+ * Uebersetzung zur Simulationsgeschwindigkeit korrigiert
+ * Falsche Nummerierung Abschnittsueberschriften im Report behoben
+ * Abschnitt zum Nachrichtenaustausch im Report nur, wenn Inhalte vorliegen
+ * Fehlerbehebung zur Erstellung von Kabelverbindungen
+ * Korrektur Rechtschreibung in franzoesischer Uebersetzung
+ * Korrektur der kaputten Anzeige fuer Terminal-Anwendung
+ * Fehlerbehebung im Einfachen Client: Immer auf eingehende Nachrichten warten (auch ohne Versand einer Nachricht)
+ * Redaktionelle Ueberarbeitung der Hilfeseiten 
+ * Grundlegende Ueberarbeitung Dokumentationsmodus mit Formatierungsmoeglichkeiten
+ * Möglichkeit, Reiter zum Nachrichtenaustausch zu schliessen
+ * Wiederherstellen der angezeigten Fenster bei Wechsel zwischen Anwendungsmodi
+ * Hilfeseite für Dokumentationsmodus hinzugefügt
+-- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 14 June 2020 00:00:00 +0000
+
 filius (1.9.0) unstable; urgency=low
  * Export der Konfiguration und des Datenaustauschs als PDF-Datei
  * Fehlerbehebung im Einfachen Client: Auf Serverantworten erst nach Versand einer Nachricht warten
