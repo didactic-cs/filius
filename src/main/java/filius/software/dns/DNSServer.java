@@ -61,7 +61,7 @@ public class DNSServer extends UDPServerAnwendung {
         super.starten();
 
         FiliusFileSystem dateisystem = getSystemSoftware().getDateisystem();
-        if (!dateisystem.existsFile(FiliusFileSystem.FILE_SEPARATOR + "dns", "hosts")) {
+        if (!dateisystem.fileExists(FiliusFileSystem.FILE_SEPARATOR + "dns", "hosts")) {
             dateisystem.createDirectory(dateisystem.getRoot(), "dns");
             Datei hostsFile = new Datei();
             hostsFile.setName("hosts");

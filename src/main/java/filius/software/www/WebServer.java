@@ -135,7 +135,7 @@ public class WebServer extends TCPServerAnwendung {
         verzeichnis = dateisystem
                 .absolutePathToNode(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "webserver");
         try {
-            if (!dateisystem.existsFile(verzeichnis, "index.html")) {
+            if (!dateisystem.fileExists(verzeichnis, "index.html")) {
 
                 erzeugeIndexDatei(ResourceUtil
                         .getResourcePath("tmpl/webserver_index_" + Information.getInformation().getLocale() + ".txt"));
@@ -264,7 +264,7 @@ public class WebServer extends TCPServerAnwendung {
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
         super.starten();
 
-        if (!getSystemSoftware().getDateisystem().existsFile("www.conf", "vhosts")) {
+        if (!getSystemSoftware().getDateisystem().fileExists("www.conf", "vhosts")) {
             getSystemSoftware().getDateisystem().createDirectory("root", "www.conf");
         }
 

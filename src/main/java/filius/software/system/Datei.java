@@ -166,7 +166,8 @@ public class Datei extends Observable implements Serializable {
 	 * @return A String containing the file's type.
 	 */
 	public String getType() {
-		return type;
+		if (type != null) return type;
+		else return "";
 	}
 
 	/**
