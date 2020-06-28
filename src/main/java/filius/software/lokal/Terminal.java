@@ -26,13 +26,14 @@
 package filius.software.lokal;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import filius.Main;
 import filius.rahmenprogramm.I18n;
@@ -40,7 +41,8 @@ import filius.rahmenprogramm.Information;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.dns.Resolver;
 import filius.software.system.Betriebssystem;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.transportschicht.ServerSocket;
@@ -66,12 +68,14 @@ public class Terminal extends ClientAnwendung implements I18n {
     // Betriebssystem betriebssystem;
     boolean abfrageVar;
 
-    private DefaultMutableTreeNode aktuellerOrdner;
+    private FiliusFileNode aktuellerOrdner;
     private boolean interrupted = false;
+    private FiliusFileSystem FFS;
 
     public void setSystemSoftware(InternetKnotenBetriebssystem bs) {
         super.setSystemSoftware(bs);
-        this.aktuellerOrdner = getSystemSoftware().getDateisystem().getRoot();
+        FFS = getSystemSoftware().getDateisystem();
+        aktuellerOrdner = FFS.getRoot();
     }
 
     /**
@@ -103,9 +107,12 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // parameters
         }
         if (pureCopy(args)) { // positive case, everything worked fine
-            this.getSystemSoftware().getDateisystem()
-                    .deleteFile(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
-                            + FiliusFileSystem.FILE_SEPARATOR + args[0]);
+//            this.getSystemSoftware().getDateisystem()
+//                    .deleteFile(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
+//                            + FiliusFileSystem.FILE_SEPARATOR + args[0]);        	
+        	String path = getAktuellerOrdner().toPath() + FFS.FILE_SEPARATOR + args[0];
+            FFS.deleteFile(path);            
+            
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg35"));
             return messages.getString("sw_terminal_msg35");
         } else {
@@ -128,6 +135,7 @@ public class Terminal extends ClientAnwendung implements I18n {
             Main.debug.print(i + "='" + args[i] + "' ");
         }
         Main.debug.println(")");
+        
         if (!numParams(args, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"); // wrong
@@ -135,14 +143,37 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // of
                                                                                                       // parameters
         }
-        if (this.getSystemSoftware().getDateisystem()
-                .deleteFile(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
-                        + FiliusFileSystem.FILE_SEPARATOR + args[0])) {
+        
+        // ToDo : if args[0] is a non empty directory, ask for confirmation.
+        
+        if (FFS.deleteFile(getAktuellerOrdner().toPath() + FiliusFileSystem.FILE_SEPARATOR + args[0])) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg37"));
             return messages.getString("sw_terminal_msg37");
         } else {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg38"));
             return messages.getString("sw_terminal_msg38");
+        }
+    }    
+    
+    /**
+     * <b>printSubtree</b> recursively prints the tree structure starting from a given node 
+     * 
+     * @param indent String used for indentation
+     * @param startNode FFSNode from which the printing starts
+     */
+    private void printSubtree(String indent, FiliusFileNode startNode) {
+    	
+    	FiliusFileNode node;
+        Main.debug.print(indent + "--");
+        
+        if (startNode.isDirectory()) {
+            Main.debug.println("[" + startNode.getName() + "]");
+        }
+        
+        indent = indent + " |";
+        for (Enumeration<TreeNode> e = startNode.children(); e.hasMoreElements();) {
+            node = (FiliusFileNode) e.nextElement();
+            printSubtree(indent, node);
         }
     }
 
@@ -161,39 +192,40 @@ public class Terminal extends ClientAnwendung implements I18n {
             Main.debug.print(i + "='" + args[i] + "' ");
         }
         Main.debug.println(")");
-        this.getSystemSoftware().getDateisystem().printTree();
+        printSubtree("", FFS.getRoot());
         String srcString = args[0];
-        if (srcString.length() > 0 && srcString.substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
+        if (srcString.length() > 0 && srcString.substring(0, 1).equals(FFS.FILE_SEPARATOR)) { // 'pfad'
                                                                                                       // is
                                                                                                       // absolute
                                                                                                       // path!
-            srcString = FiliusFileSystem.evaluatePath(srcString);
+            srcString = FFS.evaluatePath(srcString);
         } else {
-            srcString = FiliusFileSystem
-                    .evaluatePath(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
-                            + FiliusFileSystem.FILE_SEPARATOR + srcString);
+            srcString = FFS.evaluatePath(getAktuellerOrdner().toPath() + FFS.FILE_SEPARATOR + srcString);
         }
         String destString = args[1];
-        if (destString.length() > 0 && destString.substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
+        if (destString.length() > 0 && destString.substring(0, 1).equals(FFS.FILE_SEPARATOR)) { // 'pfad'
                                                                                                         // is
                                                                                                         // absolute
                                                                                                         // path!
-            destString = FiliusFileSystem.evaluatePath(destString);
+            destString = FFS.evaluatePath(destString);
         } else {
-            destString = FiliusFileSystem
-                    .evaluatePath(filius.software.system.FiliusFileSystem.nodeToAbsolutePath(getAktuellerOrdner())
-                            + FiliusFileSystem.FILE_SEPARATOR + destString);
+            destString = FFS.evaluatePath(getAktuellerOrdner().toPath() + FFS.FILE_SEPARATOR + destString);
         }
-        String destDir = FiliusFileSystem.getPathDirectory(destString);
-        String destFile = FiliusFileSystem.getPathFilename(destString);
+        String destDir = FFS.getPathDirectory(destString);
+        String destFile = FFS.getPathFilename(destString);
 
         // Main.debug.println("DEBUG: pureCopy: source '"+srcDir+"'-'"+srcFile+"', destination
         // '"+destDir+"'-'"+destFile+"'");
-        Datei sfile = this.getSystemSoftware().getDateisystem().getDatei(srcString);
-        if (sfile == null)
-            return false;
-        Datei dfile = new Datei(destFile, sfile.getType(), sfile.getContent());
-        return this.getSystemSoftware().getDateisystem().saveDatei(destDir, dfile);
+        FiliusFile sfile = null;
+        FiliusFileNode node = FFS.toNode(srcString);
+    	if (node != null) sfile = node.getFiliusFile();          
+        if (sfile == null) return false;
+        
+        FiliusFile dfile = new FiliusFile(destFile, sfile.getType(), sfile.getContent());
+        
+        node = FFS.toNode(destDir);
+        if (node != null) return node.saveFiliusFile(dfile); 
+        return false;
     }
 
     // individual functionality for copy only
@@ -313,31 +345,30 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // of
                                                                                                       // parameters
         }
-        LinkedList<Object> liste;
+        List<Object> liste;
         StringBuffer inhalt;
         String currPath;
         int anzahlVerzeichnisse = 0;
         int anzahlDateien = 0;
-        Datei tmpDatei;
+        FiliusFile tmpDatei;
         int leerzeichen;
 
         if (args[0].isEmpty()) {
-            liste = getSystemSoftware().getDateisystem().getDirectoryObjectList(aktuellerOrdner);
-            currPath = FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner);
+            liste = aktuellerOrdner.getChildObjects();        	
+            currPath = aktuellerOrdner.toPath();
         } else {
-            if (args[0].length() > 0 && args[0].substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // argument
-                                                                                                      // given
-                                                                                                      // as
-                                                                                                      // absolute
-                                                                                                      // path!
-                liste = getSystemSoftware().getDateisystem()
-                        .getDirectoryObjectList(getSystemSoftware().getDateisystem().absolutePathToNode(args[0]));
-                currPath = FiliusFileSystem.evaluatePath(args[0]);
+            if (FFS.isAbsolute(args[0])) {
+            	// Absolute path  
+            	FiliusFileNode node = FFS.toNode(args[0]);
+            	if (node != null) liste = node.getChildObjects();
+            	else liste = null;          	
+                currPath = FFS.evaluatePath(args[0]);
             } else {
-                liste = getSystemSoftware().getDateisystem()
-                        .getDirectoryObjectList(FiliusFileSystem.pathToNode(aktuellerOrdner, args[0]));
-                currPath = FiliusFileSystem.evaluatePath(
-                        FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
+            	// Relative path
+            	FiliusFileNode node = aktuellerOrdner.toNode(args[0]); 
+            	if (node != null) liste = node.getChildObjects();
+            	else liste = null;            
+                currPath = FFS.evaluatePath(aktuellerOrdner.toPath() + FFS.FILE_SEPARATOR + args[0]);
             }
         }
 
@@ -350,9 +381,9 @@ public class Terminal extends ClientAnwendung implements I18n {
 
             for (Object tmp : liste) {
                 // Fall Datei:
-                if (tmp instanceof Datei) {
+                if (tmp instanceof FiliusFile) {
                     anzahlDateien++;
-                    tmpDatei = (Datei) tmp;
+                    tmpDatei = (FiliusFile) tmp;
                     leerzeichen = 40 - tmpDatei.getName().length();
                     inhalt.append(tmpDatei.getName() + stringFuellen(leerzeichen, ".") + tmpDatei.getSize() + "\n");
                 }
@@ -393,21 +424,27 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
         String ergebnis = messages.getString("sw_terminal_msg12");
         String absPath;
-        if (args[0].length() > 0 && args[0].substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
+        if (args[0].length() > 0 && args[0].substring(0, 1).equals(FFS.FILE_SEPARATOR)) { // 'pfad'
                                                                                                   // is
                                                                                                   // absolute
                                                                                                   // path!
-            absPath = FiliusFileSystem.evaluatePath(args[0]);
+            absPath = FFS.evaluatePath(args[0]);
         } else {
-            absPath = FiliusFileSystem.evaluatePath(
-                    FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
+            absPath = FFS.evaluatePath(aktuellerOrdner.toPath() + FFS.FILE_SEPARATOR + args[0]);
         }
-        String filePath = FiliusFileSystem.getPathDirectory(absPath);
-        String dateiName = FiliusFileSystem.getPathFilename(absPath);
-        if (!dateiName.equals("")) {
-            if (!getSystemSoftware().getDateisystem().fileExists(filePath, dateiName)) {
-                getSystemSoftware().getDateisystem().saveDatei(filePath, new Datei(dateiName, "text/txt", ""));
-                ergebnis = messages.getString("sw_terminal_msg13");
+        String filePath = FFS.getPathDirectory(absPath);
+        String dateiName = FFS.getPathFilename(absPath);
+        if (!dateiName.isEmpty()) {
+        	FiliusFileNode node = FFS.toNode(filePath, dateiName);
+            if (node == null) {
+            	node = FFS.toNode(filePath);
+            	if (node == null) {
+            		ergebnis = "Le répertoire parent n'existe pas.";                           // I18n            		
+            	} else {
+            		node.saveFiliusFile(new FiliusFile(dateiName, "text", "")); 
+            		ergebnis = messages.getString("sw_terminal_msg13");
+            	}
+                
             } else {
                 ergebnis = messages.getString("sw_terminal_msg14");
             }
@@ -439,21 +476,27 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
         String ergebnis = messages.getString("sw_terminal_msg16");
         String absPath;
-        if (args[0].length() > 0 && args[0].substring(0, 1).equals(FiliusFileSystem.FILE_SEPARATOR)) { // 'pfad'
+        if (args[0].length() > 0 && args[0].substring(0, 1).equals(FFS.FILE_SEPARATOR)) { // 'pfad'
                                                                                                   // is
                                                                                                   // absolute
                                                                                                   // path!
-            absPath = FiliusFileSystem.evaluatePath(args[0]);
+            absPath = FFS.evaluatePath(args[0]);
         } else {
-            absPath = FiliusFileSystem.evaluatePath(
-                    FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
+            absPath = FFS.evaluatePath(aktuellerOrdner.toPath() + FFS.FILE_SEPARATOR + args[0]);
         }
-        String filePath = FiliusFileSystem.getPathDirectory(absPath);
-        String dateiName = FiliusFileSystem.getPathFilename(absPath);
-        if (!dateiName.equals("")) {
-            if (!getSystemSoftware().getDateisystem().fileExists(filePath, dateiName)
-                    && getSystemSoftware().getDateisystem().createDirectory(filePath, dateiName)) {
-                ergebnis = messages.getString("sw_terminal_msg17");
+        String filePath = FFS.getPathDirectory(absPath);
+        String dateiName = FFS.getPathFilename(absPath);
+        if (!dateiName.isEmpty()) {
+        	FiliusFileNode node = FFS.toNode(filePath, dateiName);
+            if (node == null) {
+            	node = FFS.toNode(filePath);
+            	if (node == null) {
+            		ergebnis = "Le répertoire parent n'existe pas.";       // I18n
+            	} else if (node.addDirectory(dateiName)) {
+            		ergebnis = messages.getString("sw_terminal_msg17");    // OK
+            	} else {
+            		ergebnis = "Le fichier n'a pas pu être créé.";         // I18n
+            	}     
             } else {
                 ergebnis = messages.getString("sw_terminal_msg18");
             }
@@ -484,13 +527,11 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // parameters
         }
         if (numParams(args, 1)) {
-            DefaultMutableTreeNode newDir;
-            if (args[0].charAt(0) == '/') // absolute path
-                newDir = getSystemSoftware().getDateisystem().absolutePathToNode(args[0]);
+            FiliusFileNode newDir;
+            if (FFS.isAbsolute(args[0])) 
+            	newDir = FFS.toNode(args[0]);
             else
-                // relative path
-                newDir = getSystemSoftware().getDateisystem()
-                        .absolutePathToNode(FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner) + FiliusFileSystem.FILE_SEPARATOR + args[0]);
+                newDir = aktuellerOrdner.toNode(args[0]);
             if (newDir != null) { // first, check whether directory change was
                                   // successful; otherwise stay in current
                                   // directory
@@ -499,7 +540,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 ergebnis = messages.getString("sw_terminal_msg20");
             }
         } else {
-            ergebnis = FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner);
+            ergebnis = aktuellerOrdner.toPath();
         }
 
         benachrichtigeBeobachter(ergebnis);
@@ -520,7 +561,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                                                                                                       // of
                                                                                                       // parameters
         }
-        String ergebnis = FiliusFileSystem.nodeToAbsolutePath(aktuellerOrdner);
+        String ergebnis = aktuellerOrdner.toPath();
         benachrichtigeBeobachter(ergebnis);
         return ergebnis;
     }
@@ -612,7 +653,8 @@ public class Terminal extends ClientAnwendung implements I18n {
     public String test(String[] args) {
         String ergebnis = messages.getString("sw_terminal_msg23");
 
-        if (this.getSystemSoftware().getDateisystem().saveDatei(args[0], new Datei("test", "txt", "blaaa"))) {
+        FiliusFileNode node = FFS.toNode(args[0]);        
+        if (node != null && node.saveFiliusFile(new FiliusFile("test", "txt", "blaaa"))) {
             ergebnis = messages.getString("sw_terminal_msg24");
         }
 
@@ -639,7 +681,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         if (args == null || args.length < 1 || args[0] == null || "".equals(args[0])) {
             result.append(messages.getString("sw_terminal_msg51"));
         } else {
-            Datei file = getSystemSoftware().getDateisystem().getDatei(this.aktuellerOrdner, args[0]);
+            FiliusFile file = aktuellerOrdner.getFiliusFile(args[0]);
             if (null != file) {
                 result.append(file.getContent());
             } else {
@@ -953,11 +995,11 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
     }
 
-    public DefaultMutableTreeNode getAktuellerOrdner() {
+    public FiliusFileNode getAktuellerOrdner() {
         return aktuellerOrdner;
     }
 
-    public void setAktuellerOrdner(DefaultMutableTreeNode aktuellerOrdner) {
+    public void setAktuellerOrdner(FiliusFileNode aktuellerOrdner) {
         this.aktuellerOrdner = aktuellerOrdner;
     }
 

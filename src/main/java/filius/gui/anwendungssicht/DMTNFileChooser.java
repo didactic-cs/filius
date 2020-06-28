@@ -47,20 +47,22 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import filius.gui.JMainFrame;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.Betriebssystem;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 
 public class DMTNFileChooser implements I18n {
 
 	private JPanel pHaupt;
 	private JList lVerzeichnisse;
-	private DefaultMutableTreeNode aktuellerOrdner;
+	private FiliusFileNode aktuellerOrdner;
 	private String aktuellerDateiname;
 	private JButton btEbeneHoch;
 	private JTextField tfDateiname;
 	private JLabel lbDateiname, lbAktuellerOrdner;
 	private JButton btAktion, btAbbrechen;
 	private Betriebssystem betriebssystem;
+	private FiliusFileSystem FFS;
 	private int rueckgabe = 0;
 	private JDialog dialog;
 
@@ -71,8 +73,9 @@ public class DMTNFileChooser implements I18n {
 		dialog = new JDialog();
 		dialog.setIconImage(JMainFrame.getJMainFrame().getIconImage());
 
-		this.betriebssystem = bs;
-		this.aktuellerOrdner = betriebssystem.getDateisystem().getRoot();
+		betriebssystem = bs;
+		FFS = bs.getDateisystem();
+		aktuellerOrdner = FFS.getRoot();
 		pHaupt = new JPanel(new BorderLayout());
 		Box boxHaupt = Box.createVerticalBox();
 		Box tmpBox = Box.createHorizontalBox();
@@ -91,7 +94,7 @@ public class DMTNFileChooser implements I18n {
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals(btEbeneHoch.getActionCommand())) {
 					if (aktuellerOrdner.getParent() != null) {
-						aktuellerOrdner = (DefaultMutableTreeNode) aktuellerOrdner.getParent();
+						aktuellerOrdner = aktuellerOrdner.getParent();
 
 						ordnerInhaltAnzeigen(aktuellerOrdner);
 
@@ -124,13 +127,12 @@ public class DMTNFileChooser implements I18n {
 						String[] teile = lm.getElementAt(index).toString().split(";");
 						if (teile.length > 0) {
 							if (teile[0].equals("Ordner")) {
-								DefaultMutableTreeNode ordnerNode = FiliusFileSystem.pathToNode(aktuellerOrdner,
-								        teile[1]);
+								FiliusFileNode ordnerNode = aktuellerOrdner.toNode(teile[1]);
 								aktuellerOrdner = ordnerNode;
 								ordnerInhaltAnzeigen(ordnerNode);
 							}
 							if (teile[0].equals("Datei")) {
-								Datei datei = betriebssystem.getDateisystem().getDatei(aktuellerOrdner, teile[1]);
+								FiliusFile datei = aktuellerOrdner.getFiliusFile(teile[1]);
 								tfDateiname.setText(datei.getName());
 							}
 
@@ -216,11 +218,11 @@ public class DMTNFileChooser implements I18n {
 		return rueckgabe;
 	}
 
-	public DefaultMutableTreeNode getAktuellerOrdner() {
+	public FiliusFileNode getAktuellerOrdner() {
 		return aktuellerOrdner;
 	}
 
-	public void setAktuellerOrdner(DefaultMutableTreeNode aktuellerOrdner) {
+	public void setAktuellerOrdner(FiliusFileNode aktuellerOrdner) {
 		this.aktuellerOrdner = aktuellerOrdner;
 	}
 
@@ -240,8 +242,8 @@ public class DMTNFileChooser implements I18n {
 		lVerzeichnisse.setCellRenderer(new OrdnerInhaltListRenderer());
 		for (Enumeration e = node.children(); e.hasMoreElements();) {
 			DefaultMutableTreeNode enode = (DefaultMutableTreeNode) e.nextElement();
-			if (enode.getUserObject().getClass().equals(Datei.class)) {
-				Datei dat = (Datei) enode.getUserObject();
+			if (enode.getUserObject().getClass().equals(FiliusFile.class)) {
+				FiliusFile dat = (FiliusFile) enode.getUserObject();
 				lm.addElement("Datei;" + dat.getName());
 			} else {
 				lm.addElement("Ordner;" + enode.toString());

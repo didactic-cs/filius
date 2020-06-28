@@ -46,7 +46,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import filius.Main;
-import filius.hardware.knoten.Knoten;
+import filius.hardware.knoten.Node;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -126,7 +126,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
             getCellEditor().stopCellEditing();
 
         tableData = ((DefaultTableModel) getModel()).getDataVector();
-        tabelle = ((InternetKnotenBetriebssystem) ((Knoten) konfig.holeHardware()).getSystemSoftware())
+        tabelle = ((InternetKnotenBetriebssystem) ((Node) konfig.getHardware()).getSystemSoftware())
                 .getWeiterleitungstabelle();
         tabelle.reset();
         for (int i = 0; i < tableData.size(); i++) {
@@ -255,7 +255,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
         Vector<String[]> tmpData;
 
         /* Weiterleitungstabelle aktualisieren */
-        tabelle = ((InternetKnotenBetriebssystem) ((Knoten) konfig.holeHardware()).getSystemSoftware())
+        tabelle = ((InternetKnotenBetriebssystem) ((Node) konfig.getHardware()).getSystemSoftware())
                 .getWeiterleitungstabelle();
         routingTabelle = tabelle.holeTabelle();
 

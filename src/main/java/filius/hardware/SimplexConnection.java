@@ -28,32 +28,32 @@ package filius.hardware;
 import filius.Main;
 import filius.software.netzzugangsschicht.EthernetFrame;
 
-public class SimplexVerbindung implements Runnable {
+public class SimplexConnection implements Runnable {
 
     private boolean threadRunning = true;
-    private Verbindung verbindung = null;
-    private Port anschluss1 = null;
-    private Port anschluss2 = null;
+    private Connection connection = null;
+    private Port port1 = null;
+    private Port port2 = null;
 
     /**
      * @author carsten
-     * @param sender
+     * @param port1
      *            - Sender der einseitigen Verbindung
-     * @param empfaenger
+     * @param port2
      *            - Empfaenger der einseitigen Verbindung
-     * @param verbindung
+     * @param connection
      *            - Verbindung, auf der die einseitige Kommunikation gestartet wird
      * 
      *            Dieser Konstruktor wird innerhalb der Verbindung aufgerufen und in einem Thread gestartet. Davon gibt
      *            es zwei Verbindungen, die die bidirektionale Verbindung zwischen den beiden Hardwares herstellt.
      */
-    public SimplexVerbindung(Port anschluss1, Port anschluss2, Verbindung verbindung) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (SimplexVerbindung), constr: SimplexVerbindung(" + anschluss1 + "," + anschluss2 + "," + verbindung
-                + ")");
-        this.anschluss1 = anschluss1;
-        this.anschluss2 = anschluss2;
-        this.verbindung = verbindung;
+    public SimplexConnection(Port port1, Port port2, Connection connection) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
+                           " (SimplexConnection), constr: SimplexConnection(" + port1 + "," + port2 + "," + connection + ")");
+        
+        this.port1 = port1;
+        this.port2 = port2;
+        this.connection = connection;
     }
 
     /**
@@ -61,33 +61,34 @@ public class SimplexVerbindung implements Runnable {
      *         Verbindung in beide Richtungen
      */
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), run()");
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexConnection), run()");
+        
         EthernetFrame frame;
 
         while (threadRunning) {
-            synchronized (anschluss1.holeAusgangsPuffer()) {
-                if (anschluss1.holeAusgangsPuffer().size() < 1) {
+            synchronized (port1.getOutputBuffer()) {
+                if (port1.getOutputBuffer().size() < 1) {
                     try {
-                        // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run:   set wait()");
-                        verbindung.setAktiv(false);
-                        anschluss1.holeAusgangsPuffer().wait();
+                        // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexConnection, run:   set wait()");
+                        connection.setActive(false);
+                        port1.getOutputBuffer().wait();
                     } catch (InterruptedException e) {}
                 }
-                if (anschluss1.holeAusgangsPuffer().size() > 0) {
-                    // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run:   set wait()");
-                    verbindung.setAktiv(true);
-                    frame = (EthernetFrame) anschluss1.holeAusgangsPuffer().getFirst();
-                    anschluss1.holeAusgangsPuffer().remove(frame);
+                if (port1.getOutputBuffer().size() > 0) {
+                    // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexConnection, run:   set wait()");
+                    connection.setActive(true);
+                    frame = (EthernetFrame) port1.getOutputBuffer().getFirst();
+                    port1.getOutputBuffer().remove(frame);
 
                     synchronized (this) {
                         try {
-                            Thread.sleep(Verbindung.holeVerzoegerung());
+                            Thread.sleep(Connection.getDelay());
                         } catch (InterruptedException e) {}
                     }
 
-                    synchronized (anschluss2.holeEingangsPuffer()) {
-                        anschluss2.holeEingangsPuffer().add(frame);
-                        anschluss2.holeEingangsPuffer().notify();
+                    synchronized (port2.getInputBuffer()) {
+                        port2.getInputBuffer().add(frame);
+                        port2.getInputBuffer().notify();
                     }
                 }
             }
@@ -95,35 +96,35 @@ public class SimplexVerbindung implements Runnable {
     }
 
     public Port getPort1() {
-        return anschluss1;
+        return port1;
     }
 
-    public void setPort1(Port anschluss1) {
-        this.anschluss1 = anschluss1;
+    public void setPort1(Port port1) {
+        this.port1 = port1;
     }
 
     public Port getPort2() {
-        return anschluss2;
+        return port2;
     }
 
-    public void setPort2(Port anschluss2) {
-        this.anschluss2 = anschluss2;
+    public void setPort2(Port port2) {
+        this.port2 = port2;
     }
 
-    public void anschluesseTrennen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (SimplexVerbindung), anschluesseTrennen()");
-        anschluss1.entferneVerbindung();
-        anschluss2.entferneVerbindung();
+    public void disconnectPorts() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
+                           " (SimplexConnection), disconnectPorts()");
+        port1.removeConnection();
+        port2.removeConnection();
         this.setThreadRunning(false);
     }
 
-    public Verbindung getVerbindung() {
-        return verbindung;
+    public Connection getConnection() {
+        return connection;
     }
 
-    public void setVerbindung(Verbindung verbindung) {
-        this.verbindung = verbindung;
+    public void setConnection(Connection connection) {
+        this.connection = connection;
     }
 
     public boolean isThreadRunning() {

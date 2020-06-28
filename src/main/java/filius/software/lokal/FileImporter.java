@@ -37,7 +37,8 @@ import filius.Main;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
 import filius.software.Anwendung;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 
 /**
  * Diese Klasse stellt Funktionen bereit um reale Dateien auf Rechnerrechner der
@@ -75,35 +76,35 @@ public class FileImporter extends Anwendung implements I18n {
 	 * @param dateiname
 	 * @return
 	 */
-	public String addFile(String pfadname, String dateiname, DefaultMutableTreeNode ordner, String neuerName) {
+	public String addFile(String pfadname, String dateiname, FiliusFileNode ordner, String neuerName) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FileImporter), addFile(" + pfadname + "," + dateiname + "," + ordner + "," + neuerName + ")");
-		Datei tempDatei;
+		FiliusFile tempDatei;
 		String dateityp;
 
 		String ergebnis = messages.getString("sw_fileimporter_msg1");
 		// Main.debug.println("#################################################");
 
 		try {
-			if (ordner.getUserObject().getClass().equals(Datei.class)) {
+			if (ordner.getUserObject().getClass().equals(FiliusFile.class)) {
 				// Main.debug
 				// .println("Es können Keine Dateien in Dateien angeleget werden!");
 			} else {
 				if (dateiname.equals("")) {
 					dateityp = this.getFileType(dateiname);
-					tempDatei = new Datei("noName", this.getFileType(dateiname), Base64.encodeFromFile(pfadname
+					tempDatei = new FiliusFile("noName", this.getFileType(dateiname), Base64.encodeFromFile(pfadname
 					        + dateiname));
 					if (dateityp.equals("text")) {
 						tempDatei.setContent(Base64.decodeToObject(tempDatei.getContent()).toString());
 					}
-					getSystemSoftware().getDateisystem().saveDatei(ordner, tempDatei);
+					ordner.saveFiliusFile(tempDatei);
 				} else {
 					dateityp = this.getFileType(dateiname);
-					tempDatei = new Datei(dateiname, dateityp, Base64.encodeFromFile(pfadname + dateiname));
+					tempDatei = new FiliusFile(dateiname, dateityp, Base64.encodeFromFile(pfadname + dateiname));
 					if (dateityp.equals("text")) {
 						tempDatei.setContent(Base64.decodeToObject(tempDatei.getContent()).toString());
 					}
-					getSystemSoftware().getDateisystem().saveDatei(ordner, tempDatei);
+					ordner.saveFiliusFile(tempDatei);
 				}
 				ergebnis = messages.getString("sw_fileimporter_msg2") + "\n\t" + pfadname + dateiname;
 			}

@@ -26,7 +26,7 @@
 package filius.software.dateiaustausch;
 
 import filius.Main;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
 import filius.software.transportschicht.TCPSocket;
 import filius.software.www.HTTPNachricht;
 
@@ -148,7 +148,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
         HTTPNachricht http, abfrage;
         QueryHitPaket queryHitPaket;
         PongPaket pongPaket;
-        Datei datei;
+        FiliusFile datei;
 
         try {
             socket = new TCPSocket(this.peerToPeerAnwendung.getSystemSoftware(), ip, 6346);
@@ -160,7 +160,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
 
                 if (http.getStatusCode() == 200) {
                     abfrage = new HTTPNachricht(nachricht);
-                    datei = new Datei();
+                    datei = new FiliusFile();
                     datei.setType(http.getContentType());
                     datei.setName(abfrage.getPfad());
                     datei.setContent(http.getDaten());

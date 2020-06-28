@@ -41,7 +41,7 @@ import org.htmlparser.tags.ImageTag;
 import org.htmlparser.visitors.TagFindingVisitor;
 
 import filius.Main;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
@@ -134,7 +134,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                 try {
                     socket = new TCPSocket(getSystemSoftware(), host, 80);
                     aktuellerSocket = socket;
-                } catch (VerbindungsException e) {
+                } catch (ConnectionException e) {
                     if (zustand == ABRUF_HTML) {
                         fehler = new HTTPNachricht(HTTPNachricht.CLIENT);
                         fehler.setDaten(erzeugeHtmlFehlermeldung(0));
@@ -208,7 +208,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
             quelltext = messages.getString("sw_webbrowser_msg1");
         } else {
             dateipfad = ResourceUtil.getResourcePath(
-                    "tmpl/http_fehler_" + Information.getInformation().getLocale().toString() + ".txt");
+                    "tmpl/http_fehler_" + Information.getInstance().getLocale().toString() + ".txt");
             try {
                 quelltext = einlesenTextdatei(dateipfad);
             } catch (Exception e) {
@@ -321,7 +321,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                         if (bilddateien.size() > 0) {
                             dateipfad = bilddateien.removeFirst();
                             Base64.decodeToFile(antwort.getDaten(),
-                                    Information.getInformation().getTempPfad() + dateipfad);
+                                    Information.getInstance().getTempPfad() + dateipfad);
                         }
                     }
                     antwort = null;

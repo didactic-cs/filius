@@ -27,65 +27,65 @@ package filius.gui.netzwerksicht;
 
 import java.io.Serializable;
 
-import filius.hardware.Kabel;
+import filius.hardware.Cable;
 
 /**
  * 
  * Die Klasse GUIKabelItem ist die Verbindung von Grafikdarstellung und "realem"
- * Kabel. Sie enthält Jeweils ein JCablePanel und ein Kabel. Dazu stellt es die
+ * Kabel. Sie enthält Jeweils ein JCablePanel und ein Cabel. Dazu stellt es die
  * getter und setter Methoden bereit.
  * 
  * @author Thomas Gerding & Johannes Bade
  * 
  */
+@SuppressWarnings("serial")
 public class GUIKabelItem implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-	private JCablePanel kabelpanel;
-	private Kabel dasKabel;
+	
+	private Cable cable;
+	private JCablePanel cablePanel;	
 
 	public GUIKabelItem() {
-		kabelpanel = new JCablePanel();
+		cablePanel = new JCablePanel();
 	}
 
-	public Kabel getDasKabel() {
+	public Cable getCable() {
 
-		return dasKabel;
+		return cable;
 	}
 
-	public void setDasKabel(Kabel dasKabel) {
-		this.dasKabel = dasKabel;
-		dasKabel.addObserver(kabelpanel);
+	public void setCable(Cable cable) {
+		this.cable = cable;
+		cable.addObserver(cablePanel);
 	}
 
-	public JCablePanel getKabelpanel() {
-		return kabelpanel;
+	public JCablePanel getCablePanel() {
+		return cablePanel;
 	}
 
-	public void setKabelpanel(JCablePanel kabelpanel) {
-		this.kabelpanel = kabelpanel;
-	}
+	public void setCablePanel(JCablePanel panel) {
+		this.cablePanel = panel;
+	}	
 
 	public String toString() {
 		String result = "[";
-		if (dasKabel != null)
-			result += "dasKabel (id)=" + dasKabel.hashCode() + ", ";
+		if (cable != null)
+			result += "dasKabel (id)=" + cable.hashCode() + ", ";
 		else
 			result += "dasKabel=<null>, ";
-		if (kabelpanel != null) {
-			result += "kabelpanel (id)=" + kabelpanel.hashCode() + ", ";
-			if (kabelpanel.getZiel1() != null) {
-				result += "kabelpanel.ziel1 (id)" + kabelpanel.getZiel1().hashCode() + ", ";
-				if (kabelpanel.getZiel1().getKnoten() != null)
-					result += "kabelpanel.ziel1.knoten (name)" + kabelpanel.getZiel1().getKnoten().holeAnzeigeName() + ", ";
+		if (cablePanel != null) {
+			result += "kabelpanel (id)=" + cablePanel.hashCode() + ", ";
+			if (cablePanel.getZiel1() != null) {
+				result += "kabelpanel.ziel1 (id)" + cablePanel.getZiel1().hashCode() + ", ";
+				if (cablePanel.getZiel1().getNode() != null)
+					result += "kabelpanel.ziel1.knoten (name)" + cablePanel.getZiel1().getNode().getDisplayName() + ", ";
 				else
 					result += "kabelpanel.ziel1.knoten=<null>, ";
 			} else
 				result += "kabelpanel.ziel1=<null>, ";
-			if (kabelpanel.getZiel2() != null) {
-				result += "kabelpanel.ziel2 (id)" + kabelpanel.getZiel2().hashCode() + ", ";
-				if (kabelpanel.getZiel2().getKnoten() != null)
-					result += "kabelpanel.ziel2.knoten (name)" + kabelpanel.getZiel2().getKnoten().holeAnzeigeName() + ", ";
+			if (cablePanel.getZiel2() != null) {
+				result += "kabelpanel.ziel2 (id)" + cablePanel.getZiel2().hashCode() + ", ";
+				if (cablePanel.getZiel2().getNode() != null)
+					result += "kabelpanel.ziel2.knoten (name)" + cablePanel.getZiel2().getNode().getDisplayName() + ", ";
 				else
 					result += "kabelpanel.ziel2.knoten=<null>, ";
 			}

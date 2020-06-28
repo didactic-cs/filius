@@ -246,7 +246,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         pack();
 
         inputField.requestFocus();
-        this.inputLabel.setText(FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+        //this.inputLabel.setText(FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+        this.inputLabel.setText(((Terminal) holeAnwendung()).getAktuellerOrdner().toPath() + "> ");
     }
 
     public void setMultipleObserverEvents(boolean flag) {}
@@ -319,8 +320,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                 this.tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
                 this.tpPane.repaint();
                 if (!multipleObserverEvents) {
-                    this.inputLabel.setText(
-                            FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+                    //this.inputLabel.setText(FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");   
+                    this.inputLabel.setText(((Terminal) holeAnwendung()).getAktuellerOrdner().toPath() + "> ");
                     this.inputLabel.setVisible(true);
                     jobRunning = false;
                 }

@@ -32,26 +32,32 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.QuadCurve2D;
-import java.awt.geom.Rectangle2D;
+import java.beans.Transient;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JPanel;
 
 import filius.Main;
+import filius.gui.GUIContainer;
+import filius.gui.GUIMainMenu;
 
 /**
  * 
  * @author Johannes Bade
  */
+@SuppressWarnings("serial")
 public class JCablePanel extends JPanel implements Observer {
-    private static final long serialVersionUID = 1L;
+	    
     private GUIKnotenItem ziel1, ziel2;
+    private int xZiel1, yZiel1, xZiel2, yZiel2;
+    private boolean flip;
 
-    private QuadCurve2D currCurve = null;
     private Color kabelFarbe = new Color(64, 64, 64);
     private final Color farbeStandard = new Color(64, 64, 64);
     private final Color farbeBlinken = new Color(0, 255, 64);
+    private final Color farbeAktiv = new Color(0, 128, 255);
+    private boolean active = false;  // Can only be true in design mode (See also Hardware.active. Perhaps redundant. To fix after removing the observers)
 
     public JCablePanel() {
         super();
@@ -60,21 +66,17 @@ public class JCablePanel extends JPanel implements Observer {
     }
 
     public void updateBounds() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");
-        int x1, x2, y1, y2, t1;
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");        
 
-        // Theoretisch korrekte Positionen
-        x1 = (int) (ziel1.getImageLabel().getX());
-        x2 = (int) (ziel2.getImageLabel().getX());
-        y1 = (int) (ziel1.getImageLabel().getY());
-        y2 = (int) (ziel2.getImageLabel().getY());
-
-        x1 = (int) (x1 + (0.5 * ziel1.getImageLabel().getWidth()));
-        y1 = (int) (y1 + (0.5 * ziel1.getImageLabel().getHeight()));
-        x2 = (int) (x2 + (0.5 * ziel2.getImageLabel().getWidth()));
-        y2 = (int) (y2 + (0.5 * ziel2.getImageLabel().getHeight()));
+        // Theoretisch korrekte Positionen        
+        int x1 = (int) (ziel1.getNodeLabel().getX() + (0.5 * ziel1.getNodeLabel().getWidth()));
+        int y1 = (int) (ziel1.getNodeLabel().getY() + (0.5 * ziel1.getNodeLabel().getHeight()));
+        int x2 = (int) (ziel2.getNodeLabel().getX() + (0.5 * ziel2.getNodeLabel().getWidth()));
+        int y2 = (int) (ziel2.getNodeLabel().getY() + (0.5 * ziel2.getNodeLabel().getHeight()));
 
         // Absolut korrekte Positionen (also Sidebar und Menu rausgerechnet)
+        int t1;
+        
         if (x1 > x2) {
             t1 = x1;
             x1 = x2;
@@ -86,60 +88,86 @@ public class JCablePanel extends JPanel implements Observer {
             y2 = t1;
         }
 
-        // add 2 for each direction to take care of linewidth
+        // Add 2 for each direction to take care of linewidth
         setBounds(x1 - 2, y1 - 2, x2 - x1 + 4, y2 - y1 + 4);
-        Main.debug.println("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2
-                + "  (W:" + (x2 - x1) + ", H:" + (y2 - y1) + ")");
+        
+        // Keep coordinates
+        xZiel1 = (int) (ziel1.getNodeLabel().getX() + (0.5 * ziel1.getNodeLabel().getWidth()));
+        yZiel1 = (int) (ziel1.getNodeLabel().getY() + (0.5 * ziel1.getNodeLabel().getHeight()));
+        xZiel2 = (int) (ziel2.getNodeLabel().getX() + (0.5 * ziel2.getNodeLabel().getWidth()));
+        yZiel2 = (int) (ziel2.getNodeLabel().getY() + (0.5 * ziel2.getNodeLabel().getHeight()));   
+        
+        Main.debug.println("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2 +
+                                         "  (W:" + (x2 - x1) + ", H:" + (y2 - y1) + ")");
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int x1, x2, y1, y2;
+        // Coordinates of the extremities of the curve relative to the panel         
+        int x1 = xZiel1 - this.getX();
+        int y1 = yZiel1 - this.getY();
+        int x2 = xZiel2 - this.getX();
+        int y2 = yZiel2 - this.getY();  
+        
+        // Coordinates of the control point
+        int xCP = (x1 + x2) / 4;
+        int yCP = (y1 + y2) / 4;
+        
+        // Fix X value of control point so that the curvature is oriented upward
+        flip = ((x1 < x2 && y1 < y2) || (x2 < x1 && y2 < y1));
+        
+        if (flip) xCP = 3 * xCP;      
 
-        // Theoretisch korrekte Positionen
-        x1 = (int) (ziel1.getImageLabel().getX() + (0.5 * ziel1.getImageLabel().getWidth()));
-        x2 = (int) (ziel2.getImageLabel().getX() + (0.5 * ziel2.getImageLabel().getWidth()));
-        y1 = (int) (ziel1.getImageLabel().getY() + (0.5 * ziel1.getImageLabel().getHeight()));
-        y2 = (int) (ziel2.getImageLabel().getY() + (0.5 * ziel2.getImageLabel().getHeight()));
-
-        /* Einfaches Zeichnen */
-        g.setColor(kabelFarbe);
+        // QuadCurve2D is a quadratic parametric curve with a single control point
+        QuadCurve2D curve = new QuadCurve2D.Double(x1, y1, xCP, yCP, x2, y2);
+        
+        // Draw the curve
         Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(kabelFarbe);
         g2.setStroke(new BasicStroke(2));
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        int kp1 = (x1 - this.getX() + x2 - this.getX()) / 4;
-        if ((x1 > x2 && y1 > y2) || (x1 < x2 && y1 < y2))
-            kp1 = 3 * kp1; // correct X value of control point for falling
-                           // lines (upper left to lower right corner)
-        int kp2 = (y1 - this.getY() + y2 - this.getY()) / 4;
-
-        QuadCurve2D myCurve = new QuadCurve2D.Double(x1 - this.getX(), y1 - this.getY(), kp1, kp2, x2 - this.getX(), y2
-                - this.getY());
-
-        // Kurve malen
-        g2.draw(myCurve);
-        this.currCurve = myCurve;
-        this.setOpaque(false);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);   
+        g2.draw(curve);
     }
 
     /*
-     * Method to examine whether the mouse was clicked close to a line representing a cable in filius. ATTENTION: There
-     * are several workarounds necessary to cope with Java's strange boundary handling. Thus, the actual bounds are
-     * tested prior to actually use them for determining a point to be inside a bound of a curve or line, respectively.
+     * Method to examine whether the mouse was clicked close to a curve representing a cable
+     * 
      */
     public boolean clicked(int x, int y) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), clicked(" + x + "," + y
-                + ")");
-        int delta = 10;
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), clicked(" + x + "," + y + ")");
+        
+        // Maximum vertical and horizontal allowed distance from the curve
+        int delta = 6;
+        
+        // Use coordinates relative to the top left of the panel 
+        int relX = x - this.getX();
+        int relY = y - this.getY();
+        
+        // First check that the click was close to the panel containing the curve
+        boolean hitPanel = (- delta <= relX) && (relX <= getWidth() + delta) && (- delta <= relY) && (relY <= getHeight() + delta);
+        
+        // If not, there is no need for further computation
+        if (! hitPanel) return false;
+                
+        // Use symmetry to reduce to the case where the curve is increasing (from bottom left to top right).    
+        if (flip) relX = this.getWidth() - relX;       
+                
+        // When normalized on [0,1]x[0,1], the curve has the folowing parametric equation:
+        // x(t) = 0.5(1-t)(2-t)  y(t) = 0.5t(1+t) with t in [0,1]
+        
+        // Check vertical distance between clicked point and curve
+        double t = 0.5*(3 - Math.sqrt(1+8*((double)relX)/getWidth()));
+        double yc = 0.5*t*(1+t)*getHeight();
+        if (Math.abs(relY - yc) <= delta) return true;
 
-        Rectangle2D absolutePointerRect = new Rectangle2D.Double(x - delta, y - delta, 2 * delta, 2 * delta);
-        boolean hitPanel = getBounds().intersects(absolutePointerRect);
-        Rectangle2D relativePointerRect = new Rectangle2D.Double(x - getX() - delta, y - getY() - delta, 2 * delta,
-                2 * delta);
-        boolean hitCurve = currCurve.intersects(relativePointerRect);
-        return hitCurve && hitPanel;
+        // Check horizontal distance between clicked point and curve
+        t = 0.5*(-1 + Math.sqrt(1+8*((double)relY)/getHeight()));
+        double xc = 0.5*(1-t)*(2-t)*getWidth();
+        if (Math.abs(relX - xc) <= delta) return true;
+        
+        // The point is considered to be too far from the curve
+        return false;
     }
 
     public GUIKnotenItem getZiel1() {
@@ -158,23 +186,43 @@ public class JCablePanel extends JPanel implements Observer {
         this.ziel2 = ziel2;
         updateBounds();
     }
+        
+    @Transient
+    public boolean getActive() {
+        return active;
+    }
+
+    @Transient
+    public void setActive(boolean active) {
+        this.active = active;
+        if (active) kabelFarbe = farbeAktiv;     // blau
+        else        kabelFarbe = farbeStandard;  // dunkelgrau
+
+        updateUI();
+    }
 
     /**
      * @author Johannes Bade
      * 
-     *         Wird genutzt um Kabel blinken zu lassen :)
+     *         Wird genutzt um Kabel blinken zu lassen 
+     *         und auch bei der Konfiguration eines Vermittlungsrechnersanschluss 
      */
     public void update(Observable o, Object arg) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), update(" + o + ","
                 + arg + ")");
 
         if (arg.equals(Boolean.TRUE)) {
-            kabelFarbe = farbeBlinken;
-            this.setLocation(this.getX() - 1, this.getY());
-            this.setLocation(this.getX() + 1, this.getY());
+            if (GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_ENTWURF) {
+            	kabelFarbe = farbeAktiv;   // blau
+            }
+            else  {
+            	kabelFarbe = farbeBlinken; // grün
+            }
+            this.setLocation(this.getX() - 1, this.getY());  // What's the point 
+            this.setLocation(this.getX() + 1, this.getY());  // of these two lines ? 
 
         } else {
-            kabelFarbe = farbeStandard;
+            kabelFarbe = farbeStandard;    // dunkelgrau
         }
 
         updateUI();

@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.rahmenprogramm.I18n;
 import filius.software.vermittlungsschicht.VermittlungsProtokoll;
 
@@ -123,7 +123,7 @@ public class FirewallRule implements I18n {
 	public String toString() {
 		return toString(null);
 	}
-	public String toString(List<NetzwerkInterface> nics) {
+	public String toString(List<NetworkInterface> nics) {
 		String ip = null;
 		String mask = null;
 		String result = "";
@@ -131,7 +131,7 @@ public class FirewallRule implements I18n {
 		
 		if(nics != null) {
 			ip = nics.get(0).getIp();
-			mask = nics.get(0).getSubnetzMaske();
+			mask = nics.get(0).getSubnetMask();
 			if(srcIP.equals(FirewallRule.SAME_NETWORK) && ip != null && mask != null)
 				sameNet = true;
 		}

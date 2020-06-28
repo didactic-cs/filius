@@ -51,7 +51,7 @@ public class ModemSender extends ProtokollThread {
 	 * der Oberklasse weitergibt und die Firmware und Socket initialisiert.
 	 */
 	public ModemSender(ModemFirmware firmware, OutputStream out) {
-		super(((Modem) firmware.getKnoten()).getErstenAnschluss().holeEingangsPuffer());
+		super(((Modem) firmware.getKnoten()).getPort().getInputBuffer());
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (ModemAnschlussBeobachterIntern), constr: ModemAnschlussBeobachterIntern(" + firmware + "," + out
 		        + ")");

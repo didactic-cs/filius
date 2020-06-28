@@ -26,7 +26,7 @@
 package filius.software.clientserver;
 
 import filius.Main;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.rahmenprogramm.I18n;
 import filius.software.transportschicht.Socket;
 
@@ -112,7 +112,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
                                     + socket.holeZielPort() + " " + messages.getString("sw_servermitarbeiter_msg2"));
                 }
                 nachricht = null;
-            } catch (VerbindungsException e) {
+            } catch (ConnectionException e) {
                 e.printStackTrace(Main.debug);
                 server.benachrichtigeBeobachter(e.getMessage());
                 socket.beenden();

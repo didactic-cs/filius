@@ -44,7 +44,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.Host;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
@@ -75,7 +75,7 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 	public GUINetworkWindow(final GUIDesktopPanel dp) {
 		super();
 
-		NetzwerkInterface nic;
+		NetworkInterface nic;
 
 		this.dp = dp;
 
@@ -98,7 +98,7 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		macLabel.setPreferredSize(new Dimension(100, 15));
 
 		bs = this.dp.getBetriebssystem();
-		nic = (NetzwerkInterface) ((Host) bs.getKnoten()).getNetzwerkInterfaces().get(0);
+		nic = (NetworkInterface) ((Host) bs.getKnoten()).getNIlist().get(0);
 
 		ipField = new JTextField(nic.getIp());
 		ipField.setEditable(false);
@@ -130,7 +130,7 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 			}
 
 		});
-		netmaskField = new JTextField(nic.getSubnetzMaske());
+		netmaskField = new JTextField(nic.getSubnetMask());
 		netmaskField.setEditable(false);
 		netmaskField.setSize(new Dimension(100, 15));
 		netmaskField.setPreferredSize(new Dimension(100, 15));
@@ -275,12 +275,12 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		if (b) {
 			// bring data up-to-date:
 			bs = this.dp.getBetriebssystem();
-			NetzwerkInterface nic = (NetzwerkInterface) ((Host) bs.getKnoten()).getNetzwerkInterfaces().get(0);
+			NetworkInterface nic = (NetworkInterface) ((Host) bs.getKnoten()).getNIlist().get(0);
 
 			ipField.setText(nic.getIp());
 			dnsField.setText(bs.getDNSServer());
 			gatewayField.setText(bs.getStandardGateway());
-			netmaskField.setText(nic.getSubnetzMaske());
+			netmaskField.setText(nic.getSubnetMask());
 		}
 		super.setVisible(b);
 	}

@@ -26,10 +26,10 @@
 package filius.hardware.knoten;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.software.system.Betriebssystem;
 
-public abstract class Host extends InternetKnoten {
+public abstract class Host extends InternetNode {
 
 	private boolean useIPAsName = false;
 
@@ -45,16 +45,16 @@ public abstract class Host extends InternetKnoten {
 		super();
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Host), constr: Host()");
 
-		this.setzeAnzahlAnschluesse(1);
+		this.createNIlist(1);
 		this.setSystemSoftware(new Betriebssystem());
 		getSystemSoftware().setKnoten(this);
 		Main.debug.println("DEBUG:  Host " + this.hashCode() + " has OS " + getSystemSoftware().hashCode());
 	}
 
 	@Override
-	public String holeAnzeigeName() {
+	public String getDisplayName() {
 		if (useIPAsName) {
-			return getNetzwerkInterfaces().get(0).getIp();
+			return getNIlist().get(0).getIp();
 		} else {
 			return getName();
 		}
@@ -62,12 +62,12 @@ public abstract class Host extends InternetKnoten {
 
 	public void setIpAdresse(String ip) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Host), setIpAdresse(" + ip + ")");
-		NetzwerkInterface nic = (NetzwerkInterface) this.getNetzwerkInterfaces().get(0);
+		NetworkInterface nic = (NetworkInterface) this.getNIlist().get(0);
 		nic.setIp(ip);
 	}
 	
 	public String getMac() {	
-		NetzwerkInterface nic = (NetzwerkInterface) this.getNetzwerkInterfaces().get(0);
+		NetworkInterface nic = (NetworkInterface) this.getNIlist().get(0);
 		return nic.getMac(); 
 	}
 }

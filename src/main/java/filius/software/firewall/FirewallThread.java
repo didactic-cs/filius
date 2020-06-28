@@ -28,7 +28,7 @@ package filius.software.firewall;
 import java.util.LinkedList;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.rahmenprogramm.I18n;
 import filius.software.ProtokollThread;
 import filius.software.netzzugangsschicht.EthernetFrame;
@@ -45,13 +45,13 @@ public class FirewallThread extends ProtokollThread implements I18n {
 
 	private LinkedList<EthernetFrame> ausgangsPuffer;
 	private Firewall firewall;
-	private NetzwerkInterface netzwerkInterface = null;
+	private NetworkInterface netzwerkInterface = null;
 
-	public NetzwerkInterface getNetzwerkInterface() {
+	public NetworkInterface getNetzwerkInterface() {
 		return netzwerkInterface;
 	}
 
-	public FirewallThread(Firewall firewall, NetzwerkInterface nic) {
+	public FirewallThread(Firewall firewall, NetworkInterface nic) {
 		super(new LinkedList<EthernetFrame>());
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FirewallThread), constr: FirewallThread(" + firewall + ")");
@@ -70,16 +70,16 @@ public class FirewallThread extends ProtokollThread implements I18n {
 
 		super.starten();
 
-		this.ausgangsPuffer = netzwerkInterface.getPort().holeEingangsPuffer();
+		this.ausgangsPuffer = netzwerkInterface.getPort().getInputBuffer();
 		eingangsPuffer = (LinkedList<EthernetFrame>) holeEingangsPuffer();
-		netzwerkInterface.getPort().setzeEingangsPuffer(eingangsPuffer);
+		netzwerkInterface.getPort().setInputBuffer(eingangsPuffer);
 
 	}
 
 	public void beenden() {
 		super.beenden();
 
-		netzwerkInterface.getPort().setzeEingangsPuffer(this.ausgangsPuffer);
+		netzwerkInterface.getPort().setInputBuffer(this.ausgangsPuffer);
 	}
 
 	// getter und setter:

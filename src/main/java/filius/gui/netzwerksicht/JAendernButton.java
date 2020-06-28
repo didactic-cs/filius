@@ -44,7 +44,7 @@ public class JAendernButton extends JButton {
 			public void mousePressed(MouseEvent e) {
 
 				((JAendernButton) e.getSource()).getJKonfiguration().aenderungenAnnehmen();
-				GUIContainer.getGUIContainer().updateViewport();
+				GUIContainer.getInstance().updateViewport();
 			}
 		});
 	}

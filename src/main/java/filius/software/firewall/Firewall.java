@@ -32,8 +32,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.Anwendung;
@@ -107,13 +107,13 @@ public class Firewall extends Anwendung implements I18n {
                     + " (Firewall), starten()");
             super.starten();
 
-            for (NetzwerkInterface nic : this.holeNetzwerkInterfaces()) {
+            for (NetworkInterface nic : this.holeNetzwerkInterfaces()) {
                 this.starteFirewallThread(nic);
             }
         }
     }
 
-    private void starteFirewallThread(NetzwerkInterface nic) {
+    private void starteFirewallThread(NetworkInterface nic) {
         FirewallThread thread = new FirewallThread(this, nic);
         thread.starten();
         this.threads.add(thread);
@@ -130,7 +130,7 @@ public class Firewall extends Anwendung implements I18n {
         this.beendeFirewallThread(null);
     }
 
-    private void beendeFirewallThread(NetzwerkInterface nic) {
+    private void beendeFirewallThread(NetworkInterface nic) {
         for (FirewallThread thread : this.threads) {
             if (nic == null) {
                 thread.beenden();
@@ -167,13 +167,13 @@ public class Firewall extends Anwendung implements I18n {
                 ruleMatch = true;
                 if (!ruleset.get(i).srcIP.isEmpty()) {
                     if (ruleset.get(i).srcIP.equals(FirewallRule.SAME_NETWORK)) {
-                        ListIterator<NetzwerkInterface> it = ((InternetKnoten) getSystemSoftware().getKnoten())
-                                .getNetzwerkInterfaces().listIterator();
+                        ListIterator<NetworkInterface> it = ((InternetNode) getSystemSoftware().getKnoten())
+                                .getNIlist().listIterator();
                         boolean foundNIC = false;
                         while (it.hasNext() && !foundNIC) {
-                            NetzwerkInterface iface = it.next();
+                            NetworkInterface iface = it.next();
                             if (VermittlungsProtokoll.gleichesRechnernetz(ipPacket.getSender(), iface.getIp(),
-                                    iface.getSubnetzMaske())) {
+                                    iface.getSubnetMask())) {
                                 foundNIC = true; // found NIC with IP address of
                                                  // same network
                             }
@@ -494,22 +494,22 @@ public class Firewall extends Anwendung implements I18n {
         return modus;
     }
 
-    public void setzeNetzwerkInterfaces(LinkedList<NetzwerkInterface> netzwerkInterfaces) {
-        List<NetzwerkInterface> allNics = this.getAllNetworkInterfaces();
+    public void setzeNetzwerkInterfaces(LinkedList<NetworkInterface> netzwerkInterfaces) {
+        List<NetworkInterface> allNics = this.getAllNetworkInterfaces();
 
         this.inactiveNics.removeAllElements();
-        for (NetzwerkInterface nic : allNics) {
+        for (NetworkInterface nic : allNics) {
             if (netzwerkInterfaces.indexOf(nic) == -1) {
                 this.inactiveNics.add(new Integer(allNics.indexOf(nic)));
             }
         }
     }
 
-    public List<NetzwerkInterface> holeNetzwerkInterfaces() {
-        List<NetzwerkInterface> allNics = this.getAllNetworkInterfaces();
-        List<NetzwerkInterface> result = new LinkedList<NetzwerkInterface>();
+    public List<NetworkInterface> holeNetzwerkInterfaces() {
+        List<NetworkInterface> allNics = this.getAllNetworkInterfaces();
+        List<NetworkInterface> result = new LinkedList<NetworkInterface>();
 
-        for (NetzwerkInterface nic : allNics) {
+        for (NetworkInterface nic : allNics) {
             try {
                 if (!this.inactiveNics.contains(new Integer(allNics.indexOf(nic)))) {
                     result.add(nic);
@@ -519,13 +519,13 @@ public class Firewall extends Anwendung implements I18n {
         return result;
     }
 
-    private List<NetzwerkInterface> getAllNetworkInterfaces() {
-        InternetKnoten host = (InternetKnoten) this.getSystemSoftware().getKnoten();
+    private List<NetworkInterface> getAllNetworkInterfaces() {
+        InternetNode host = (InternetNode) this.getSystemSoftware().getKnoten();
 
-        return host.getNetzwerkInterfaces();
+        return host.getNIlist();
     }
 
-    public boolean hinzuNetzwerkInterface(NetzwerkInterface nic) {
+    public boolean hinzuNetzwerkInterface(NetworkInterface nic) {
         int idx = this.getAllNetworkInterfaces().indexOf(nic);
         if (this.inactiveNics.contains(new Integer(idx))) {
             this.inactiveNics.remove(new Integer(idx));
@@ -539,7 +539,7 @@ public class Firewall extends Anwendung implements I18n {
         }
     }
 
-    public boolean entferneNetzwerkInterface(NetzwerkInterface nic) {
+    public boolean entferneNetzwerkInterface(NetworkInterface nic) {
         int idx = this.getAllNetworkInterfaces().indexOf(nic);
         if (!this.inactiveNics.contains(new Integer(idx))) {
             this.inactiveNics.add(new Integer(idx));

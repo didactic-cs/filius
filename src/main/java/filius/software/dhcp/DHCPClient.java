@@ -41,10 +41,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import filius.Main;
 import filius.exception.NoValidDhcpResponseException;
 import filius.exception.TimeOutException;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.gui.GUIContainer;
 import filius.gui.netzwerksicht.GUIKnotenItem;
-import filius.hardware.Verbindung;
+import filius.hardware.Connection;
 import filius.hardware.knoten.Host;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.system.Betriebssystem;
@@ -84,7 +84,7 @@ public class DHCPClient extends ClientAnwendung {
                     if (dhcpServer.isAktiv() && !dhcpServer.isStarted()) {
                         activeDHCPserversStarted = false;
                         Main.debug.println("WARNING (" + this.hashCode() + "): DHCP server on '"
-                                + dhcpServer.getSystemSoftware().getKnoten().holeAnzeigeName()
+                                + dhcpServer.getSystemSoftware().getKnoten().getDisplayName()
                                 + "' has NOT been started --> waiting");
                         break;
                     } else {
@@ -102,8 +102,8 @@ public class DHCPClient extends ClientAnwendung {
     private List<DHCPServer> getDHCPServers() {
         SystemSoftware syssoft;
         List<DHCPServer> activeDHCPServers = new ArrayList<DHCPServer>();
-        for (GUIKnotenItem knotenItem : GUIContainer.getGUIContainer().getKnotenItems()) {
-            syssoft = knotenItem.getKnoten().getSystemSoftware();
+        for (GUIKnotenItem knotenItem : GUIContainer.getInstance().getKnotenItems()) {
+            syssoft = knotenItem.getNode().getSystemSoftware();
             if (syssoft instanceof Betriebssystem) {
                 if (((Betriebssystem) syssoft).getDHCPServer().isAktiv()) {
                     activeDHCPServers.add(((Betriebssystem) syssoft).getDHCPServer());
@@ -132,7 +132,7 @@ public class DHCPClient extends ClientAnwendung {
                     zustand = DISCOVER;
                     break;
                 case DISCOVER:
-                    config = discover(udpSocket, operatingSystem.holeMACAdresse(), Verbindung.holeRTT());
+                    config = discover(udpSocket, operatingSystem.holeMACAdresse(), Connection.getRTT());
                     zustand = VALIDATE;
                     break;
                 case VALIDATE:
@@ -140,12 +140,12 @@ public class DHCPClient extends ClientAnwendung {
                     zustand = validAddress ? REQUEST : DECLINE;
                     break;
                 case DECLINE:
-                    decline(udpSocket, operatingSystem.holeMACAdresse(), config, Verbindung.holeRTT());
+                    decline(udpSocket, operatingSystem.holeMACAdresse(), config, Connection.getRTT());
                     zustand = DISCOVER;
                     break;
                 case REQUEST:
                     boolean acknowledged = request(udpSocket, operatingSystem.holeMACAdresse(), config,
-                            Verbindung.holeRTT());
+                            Connection.getRTT());
                     zustand = acknowledged ? ASSIGN_IP : DISCOVER;
                     break;
                 case ASSIGN_IP:
@@ -156,7 +156,7 @@ public class DHCPClient extends ClientAnwendung {
                 default:
                     zustand = FINISH;
                 }
-            } catch (NoValidDhcpResponseException | TimeOutException | VerbindungsException e) {
+            } catch (NoValidDhcpResponseException | TimeOutException | ConnectionException e) {
                 fehlerzaehler++;
             }
         }
@@ -167,7 +167,7 @@ public class DHCPClient extends ClientAnwendung {
         udpSocket.schliessen();
 
         Host host = ((Host) getSystemSoftware().getKnoten());
-        host.benachrichtigeBeobachter();
+        host.notifyObserver();
         getSystemSoftware().benachrichtigeBeobacher(host);
     }
 
@@ -178,7 +178,7 @@ public class DHCPClient extends ClientAnwendung {
         return oldIpAddress;
     }
 
-    UDPSocket initUdpSocket() throws VerbindungsException {
+    UDPSocket initUdpSocket() throws ConnectionException {
         socket = new UDPSocket(getSystemSoftware(), "255.255.255.255", 67, 68);
         ((UDPSocket) socket).verbinden();
         return (UDPSocket) socket;

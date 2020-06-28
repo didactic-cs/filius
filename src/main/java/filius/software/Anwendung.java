@@ -73,7 +73,7 @@ public abstract class Anwendung extends Thread {
                 + " (Anwendung), constr: Anwendung()");
 
         try {
-            for (Map<String, String> appInfo : Information.getInformation().ladeProgrammListe()) {
+            for (Map<String, String> appInfo : Information.getInstance().ladeProgrammListe()) {
                 if (this.getClass().getCanonicalName().equals((String) appInfo.get("Klasse"))) {
                     this.setzeAnwendungsName(appInfo.get("Anwendung").toString());
                     break;

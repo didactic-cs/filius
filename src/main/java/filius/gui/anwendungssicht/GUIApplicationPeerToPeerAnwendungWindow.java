@@ -57,7 +57,7 @@ import javax.swing.table.TableColumnModel;
 
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.software.dateiaustausch.PeerToPeerAnwendung;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
 
 /**
  * Diese Klasse ist die grafische Benutzungsoberflaeche fuer die Peer2Peer Anwendung.
@@ -357,10 +357,9 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         DefaultTableModel tabellenModell = (DefaultTableModel) dateiTabelle.getModel();
         tabellenModell.setRowCount(0);
 
-        List<Datei> tempListe = holeAnwendung().getSystemSoftware().getDateisystem()
-                .getDateiList(((PeerToPeerAnwendung) holeAnwendung()).holeVerzeichnis());
+        List<FiliusFile> tempListe = ((PeerToPeerAnwendung) holeAnwendung()).holeVerzeichnis().getChildFiliusFiles();
 
-        for (Datei tmpDatei : tempListe) {
+        for (FiliusFile tmpDatei : tempListe) {
             Vector<String> v = new Vector<>();
             v.add(tmpDatei.getName());
             v.add(tmpDatei.getType());

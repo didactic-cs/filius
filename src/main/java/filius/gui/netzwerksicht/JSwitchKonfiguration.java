@@ -58,22 +58,22 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
 	}
 
 	public void aenderungenAnnehmen() {
-		((Switch) holeHardware()).setName(name.getText());
+		((Switch) getHardware()).setName(name.getText());
 
-		GUIContainer.getGUIContainer().updateViewport();
+		GUIContainer.getInstance().updateViewport();
 		updateAttribute();
 	}
 
 	public void changeAppearance() {
 		filius.Main.debug.println("DEBUG: changeAppearance invoked for Switch");
 		if (checkCloud.isSelected()) {
-			GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
+			GUIContainer.getInstance().getLabelforKnoten(((Switch) getHardware()))
 			        .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH_CLOUD)));
-			((Switch) holeHardware()).setCloud(true);
+			((Switch) getHardware()).setCloud(true);
 		} else {
-			GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
+			GUIContainer.getInstance().getLabelforKnoten(((Switch) getHardware()))
 			        .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH)));
-			((Switch) holeHardware()).setCloud(false);
+			((Switch) getHardware()).setCloud(false);
 		}
 	}
 
@@ -140,8 +140,8 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
 
 	@Override
 	public void updateAttribute() {
-		name.setText(((Switch) holeHardware()).holeAnzeigeName());
-		checkCloud.setSelected(((Switch) holeHardware()).isCloud());
+		name.setText(((Switch) getHardware()).getDisplayName());
+		checkCloud.setSelected(((Switch) getHardware()).isCloud());
 	}
 
 }

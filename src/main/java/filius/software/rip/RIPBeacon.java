@@ -27,9 +27,9 @@ package filius.software.rip;
 
 import java.util.Random;
 
-import filius.exception.VerbindungsException;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.exception.ConnectionException;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.system.VermittlungsrechnerBetriebssystem;
 import filius.software.transportschicht.UDPSocket;
@@ -58,7 +58,7 @@ public class RIPBeacon extends ClientAnwendung {
 		try {
 			sock = new UDPSocket(bs, "255.255.255.255", 520, 521);
 			sock.verbinden();
-		} catch (VerbindungsException e) {
+		} catch (ConnectionException e) {
 			return;
 		}
 
@@ -82,11 +82,11 @@ public class RIPBeacon extends ClientAnwendung {
 	}
 
 	public void broadcast(UDPSocket sock, VermittlungsrechnerBetriebssystem bs, RIPTable table) {
-		InternetKnoten knoten = (InternetKnoten) bs.getKnoten();
+		InternetNode knoten = (InternetNode) bs.getKnoten();
 
 		RIPMessage msg;
 
-		for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+		for (NetworkInterface nic : knoten.getNIlist()) {
 			msg = new RIPMessage(nic.getIp(), bs.holeIPAdresse(), RIPTable.INFINITY, RIPTable.TIMEOUT);
 			for (RIPRoute route : table.routes) {
 				// split horizon:

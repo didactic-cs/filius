@@ -126,7 +126,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
 
 		if (fehlerfreiKompiliert) {
 			try {
-				it = Information.getInformation().ladeProgrammListe().listIterator();
+				it = Information.getInstance().ladeProgrammListe().listIterator();
 				while (it.hasNext() && !vorhanden) {
 					map = (HashMap) it.next();
 					if (map.get("Klasse").equals("filius.software.clientserver." + anwendungsKlasse)) {
@@ -139,7 +139,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
 
 			if (!vorhanden) {
 				try {
-					fw = new FileWriter(Information.getInformation().getAnwendungenPfad() + "EigeneAnwendungen.txt",
+					fw = new FileWriter(Information.getInstance().getAnwendungenPfad() + "EigeneAnwendungen.txt",
 					        true);
 					fw.write("\n" + anwendungsName + ";filius.software.clientserver." + anwendungsKlasse
 					        + ";filius.gui.anwendungssicht.GUIApplication" + anwendungsKlasse

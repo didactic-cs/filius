@@ -29,12 +29,12 @@ package filius.hardware;
  * @author weyer
  * 
  */
-public class Kabel extends Verbindung {
+public class Cable extends Connection {
 
-	public static final String TYPE = messages.getString("hw_kabel_msg1");
-
-	@Override
-	public String holeHardwareTyp() {
-		return TYPE;
-	}
+//	public static final String TYPE = messages.getString("hw_kabel_msg1");
+//
+//	@Override
+//	public String getHardwareType() {
+//		return TYPE;
+//	}
 }

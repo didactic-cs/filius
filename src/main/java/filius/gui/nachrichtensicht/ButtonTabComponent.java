@@ -68,7 +68,7 @@ public class ButtonTabComponent extends JPanel implements I18n {
 		setOpaque(false);
 
 		JLabel label = new JLabel();
-		label.setText(systemSoftware.getKnoten().holeAnzeigeName());
+		label.setText(systemSoftware.getKnoten().getDisplayName());
 		add(label);
 		// add more space between the label and the button
 		label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));

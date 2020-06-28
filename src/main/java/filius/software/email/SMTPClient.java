@@ -30,7 +30,7 @@ import java.util.List;
 
 import filius.Main;
 import filius.exception.TimeOutException;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.Anwendung;
@@ -353,9 +353,9 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * 
      * @return
      * @throws TimeOutException
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
-    private boolean schickeQuit() throws VerbindungsException, TimeOutException {
+    private boolean schickeQuit() throws ConnectionException, TimeOutException {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeQuit()");
         String empfangen;

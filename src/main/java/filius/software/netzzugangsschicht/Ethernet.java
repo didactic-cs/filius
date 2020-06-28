@@ -28,8 +28,8 @@ package filius.software.netzzugangsschicht;
 import java.util.LinkedList;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.Protokoll;
 import filius.software.system.SystemSoftware;
@@ -96,22 +96,22 @@ public class Ethernet extends Protokoll {
 
         ethernetFrame = new EthernetFrame(daten, startMAC, zielMAC, typ, daten instanceof IcmpPaket);
 
-        for (NetzwerkInterface nic : ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces()) {
+        for (NetworkInterface nic : ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist()) {
             if (nic.getMac().equalsIgnoreCase(zielMAC)) {
-                synchronized (nic.getPort().holeEingangsPuffer()) {
-                    nic.getPort().holeEingangsPuffer().add(ethernetFrame);
-                    nic.getPort().holeEingangsPuffer().notify();
+                synchronized (nic.getPort().getInputBuffer()) {
+                    nic.getPort().getInputBuffer().add(ethernetFrame);
+                    nic.getPort().getInputBuffer().notify();
                 }
                 gesendet = true;
             }
         }
 
         if (!gesendet) {
-            for (NetzwerkInterface nic : ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces()) {
+            for (NetworkInterface nic : ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist()) {
                 if (nic.getMac().equalsIgnoreCase(startMAC)) {
-                    synchronized (nic.getPort().holeAusgangsPuffer()) {
-                        nic.getPort().holeAusgangsPuffer().add(ethernetFrame);
-                        nic.getPort().holeAusgangsPuffer().notify();
+                    synchronized (nic.getPort().getOutputBuffer()) {
+                        nic.getPort().getOutputBuffer().add(ethernetFrame);
+                        nic.getPort().getOutputBuffer().notify();
                     }
                     Lauscher.getLauscher().addDatenEinheit(nic.getMac(), ethernetFrame);
                 }
@@ -128,13 +128,13 @@ public class Ethernet extends Protokoll {
      */
     public void starten() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), starten()");
-        InternetKnoten knoten;
+        InternetNode knoten;
         EthernetThread interfaceBeobachter;
 
-        if (holeSystemSoftware().getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
+        if (holeSystemSoftware().getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) holeSystemSoftware().getKnoten();
 
-            for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+            for (NetworkInterface nic : knoten.getNIlist()) {
                 interfaceBeobachter = new EthernetThread(this, nic);
                 interfaceBeobachter.starten();
                 try {

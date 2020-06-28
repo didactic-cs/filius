@@ -29,63 +29,103 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 import filius.Main;
+import filius.hardware.knoten.Node;
 import filius.software.netzzugangsschicht.EthernetFrame;
 
+@SuppressWarnings("serial")
 public class Port implements Serializable {
+    
+    private LinkedList<EthernetFrame> inputBuffer = new LinkedList<EthernetFrame>();
+    private LinkedList<EthernetFrame> outputBuffer = new LinkedList<EthernetFrame>();
+    private Connection connection = null;
+    private NetworkInterface nic = null;
+    private Node owner = null;
 
-    private static final long serialVersionUID = 1L;
-    private LinkedList<EthernetFrame> eingangsPuffer = new LinkedList<EthernetFrame>();
-    private LinkedList<EthernetFrame> ausgangsPuffer = new LinkedList<EthernetFrame>();
-    private Verbindung verbindung = null;
-    private NetzwerkInterface nic = null;
-
-    // constructor with parameter for all other nodes with explicit NIC for each
-    // port
-    public Port(NetzwerkInterface nic) {
+    // constructor without parameters (for switches)
+    public Port() {}
+    
+    // constructor with parameter for all other nodes with explicit NIC for each port
+    public Port(NetworkInterface nic) {
+    	
         this.nic = nic;
     }
+    
+    public boolean isConnected() {   
+    	
+        return (connection != null);
+    }
 
-    // constructor without parameters for switches
-    public Port() {}
-
-    public NetzwerkInterface getNIC() {
+    public NetworkInterface getNIC() {
+    	
         return nic;
+    }    
+    
+    // Node owning the port
+    public Node getOwner() {
+    	
+        return owner;
+    } 
+    
+    public void setOwner(Node owner) {
+    	
+        this.owner = owner;
+    } 
+    
+    // Index of node in the list of owner node (if any)
+    public int getIndex() {
+    	
+    	if (owner == null) return -1;
+        return owner.getPortIndex(this);
+    } 
+    
+    /**
+     * <b>getRemotePort</b> returns the port connected to the current port. 
+     * Returns null if the current port is not connected. 
+     * 
+     * @return The port to which the current port is connected, or null if there is none.
+     */
+    public Port getRemotePort() {
+    	
+    	if (connection == null) return null;
+    	return connection.findPortConnectedTo(this);    	
+    } 
+    
+    public Connection getConnection() {
+    	
+        return connection;
     }
 
-    public boolean isPortFrei() {
-        return (verbindung == null);
-    }
-
-    public boolean setVerbindung(Verbindung verbindung) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), setVerbindung(" + verbindung
-                + ")");
-        if (isPortFrei()) {
-            this.verbindung = verbindung;
+    public boolean setConnection(Connection connection) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
+        		           " (Port), setConnection(" + connection + ")");
+        
+        if (! isConnected()) {
+            this.connection = connection;
             return true;
         } else {
             return false;
         }
     }
 
-    public void entferneVerbindung() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), entferneVerbindung()");
-        this.verbindung = null;
+    public void removeConnection() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
+        		           " (Port), removeConnection()");
+        
+        this.connection = null;
     }
 
-    public LinkedList<EthernetFrame> holeAusgangsPuffer() {
-        return ausgangsPuffer;
+    public LinkedList<EthernetFrame> getOutputBuffer() {
+    	
+        return outputBuffer;
     }
 
-    public LinkedList<EthernetFrame> holeEingangsPuffer() {
-        return eingangsPuffer;
+    public LinkedList<EthernetFrame> getInputBuffer() {
+    	
+        return inputBuffer;
     }
 
-    public void setzeEingangsPuffer(LinkedList<EthernetFrame> puffer) {
-        this.eingangsPuffer = puffer;
+    public void setInputBuffer(LinkedList<EthernetFrame> buffer) {
+    	
+        this.inputBuffer = buffer;
     }
-
-    public Verbindung getVerbindung() {
-        return verbindung;
-    }
-
 }

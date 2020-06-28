@@ -31,13 +31,16 @@ import java.util.StringTokenizer;
 
 import filius.Main;
 import filius.software.clientserver.UDPServerAnwendung;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.transportschicht.Socket;
 
 public class DNSServer extends UDPServerAnwendung {
 
     private boolean recursiveResolutionEnabled = false;
+    
+    private FiliusFileSystem FFS = null;
 
     public boolean isRecursiveResolutionEnabled() {
         return recursiveResolutionEnabled;
@@ -51,6 +54,7 @@ public class DNSServer extends UDPServerAnwendung {
         super();
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), constr: DNSServer()");
+        FFS = getSystemSoftware().getDateisystem();
 
         setPort(53);
     }
@@ -60,13 +64,11 @@ public class DNSServer extends UDPServerAnwendung {
                 + " (DNSServer), starten()");
         super.starten();
 
-        FiliusFileSystem dateisystem = getSystemSoftware().getDateisystem();
-        if (!dateisystem.fileExists(FiliusFileSystem.FILE_SEPARATOR + "dns", "hosts")) {
-            dateisystem.createDirectory(dateisystem.getRoot(), "dns");
-            Datei hostsFile = new Datei();
-            hostsFile.setName("hosts");
-            hostsFile.setContent("");
-            dateisystem.saveDatei(FiliusFileSystem.FILE_SEPARATOR + "dns", hostsFile);
+        FiliusFileNode node = FFS.toNode("dns", "hosts");
+        if (node == null) {
+        	FFS.getRoot().addDirectory("dns");           
+            node = FFS.toNode("dns");
+            if (node != null) node.saveFiliusFile(new FiliusFile("hosts", "text", ""));
         }
     }
 
@@ -95,8 +97,9 @@ public class DNSServer extends UDPServerAnwendung {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + ", initialisiereRecordListe()");
 
-        FiliusFileSystem dateisystem = getSystemSoftware().getDateisystem();
-        Datei hosts = dateisystem.getDatei(FiliusFileSystem.FILE_SEPARATOR + "dns" + FiliusFileSystem.FILE_SEPARATOR + "hosts");
+        FiliusFile hosts = null;
+        FiliusFileNode node = FFS.toNode("dns", "hosts");        
+    	if (node != null) hosts = node.getFiliusFile();
 
         List<ResourceRecord> resourceRecords = new LinkedList<ResourceRecord>();
         if (hosts != null) {
@@ -122,13 +125,16 @@ public class DNSServer extends UDPServerAnwendung {
             text.append(resourceRecord.toString() + "\n");
         }
 
-        FiliusFileSystem dateisystem = getSystemSoftware().getDateisystem();
-        Datei hostsFile = dateisystem.getDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "dns",
-                "hosts");
+        FiliusFile hostsFile = null;
+        FiliusFileNode node = FFS.toNode("dns", "hosts");
+        if (node != null) hostsFile = node.getFiliusFile();
         if (hostsFile == null) {
-            hostsFile = new Datei();
+            hostsFile = new FiliusFile();
             hostsFile.setName("hosts");
-            dateisystem.saveDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "dns", hostsFile);
+            hostsFile.setType("text");
+            
+            node = FFS.toNode("dns");
+            node.saveFiliusFile(hostsFile);
         }
 
         hostsFile.setContent(text.toString());

@@ -30,16 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.VermittlungsrechnerBetriebssystem;
 
-public class Vermittlungsrechner extends InternetKnoten implements I18n {
+public class Vermittlungsrechner extends InternetNode implements I18n {
 
     public static final String TYPE = messages.getString("hw_vermittlungsrechner_msg1");
 
     @Override
-    public String holeHardwareTyp() {
+    public String getHardwareType() {
         return TYPE;
     }
 
@@ -48,7 +48,7 @@ public class Vermittlungsrechner extends InternetKnoten implements I18n {
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (Vermittlungsrechner), constr: Vermittlungsrechner()");
 
-        this.setzeAnzahlAnschluesse(1);
+        this.createNIlist(1);
         this.setSystemSoftware(new VermittlungsrechnerBetriebssystem());
         getSystemSoftware().setKnoten(this);
         this.setName(TYPE);
@@ -56,8 +56,8 @@ public class Vermittlungsrechner extends InternetKnoten implements I18n {
     
     public List<String> getMacs() {	
     	List<String> macs = new ArrayList<String>();
-    	int count = getNetzwerkInterfaces().size();
-    	for (int i = 0; i<count; i++) macs.add(getNetzwerkInterfaces().get(0).getMac());
+    	int count = getNIlist().size();
+    	for (int i = 0; i<count; i++) macs.add(getNIlist().get(0).getMac());
 		return macs;
 	}
 }

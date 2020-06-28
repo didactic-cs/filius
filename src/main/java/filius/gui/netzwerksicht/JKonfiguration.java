@@ -46,9 +46,11 @@ import javax.swing.event.MouseInputAdapter;
 import filius.Main;
 import filius.gui.JBackgroundPanel;
 import filius.gui.JMainFrame;
+import filius.hardware.Cable;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.Modem;
+import filius.hardware.knoten.Node;
 import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.EingabenUeberpruefung;
@@ -67,6 +69,8 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
     private Hardware hardware;
 
     protected static HashMap<Hardware, JKonfiguration> instances = new HashMap<Hardware, JKonfiguration>();
+    
+    protected static JKabelKonfiguration instanceJKK = null; 
 
     /** unveraenderbare Hoehe des Konfigurations-Panels (konfigPanel) */
     private static final int HOEHE = 250;
@@ -83,31 +87,54 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
 
         minimieren();
     }
+    
+    // Constructor without hardware attached (trick used for the JKabelKonfiguration) 
+    protected JKonfiguration() {       
 
-    public static JKonfiguration getInstance(Hardware hardware) {
-        if (hardware == null) {
-            return new JKonfiguration(null);
-        }
+        initKonfigPanel();        
+        initAttributPanel();
+        updateAttribute();  
+
+        minimieren();
+    }
+    
+    public static JKonfiguration getInstance() {
+        
+        return new JKonfiguration(null);        
+    }
+
+    public static JKonfiguration getInstance(Node node) {
 
         JKonfiguration newInstance;
-        if (!instances.containsKey(hardware)) {
-            if (hardware instanceof Host) {
-                newInstance = new JHostKonfiguration(hardware);
-            } else if (hardware instanceof Modem) {
-                newInstance = new JModemKonfiguration(hardware);
-            } else if (hardware instanceof Switch) {
-                newInstance = new JSwitchKonfiguration(hardware);
-            } else if (hardware instanceof Vermittlungsrechner) {
-                newInstance = new JVermittlungsrechnerKonfiguration(hardware);
+        if (!instances.containsKey(node)) {
+            if (node instanceof Host) {
+                newInstance = new JHostKonfiguration(node);
+            } else if (node instanceof Modem) {
+                newInstance = new JModemKonfiguration(node);
+            } else if (node instanceof Switch) {
+                newInstance = new JSwitchKonfiguration(node);
+            } else if (node instanceof Vermittlungsrechner) {
+                newInstance = new JVermittlungsrechnerKonfiguration(node);
             } else {
                 newInstance = new JKonfiguration(null);
             }
-            instances.put(hardware, newInstance);
+            instances.put(node, newInstance);
         }
-        return instances.get(hardware);
+        return instances.get(node);
     }
+    
+    // Instance provider specific for JKabelKonfiguration 
+    // Only one instance is used for all cables
+    public static JKonfiguration getInstance(Cable cable) {
+        
+        if (instanceJKK == null) {
+        	instanceJKK = new JKabelKonfiguration();           
+        }
+        instanceJKK.setHardwares(cable);
+        return instanceJKK;
+    }   
 
-    public Hardware holeHardware() {
+    public Hardware getHardware() {
         return hardware;
     }
 

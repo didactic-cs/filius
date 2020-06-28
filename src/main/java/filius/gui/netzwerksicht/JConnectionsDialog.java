@@ -54,13 +54,13 @@ import javax.swing.SpringLayout;
 
 import filius.Main;
 import filius.gui.GUIContainer;
-import filius.hardware.Kabel;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.Cable;
+import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
-import filius.hardware.Verbindung;
-import filius.hardware.knoten.InternetKnoten;
-import filius.hardware.knoten.Knoten;
-import filius.hardware.knoten.LokalerKnoten;
+import filius.hardware.Connection;
+import filius.hardware.knoten.InternetNode;
+import filius.hardware.knoten.Node;
+import filius.hardware.knoten.LocalNode;
 import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.I18n;
 
@@ -74,7 +74,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
     private final ImageIcon nicIcon = new ImageIcon(getClass().getResource("/gfx/hardware/rj45.png"));
 
     private Vermittlungsrechner internetSwitch;
-    private Map<NetzwerkInterface, Knoten> nicToNodeMap = new HashMap<NetzwerkInterface, Knoten>();
+    private Map<NetworkInterface, Node> nicToNodeMap = new HashMap<NetworkInterface, Node>();
 
     private JButton[] btnLocal = new JButton[8];
     private JLabel[] lblLocal = new JLabel[8];
@@ -133,8 +133,8 @@ public class JConnectionsDialog extends JDialog implements I18n {
 
     private void updateNicToNodeMap(Vermittlungsrechner internetSwitch) {
         nicToNodeMap.clear();
-        for (NetzwerkInterface nic : internetSwitch.getNetzwerkInterfaces()) {
-            Knoten node = getConnectedComponent(nic);
+        for (NetworkInterface nic : internetSwitch.getNIlist()) {
+            Node node = getConnectedComponent(nic);
             if (node != null) {
                 nicToNodeMap.put(nic, node);
             }
@@ -143,24 +143,24 @@ public class JConnectionsDialog extends JDialog implements I18n {
 
     private void updateRemoteInterfaces() {
         int nicNr = 0;
-        for (NetzwerkInterface nic : internetSwitch.getNetzwerkInterfaces()) {
+        for (NetworkInterface nic : internetSwitch.getNIlist()) {
             nicNr++;
 
-            Knoten node = nicToNodeMap.get(nic);
+            Node node = nicToNodeMap.get(nic);
             if (node != null) {
                 String remoteAddress = "";
-                Verbindung connection = this.getConnectedCable(nic);
-                Port[] ports = connection.getAnschluesse();
+                Connection connection = this.getConnectedCable(nic);
+                Port[] ports = connection.getPorts();
                 for (Port port : ports) {
                     if (port.getNIC() != null && port.getNIC() != nic) {
                         remoteAddress = port.getNIC().getIp();
                     }
                 }
                 btnRemote[nicNr - 1].setEnabled(false);
-                if (node instanceof filius.hardware.knoten.InternetKnoten) {
-                    lblRemote[nicNr - 1].setText(node.holeAnzeigeName() + " (" + remoteAddress + ")");
+                if (node instanceof filius.hardware.knoten.InternetNode) {
+                    lblRemote[nicNr - 1].setText(node.getDisplayName() + " (" + remoteAddress + ")");
                 } else {
-                    lblRemote[nicNr - 1].setText(node.holeAnzeigeName());
+                    lblRemote[nicNr - 1].setText(node.getDisplayName());
                 }
             } else {
                 btnRemote[nicNr - 1].setEnabled(false);
@@ -179,8 +179,8 @@ public class JConnectionsDialog extends JDialog implements I18n {
 
     private void updateLocalInterfaces() {
         int nicNr = 0;
-        Knoten node;
-        for (NetzwerkInterface nic : internetSwitch.getNetzwerkInterfaces()) {
+        Node node;
+        for (NetworkInterface nic : internetSwitch.getNIlist()) {
             nicNr++;
             lblLocal[nicNr - 1].setText("NIC " + nicNr + ": " + nic.getIp());
 
@@ -209,8 +209,8 @@ public class JConnectionsDialog extends JDialog implements I18n {
         SpringLayout cableLayout = new SpringLayout();
         cablePanel.setLayout(cableLayout);
         int nicNr = 0;
-        for (NetzwerkInterface nic : internetSwitch.getNetzwerkInterfaces()) {
-            Knoten node = getConnectedComponent(nic);
+        for (NetworkInterface nic : internetSwitch.getNIlist()) {
+            Node node = getConnectedComponent(nic);
             if (node != null) {
                 LinePanel cable = new LinePanel();
                 int yPos = 25 + (int) ((nicNr + 0.5) * LINE_HEIGHT);
@@ -275,8 +275,8 @@ public class JConnectionsDialog extends JDialog implements I18n {
                     c = c.getParent();
                 } while (!(c instanceof JDialog));
                 c.setVisible(false);
-                GUIContainer.getGUIContainer().getProperty().reInit();
-                GUIContainer.getGUIContainer().getProperty().maximieren();
+                GUIContainer.getInstance().getProperty().reInit();
+                GUIContainer.getInstance().getProperty().maximieren();
             }
         });
         buttonCompound.add(btnClose);
@@ -394,8 +394,8 @@ public class JConnectionsDialog extends JDialog implements I18n {
                         btnLocal[currentIdx].setBackground(Color.YELLOW);
                         btnLocal[currentIdx].setOpaque(true);
                     } else if (markedIdx >= 0) {
-                        Port port1 = internetSwitch.getNetzwerkInterfaces().get(markedIdx).getPort();
-                        Port port2 = internetSwitch.getNetzwerkInterfaces().get(currentIdx).getPort();
+                        Port port1 = internetSwitch.getNIlist().get(markedIdx).getPort();
+                        Port port2 = internetSwitch.getNIlist().get(currentIdx).getPort();
                         JConnectionsDialog.this.swapConnection(port1, port2);
                         updateAll();
                     }
@@ -412,18 +412,18 @@ public class JConnectionsDialog extends JDialog implements I18n {
         btnRemoveInterface = new JButton("-");
         btnAddInterface.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                internetSwitch.hinzuAnschluss();
+                internetSwitch.addNI();
                 updateAll();
             }
         });
         btnRemoveInterface.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<NetzwerkInterface> nics = internetSwitch.getNetzwerkInterfaces();
+                List<NetworkInterface> nics = internetSwitch.getNIlist();
                 if (!nics.isEmpty()) {
-                    NetzwerkInterface nic = nics.get(nics.size() - 1);
+                    NetworkInterface nic = nics.get(nics.size() - 1);
                     removeConnection(nic.getPort());
-                    internetSwitch.removeNic(nic);
+                    internetSwitch.removeNI(nic);
                     updateAll();
                 }
             }
@@ -504,33 +504,33 @@ public class JConnectionsDialog extends JDialog implements I18n {
         updateConnections();
     }
 
-    private Knoten getConnectedComponent(NetzwerkInterface nic) {
+    private Node getConnectedComponent(NetworkInterface nic) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), holeVerbundeneKomponente(" + nic + ")");
 
-        if (nic.getPort().getVerbindung() == null) {
+        if (nic.getPort().getConnection() == null) {
             return null;
         }
 
         Port lokalerAnschluss, entfernterAnschluss;
         lokalerAnschluss = nic.getPort();
-        Port[] ports = lokalerAnschluss.getVerbindung().getAnschluesse();
+        Port[] ports = lokalerAnschluss.getConnection().getPorts();
         if (ports[0] == lokalerAnschluss) {
             entfernterAnschluss = ports[1];
         } else {
             entfernterAnschluss = ports[0];
         }
 
-        for (GUIKnotenItem knotenItem : GUIContainer.getGUIContainer().getKnotenItems()) {
-            Knoten knoten = knotenItem.getKnoten();
-            if (knoten instanceof LokalerKnoten) {
-                for (Port port : ((LokalerKnoten) knoten).getAnschluesse()) {
+        for (GUIKnotenItem knotenItem : GUIContainer.getInstance().getKnotenItems()) {
+            Node knoten = knotenItem.getNode();
+            if (knoten instanceof LocalNode) {
+                for (Port port : ((LocalNode) knoten).getPortList()) {
                     if (port.equals(entfernterAnschluss)) {
                         return knoten;
                     }
                 }
-            } else if (knoten instanceof InternetKnoten) {
-                for (NetzwerkInterface networkInterface : ((InternetKnoten) knoten).getNetzwerkInterfaces()) {
+            } else if (knoten instanceof InternetNode) {
+                for (NetworkInterface networkInterface : ((InternetNode) knoten).getNIlist()) {
                     if (networkInterface.getPort().equals(entfernterAnschluss)) {
                         return knoten;
                     }
@@ -541,82 +541,82 @@ public class JConnectionsDialog extends JDialog implements I18n {
         return null;
     }
 
-    private Kabel getConnectedCable(NetzwerkInterface nic) {
+    private Cable getConnectedCable(NetworkInterface nic) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), getConnectedCable(" + nic + ")");
-        Verbindung nicConn = nic.getPort().getVerbindung();
+        Connection nicConn = nic.getPort().getConnection();
         if (nicConn == null) {
             return null;
         }
 
-        for (GUIKabelItem cable : GUIContainer.getGUIContainer().getCableItems()) {
-            if (nicConn.equals(cable.getDasKabel())) {
-                return (Kabel) cable.getDasKabel();
+        for (GUIKabelItem cable : GUIContainer.getInstance().getCableItems()) {
+            if (nicConn.equals(cable.getCable())) {
+                return (Cable) cable.getCable();
             }
         }
         return null;
     }
 
     private void removeConnection(Port port) {
-        for (GUIKabelItem cableItem : GUIContainer.getGUIContainer().getCableItems()) {
-            if (cableItem.getDasKabel().getAnschluesse()[0].equals(port)
-                    || cableItem.getDasKabel().getAnschluesse()[1].equals(port)) {
-                cableItem.getDasKabel().anschluesseTrennen();
-                GUIContainer.getGUIContainer().removeCableItem(cableItem);
-                GUIContainer.getGUIContainer().updateViewport();
+        for (GUIKabelItem cableItem : GUIContainer.getInstance().getCableItems()) {
+            if (cableItem.getCable().getPorts()[0].equals(port)
+                    || cableItem.getCable().getPorts()[1].equals(port)) {
+                cableItem.getCable().disconnectPorts();
+                GUIContainer.getInstance().removeCableItem(cableItem);
+                GUIContainer.getInstance().updateViewport();
                 break;
             }
         }
     }
 
     private void swapConnection(Port port1, Port port2) {
-        Kabel kabel1 = null;
+        Cable kabel1 = null;
         int portIdx1 = 0;
-        Kabel kabel2 = null;
+        Cable kabel2 = null;
         int portIdx2 = 0;
-        for (GUIKabelItem cableItem : GUIContainer.getGUIContainer().getCableItems()) {
-            Kabel cable = cableItem.getDasKabel();
-            if (cable.getAnschluesse()[0].equals(port1)) {
+        for (GUIKabelItem cableItem : GUIContainer.getInstance().getCableItems()) {
+            Cable cable = cableItem.getCable();
+            if (cable.getPorts()[0].equals(port1)) {
                 kabel1 = cable;
                 portIdx1 = 0;
-            } else if (cable.getAnschluesse()[1].equals(port1)) {
+            } else if (cable.getPorts()[1].equals(port1)) {
                 kabel1 = cable;
                 portIdx1 = 1;
-            } else if (cable.getAnschluesse()[0].equals(port2)) {
+            } else if (cable.getPorts()[0].equals(port2)) {
                 kabel2 = cable;
                 portIdx2 = 0;
-            } else if (cable.getAnschluesse()[1].equals(port2)) {
+            } else if (cable.getPorts()[1].equals(port2)) {
                 kabel2 = cable;
                 portIdx2 = 1;
             }
         }
         if (kabel1 != null && kabel2 != null && kabel1 != kabel2) {
-            kabel1.anschluesseTrennen();
-            kabel2.anschluesseTrennen();
+            kabel1.disconnectPorts();
+            kabel2.disconnectPorts();
 
-            Port[] anschluesse = kabel1.getAnschluesse();
-            port2.setVerbindung(kabel1);
+            Port[] anschluesse = kabel1.getPorts();
+            port2.setConnection(kabel1);
             anschluesse[portIdx1] = port2;
-            kabel1.setAnschluesse(anschluesse);
+            kabel1.setPorts(anschluesse);
 
-            anschluesse = kabel2.getAnschluesse();
-            port1.setVerbindung(kabel2);
+            anschluesse = kabel2.getPorts();
+            port1.setConnection(kabel2);
             anschluesse[portIdx2] = port1;
-            kabel2.setAnschluesse(anschluesse);
+            kabel2.setPorts(anschluesse);
         } else if (kabel1 == null && kabel2 != null) {
-            kabel2.anschluesseTrennen();
+            kabel2.disconnectPorts();
 
-            port1.setVerbindung(kabel2);
-            Port[] anschluesse = kabel2.getAnschluesse();
+            port1.setConnection(kabel2);
+            Port[] anschluesse = kabel2.getPorts();
             anschluesse[portIdx2] = port1;
-            kabel2.setAnschluesse(anschluesse);
+            kabel2.setPorts(anschluesse);
         } else if (kabel1 != null && kabel2 == null) {
-            kabel1.anschluesseTrennen();
+            kabel1.disconnectPorts();
 
-            Port[] anschluesse = kabel1.getAnschluesse();
-            port2.setVerbindung(kabel1);
+            Port[] anschluesse = kabel1.getPorts();
+            port2.setConnection(kabel1);
             anschluesse[portIdx1] = port2;
-            kabel1.setAnschluesse(anschluesse);
+            kabel1.setPorts(anschluesse);
         }
     }
 }

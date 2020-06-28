@@ -46,7 +46,7 @@ import filius.gui.GUIContainer;
 import filius.gui.GUIMainMenu;
 import filius.gui.JMainFrame;
 import filius.gui.SplashScreen;
-import filius.hardware.Verbindung;
+import filius.hardware.Connection;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
@@ -89,24 +89,24 @@ public class Main implements I18n {
         Object[] programmKonfig;
 
         try {
-            Information.getInformation().loadIni();
+            Information.getInstance().loadIni();
         } catch (IOException e1) {
             Main.debug.println("ini could not be read: " + e1.getMessage());
         }
 
-        konfigPfad = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
-        if (!(new File(konfigPfad)).exists() && null == Information.getInformation().getLocale()) {
+        konfigPfad = Information.getInstance().getArbeitsbereichPfad() + "konfig.xml";
+        if (!(new File(konfigPfad)).exists() && null == Information.getInstance().getLocale()) {
             String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
                     JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
             if (selectedValue == null) {
-                Information.getInformation().setLocale(Locale.GERMANY);
+                Information.getInstance().setLocale(Locale.GERMANY);
             } else if (ENGLISH.equals(selectedValue)) {
-                Information.getInformation().setLocale(Locale.UK);
+                Information.getInstance().setLocale(Locale.UK);
             } else if (FRANCAIS.equals(selectedValue)) {
-                Information.getInformation().setLocale(Locale.FRANCE);
+                Information.getInstance().setLocale(Locale.FRANCE);
             } else {
-                Information.getInformation().setLocale(Locale.GERMANY);
+                Information.getInstance().setLocale(Locale.GERMANY);
             }
         } else {
             try {
@@ -119,13 +119,13 @@ public class Main implements I18n {
                             szenarioDatei = (String) programmKonfig[1];
                         }
                         if (programmKonfig[2] != null && programmKonfig[3] != null
-                                && null == Information.getInformation().getLocale()) {
-                            Information.getInformation()
+                                && null == Information.getInstance().getLocale()) {
+                            Information.getInstance()
                                     .setLocale(new Locale((String) programmKonfig[2], (String) programmKonfig[3]));
                         }
                     }
                     if (programmKonfig.length >= 5) {
-                        Information.getInformation().setLastOpenedDirectory((String) programmKonfig[4]);
+                        Information.getInstance().setLastOpenedDirectory((String) programmKonfig[4]);
                     }
                 }
             } catch (Exception e) {
@@ -144,23 +144,23 @@ public class Main implements I18n {
         splashScreen.setVisible(true);
         splashScreen.setAlwaysOnTop(true);
 
-        GUIContainer.getGUIContainer().initialisieren();
+        GUIContainer.getInstance().initialisieren();
         long splashTime = System.currentTimeMillis();
 
         if (szenarioDatei != null) {
             try {
-                SzenarioVerwaltung.getInstance().laden(szenarioDatei, GUIContainer.getGUIContainer().getKnotenItems(),
-                        GUIContainer.getGUIContainer().getCableItems(), GUIContainer.getGUIContainer().getDocuItems());
+                SzenarioVerwaltung.getInstance().laden(szenarioDatei, GUIContainer.getInstance().getKnotenItems(),
+                        GUIContainer.getInstance().getCableItems(), GUIContainer.getInstance().getDocuItems());
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
             }
         }
-        GUIContainer.getGUIContainer().setProperty(null);
-        GUIContainer.getGUIContainer().updateViewport();
+        GUIContainer.getInstance().setProperty(null);
+        GUIContainer.getInstance().updateViewport();
         try {
             Thread.sleep(10);
         } catch (Exception e) {}
-        GUIContainer.getGUIContainer().updateCables();
+        GUIContainer.getInstance().updateCables();
 
         splashTime = System.currentTimeMillis() - splashTime;
         // time difference
@@ -199,7 +199,7 @@ public class Main implements I18n {
         int entscheidung;
         boolean abbruch = false;
 
-        GUIContainer.getGUIContainer().getMenu().selectMode(GUIMainMenu.MODUS_ENTWURF);
+        GUIContainer.getInstance().getMenu().selectMode(GUIMainMenu.MODUS_ENTWURF);
 
         if (SzenarioVerwaltung.getInstance().istGeaendert()) {
             entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg1"),
@@ -214,18 +214,18 @@ public class Main implements I18n {
             programmKonfig = new Object[5];
             programmKonfig[0] = JMainFrame.getJMainFrame().getBounds();
             programmKonfig[1] = SzenarioVerwaltung.getInstance().holePfad();
-            programmKonfig[2] = Information.getInformation().getLocale().getLanguage();
-            programmKonfig[3] = Information.getInformation().getLocale().getCountry();
-            programmKonfig[4] = Information.getInformation().getLastOpenedDirectory();
+            programmKonfig[2] = Information.getInstance().getLocale().getLanguage();
+            programmKonfig[3] = Information.getInstance().getLocale().getCountry();
+            programmKonfig[4] = Information.getInstance().getLastOpenedDirectory();
 
-            String applicationConfigPath = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
+            String applicationConfigPath = Information.getInstance().getArbeitsbereichPfad() + "konfig.xml";
             try (FileOutputStream fos = new FileOutputStream(applicationConfigPath);
                     XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
                 encoder.writeObject(programmKonfig);
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
             }
-            SzenarioVerwaltung.loescheVerzeichnisInhalt(Information.getInformation().getTempPfad());
+            SzenarioVerwaltung.loescheVerzeichnisInhalt(Information.getInstance().getTempPfad());
             System.exit(0);
         }
     }
@@ -310,7 +310,7 @@ public class Main implements I18n {
                     if (args.length > i + 1 && !args[i + 1].startsWith("-")) {
                         try {
                             int rtt = Integer.parseInt(args[++i]);
-                            Verbindung.setRTTfactor(rtt);
+                            Connection.setRTTfactor(rtt);
                         } catch (NumberFormatException e) {
                             System.err.println("Ungueltige Round-Trip-Time " + args[i] + ". Ganzzahl erwartet.\n");
                             showUsageInformation();
@@ -339,7 +339,7 @@ public class Main implements I18n {
             // if no logging specified on command line or logging to file
             // fails, then set logging to null
             if (log) {
-                log = loggen(Information.getInformation().getArbeitsbereichPfad() + "filius.log", verbose);
+                log = loggen(Information.getInstance().getArbeitsbereichPfad() + "filius.log", verbose);
             } else {
                 loggen(null, verbose);
             }
@@ -358,9 +358,9 @@ public class Main implements I18n {
         Main.debug.println("\tFILIUS Version: " + Information.getVersion());
         Main.debug.println("\tParameters: '" + argsString.trim() + "'");
         // +"\n\tWD Base: "+newWD
-        Main.debug.println("\tFILIUS Installation: " + Information.getInformation().getProgrammPfad());
-        Main.debug.println("\tFILIUS Working Directory: " + Information.getInformation().getArbeitsbereichPfad());
-        Main.debug.println("\tFILIUS Temp Directory: " + Information.getInformation().getTempPfad());
+        Main.debug.println("\tFILIUS Installation: " + Information.getInstance().getProgrammPfad());
+        Main.debug.println("\tFILIUS Working Directory: " + Information.getInstance().getArbeitsbereichPfad());
+        Main.debug.println("\tFILIUS Temp Directory: " + Information.getInstance().getTempPfad());
         Main.debug.println("------------------------------------------------------\n");
 
         if (nativeLookAndFeel) {

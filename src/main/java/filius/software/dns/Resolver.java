@@ -29,8 +29,8 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeoutException;
 
 import filius.Main;
-import filius.exception.VerbindungsException;
-import filius.hardware.Verbindung;
+import filius.exception.ConnectionException;
+import filius.hardware.Connection;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.transportschicht.UDPSocket;
 import filius.software.vermittlungsschicht.IP;
@@ -101,7 +101,7 @@ public class Resolver extends ClientAnwendung {
 
                     socket.verbinden();
                     socket.senden(anfrage.toString());
-                    tmp = socket.empfangen(10 * Verbindung.holeRTT());
+                    tmp = socket.empfangen(10 * Connection.getRTT());
                     if (tmp == null) {
                         Main.debug.println("ERROR (" + this.hashCode() + "): keine Antwort auf Query empfangen");
                         throw new TimeoutException();
@@ -113,7 +113,7 @@ public class Resolver extends ClientAnwendung {
                     }
                     socket.schliessen();
                     socket = null;
-                } catch (VerbindungsException e) {
+                } catch (ConnectionException e) {
                     e.printStackTrace(Main.debug);
                     return null;
                 }

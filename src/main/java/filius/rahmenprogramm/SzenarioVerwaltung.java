@@ -30,12 +30,17 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Observable;
@@ -49,7 +54,7 @@ import filius.gui.GUIErrorHandler;
 import filius.gui.netzwerksicht.GUIDocuItem;
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
-import filius.gui.netzwerksicht.JSidebarButton;
+import filius.gui.netzwerksicht.JNodeLabel;
 
 public class SzenarioVerwaltung extends Observable implements I18n {
 
@@ -108,10 +113,10 @@ public class SzenarioVerwaltung extends Observable implements I18n {
         String tmpDir;
         boolean erfolg = true;
 
-        tmpDir = Information.getInformation().getTempPfad() + "projekt" + System.getProperty("file.separator");
+        tmpDir = Information.getInstance().getTempPfad() + "projekt" + System.getProperty("file.separator");
         (new File(tmpDir)).mkdirs();
 
-        if (!kopiereVerzeichnis(Information.getInformation().getAnwendungenPfad(), tmpDir + "anwendungen")) {
+        if (!kopiereVerzeichnis(Information.getInstance().getAnwendungenPfad(), tmpDir + "anwendungen")) {
             Main.debug.println("ERROR (" + this.hashCode() + "): Speicherung der eigenen Anwendungen fehlgeschlagen!");
             erfolg = false;
         }
@@ -197,11 +202,11 @@ public class SzenarioVerwaltung extends Observable implements I18n {
         String tmpDir;
 
         // Main.debug.println("SzenarioVerwaltung: Laden des Projekts aus Datei "+datei);
-        tmpDir = Information.getInformation().getTempPfad();
+        tmpDir = Information.getInstance().getTempPfad();
 
         loescheDateien(tmpDir + "projekt");
 
-        if (erfolg && !loescheVerzeichnisInhalt(Information.getInformation().getAnwendungenPfad())) {
+        if (erfolg && !loescheVerzeichnisInhalt(Information.getInstance().getAnwendungenPfad())) {
             Main.debug.println("ERROR (" + this.hashCode() + "): Loeschen vorhandener Anwendungen fehlgeschlagen");
         }
 
@@ -211,7 +216,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
         }
 
         if (erfolg
-                && !kopiereVerzeichnis(tmpDir + "projekt/anwendungen", Information.getInformation()
+                && !kopiereVerzeichnis(tmpDir + "projekt/anwendungen", Information.getInstance()
                         .getAnwendungenPfad())) {
             Main.debug.println("ERROR (" + this.hashCode() + "): Kopieren der Anwendungen fehlgeschlagen");
         }
@@ -231,17 +236,83 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
         return erfolg;
     }
+    
+    // Check if the XML requires being updated.
+    // If so, create a temporary XML file with the appropriate changes.
+    private static boolean fixXML(String datei, String tmpDatei) {
+    	
+    	// Check if the version of the data requires being updated
+    	// The version is located in the third line of the XML file :
+    	//   <string>Filius version: 1.9.0 (02.05.2020)</string> 
+    	//if (version > ???) return false;
+    	
+    	// Create a copy of the file and apply the changes, line by line
+    	try {
+            BufferedReader bufReader = new BufferedReader(new FileReader(datei));            
+            BufferedWriter bufWriter = new BufferedWriter(new FileWriter(tmpDatei, false));
+ 
+            String line;
+ 
+            while ((line = bufReader.readLine()) != null) {            	
+            	
+            	// A few classes and properties were renamed during refactoring.
+            	// They are changed here before the XML is decoded.
+            	// This way, older projects can be opened.
+            	
+            	// File and Treenode related
+            	line = line.replaceAll("javax.swing.tree.DefaultMutableTreeNode", "filius.software.system.FiliusFileNode");
+            	line = line.replaceAll("DefaultMutableTreeNode", "FiliusFileNode");
+            	line = line.replaceAll("filius.software.system.Datei", "filius.software.system.FiliusFile");            	
+            	line = line.replaceAll("Dateisystem", "FiliusFileSystem");
+            	line = line.replaceAll("arbeitsVerzeichnis", "root");
+            	line = line.replaceAll("dateiInhalt", "content");
+            	line = line.replaceAll("dateiTyp", "type");        
+            	
+            	// Network related            	
+            	line = line.replaceAll("filius.hardware.NetzwerkInterface", "filius.hardware.NetworkInterface");
+            	line = line.replaceAll("filius.hardware.Kabel", "filius.hardware.Cable");  
+            	line = line.replaceAll("dasKabel", "cable");
+            	line = line.replaceAll("kabelpanel", "cablePanel");
+            	line = line.replaceAll("anschluesse", "ports");
+            	line = line.replaceAll("netzwerkInterfaces", "networkInterfaces");
+            	line = line.replaceAll("subnetzMaske", "subnetMask");        
+            	
+            	// Node related
+            	line = line.replaceAll("filius.gui.netzwerksicht.JSidebarButton", "filius.gui.netzwerksicht.JNodeLabel");
+            	line = line.replaceAll("property=\"knoten\"", "property=\"node\"");  
+            	line = line.replaceAll("property=\"imageLabel\"", "property=\"nodeLabel\"");
+          	            	
+            	// Save modified line
+            	bufWriter.write(line);
+            	bufWriter.newLine();  
+            }
+            
+            bufWriter.close();            
+            bufReader.close();
+ 
+        } catch (IOException e) {
+            e.printStackTrace(Main.debug);
+        }
+    	
+    	return true;
+    }
 
     private static boolean netzwerkLaden(String datei, List<GUIKnotenItem> hardwareItems,
-            List<GUIKabelItem> kabelItems, List<GUIDocuItem> docuItems) {
-        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkLaden(" + datei + ","
-                + hardwareItems + "," + kabelItems + ")");
+                                         List<GUIKabelItem> kabelItems, List<GUIDocuItem> docuItems) {
+        Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkLaden(" + 
+                           datei + "," + hardwareItems + "," + kabelItems + ")");
+        
         Object tmpObject = null;
 
         if (Thread.currentThread().getContextClassLoader() != FiliusClassLoader.getInstance(Thread.currentThread()
                 .getContextClassLoader()))
             Thread.currentThread().setContextClassLoader(
                     FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
+
+        // Substitute a modified version of the XML file if necessary
+        String tmpDatei = datei+"_tmp";  
+        boolean needsFix = fixXML(datei, tmpDatei); 
+        if (needsFix) datei = tmpDatei;
 
         boolean success = false;
         try (XMLDecoder xmldec = new XMLDecoder(new BufferedInputStream(new FileInputStream(datei)))) {
@@ -251,7 +322,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
                 }
             });
 
-            Information.getInformation().reset();
+            Information.getInstance().reset();
             tmpObject = xmldec.readObject();
 
             // in newer versions of Filius the version information is put into
@@ -296,12 +367,10 @@ public class SzenarioVerwaltung extends Observable implements I18n {
                     && ((List) tmpObject).get(0) instanceof GUIKnotenItem) {
                 List<GUIKnotenItem> tempList = (List<GUIKnotenItem>) tmpObject;
                 for (GUIKnotenItem tmpNode : tempList) {
-                    if (tmpNode.getImageLabel() == null) {
-                        JSidebarButton imageLabel = new JSidebarButton();
-                        tmpNode.setImageLabel(imageLabel);
-                    }
-                    tmpNode.getImageLabel().setTyp(tmpNode.getKnoten().holeHardwareTyp());
+                    if (tmpNode.getNodeLabel() == null) tmpNode.setNodeLabel(new JNodeLabel());             
+                    tmpNode.getNodeLabel().setTyp(tmpNode.getNode().getHardwareType());
                     hardwareItems.add(tmpNode);
+//                    if (needsFix) tmpNode.getNode().fixPortsOwner();
                 }
             }
 
@@ -331,6 +400,17 @@ public class SzenarioVerwaltung extends Observable implements I18n {
             Main.debug.println("Incomplete project file " + datei);
             success = true;
         }
+        
+        // Delete the temporary XML file
+        if (needsFix) {
+        	try {
+        		java.nio.file.Files.deleteIfExists(Paths.get(tmpDatei));
+        		
+        	} catch (IOException e) {                
+                e.printStackTrace(Main.debug);
+            }
+        }
+        
         return success;
     }
 

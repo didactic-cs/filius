@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.software.Protokoll;
 import filius.software.system.SystemSoftware;
 
@@ -124,8 +124,8 @@ public abstract class VermittlungsProtokoll extends Protokoll {
             return true;
         }
 
-        InternetKnoten knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
-        for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+        InternetNode knoten = (InternetNode) holeSystemSoftware().getKnoten();
+        for (NetworkInterface nic : knoten.getNIlist()) {
             if (ip.equals(nic.getIp())) {
                 return true;
             }
@@ -134,9 +134,9 @@ public abstract class VermittlungsProtokoll extends Protokoll {
     }
 
     public boolean isApplicableBroadcast(String zielIp) {
-        List<NetzwerkInterface> nics = ((InternetKnoten) this.holeSystemSoftware().getKnoten()).getNetzwerkInterfaces();
-        for (NetzwerkInterface nic : nics) {
-            if (isBroadcast(zielIp, nic.getIp(), nic.getSubnetzMaske())) {
+        List<NetworkInterface> nics = ((InternetNode) this.holeSystemSoftware().getKnoten()).getNIlist();
+        for (NetworkInterface nic : nics) {
+            if (isBroadcast(zielIp, nic.getIp(), nic.getSubnetMask())) {
                 return true;
             }
         }

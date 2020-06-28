@@ -25,7 +25,7 @@
  */
 package filius.exception;
 
-public class SocketException extends StilleException {
+public class SocketException extends SilentException {
 
 	public SocketException() {
 		super();

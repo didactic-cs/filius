@@ -25,8 +25,8 @@
  */
 package filius.software.rip;
 
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.software.clientserver.ServerMitarbeiter;
 import filius.software.system.VermittlungsrechnerBetriebssystem;
 import filius.software.transportschicht.Socket;
@@ -41,12 +41,12 @@ import filius.software.vermittlungsschicht.IP;
 public class RIPServerMitarbeiter extends ServerMitarbeiter {
 	private RIPTable table;
 	private VermittlungsrechnerBetriebssystem bs;
-	private InternetKnoten knoten;
+	private InternetNode knoten;
 
 	public RIPServerMitarbeiter(RIPServer server, Socket socket) {
 		super(server, socket);
 		bs = (VermittlungsrechnerBetriebssystem) server.getSystemSoftware();
-		knoten = (InternetKnoten) bs.getKnoten();
+		knoten = (InternetNode) bs.getKnoten();
 		table = bs.getRIPTable();
 	}
 
@@ -108,8 +108,8 @@ public class RIPServerMitarbeiter extends ServerMitarbeiter {
 	String findeInterfaceIp(String ipStr) {
 		long ip = IP.inetAton(ipStr);
 
-		for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-			long netMask = IP.inetAton(nic.getSubnetzMaske());
+		for (NetworkInterface nic : knoten.getNIlist()) {
+			long netMask = IP.inetAton(nic.getSubnetMask());
 			long netAddr = IP.inetAton(nic.getIp()) & netMask;
 
 			if ((ip & netMask) == netAddr) {

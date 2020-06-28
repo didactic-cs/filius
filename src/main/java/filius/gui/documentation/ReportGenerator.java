@@ -54,8 +54,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import filius.gui.GUIContainer;
 import filius.gui.netzwerksicht.GUIKnotenItem;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 import filius.rahmenprogramm.nachrichten.Lauscher;
@@ -106,7 +106,7 @@ public class ReportGenerator {
     void addOverviewSection(Document document) throws BadElementException, IOException, DocumentException {
         createSection(document, "Overview", 1);
 
-        Image img = Image.getInstance(GUIContainer.getGUIContainer().createNetworkImage(), null);
+        Image img = Image.getInstance(GUIContainer.getInstance().createNetworkImage(), null);
         float percent = (document.right() - document.left()) / img.getWidth() * 100;
         img.scalePercent(percent);
         document.add(img);
@@ -115,11 +115,11 @@ public class ReportGenerator {
     void addComponentConfigSection(Document document) throws BadElementException, IOException, DocumentException {
         createSection(document, "Component Configuration", 1);
 
-        List<GUIKnotenItem> components = GUIContainer.getGUIContainer().getKnotenItems();
+        List<GUIKnotenItem> components = GUIContainer.getInstance().getKnotenItems();
         for (GUIKnotenItem item : components) {
-            if (item.getKnoten() instanceof InternetKnoten) {
-                createSection(document, item.getKnoten().holeAnzeigeName(), 2);
-                InternetKnotenBetriebssystem systemSoftware = (InternetKnotenBetriebssystem) item.getKnoten()
+            if (item.getNode() instanceof InternetNode) {
+                createSection(document, item.getNode().getDisplayName(), 2);
+                InternetKnotenBetriebssystem systemSoftware = (InternetKnotenBetriebssystem) item.getNode()
                         .getSystemSoftware();
 
                 document.add(Chunk.NEWLINE);
@@ -138,7 +138,7 @@ public class ReportGenerator {
                 document.add(configTable);
                 document.add(Chunk.NEWLINE);
 
-                InternetKnoten node = (InternetKnoten) item.getKnoten();
+                InternetNode node = (InternetNode) item.getNode();
                 PdfPTable interfaceTable = new PdfPTable(3);
                 interfaceTable.setTotalWidth(new float[] { 180, 180, 180 });
                 interfaceTable.setLockedWidth(false);
@@ -146,10 +146,10 @@ public class ReportGenerator {
                 addHeaderCell(I18n.messages.getString("jhostkonfiguration_msg3"), interfaceTable);
                 addHeaderCell(I18n.messages.getString("jhostkonfiguration_msg4"), interfaceTable);
 
-                for (NetzwerkInterface networkInterface : node.getNetzwerkInterfaces()) {
+                for (NetworkInterface networkInterface : node.getNIlist()) {
                     addCell(networkInterface.getMac(), interfaceTable);
                     addCell(networkInterface.getIp(), interfaceTable);
-                    addCell(networkInterface.getSubnetzMaske(), interfaceTable);
+                    addCell(networkInterface.getSubnetMask(), interfaceTable);
                 }
 
                 document.add(interfaceTable);
@@ -200,12 +200,12 @@ public class ReportGenerator {
         for (String interfaceId : interfaceIDs) {
             String hostname = "Unknown";
             String ipAddress = "0.0.0.0";
-            for (GUIKnotenItem item : GUIContainer.getGUIContainer().getKnotenItems()) {
-                if (item.getKnoten() instanceof InternetKnoten) {
-                    InternetKnoten node = (InternetKnoten) item.getKnoten();
-                    NetzwerkInterface nic = node.getNetzwerkInterfaceByMac(interfaceId);
+            for (GUIKnotenItem item : GUIContainer.getInstance().getKnotenItems()) {
+                if (item.getNode() instanceof InternetNode) {
+                    InternetNode node = (InternetNode) item.getNode();
+                    NetworkInterface nic = node.getNIbyMAC(interfaceId);
                     if (nic != null) {
-                        hostname = item.getKnoten().holeAnzeigeName();
+                        hostname = item.getNode().getDisplayName();
                         ipAddress = nic.getIp();
                         break;
                     }
@@ -259,7 +259,7 @@ public class ReportGenerator {
 
     void closeDocument(Document document) {
         document.close();
-        GUIContainer.getGUIContainer().updateViewport();
+        GUIContainer.getInstance().updateViewport();
     }
 
     Document initDocument(String pdfFilepath) throws DocumentException, FileNotFoundException {

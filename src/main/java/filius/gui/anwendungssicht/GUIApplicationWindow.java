@@ -76,7 +76,7 @@ public abstract class GUIApplicationWindow extends JInternalFrame implements I18
         String awName;
         ImageIcon image;
         try {
-            for (Map<String, String> tmpMap : Information.getInformation().ladeProgrammListe()) {
+            for (Map<String, String> tmpMap : Information.getInstance().ladeProgrammListe()) {
                 awName = (String) tmpMap.get("Anwendung");
 
                 if (awName.equals(anwendung.holeAnwendungsName())) {

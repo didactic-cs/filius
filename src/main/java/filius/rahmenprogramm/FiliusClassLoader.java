@@ -48,7 +48,7 @@ public class FiliusClassLoader extends URLClassLoader {
     private static FiliusClassLoader classLoader;
 
     protected FiliusClassLoader(ClassLoader parent) throws MalformedURLException {
-        super(new URL[] { new File(Information.getInformation().getAnwendungenPfad()).toURI().toURL() }, parent);
+        super(new URL[] { new File(Information.getInstance().getAnwendungenPfad()).toURI().toURL() }, parent);
         Main.debug.println(
                 "INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: FiliusClassLoader(" + parent + ")");
     }

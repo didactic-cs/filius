@@ -575,7 +575,7 @@ public class JDocuElement extends JPanel implements I18n {
     	
     	getParent().setComponentZOrder(this, 0);
     	// Update the GUIContainer.docuItems list (necessary for the order to be saved)
-    	GUIContainer.getGUIContainer().setDocuItemOnTop(this);
+    	GUIContainer.getInstance().setDocuItemOnTop(this);
     }
     
     // Set the component at the bottom (rectangles are always behind the textAreas)
@@ -584,7 +584,7 @@ public class JDocuElement extends JPanel implements I18n {
     	
     	getParent().setComponentZOrder(this, getParent().getComponentCount() - 1);
     	// Update the GUIContainer.docuItems list (necessary for the order to be saved)
-    	GUIContainer.getGUIContainer().setDocuItemAtBottom(this);
+    	GUIContainer.getInstance().setDocuItemAtBottom(this);
     }
     
     private void setPanelCursor(int cursor) {
@@ -593,8 +593,8 @@ public class JDocuElement extends JPanel implements I18n {
     
     private void delete() {
 
-    	GUIContainer.getGUIContainer().removeDocuElement(this);
-        GUIContainer.getGUIContainer().updateViewport();
+    	GUIContainer.getInstance().removeDocuElement(this);
+        GUIContainer.getInstance().updateViewport();
         setPanelCursor(Cursor.DEFAULT_CURSOR);
     }
 

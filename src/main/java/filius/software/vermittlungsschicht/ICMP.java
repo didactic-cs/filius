@@ -31,9 +31,9 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeoutException;
 
 import filius.Main;
-import filius.exception.VerbindungsException;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.exception.ConnectionException;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -149,15 +149,15 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      * @param route
      *            TODO
      * @throws RouteNotFoundException
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     private void dispatch(IcmpPaket paket, String zielIp, Route route) throws RouteNotFoundException {
-        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaceByIp(route
+        NetworkInterface nic = ((InternetNode) holeSystemSoftware().getKnoten()).getNIbyIP(route
                 .getInterfaceIpAddress());
         
-        if (isBroadcast(zielIp, route.getInterfaceIpAddress(), nic.getSubnetzMaske())) {
+        if (isBroadcast(zielIp, route.getInterfaceIpAddress(), nic.getSubnetMask())) {
             sendBroadcast(paket, zielIp, nic.getMac());
-        } else if (gleichesRechnernetz(zielIp, route.getInterfaceIpAddress(), nic.getSubnetzMaske())) {
+        } else if (gleichesRechnernetz(zielIp, route.getInterfaceIpAddress(), nic.getSubnetMask())) {
             sendUnicastToNextHop(paket, paket.getZielIp(), nic.getMac());
         } else {
             sendUnicastToNextHop(paket, route.getGateway(), nic.getMac());

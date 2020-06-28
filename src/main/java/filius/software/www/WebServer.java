@@ -32,14 +32,13 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import filius.Main;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
 import filius.software.clientserver.TCPServerAnwendung;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.transportschicht.Socket;
@@ -51,11 +50,13 @@ import filius.software.transportschicht.TCPSocket;
  */
 public class WebServer extends TCPServerAnwendung {
 
-    private DefaultMutableTreeNode verzeichnis;
+    private FiliusFileNode verzeichnis;
 
     private HashMap<String, WebServerPlugIn> plugins = new HashMap<String, WebServerPlugIn>();
 
     private String[][] vHostArray = new String[5][2]; // default size of 5x2
+    
+    private FiliusFileSystem FFS = null;
 
     public WebServer() {
         super();
@@ -78,6 +79,7 @@ public class WebServer extends TCPServerAnwendung {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
+        FFS = betriebssystem.getDateisystem();
 
         erzeugeStandardVerzeichnis();
     }
@@ -128,17 +130,14 @@ public class WebServer extends TCPServerAnwendung {
     private void erzeugeStandardVerzeichnis() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeStandardVerzeichnis()");
-        FiliusFileSystem dateisystem;
 
-        dateisystem = getSystemSoftware().getDateisystem();
-        dateisystem.createDirectory(dateisystem.getRoot(), "webserver");
-        verzeichnis = dateisystem
-                .absolutePathToNode(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "webserver");
+        FFS.getRoot().addDirectory("webserver");
+        verzeichnis = FFS.toNode("webserver");
         try {
-            if (!dateisystem.fileExists(verzeichnis, "index.html")) {
+            if (verzeichnis != null && !verzeichnis.hasChildNamed("index.html")) {
 
                 erzeugeIndexDatei(ResourceUtil
-                        .getResourcePath("tmpl/webserver_index_" + Information.getInformation().getLocale() + ".txt"));
+                        .getResourcePath("tmpl/webserver_index_" + Information.getInstance().getLocale() + ".txt"));
 
                 // this was used for externally stored file... no longer working
                 // erzeugeDatei("splashscreen-mini", "png", Base64
@@ -161,19 +160,19 @@ public class WebServer extends TCPServerAnwendung {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeDatei(" + dateiname + "," + endung + "," + quellcode + ")");
         String kompletteDateiName = dateiname + "." + endung;
-        Datei datei = new Datei(kompletteDateiName, endung, quellcode);
-        getSystemSoftware().getDateisystem().saveDatei(verzeichnis, datei);
+        FiliusFile datei = new FiliusFile(kompletteDateiName, endung, quellcode);
+        verzeichnis.saveFiliusFile(datei);
     }
 
     /**
      * holt eine Datei aus dem Verzeichnisbaum des WebServers. Dieser benutzt TreeNodes
      */
-    protected Datei dateiLiefern(String relativerPfad) {
+    protected FiliusFile dateiLiefern(String relativerPfad) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), dateiLiefern(" + relativerPfad + ")");
-        Datei tmpDatei;
+        FiliusFile tmpDatei;
 
-        tmpDatei = getSystemSoftware().getDateisystem().getDatei(verzeichnis, relativerPfad);
+        tmpDatei = verzeichnis.getFiliusFile(relativerPfad);
         return tmpDatei;
     }
 
@@ -264,9 +263,9 @@ public class WebServer extends TCPServerAnwendung {
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
         super.starten();
 
-        if (!getSystemSoftware().getDateisystem().fileExists("www.conf", "vhosts")) {
-            getSystemSoftware().getDateisystem().createDirectory("root", "www.conf");
-        }
+//        if (!FFS.fileExists("www.conf", "vhosts")) {
+//        	FFS.getRoot().addDirectory("www.conf");
+//        }
 
         initialisiereVHosts();
     }
@@ -280,12 +279,9 @@ public class WebServer extends TCPServerAnwendung {
     private void saveVHosts() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), schreibeRecordListe()");
-        Datei vhosts;
+        FiliusFile vhosts;
         StringBuffer text;
-        FiliusFileSystem dateisystem;
         String host, directory;
-
-        dateisystem = getSystemSoftware().getDateisystem();
 
         text = new StringBuffer();
 
@@ -295,28 +291,32 @@ public class WebServer extends TCPServerAnwendung {
             text.append((host != null ? host : "") + "\n" + (directory != null ? directory : "") + "\n");
         }
 
-        vhosts = new Datei();
+        vhosts = new FiliusFile();
         vhosts.setContent(text.toString());
         vhosts.setName("vhosts");
 
-        dateisystem.saveDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "www.conf", vhosts);
+        FiliusFileNode node = FFS.toNode("www.conf");
+        if (node == null) {
+        	// Create /www.conf directory
+        	FFS.getRoot().addDirectory("www.conf");
+        	node = FFS.toNode("www.conf");
+        }
+        if (node != null) node.saveFiliusFile(vhosts);
     }
 
     private void initialisiereVHosts() {
         Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");
-        Datei vhosts;
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");        
         StringTokenizer tokenizer;
         String line;
-        FiliusFileSystem dateisystem;
 
         vHostArray = new String[5][2];
         int row = 0;
         int col = 0;
 
-        dateisystem = getSystemSoftware().getDateisystem();
-        vhosts = dateisystem.getDatei(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "www.conf"
-                + FiliusFileSystem.FILE_SEPARATOR + "vhosts");
+        FiliusFile vhosts = null;
+        FiliusFileNode node = FFS.toNode("www.conf", "vhosts");
+    	if (node != null) vhosts = node.getFiliusFile();	
 
         if (vhosts != null) {
             tokenizer = new StringTokenizer(vhosts.getContent(), "\n");

@@ -50,7 +50,7 @@ import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
 import filius.gui.quelltextsicht.FrameSoftwareWizard;
-import filius.hardware.Verbindung;
+import filius.hardware.Connection;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
@@ -74,11 +74,14 @@ public class GUIMainMenu implements Serializable, I18n {
 
     private int aktuellerModus = MODUS_ENTWURF;
 
-    private JButton btAktionsmodus, btEntwurfsmodus, btDokumodus, btOeffnen, btSpeichern, btNeu, btWizard, btHilfe,
-            btInfo;
+    private JButton btAktionsmodus, btEntwurfsmodus, btDokumodus, btOeffnen, btSpeichern, btNeu, btWizard, btHilfe, btInfo;
+    
+    private GUIContainer container;    
 
     public GUIMainMenu() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
+        container = GUIContainer.getInstance();
+        
         Container c = JMainFrame.getJMainFrame().getContentPane();
 
         menupanel = new JBackgroundPanel();
@@ -173,15 +176,15 @@ public class GUIMainMenu implements Serializable, I18n {
                         exc.printStackTrace(Main.debug);
                     }
                     if (entscheidung == JOptionPane.YES_OPTION) {
-                        GUIContainer.getGUIContainer().clearAllItems();
-                        GUIContainer.getGUIContainer().setProperty(null);
-                        Information.getInformation().reset();
+                    	container.clearAllItems();
+                    	container.setProperty(null);
+                        Information.getInstance().reset();
                         SzenarioVerwaltung.getInstance().reset();
                     }
                 }
 
                 if (e.getActionCommand().equals(btSpeichern.getActionCommand())) {
-                    if (GUIContainer.getGUIContainer().getActiveSite() != MODUS_AKTION) {
+                    if (container.getActiveSite() != MODUS_AKTION) {
                         JFileChooser fcSpeichern = new JFileChooser();
 
                         fcSpeichern.setFileFilter(filiusFileFilter);
@@ -189,7 +192,7 @@ public class GUIMainMenu implements Serializable, I18n {
 
                         if (fcSpeichern.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
                             if (fcSpeichern.getSelectedFile() != null) {
-                                Information.getInformation()
+                                Information.getInstance()
                                         .setLastOpenedDirectory(fcSpeichern.getSelectedFile().getParent());
                                 String targetFilePath;
                                 if (fcSpeichern.getSelectedFile().getName().endsWith(".fls")) {
@@ -208,11 +211,11 @@ public class GUIMainMenu implements Serializable, I18n {
                                             messages.getString("guimainmemu_msg10"), JOptionPane.YES_NO_OPTION);
                                 }
 
-                                if (entscheidung == JOptionPane.YES_OPTION) {
+                                if (entscheidung == JOptionPane.YES_OPTION) {                                	
                                     erfolg = SzenarioVerwaltung.getInstance().speichern(targetFilePath,
-                                            GUIContainer.getGUIContainer().getKnotenItems(),
-                                            GUIContainer.getGUIContainer().getCableItems(),
-                                            GUIContainer.getGUIContainer().getDocuItems());
+                                    		container.getKnotenItems(),
+                                    		container.getCableItems(),
+                                    		container.getDocuItems());                                    
                                     if (!erfolg) {
                                         JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(),
                                                 messages.getString("guimainmemu_msg11"));
@@ -236,26 +239,25 @@ public class GUIMainMenu implements Serializable, I18n {
                     } catch (Exception exc) {
                         exc.printStackTrace(Main.debug);
                     }
-                    if (entscheidung == JOptionPane.YES_OPTION
-                            && GUIContainer.getGUIContainer().getActiveSite() != MODUS_AKTION) {
+                    if (entscheidung == JOptionPane.YES_OPTION && container.getActiveSite() != MODUS_AKTION) {
                         JFileChooser fcLaden = new JFileChooser();
                         fcLaden.setFileFilter(filiusFileFilter);
                         initCurrentFileOrDirSelection(fcLaden);
 
                         if (fcLaden.showOpenDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
                             if (fcLaden.getSelectedFile() != null) {
-                                Information.getInformation()
+                                Information.getInstance()
                                         .setLastOpenedDirectory(fcLaden.getSelectedFile().getParent());
                                 try {
-                                    Information.getInformation().reset();
+                                    Information.getInstance().reset();
                                     SzenarioVerwaltung.getInstance().laden(fcLaden.getSelectedFile().getPath(),
-                                            GUIContainer.getGUIContainer().getKnotenItems(),
-                                            GUIContainer.getGUIContainer().getCableItems(),
-                                            GUIContainer.getGUIContainer().getDocuItems());
-                                    GUIContainer.getGUIContainer().setProperty(null);
-                                    GUIContainer.getGUIContainer().updateViewport();
+                                    		container.getKnotenItems(),
+                                    		container.getCableItems(),
+                                    		container.getDocuItems());
+                                    container.setProperty(null);
+                                    container.updateViewport();
                                     Thread.sleep(10);
-                                    GUIContainer.getGUIContainer().updateCables();
+                                    container.updateCables();
                                 } catch (FileNotFoundException e1) {
                                     e1.printStackTrace(Main.debug);
                                 } catch (Exception e2) {
@@ -301,13 +303,13 @@ public class GUIMainMenu implements Serializable, I18n {
         verzoegerung.setMaximum(10);
         verzoegerung.setMinimum(1);
         verzoegerung.setValue(verzoegerung.getMaximum());
-        Verbindung.setzeVerzoegerungsFaktor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
+        Connection.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
         verzoegerung.setBounds(510, 10, 100, 44);
         verzoegerung.setOpaque(false);
         verzoegerung.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent arg0) {
-                Verbindung.setzeVerzoegerungsFaktor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
+                Connection.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
                 geschwindigkeit.setText("" + verzoegerung.getValue() * 10 + "%");
             }
 
@@ -344,7 +346,7 @@ public class GUIMainMenu implements Serializable, I18n {
 
     private void initCurrentFileOrDirSelection(JFileChooser fcLaden) {
         String scenarioPath = SzenarioVerwaltung.getInstance().holePfad();
-        String lastOpenedDir = Information.getInformation().getLastOpenedDirectory();
+        String lastOpenedDir = Information.getInstance().getLastOpenedDirectory();
         File file = null;
         if (scenarioPath != null) {
             file = new File(scenarioPath);
@@ -361,8 +363,8 @@ public class GUIMainMenu implements Serializable, I18n {
 
     private boolean isSoftwareWizardEnabled() {
         return (null != ToolProvider.getSystemJavaCompiler()
-                && Information.getInformation().getSoftwareWizardMode() != Information.FeatureMode.FORCE_DISABLE)
-                || Information.getInformation().getSoftwareWizardMode() == Information.FeatureMode.FORCE_ENABLE;
+                && Information.getInstance().getSoftwareWizardMode() != Information.FeatureMode.FORCE_DISABLE)
+                || Information.getInstance().getSoftwareWizardMode() == Information.FeatureMode.FORCE_ENABLE;
     }
 
     public void changeSlider(int diff) {
@@ -407,14 +409,16 @@ public class GUIMainMenu implements Serializable, I18n {
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), resetCableHL(" + mode + ")");
         if (mode == MODUS_AKTION) { // change to simulation view: de-highlight
                                     // all cables
-            for (GUIKabelItem cableItem : GUIContainer.getGUIContainer().getCableItems()) {
-                cableItem.getDasKabel().setAktiv(false);
+            for (GUIKabelItem cableItem : container.getCableItems()) {
+                if (cableItem.getCable() != null) cableItem.getCable().setActive(false);
             }
+            GUIEvents.getGUIEvents().unselectActiveCable();
         } else { // change to development view: possibly highlight a cable (only
                  // for 'Vermittlungsrechner' configuration
-            if (GUIContainer.getGUIContainer().getProperty() instanceof JVermittlungsrechnerKonfiguration) {
-                ((JVermittlungsrechnerKonfiguration) GUIContainer.getGUIContainer().getProperty()).highlightConnCable();
+            if (container.getProperty() instanceof JVermittlungsrechnerKonfiguration) {
+                ((JVermittlungsrechnerKonfiguration) container.getProperty()).highlightConnCable();
             }
+            if (mode == MODUS_DOKUMENTATION) GUIEvents.getGUIEvents().unselectActiveCable();
         }
     }
 
@@ -423,12 +427,12 @@ public class GUIMainMenu implements Serializable, I18n {
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), selectMode(" + mode + ")");
 
         if (mode == MODUS_ENTWURF) {
-            resetCableHighlighting(mode); // de-highlight cables
+            resetCableHighlighting(mode); // de-highlight cables   
 
             btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus_aktiv.png")));
             btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
             btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
-            GUIContainer.getGUIContainer().setActiveSite(MODUS_ENTWURF);
+            container.setActiveSite(MODUS_ENTWURF);
 
             GUIHilfe.getGUIHilfe().laden("entwurfsmodus");
 
@@ -440,13 +444,17 @@ public class GUIMainMenu implements Serializable, I18n {
             if (isSoftwareWizardEnabled()) {
                 btWizard.setEnabled(true);
             }
+            
+            GUIEvents.getGUIEvents().unFreezeActiveElements();         
+            
         } else if (mode == MODUS_DOKUMENTATION) {
+        	GUIEvents.getGUIEvents().freezeActiveElements(); 
             resetCableHighlighting(mode); // de-highlight cables
 
             btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus.png")));
             btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
             btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus_aktiv.png")));
-            GUIContainer.getGUIContainer().setActiveSite(MODUS_DOKUMENTATION);
+            container.setActiveSite(MODUS_DOKUMENTATION);
 
             GUIHilfe.getGUIHilfe().laden("dokumodus");
 
@@ -460,17 +468,18 @@ public class GUIMainMenu implements Serializable, I18n {
             }
         } else if (mode == MODUS_AKTION && aktuellerModus != MODUS_AKTION) {
             // Main.debug.println("\tMode: MODUS_AKTION");
+        	GUIEvents.getGUIEvents().freezeActiveElements(); 
             resetCableHighlighting(mode); // de-highlight cables
 
             btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus.png")));
             btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus_aktiv.png")));
             btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
-            GUIContainer.getGUIContainer().setActiveSite(MODUS_AKTION);
+            container.setActiveSite(MODUS_AKTION);
             GUIHilfe.getGUIHilfe().laden("simulationsmodus");
 
-            for (GUIKnotenItem knotenItem : GUIContainer.getGUIContainer().getKnotenItems()) {
+            for (GUIKnotenItem knotenItem : container.getKnotenItems()) {
                 SystemSoftware system;
-                system = knotenItem.getKnoten().getSystemSoftware();
+                system = knotenItem.getNode().getSystemSoftware();
                 system.starten();
             }
 
@@ -488,14 +497,14 @@ public class GUIMainMenu implements Serializable, I18n {
     }
 
     private void stopSimulation() {
-        for (GUIKnotenItem knotenItem : GUIContainer.getGUIContainer().getKnotenItems()) {
+        for (GUIKnotenItem knotenItem : container.getKnotenItems()) {
             SystemSoftware system;
-            system = knotenItem.getKnoten().getSystemSoftware();
+            system = knotenItem.getNode().getSystemSoftware();
             try {
                 system.beenden();
             } catch (Exception e) {}
         }
-        ((JFrame) GUIContainer.getGUIContainer().getExchangeDialog()).setVisible(false);
+        ((JFrame) container.getExchangeDialog()).setVisible(false);
     }
 
     public JBackgroundPanel getMenupanel() {

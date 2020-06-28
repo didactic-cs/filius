@@ -33,7 +33,7 @@ import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
 import filius.gui.GUIMainMenu;
 import filius.gui.SatViewerControl;
-import filius.hardware.knoten.Knoten;
+import filius.hardware.knoten.Node;
 import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
 import filius.hardware.knoten.Switch;
@@ -41,29 +41,29 @@ import filius.rahmenprogramm.SzenarioVerwaltung;
 
 public class GUIKnotenItem {
 
-    private Knoten knoten;
-    private JSidebarButton imageLabel;
+	private Node node; 
+    private JNodeLabel nodeLabel;    
 
-    public JSidebarButton getImageLabel() {
-        return imageLabel;
+    public JNodeLabel getNodeLabel() {
+        return nodeLabel;
     }
 
-    public void setImageLabel(JSidebarButton label) {
-        this.imageLabel = label;
+    public void setNodeLabel(JNodeLabel label) {
+        this.nodeLabel = label;
         label.addMouseListener(new MouseInputAdapter() {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_AKTION) {
+                if (GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_AKTION) {
                     SzenarioVerwaltung.getInstance().setzeGeaendert();
                     if (e.getButton() == 3) {
                         GUIEvents.getGUIEvents().kontextMenueAktionsmodus(GUIKnotenItem.this, e.getX(), e.getY());
                     } else if (e.getButton() == 1) {
-                        if (GUIKnotenItem.this.getKnoten() instanceof Rechner
-                                || GUIKnotenItem.this.getKnoten() instanceof Notebook) {
-                            GUIContainer.getGUIContainer().showDesktop(GUIKnotenItem.this);
-                        } else if (GUIKnotenItem.this.getKnoten() instanceof Switch) {
-                            SatViewerControl.getInstance().showViewer((Switch) GUIKnotenItem.this.getKnoten());
+                        if (GUIKnotenItem.this.getNode() instanceof Rechner
+                                || GUIKnotenItem.this.getNode() instanceof Notebook) {
+                            GUIContainer.getInstance().showDesktop(GUIKnotenItem.this);
+                        } else if (GUIKnotenItem.this.getNode() instanceof Switch) {
+                            SatViewerControl.getInstance().showViewer((Switch) GUIKnotenItem.this.getNode());
                         }
                     }
                 }
@@ -71,11 +71,11 @@ public class GUIKnotenItem {
         });
     }
 
-    public Knoten getKnoten() {
-        return knoten;
+    public Node getNode() {
+        return node;
     }
 
-    public void setKnoten(Knoten knoten) {
-        this.knoten = knoten;
+    public void setNode(Node node) {
+        this.node = node;
     }
 }

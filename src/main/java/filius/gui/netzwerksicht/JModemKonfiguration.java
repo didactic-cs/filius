@@ -66,7 +66,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
     protected JModemKonfiguration(Hardware hardware) {
         super(hardware);
 
-        ((Modem) holeHardware()).getSystemSoftware().addObserver(this);
+        ((Modem) getHardware()).getSystemSoftware().addObserver(this);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         Modem modem;
         ModemFirmware firmware;
 
-        modem = (Modem) holeHardware();
+        modem = (Modem) getHardware();
         firmware = (ModemFirmware) modem.getSystemSoftware();
 
         modem.setName(name.getText());
@@ -91,7 +91,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
             ((ModemFirmware) modem.getSystemSoftware()).setMode(ModemFirmware.CLIENT);
         }
 
-        GUIContainer.getGUIContainer().updateViewport();
+        GUIContainer.getInstance().updateViewport();
     }
 
     protected void initAttributEingabeBox(Box box, Box rightBox) {
@@ -155,7 +155,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         tfIpAdresse = new JTextField("192.168.0.21");
         tfIpAdresse.setEnabled(false);
         tfIpAdresse.setPreferredSize(new Dimension(100, 18));
-        tfIpAdresse.setText(((ModemFirmware) ((Modem) holeHardware()).getSystemSoftware()).getIpAdresse());
+        tfIpAdresse.setText(((ModemFirmware) ((Modem) getHardware()).getSystemSoftware()).getIpAdresse());
         tfIpAdresse.addActionListener(configActionListener);
         tfIpAdresse.addFocusListener(configFocusListener);
         tempBox.add(tfIpAdresse);
@@ -172,7 +172,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
 
         tfPort = new JTextField("1234");
         tfPort.setPreferredSize(new Dimension(100, 18));
-        tfPort.setText("" + ((ModemFirmware) ((Modem) holeHardware()).getSystemSoftware()).getPort());
+        tfPort.setText("" + ((ModemFirmware) ((Modem) getHardware()).getSystemSoftware()).getPort());
         tfPort.addActionListener(configActionListener);
         tfPort.addFocusListener(configFocusListener);
         tempBox.add(tfPort);
@@ -188,7 +188,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         btStartStop.setActionCommand(CMD_START_SERVER);
         btStartStop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                ModemFirmware firmware = (ModemFirmware) ((Modem) holeHardware()).getSystemSoftware();
+                ModemFirmware firmware = (ModemFirmware) ((Modem) getHardware()).getSystemSoftware();
 
                 aenderungenAnnehmen();
 
@@ -217,9 +217,9 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         ModemFirmware firmware;
         boolean aktiv;
 
-        modem = (Modem) holeHardware();
+        modem = (Modem) getHardware();
         firmware = (ModemFirmware) modem.getSystemSoftware();
-        name.setText(modem.holeAnzeigeName());
+        name.setText(modem.getDisplayName());
 
         tfIpAdresse.setText(firmware.getIpAdresse());
         tfPort.setText("" + firmware.getPort());

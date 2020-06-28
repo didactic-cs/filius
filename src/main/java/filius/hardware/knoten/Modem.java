@@ -25,17 +25,20 @@
  */
 package filius.hardware.knoten;
 
+import java.util.LinkedList;
+
 import filius.Main;
+import filius.hardware.Port;
 import filius.software.system.ModemFirmware;
 
-public class Modem extends LokalerKnoten {
+public class Modem extends LocalNode {
 
 	public static final String TYPE = "Modem";
 	private static final long serialVersionUID = 1L;
 	private boolean modemVerbindungAktiv = false;
 
 	@Override
-	public String holeHardwareTyp() {
+	public String getHardwareType() {
 		return TYPE;
 	}
 
@@ -43,7 +46,7 @@ public class Modem extends LokalerKnoten {
 		super();
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Modem), constr: Modem()");
 
-		this.setzeAnzahlAnschluesse(1);
+		this.createPortList(1);
 		this.setSystemSoftware(new ModemFirmware());
 		getSystemSoftware().setKnoten(this);
 		this.setName(TYPE);
@@ -60,4 +63,18 @@ public class Modem extends LokalerKnoten {
 	public boolean istModemVerbindungAktiv() {
 		return modemVerbindungAktiv;
 	}
+	
+    /**
+     * <b>getPort</b> returns the port of the modem.
+     *      
+     * @return A Port instance or null.
+     */
+    public Port getPort() {
+    	
+    	LinkedList<Port> ports = getPortList();
+    	
+        if (ports == null || ports.size() == 0) return null;
+        
+        return (Port) ports.getFirst();        
+    }
 }

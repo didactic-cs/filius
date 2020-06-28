@@ -74,7 +74,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
         sat = new HashMap<String, Port>();
         switchBeobachter = new LinkedList<SwitchPortBeobachter>();
 
-        for (Port anschluss : ((Switch) getKnoten()).getAnschluesse()) {
+        for (Port anschluss : ((Switch) getKnoten()).getPortList()) {
             anschlussBeobachter = new SwitchPortBeobachter(this, anschluss);
             anschlussBeobachter.starten();
             switchBeobachter.add(anschlussBeobachter);
@@ -100,8 +100,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
 
         for (String elem : sat.keySet()) {
             Port anschluss = (Port) sat.get(elem);
-            ausgabe = messages.getString("sw_switchfirmware_msg1") + " "
-                    + ((Switch) getKnoten()).getAnschluesse().indexOf(anschluss);
+            ausgabe = messages.getString("sw_switchfirmware_msg1") + " " + String.valueOf(anschluss.getIndex()+1);
             eintrag = new Vector<String>();
             eintrag.add(elem.toUpperCase());
             eintrag.add(ausgabe);

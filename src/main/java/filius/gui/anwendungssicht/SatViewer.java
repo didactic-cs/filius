@@ -48,7 +48,7 @@ public class SatViewer extends JFrame implements I18n, PropertyChangeListener {
     private DefaultTableModel dtm;
 
     public SatViewer(Switch sw) {
-        super(messages.getString("guievents_msg8") + " " + sw.holeAnzeigeName());
+        super(messages.getString("guievents_msg8") + " " + sw.getDisplayName());
         JFrameList.gI().add(this);
         this.sw = sw;
         init();
@@ -63,6 +63,7 @@ public class SatViewer extends JFrame implements I18n, PropertyChangeListener {
 
         dtm = new DefaultTableModel(0, 2);
         JTable tableSATNachrichten = new JTable(dtm);
+        tableSATNachrichten.getTableHeader().setReorderingAllowed(false);
         DefaultTableColumnModel dtcm = (DefaultTableColumnModel) tableSATNachrichten.getColumnModel();
         dtcm.getColumn(0).setHeaderValue(messages.getString("guievents_msg9"));
         dtcm.getColumn(1).setHeaderValue(messages.getString("guievents_msg10"));

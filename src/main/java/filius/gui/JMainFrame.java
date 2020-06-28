@@ -81,12 +81,12 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                     }
                     /* delete item on deletion key press */
                     if ((e.getKeyChar() == KeyEvent.VK_DELETE) && (frame.isFocused())
-                            && GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF) {
-                        if (GUIContainer.getGUIContainer().isMarkerVisible()) {
+                            && GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_ENTWURF) {
+                        if (GUIContainer.getInstance().isMarkerVisible()) {
                             // multiple items are selected
-                            List<GUIKnotenItem> itemlist = GUIContainer.getGUIContainer().getKnotenItems();
-                            JMarkerPanel auswahl = GUIContainer.getGUIContainer().getAuswahl();
-                            JScrollPane scrollPane = GUIContainer.getGUIContainer().getScrollPane();
+                            List<GUIKnotenItem> itemlist = GUIContainer.getInstance().getKnotenItems();
+                            JMarkerPanel auswahl = GUIContainer.getInstance().getAuswahl();
+                            JScrollPane scrollPane = GUIContainer.getInstance().getScrollPane();
                             GUIKnotenItem tempitem;
                             int tx, ty, twidth, theight;
                             LinkedList<GUIKnotenItem> markedlist = new LinkedList<GUIKnotenItem>();
@@ -94,10 +94,10 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             while (it.hasNext()) {
                             	// Code adapted from GUIEvents.mausReleased
                             	tempitem = (GUIKnotenItem) it.next();
-                            	tx = tempitem.getImageLabel().getX();
-                                twidth = tempitem.getImageLabel().getWidth();
-                                ty = tempitem.getImageLabel().getY();
-                                theight = tempitem.getImageLabel().getHeight();
+                            	tx = tempitem.getNodeLabel().getX();
+                                twidth = tempitem.getNodeLabel().getWidth();
+                                ty = tempitem.getNodeLabel().getY();
+                                theight = tempitem.getNodeLabel().getHeight();
 
                                 int itemPosX = tx + twidth / 2;
                                 int itemPosY = ty + theight / 2;
@@ -112,69 +112,73 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                                 // Main.debug.println("\t"+((GUIKnotenItem)
                                 // markedlist.get(i)).getKnoten().getName());
                                 GUIEvents.getGUIEvents().itemLoeschen(
-                                        ((GUIKnotenItem) markedlist.get(i)).getImageLabel(),
+                                        ((GUIKnotenItem) markedlist.get(i)).getNodeLabel(),
                                         ((GUIKnotenItem) markedlist.get(i)));
                             }
                             auswahl.setVisible(false);
-                            GUIContainer.getGUIContainer().getMarkierung().setVisible(false);
+                            GUIContainer.getInstance().getMarkierung().setVisible(false);
                             return true;
                         } else if (GUIEvents.getGUIEvents().getActiveItem() != null) {
                             // single item active
                             GUIEvents.getGUIEvents().itemLoeschen(
-                                    GUIEvents.getGUIEvents().getActiveItem().getImageLabel(),
+                                    GUIEvents.getGUIEvents().getActiveItem().getNodeLabel(),
                                     GUIEvents.getGUIEvents().getActiveItem());
                             return true;
-                        }
+                        } else if (GUIEvents.getGUIEvents().getActiveCable() != null) {
+                            // a cable is active
+                        	GUIEvents.getGUIEvents().removeActiveCable();
+                            return true;
+                        }                        
                     }
                     if (e.getModifiers() == 2) { // CTRL key pressed
                         // Main.debug.println("KeyDispatcher: CTRL-Key pressed, waiting for additional key!");
                         switch (e.getKeyCode()) {
                         case 78: // N (new)
                             // Main.debug.println("KeyDispatcher: CTRL+N recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btNeu");
+                            GUIContainer.getInstance().getMenu().doClick("btNeu");
                             return true;
                         case 79: // O (open)
                             // Main.debug.println("KeyDispatcher: CTRL+O recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btOeffnen");
+                            GUIContainer.getInstance().getMenu().doClick("btOeffnen");
                             return true;
                         case 83: // S (save file)
                             // Main.debug.println("KeyDispatcher: CTRL+S recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btSpeichern");
+                            GUIContainer.getInstance().getMenu().doClick("btSpeichern");
                             return true;
                         case 68: // D (development mode)
                             // Main.debug.println("KeyDispatcher: CTRL+D recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btEntwurfsmodus");
+                            GUIContainer.getInstance().getMenu().doClick("btEntwurfsmodus");
                             return true;
                         case 82: // R (run-time/simulation mode)
                             // Main.debug.println("KeyDispatcher: CTRL+R recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btAktionsmodus");
+                            GUIContainer.getInstance().getMenu().doClick("btAktionsmodus");
                             return true;
                         case 37: // left arrow (slower simulation)
                             // Main.debug.println("KeyDispatcher: CTRL+left recognised");
-                            GUIContainer.getGUIContainer().getMenu().changeSlider(-1);
+                            GUIContainer.getInstance().getMenu().changeSlider(-1);
                             return true;
                         case 39: // right arrow (faster simulation)
                             // Main.debug.println("KeyDispatcher: CTRL+right recognised");
-                            GUIContainer.getGUIContainer().getMenu().changeSlider(1);
+                            GUIContainer.getInstance().getMenu().changeSlider(1);
                             return true;
                         case 87: // W (wizard for new modules)
                             // Main.debug.println("KeyDispatcher: CTRL+W recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btWizard");
+                            GUIContainer.getInstance().getMenu().doClick("btWizard");
                             return true;
                         case 72: // H (help)
                             // Main.debug.println("KeyDispatcher: CTRL+H recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btHilfe");
+                            GUIContainer.getInstance().getMenu().doClick("btHilfe");
                             return true;
                         case 65: // A (about dialog)
                             // Main.debug.println("KeyDispatcher: CTRL+A recognised");
-                            GUIContainer.getGUIContainer().getMenu().doClick("btInfo");
+                            GUIContainer.getInstance().getMenu().doClick("btInfo");
                             return true;
                         }
                     }
                     // ALT key pressed; only makes sense for cables!
                     if (e.getModifiers() == 8) {
                         // key '1' (cable)
-                        if ((e.getKeyCode() == 49) && (GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF)) {
+                        if ((e.getKeyCode() == 49) && (GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_ENTWURF)) {
                             // Main.debug.println("KeyDispatcher: ALT+1 recognised");
                             switchCablePreview();
                             return true;
@@ -256,11 +260,11 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
     }
 
     private void switchCablePreview() {
-        if (GUIContainer.getGUIContainer().getKabelvorschau().isVisible()) {
+        if (GUIContainer.getInstance().getKabelvorschau().isVisible()) {
             GUIEvents.getGUIEvents().resetAndHideCablePreview();
         } else {
-            int currentPosX = (int) (MouseInfo.getPointerInfo().getLocation().getX() - GUIContainer.getGUIContainer().getDesignpanel().getLocationOnScreen().getX());
-            int currentPosY = (int) (MouseInfo.getPointerInfo().getLocation().getY() - GUIContainer.getGUIContainer().getDesignpanel().getLocationOnScreen().getY());
+            int currentPosX = (int) (MouseInfo.getPointerInfo().getLocation().getX() - GUIContainer.getInstance().getDesignpanel().getLocationOnScreen().getX());
+            int currentPosY = (int) (MouseInfo.getPointerInfo().getLocation().getY() - GUIContainer.getInstance().getDesignpanel().getLocationOnScreen().getY());
             GUIEvents.getGUIEvents().resetAndShowCablePreview(currentPosX, currentPosY);
         }
     }

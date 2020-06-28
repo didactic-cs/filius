@@ -27,8 +27,8 @@ package filius.software.rip;
 
 import java.util.LinkedList;
 
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IP;
 
@@ -69,11 +69,11 @@ public class RIPTable {
 		routes.add(route);
 	}
 
-	public void addLocalRoutes(InternetKnoten knoten) {
+	public void addLocalRoutes(InternetNode knoten) {
 		long netMask, netAddr;
 
-		for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-			netMask = IP.inetAton(nic.getSubnetzMaske());
+		for (NetworkInterface nic : knoten.getNIlist()) {
+			netMask = IP.inetAton(nic.getSubnetMask());
 			netAddr = IP.inetAton(nic.getIp()) & netMask;
 
 			addRoute(new RIPRoute(0, IP.inetNtoa(netAddr), IP.inetNtoa(netMask), nic.getIp(), bs.holeIPAdresse(),

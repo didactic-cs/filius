@@ -28,7 +28,7 @@ package filius.software.transportschicht;
 import filius.Main;
 import filius.exception.SocketException;
 import filius.exception.TimeOutException;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IP;
@@ -77,10 +77,10 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * @param betriebssystem
      * @param zielAdresse
      * @param zielPort
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int transportProtokoll)
-            throws VerbindungsException {
+            throws ConnectionException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + "," + transportProtokoll + ")");
         String ip;
@@ -104,7 +104,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
         if (zielIp != null) {
             this.zielPort = zielPort;
         } else {
-            throw new VerbindungsException(messages.getString("sw_socket_msg1"));
+            throw new ConnectionException(messages.getString("sw_socket_msg1"));
         }
     }
 
@@ -119,10 +119,10 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * @param lokalerPort
      *            ein bestimmter lokaler Port, der beim Betriebssystem reserviert werden soll. Dieser Parameter wird nur
      *            dann verwendet, wenn der Wert groesser 0 ist.
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int transportProtokoll,
-            int lokalerPort) throws VerbindungsException {
+            int lokalerPort) throws ConnectionException {
         this(betriebssystem, zielAdresse, zielPort, transportProtokoll);
         Main.debug.println(
                 "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
@@ -138,10 +138,10 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * @param betriebssystem
      * @param zielAdresse
      * @param zielPort
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     public Socket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll)
-            throws VerbindungsException {
+            throws ConnectionException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket("
                 + betriebssystem + "," + lokalerPort + "," + transportProtokoll + ")");
 
@@ -164,19 +164,19 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
     }
 
     /** Zum Versenden einer Nachricht ueber den Socket */
-    public abstract void senden(String nachricht) throws VerbindungsException, TimeOutException;
+    public abstract void senden(String nachricht) throws ConnectionException, TimeOutException;
 
     /**
      * Zum Empfangen einer Nachricht ueber den Socket
      */
-    public abstract String empfangen() throws VerbindungsException, TimeOutException;
+    public abstract String empfangen() throws ConnectionException, TimeOutException;
 
     /**
      * Zum Empfangen einer Nachricht ueber den Socket
      * 
      * @param timeoutMillis
      */
-    public abstract String empfangen(long timeoutMillis) throws VerbindungsException, TimeOutException;
+    public abstract String empfangen(long timeoutMillis) throws ConnectionException, TimeOutException;
 
     /**
      * Test, ob der uebergebene String eine gueltige IP-Adresse ist. Zurueckgegeben wird die IP-Adresse ohne
@@ -212,7 +212,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      */
     public abstract void schliessen();
 
-    public abstract void verbinden() throws VerbindungsException, TimeOutException;
+    public abstract void verbinden() throws ConnectionException, TimeOutException;
 
     public abstract boolean istVerbunden();
 

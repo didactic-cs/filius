@@ -28,8 +28,8 @@ package filius.software.vermittlungsschicht;
 import java.util.LinkedList;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.software.rip.RIPRoute;
 import filius.software.rip.RIPTable;
@@ -172,7 +172,7 @@ public class Weiterleitungstabelle implements I18n {
 	public LinkedList<String[]> holeTabelle() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
 		        + " (Weiterleitungstabelle), holeTabelle()");
-		InternetKnoten knoten;
+		InternetNode knoten;
 		String gateway;
 		LinkedList<String[]> tabelle;
 		String[] tmp = new String[4];
@@ -192,14 +192,14 @@ public class Weiterleitungstabelle implements I18n {
 			tabelle.addFirst(tmp);
 			manuelleEintraege.addFirst(new Boolean(false));
 
-			knoten = (InternetKnoten) firmware.getKnoten();
+			knoten = (InternetNode) firmware.getKnoten();
 
 			// Eintrag fuer eigenes Rechnernetz
-			for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+			for (NetworkInterface nic : knoten.getNIlist()) {
 				tmp = new String[4];
 				// tmp[0] = nic.getIp();
-				tmp[0] = berechneNetzkennung(nic.getIp(), nic.getSubnetzMaske());
-				tmp[1] = nic.getSubnetzMaske();
+				tmp[0] = berechneNetzkennung(nic.getIp(), nic.getSubnetMask());
+				tmp[1] = nic.getSubnetMask();
 				tmp[2] = nic.getIp();
 				tmp[3] = nic.getIp();
 				tabelle.addFirst(tmp);
@@ -207,7 +207,7 @@ public class Weiterleitungstabelle implements I18n {
 			}
 
 			// Eintrag fuer eigene IP-Adresse
-			for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+			for (NetworkInterface nic : knoten.getNIlist()) {
 				tmp = new String[4];
 				tmp[0] = nic.getIp();
 				tmp[1] = "255.255.255.255";
@@ -222,9 +222,9 @@ public class Weiterleitungstabelle implements I18n {
 			if (gateway != null && !gateway.trim().equals("")) {
 				gateway = gateway.trim();
 				tmp = null;
-				for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+				for (NetworkInterface nic : knoten.getNIlist()) {
 					if (nic != null
-					        && VermittlungsProtokoll.gleichesRechnernetz(gateway, nic.getIp(), nic.getSubnetzMaske())) {
+					        && VermittlungsProtokoll.gleichesRechnernetz(gateway, nic.getIp(), nic.getSubnetMask())) {
 						tmp = new String[4];
 						tmp[0] = "0.0.0.0";
 						tmp[1] = "0.0.0.0";

@@ -68,7 +68,7 @@ import javax.swing.tree.TreeCellRenderer;
 
 import filius.gui.JFrameList;
 import filius.hardware.knoten.Host;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -234,13 +234,13 @@ public class AggregatedExchangeDialog extends JFrame implements ExchangeDialog, 
             for (String identifier : openedTabs.keySet()) {
                 if (tabbedPane.getComponentAt(i).equals(openedTabs.get(identifier))) {
                     SystemSoftware system = systems.get(identifier);
-                    String ipAddress = ((InternetKnoten) system.getKnoten()).getNetzwerkInterfaceByMac(identifier)
+                    String ipAddress = ((InternetNode) system.getKnoten()).getNIbyMAC(identifier)
                             .getIp();
                     String tabTitle;
                     if (system.getKnoten() instanceof Host && ((Host) system.getKnoten()).isUseIPAsName()) {
                         tabTitle = ipAddress;
                     } else {
-                        tabTitle = system.getKnoten().holeAnzeigeName() + " - " + ipAddress;
+                        tabTitle = system.getKnoten().getDisplayName() + " - " + ipAddress;
                     }
                     TabTitle titlePanel = (TabTitle) tabbedPane.getTabComponentAt(i);
                     titlePanel.setTitle(tabTitle);

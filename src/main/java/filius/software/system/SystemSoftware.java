@@ -32,7 +32,7 @@ import java.io.Serializable;
 import java.util.Observable;
 
 import filius.Main;
-import filius.hardware.knoten.Knoten;
+import filius.hardware.knoten.Node;
 
 /**
  * Die Klasse SystemSoftware umfasst die grundlegenden Funktionen einer Systemsoftware, die auf allen Stationen
@@ -43,7 +43,7 @@ import filius.hardware.knoten.Knoten;
 public abstract class SystemSoftware extends Observable implements Serializable {
 
     /** Die Hardware, auf der diese Systemsoftware laeuft. */
-    private Knoten hardware;
+    private Node hardware;
 
     private boolean started;
 
@@ -89,11 +89,11 @@ public abstract class SystemSoftware extends Observable implements Serializable 
         this.pcs.firePropertyChange(event);
     }
 
-    public Knoten getKnoten() {
+    public Node getKnoten() {
         return hardware;
     }
 
-    public void setKnoten(Knoten hardware) {
+    public void setKnoten(Node hardware) {
         this.hardware = hardware;
         // Main.debug.println("DEBUG: SystemSoftware ("+this.hashCode()+") now is connected to Knoten
         // ("+hardware.hashCode()+")");

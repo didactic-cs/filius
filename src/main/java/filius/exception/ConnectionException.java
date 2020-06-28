@@ -25,13 +25,13 @@
  */
 package filius.exception;
 
-public class StilleException extends Exception {
+public class ConnectionException extends SilentException {
 
-	public StilleException() {
+	public ConnectionException() {
 		super();
 	}
 
-	public StilleException(String s) {
+	public ConnectionException(String s) {
 		super(s);
 	}
 }

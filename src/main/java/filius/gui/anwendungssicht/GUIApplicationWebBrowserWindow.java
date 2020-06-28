@@ -144,11 +144,11 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 		// .getInformation().getTempPfad()
 		// + "browser_waterwolf_logo.png");
 		filius.rahmenprogramm.SzenarioVerwaltung.saveStream(
-		        getClass().getResourceAsStream("/gfx/desktop/browser_waterwolf_logo.png"), Information.getInformation()
+		        getClass().getResourceAsStream("/gfx/desktop/browser_waterwolf_logo.png"), Information.getInstance()
 		                .getTempPfad() + "browser_waterwolf_logo.png");
 		try {
 			((HTMLDocument) anzeigeFeld.getDocument()).setBase(new URL("file:"
-			        + Information.getInformation().getTempPfad()));
+			        + Information.getInstance().getTempPfad()));
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace(Main.debug);
 		}

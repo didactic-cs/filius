@@ -44,14 +44,13 @@ import javax.swing.SwingConstants;
 
 import filius.Main;
 import filius.gui.JMainFrame;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.Host;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 
-public class JSidebarButton extends JLabel implements Observer, I18n {
-
-    private static final long serialVersionUID = 1L;
+@SuppressWarnings("serial")
+public class JNodeLabel extends JLabel implements Observer, I18n {
 
     private String typ;
     private boolean selektiert;
@@ -73,19 +72,19 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
         this.typ = typ;
     }
 
-    public JSidebarButton() {
+    public JNodeLabel() {
         this.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.setHorizontalTextPosition(SwingConstants.CENTER);
     }
 
-    private JSidebarButton(String text, Icon icon) {
+    private JNodeLabel(String text, Icon icon) {
         super(text, icon, JLabel.CENTER);
 
         this.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.setHorizontalTextPosition(SwingConstants.CENTER);
     }
 
-    public JSidebarButton(String text, Icon icon, String typ) {
+    public JNodeLabel(String text, Icon icon, String typ) {
         this(text, icon);
         this.typ = typ;
         this.setAlignmentX(0.5f);
@@ -180,23 +179,23 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
         } else if (arg != null && arg instanceof String) {
             JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), arg);
         } else if (arg != null && arg instanceof Host) {
-            this.setText(((Host) arg).holeAnzeigeName());
+            this.setText(((Host) arg).getDisplayName());
         }
-        if (arg != null && arg instanceof InternetKnoten) {
-            updateTooltip((InternetKnoten) arg);
+        if (arg != null && arg instanceof InternetNode) {
+            updateTooltip((InternetNode) arg);
         }
         this.updateUI();
     }
 
-    void updateTooltip(InternetKnoten knoten) {
+    void updateTooltip(InternetNode knoten) {
         StringBuilder tooltip = new StringBuilder();
         tooltip.append("<html><pre>");
 
         tooltip.append(messages.getString("jsidebar_tooltip_ipAddress")).append(":");
         String gateway = null;
         String dns = null;
-        for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-            tooltip.append("\n ").append(nic.getIp()).append(" / ").append(nic.getSubnetzMaske());
+        for (NetworkInterface nic : knoten.getNIlist()) {
+            tooltip.append("\n ").append(nic.getIp()).append(" / ").append(nic.getSubnetMask());
             tooltip.append(" (").append(nic.getMac()).append(")");
             gateway = nic.getGateway();
             dns = nic.getDns();

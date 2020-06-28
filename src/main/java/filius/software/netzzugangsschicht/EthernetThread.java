@@ -26,7 +26,7 @@
 package filius.software.netzzugangsschicht;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.ProtokollThread;
 import filius.software.vermittlungsschicht.ArpPaket;
@@ -39,7 +39,7 @@ import filius.software.vermittlungsschicht.IpPaket;
 public class EthernetThread extends ProtokollThread {
 
     /** die Netzwerkkarte, deren Anschluss ueberwacht wird */
-    private NetzwerkInterface netzwerkInterface;
+    private NetworkInterface netzwerkInterface;
 
     /** die Ethernet-Schicht */
     private Ethernet ethernet;
@@ -47,8 +47,8 @@ public class EthernetThread extends ProtokollThread {
     /**
      * Der Konstruktor zur Initialisierung des zu ueberwachenden Puffers und der Ethernet-Schicht und der Netzwerkkarte
      */
-    public EthernetThread(Ethernet ethernet, NetzwerkInterface nic) {
-        super(nic.getPort().holeEingangsPuffer());
+    public EthernetThread(Ethernet ethernet, NetworkInterface nic) {
+        super(nic.getPort().getInputBuffer());
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EthernetThread), constr: EthernetThread(" + ethernet + "," + nic + ")");
 

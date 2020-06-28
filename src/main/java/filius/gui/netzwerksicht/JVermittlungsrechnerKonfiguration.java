@@ -56,13 +56,13 @@ import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
-import filius.hardware.Kabel;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.Cable;
+import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
-import filius.hardware.Verbindung;
-import filius.hardware.knoten.InternetKnoten;
-import filius.hardware.knoten.Knoten;
-import filius.hardware.knoten.LokalerKnoten;
+import filius.hardware.Connection;
+import filius.hardware.knoten.InternetNode;
+import filius.hardware.knoten.Node;
+import filius.hardware.knoten.LocalNode;
 import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
@@ -92,7 +92,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
 
     private JTabbedPane tpNetzwerkKarten;
 
-    private Kabel highlightedCable = null;
+    private Cable highlightedCable = null;
 
     protected JVermittlungsrechnerKonfiguration(Hardware hardware) {
         super(hardware);
@@ -103,19 +103,19 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
                 + " (JVermittlungsrechnerKonfiguration), aenderungenAnnehmen()");
         ListIterator it;
         Vermittlungsrechner vRechner;
-        NetzwerkInterface nic;
+        NetworkInterface nic;
         VermittlungsrechnerBetriebssystem bs;
 
-        vRechner = (Vermittlungsrechner) holeHardware();
+        vRechner = (Vermittlungsrechner) getHardware();
         bs = (VermittlungsrechnerBetriebssystem) vRechner.getSystemSoftware();
 
         vRechner.setName(name.getText());
         bs.setStandardGateway(gateway.getText());
         bs.setRipEnabled(rip.isSelected());
 
-        it = vRechner.getNetzwerkInterfaces().listIterator();
+        it = vRechner.getNIlist().listIterator();
         for (int i = 0; it.hasNext(); i++) {
-            nic = (NetzwerkInterface) it.next();
+            nic = (NetworkInterface) it.next();
 
             if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, ipAdressen[i]))
                 nic.setIp(ipAdressen[i].getText());
@@ -123,12 +123,12 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
                 Main.debug.println("ERROR (" + this.hashCode() + "): IP-Adresse ungueltig " + ipAdressen[i].getText());
 
             if (ueberpruefen(EingabenUeberpruefung.musterSubNetz, netzmasken[i]))
-                nic.setSubnetzMaske(netzmasken[i].getText());
+                nic.setSubnetMask(netzmasken[i].getText());
             else
                 Main.debug.println("ERROR (" + this.hashCode() + "): Netzmaske ungueltig " + netzmasken[i].getText());
         }
 
-        GUIContainer.getGUIContainer().updateViewport();
+        GUIContainer.getInstance().updateViewport();
         updateAttribute();
     }
 
@@ -136,7 +136,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), firewallDialogAnzeigen()");
 
-        Firewall firewall = ((VermittlungsrechnerBetriebssystem) ((Vermittlungsrechner) holeHardware())
+        Firewall firewall = ((VermittlungsrechnerBetriebssystem) ((Vermittlungsrechner) getHardware())
                 .getSystemSoftware()).holeFirewall();
 
         JFirewallDialog firewallDialog = new JFirewallDialog(firewall, JMainFrame.getJMainFrame());
@@ -151,9 +151,9 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), initAttributEingabeBox(" + box + ")");
         Vermittlungsrechner vRechner;
-        NetzwerkInterface tempNic;
-        Knoten tempKnoten;
-        List<NetzwerkInterface> nicListe;
+        NetworkInterface tempNic;
+        Node tempKnoten;
+        List<NetworkInterface> nicListe;
         ListIterator it;
         Box boxNetzwerkKarten;
         Box vBox;
@@ -306,8 +306,8 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         // NIC tabs
         tpNetzwerkKarten.addTab(messages.getString("jvermittlungsrechnerkonfiguration_msg17"), vBox);
 
-        vRechner = (Vermittlungsrechner) holeHardware();
-        nicListe = vRechner.getNetzwerkInterfaces();
+        vRechner = (Vermittlungsrechner) getHardware();
+        nicListe = vRechner.getNIlist();
         ipAdressen = new JTextField[nicListe.size()];
         netzmasken = new JTextField[nicListe.size()];
         macAdressen = new JTextField[nicListe.size()];
@@ -316,7 +316,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         it = nicListe.listIterator();
 
         for (int i = 0; it.hasNext(); i++) {
-            tempNic = (NetzwerkInterface) it.next();
+            tempNic = (NetworkInterface) it.next();
 
             boxNic = Box.createVerticalBox();
 
@@ -328,7 +328,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
                 verbundeneKomponente[i] = new JLabel(messages.getString("jvermittlungsrechnerkonfiguration_msg5"));
             else
                 verbundeneKomponente[i] = new JLabel(messages.getString("jvermittlungsrechnerkonfiguration_msg6") + " "
-                        + tempKnoten.holeAnzeigeName());
+                        + tempKnoten.getDisplayName());
             verbundeneKomponente[i].setPreferredSize(new Dimension(400, 10));
             boxKomponente.add(verbundeneKomponente[i]);
 
@@ -349,7 +349,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
             tempLabel.setPreferredSize(new Dimension(120, 10));
             boxSubnetz.add(tempLabel);
 
-            netzmasken[i] = new JTextField(tempNic.getSubnetzMaske());
+            netzmasken[i] = new JTextField(tempNic.getSubnetMask());
             boxSubnetz.add(netzmasken[i]);
 
             // show MAC address (not editable)
@@ -398,14 +398,14 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
                 int sel = pane.getSelectedIndex();
                 // Main.debug.println("\tsource: "+pane+", index="+sel+", getComponentCount="+pane.getComponentCount());
                 if (highlightedCable != null) {
-                    highlightedCable.setAktiv(false);
+                    highlightedCable.setActive(false);
                 }
                 if (sel > 0 && sel < pane.getComponentCount() - 1) {
-                    Verbindung conn = ((NetzwerkInterface) ((Vermittlungsrechner) holeHardware())
-                            .getNetzwerkInterfaces().get(sel - 1)).getPort().getVerbindung();
+                    Connection conn = ((NetworkInterface) ((Vermittlungsrechner) getHardware())
+                            .getNIlist().get(sel - 1)).getPort().getConnection();
                     if (conn != null) {
-                        conn.setAktiv(true);
-                        highlightedCable = (Kabel) conn;
+                        conn.setActive(true);
+                        highlightedCable = (Cable) conn;
                     }
                 }
 
@@ -496,10 +496,10 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     private void showConnectionsDialog() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), showBasicSettingsDialog()");
-        GUIContainer.getGUIContainer().getProperty().minimieren();
+        GUIContainer.getInstance().getProperty().minimieren();
         // basic dialog creation and settings
         changeBasicSettingsDialog = new JConnectionsDialog(filius.gui.JMainFrame.getJMainFrame(),
-                (Vermittlungsrechner) holeHardware());
+                (Vermittlungsrechner) getHardware());
         changeBasicSettingsDialog.setTitle(messages.getString("jvermittlungsrechnerkonfiguration_msg23"));
 
         // positioning and size
@@ -516,7 +516,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), doUnselectAction()");
         if (highlightedCable != null) {
-            highlightedCable.setAktiv(false);
+            highlightedCable.setActive(false);
             highlightedCable = null;
             this.tpNetzwerkKarten.setSelectedIndex(0);
         }
@@ -526,7 +526,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     // switching back to development view
     public void highlightConnCable() {
         if (highlightedCable != null) {
-            highlightedCable.setAktiv(true);
+            highlightedCable.setActive(true);
         }
     }
 
@@ -540,38 +540,38 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         ListIterator it;
         Vermittlungsrechner vRechner;
         VermittlungsrechnerBetriebssystem bs;
-        NetzwerkInterface nic;
-        Knoten tempKnoten;
+        NetworkInterface nic;
+        Node tempKnoten;
 
-        vRechner = (Vermittlungsrechner) holeHardware();
+        vRechner = (Vermittlungsrechner) getHardware();
         bs = (VermittlungsrechnerBetriebssystem) vRechner.getSystemSoftware();
 
-        name.setText(vRechner.holeAnzeigeName());
+        name.setText(vRechner.getDisplayName());
         gateway.setText(bs.getStandardGateway());
         rip.setSelected(bs.isRipEnabled());
 
         tpNetzwerkKarten.setEnabledAt(tpNetzwerkKarten.getTabCount() - 1, !bs.isRipEnabled());
 
-        it = vRechner.getNetzwerkInterfaces().listIterator();
+        it = vRechner.getNIlist().listIterator();
         for (int i = 0; it.hasNext() && i < ipAdressen.length; i++) {
-            nic = (NetzwerkInterface) it.next();
+            nic = (NetworkInterface) it.next();
             ipAdressen[i].setText(nic.getIp());
-            netzmasken[i].setText(nic.getSubnetzMaske());
+            netzmasken[i].setText(nic.getSubnetMask());
 
             tempKnoten = holeVerbundeneKomponente(nic);
             if (tempKnoten == null)
                 verbundeneKomponente[i].setText(messages.getString("jvermittlungsrechnerkonfiguration_msg16"));
             else
                 verbundeneKomponente[i].setText(messages.getString("jvermittlungsrechnerkonfiguration_msg6") + " "
-                        + tempKnoten.holeAnzeigeName());
+                        + tempKnoten.getDisplayName());
         }
 
-        vRechner = (Vermittlungsrechner) holeHardware();
-        List<NetzwerkInterface> nicListe = vRechner.getNetzwerkInterfaces();
-        NetzwerkInterface tempNic;
+        vRechner = (Vermittlungsrechner) getHardware();
+        List<NetworkInterface> nicListe = vRechner.getNIlist();
+        NetworkInterface tempNic;
         it = nicListe.listIterator();
         for (int i = 0; it.hasNext(); i++) {
-            tempNic = (NetzwerkInterface) it.next();
+            tempNic = (NetworkInterface) it.next();
             if (holeVerbundeneKomponente(tempNic) == null) {
                 tpNetzwerkKarten
                         .setIconAt(i + 1, new ImageIcon(getClass().getResource("/gfx/allgemein/conn_fail.png")));
@@ -590,37 +590,37 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         weiterleitungstabelle.updateAttribute();
     }
 
-    private Knoten holeVerbundeneKomponente(NetzwerkInterface nic) {
+    private Node holeVerbundeneKomponente(NetworkInterface nic) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), holeVerbundeneKomponente(" + nic + ")");
         Port lokalerAnschluss, entfernterAnschluss;
         Port[] ports;
         ListIterator it1, it2;
-        Knoten knoten;
+        Node knoten;
 
-        if (nic.getPort().getVerbindung() == null)
+        if (nic.getPort().getConnection() == null)
             return null;
 
         lokalerAnschluss = nic.getPort();
-        ports = lokalerAnschluss.getVerbindung().getAnschluesse();
+        ports = lokalerAnschluss.getConnection().getPorts();
         if (ports[0] == lokalerAnschluss)
             entfernterAnschluss = ports[1];
         else
             entfernterAnschluss = ports[0];
 
-        it1 = GUIContainer.getGUIContainer().getKnotenItems().listIterator();
+        it1 = GUIContainer.getInstance().getKnotenItems().listIterator();
         while (it1.hasNext()) {
-            knoten = ((GUIKnotenItem) it1.next()).getKnoten();
-            if (knoten instanceof LokalerKnoten) {
-                it2 = ((LokalerKnoten) knoten).getAnschluesse().listIterator();
+            knoten = ((GUIKnotenItem) it1.next()).getNode();
+            if (knoten instanceof LocalNode) {
+                it2 = ((LocalNode) knoten).getPortList().listIterator();
                 while (it2.hasNext()) {
                     if (it2.next() == entfernterAnschluss)
                         return knoten;
                 }
-            } else if (knoten instanceof InternetKnoten) {
-                it2 = ((InternetKnoten) knoten).getNetzwerkInterfaces().listIterator();
+            } else if (knoten instanceof InternetNode) {
+                it2 = ((InternetNode) knoten).getNIlist().listIterator();
                 while (it2.hasNext()) {
-                    if (((NetzwerkInterface) it2.next()).getPort() == entfernterAnschluss)
+                    if (((NetworkInterface) it2.next()).getPort() == entfernterAnschluss)
                         return knoten;
                 }
             } else {

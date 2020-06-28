@@ -29,7 +29,7 @@ import java.util.LinkedList;
 
 import filius.Main;
 import filius.exception.SocketException;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
 
@@ -55,10 +55,10 @@ public class UDPSocket extends Socket {
      * @param betriebssystem
      * @param zielAdresse
      * @param zielPort
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     public UDPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort)
-            throws VerbindungsException {
+            throws ConnectionException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.UDP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + ")");
@@ -74,10 +74,10 @@ public class UDPSocket extends Socket {
      * @param lokalerPort
      *            ein bestimmter lokaler Port, der beim Betriebssystem reserviert werden soll. Dieser Parameter wird nur
      *            dann verwendet, wenn der Wert groesser 0 ist.
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     public UDPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int lokalerPort)
-            throws VerbindungsException {
+            throws ConnectionException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.UDP, lokalerPort);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + "," + lokalerPort + ")");
@@ -91,9 +91,9 @@ public class UDPSocket extends Socket {
      * @param lokalerPort
      * @param zielAdresse
      * @param zielPort
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
-    public UDPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws VerbindungsException {
+    public UDPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws ConnectionException {
         super(betriebssystem, lokalerPort, IpPaket.UDP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
                 + betriebssystem + "," + lokalerPort + ")");

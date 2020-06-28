@@ -81,6 +81,7 @@ public class SatViewerControl implements I18n {
     
     public void removeViewer(Switch sw) {
     	SatViewer viewer = satViewer.get(sw.getSystemSoftware());
+    	if (viewer == null) return;
     	viewer.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     	viewer.dispatchEvent(new WindowEvent(viewer, WindowEvent.WINDOW_CLOSING));
         satViewer.remove(sw.getSystemSoftware());        

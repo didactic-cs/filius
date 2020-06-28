@@ -32,9 +32,9 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import filius.Main;
-import filius.exception.VerbindungsException;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.exception.ConnectionException;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -130,15 +130,15 @@ public class IP extends VermittlungsProtokoll implements I18n {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), sendeBroadcast("
                 + ipPaket.toString() + ")");
 
-        InternetKnoten knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
-        for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
+        InternetNode knoten = (InternetNode) holeSystemSoftware().getKnoten();
+        for (NetworkInterface nic : knoten.getNIlist()) {
             // Broadcast-Nachrichten werden nur im lokalen Rechnernetz
             // verschickt
             sendBroadcastOverNic(nic, ipPaket);
         }
     }
 
-    private void sendBroadcastOverNic(NetzwerkInterface nic, IpPaket ipPaket) {
+    private void sendBroadcastOverNic(NetworkInterface nic, IpPaket ipPaket) {
         // Damit Broadcast-Pakete nicht in Zyklen gesendet werden,
         // wird das Feld Time-to-Live (TTL) auf 1 gesetzt. Damit
         // wird es von keinem Knoten weitergeschickt
@@ -146,7 +146,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
 
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
         if (CURRENT_NETWORK.equals(ipPaket.getSender())
-                || gleichesRechnernetz(ipPaket.getSender(), nic.getIp(), nic.getSubnetzMaske())) {
+                || gleichesRechnernetz(ipPaket.getSender(), nic.getIp(), nic.getSubnetMask())) {
             bs.holeEthernet().senden(ipPaket, nic.getMac(), ETHERNET_BROADCAST, EthernetFrame.IP);
         }
     }
@@ -182,9 +182,9 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @throws RouteNotFoundException
      */
     private void sendeUnicast(IpPaket paket, Route route) throws RouteNotFoundException {
-        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaceByIp(route
+        NetworkInterface nic = ((InternetNode) holeSystemSoftware().getKnoten()).getNIbyIP(route
                 .getInterfaceIpAddress());
-        String netzmaske = nic.getSubnetzMaske();
+        String netzmaske = nic.getSubnetMask();
 
         if (gleichesRechnernetz(paket.getEmpfaenger(), route.getInterfaceIpAddress(), netzmaske)) {
             // adressierter Knoten befindet sich im lokalen Rechnernetz
@@ -195,7 +195,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
         }
     }
 
-    private void sendeUnicastLokal(IpPaket paket, String ziel, NetzwerkInterface nic) {
+    private void sendeUnicastLokal(IpPaket paket, String ziel, NetworkInterface nic) {
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
         String zielMacAdresse = bs.holeARP().holeARPTabellenEintrag(ziel);
 
@@ -224,7 +224,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @param ttl
      * @param segment
      *            - Enthaellt das erzeugte Segment mit den Nutzdaten.
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     public void senden(String zielIp, String quellIp, int protokoll, int ttl, Object segment) {
         IpPaket paket = new IpPaket();

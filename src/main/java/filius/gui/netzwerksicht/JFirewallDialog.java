@@ -58,8 +58,8 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;

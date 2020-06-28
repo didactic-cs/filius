@@ -48,12 +48,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import filius.Main;
 import filius.gui.CloseableBrowserTabbedPaneUI;
 import filius.software.system.Betriebssystem;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileListener;
+import filius.software.system.FiliusFileNode;
+import filius.software.system.FiliusFileListener.ChangeType;
 
 /**
  * Applikationsfenster fuer TextEditor
@@ -61,15 +63,15 @@ import filius.software.system.Datei;
  * @author Johannes Bade & Thomas Gerding
  * 
  */
-public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
+public class GUIApplicationTextEditorWindow extends GUIApplicationWindow implements FiliusFileListener {
 
 	private static final long serialVersionUID = 1L;
 	private JTextArea editorField;
 	private JPanel backPanel;
 	private GUIApplicationWindow diesesFenster;
-	private Datei aktuelleDatei = null;
+	private FiliusFile aktuelleDatei = null;
 	private String original = "";
-	private DefaultMutableTreeNode arbeitsVerzeichnis;
+	private FiliusFileNode arbeitsVerzeichnis;
 	private JTabbedPane tpTabs;
 
 	public GUIApplicationTextEditorWindow(GUIDesktopPanel desktop, String appName) {
@@ -91,7 +93,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 				this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
 
 			}
-			Datei datei = holeAnwendung().getSystemSoftware().getDateisystem().getDatei(arbeitsVerzeichnis, dateiName);
+			FiliusFile datei = arbeitsVerzeichnis.getFiliusFile(dateiName);
 			if (datei != null) {
 				this.setTitle(dateiName);
 				editorField.setText(datei.getContent());
@@ -183,20 +185,20 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 
 		if (rueckgabe == DMTNFileChooser.OK) {
 			String dateiNameNeu = fc.getAktuellerDateiname();
-			Datei tmpFile = new Datei(dateiNameNeu, messages.getString("texteditor_msg8"), editorField.getText());
-			this.holeAnwendung().getSystemSoftware().getDateisystem().saveDatei(fc.getAktuellerOrdner(), tmpFile);
+			FiliusFile tmpFile = new FiliusFile(dateiNameNeu, messages.getString("texteditor_msg8"), editorField.getText());
+			fc.getAktuellerOrdner().saveFiliusFile(tmpFile);
 			changeCurrentFile(tmpFile);
 		}
 	}
 
-	public void changeCurrentFile(Datei tmpFile) {
+	public void changeCurrentFile(FiliusFile tmpFile) {
 		if (aktuelleDatei != null) {
-			aktuelleDatei.deleteObserver(this);
+			aktuelleDatei.addFileListener(this);
 		}
 		aktuelleDatei = tmpFile;
 		updateFromFile();
 		if (aktuelleDatei != null) {
-			aktuelleDatei.addObserver(this);
+			aktuelleDatei.removeFileListener(this);
 		}
 	}
 
@@ -204,9 +206,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 		DMTNFileChooser fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
 		int rueckgabe = fc.openDialog();
 		if (rueckgabe == DMTNFileChooser.OK) {
-			String aktuellerDateiname = fc.getAktuellerDateiname();
-			Datei tmpFile = holeAnwendung().getSystemSoftware().getDateisystem()
-			        .getDatei(fc.getAktuellerOrdner(), aktuellerDateiname);
+			FiliusFile tmpFile = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());
 			changeCurrentFile(tmpFile);
 		} else {
 			Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
@@ -242,8 +242,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 			if (this.arbeitsVerzeichnis == null) {
 				this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
 			}
-			Datei datei = this.holeAnwendung().getSystemSoftware().getDateisystem()
-			        .getDatei(arbeitsVerzeichnis, dateiName);
+			FiliusFile datei = arbeitsVerzeichnis.getFiliusFile(dateiName);
 			if (datei != null) {
 				editorField = new JTextArea();
 				editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
@@ -355,11 +354,16 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 			editorField.setText(original);
 		}
 	}
-
+	
+	// From interface FiliusFileListener
 	@Override
-	public void update(Observable observable, Object arg1) {
-		if (observable == aktuelleDatei) {
-			updateUnchangedTextFromFile();
-		}
+	public void onChange(ChangeType ct) {		
+		if (ct == ChangeType.CONTENT) updateUnchangedTextFromFile();
+	}
+
+	// No longer used (Observer replaced by FiliusFileListener)
+	// To be removed when Observer will be removed from ancestor 
+	@Override
+	public void update(Observable observable, Object arg1) {		
 	}
 }

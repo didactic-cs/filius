@@ -31,8 +31,8 @@ import java.util.LinkedList;
 import java.util.Vector;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
@@ -315,7 +315,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
 			try {
 
 				html = textDateiEinlesen("tmpl/firewall_konfig_webseite_"
-				        + Information.getInformation().getLocale().toString() + ".txt");
+				        + Information.getInstance().getLocale().toString() + ".txt");
 
 				html = html.replaceAll(":action_pfad:", getPfad());
 

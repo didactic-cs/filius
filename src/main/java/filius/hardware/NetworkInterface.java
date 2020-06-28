@@ -30,29 +30,30 @@ import java.io.Serializable;
 import filius.Main;
 import filius.rahmenprogramm.Information;
 
-public class NetzwerkInterface implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@SuppressWarnings("serial")
+public class NetworkInterface implements Serializable {
+    
     private String mac;
     private String ip;
-    private String subnetzMaske;
+    private String subnetMask;
     private String gateway;
     private String dns;
-    private Port anschluss;
+    private Port   port;
 
-    public NetzwerkInterface() {
+    public NetworkInterface() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (NetzwerkInterface), constr: NetzwerkInterface()");
-        setMac(Information.getInformation().holeFreieMACAdresse());
+                + " (NetworkInterface), constr: NetworkInterface()");
+        
+        setMac(Information.getInstance().holeFreieMACAdresse());
         // set initial IP address to the same value for all new devices
         // QUESTION: Is this actually wanted for educational reasons?
         // Or is it rather annoying to be enforced to change this address for
         // each device?
         setIp("192.168.0.10");
-        setSubnetzMaske("255.255.255.0");
+        setSubnetMask("255.255.255.0");
         setGateway("");
         setDns("");
-        anschluss = new Port(this);
+        port = new Port(this);
 
         // this.initPersistenceAttributes();
     }
@@ -79,11 +80,11 @@ public class NetzwerkInterface implements Serializable {
     // }
 
     public Port getPort() {
-        return anschluss;
+        return port;
     }
 
     public void setPort(Port port) {
-        this.anschluss = port;
+        this.port = port;
     }
 
     /**
@@ -122,17 +123,17 @@ public class NetzwerkInterface implements Serializable {
 
     public void setMac(String mac) {
         if (mac != null) {
-            Information.getInformation().macHinzufuegen(mac);
+            Information.getInstance().macHinzufuegen(mac);
             this.mac = mac;
         }
     }
 
-    public String getSubnetzMaske() {
-        return subnetzMaske;
+    public String getSubnetMask() {
+        return subnetMask;
     }
 
-    public void setSubnetzMaske(String subnetzMaske) {
-        this.subnetzMaske = subnetzMaske;
+    public void setSubnetMask(String mask) {
+        this.subnetMask = mask;
     }
 
     /**

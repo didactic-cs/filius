@@ -83,7 +83,7 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		this.dp = dp;
 
 		try {
-			programme = Information.getInformation().ladeProgrammListe();
+			programme = Information.getInstance().ladeProgrammListe();
 		} catch (IOException e) {
 			e.printStackTrace(Main.debug);
 		}

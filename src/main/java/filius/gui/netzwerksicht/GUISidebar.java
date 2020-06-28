@@ -36,12 +36,12 @@ import filius.gui.JBackgroundPanel;
 
 public abstract class GUISidebar {
 	protected JBackgroundPanel leistenpanel;
-	protected List<JSidebarButton> buttonList;
+	protected List<JNodeLabel> buttonList;
 
 	private static int width = 0;
 
 	protected GUISidebar() {
-		buttonList = new LinkedList<JSidebarButton>();
+		buttonList = new LinkedList<JNodeLabel>();
 
 		leistenpanel = new JBackgroundPanel() {
 			private static final long serialVersionUID = 1L;
@@ -67,9 +67,9 @@ public abstract class GUISidebar {
 
 	protected abstract void addItemsToSidebar();
 
-	public JSidebarButton findButtonAt(int x, int y) {
-		JSidebarButton klickLabel = null;
-		for (JSidebarButton tmpLbl : buttonList) {
+	public JNodeLabel findButtonAt(int x, int y) {
+		JNodeLabel klickLabel = null;
+		for (JNodeLabel tmpLbl : buttonList) {
 			if (x >= tmpLbl.getX() && y >= tmpLbl.getY() && x <= tmpLbl.getX() + tmpLbl.getWidth()
 			        && y <= tmpLbl.getY() + tmpLbl.getHeight()) {
 				klickLabel = tmpLbl;

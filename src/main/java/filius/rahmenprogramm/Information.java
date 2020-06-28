@@ -51,7 +51,7 @@ import javax.swing.JFileChooser;
 import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
-import filius.hardware.Verbindung;
+import filius.hardware.Connection;
 
 /**
  * In dieser Klasse werden die Verwaltungs-Informationen des Rahmenprogramms verwaltet, die unabhaengig von einem
@@ -225,7 +225,7 @@ public class Information implements Serializable {
     }
 
     /** Methode zum Zugriff auf Singleton */
-    public static Information getInformation() {
+    public static Information getInstance() {
         return getInformation((String) null);
     }
 
@@ -266,7 +266,7 @@ public class Information implements Serializable {
      * 
      * @return
      */
-    public ResourceBundle holeResourceBundle() {
+    public ResourceBundle getResourceBundle() {
         ResourceBundle bundle;
 
         bundle = ResourceBundle.getBundle("filius.messages.MessagesBundle", locale);
@@ -289,7 +289,7 @@ public class Information implements Serializable {
     public void reset() {
         macAdressen.clear();
 
-        GUIContainer.getGUIContainer().getExchangeDialog().reset();
+        GUIContainer.getInstance().getExchangeDialog().reset();
         init();
     }
 
@@ -393,7 +393,7 @@ public class Information implements Serializable {
         tmpList = new LinkedList<HashMap<String, String>>();
         try {
             desktopFile = new RandomAccessFile(
-                    Information.getInformation().getAnwendungenPfad() + "EigeneAnwendungen.txt", "r");
+                    Information.getInstance().getAnwendungenPfad() + "EigeneAnwendungen.txt", "r");
             for (String line; (line = desktopFile.readLine()) != null;) {
                 HashMap<String, String> tmpMap = new HashMap<String, String>();
                 if (!line.trim().equals("")) {
@@ -629,8 +629,8 @@ public class Information implements Serializable {
                                     String country = configValue.substring(configValue.indexOf("_") + 1);
                                     this.setLocale(new Locale(language, country));
                                 } else if (configKey.equalsIgnoreCase("rtt")) {
-                                    if (Verbindung.getRTTfactor() == 1) {
-                                        Verbindung.setRTTfactor(Integer.parseInt(configValue));
+                                    if (Connection.getRTTfactor() == 1) {
+                                        Connection.setRTTfactor(Integer.parseInt(configValue));
                                     }
                                 } else if (configKey.equalsIgnoreCase("native-look-n-feel")) {
                                     if (configValue.trim().equals("1")) {
@@ -672,7 +672,7 @@ public class Information implements Serializable {
                     }
                 }
                 if (width > 0 && height > 0) {
-                    GUIContainer.getGUIContainer(width, height);
+                    GUIContainer.getInstance(width, height);
                 }
             } finally {
                 if (iniFile != null)

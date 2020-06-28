@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -39,8 +40,10 @@ import filius.exception.CreateAccountException;
 import filius.exception.DeleteAccountException;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
+import filius.rahmenprogramm.Information;
 import filius.software.Anwendung;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 
@@ -62,10 +65,13 @@ public class EmailServer extends Anwendung implements I18n {
      * Dieses Attribut gibt an, ob der Server bereit ist, auf eingehende Verbindungsanfragen zu antworten.
      */
     private boolean aktiv = false;
-    private DefaultMutableTreeNode verzeichnis;
+    private FiliusFileNode verzeichnis;
 
-    // Konstruktoren
-    // keine gesondert implementierten
+    // Konstruktor
+    public EmailServer() {
+        super();
+    }
+    
 
     /**
      * Ob der Server eingehende Verbindungsanfragen annmimmt. Das gilt sowohl fuer SMTP wie auch fuer POP3
@@ -119,10 +125,10 @@ public class EmailServer extends Anwendung implements I18n {
                 + " (EmailServer), starten()");
         super.starten();
 
-        Datei konten = getSystemSoftware().getDateisystem().getDatei(verzeichnis, "konten.txt");
+        FiliusFile konten = verzeichnis.getFiliusFile("konten.txt");
         if (konten == null) {
-            konten = new Datei("konten.txt", "txt", "");
-            getSystemSoftware().getDateisystem().saveDatei(verzeichnis, konten);
+            konten = new FiliusFile("konten.txt", "txt", "");
+            verzeichnis.saveFiliusFile(konten);
         }
         kontenLaden();
 
@@ -283,7 +289,7 @@ public class EmailServer extends Anwendung implements I18n {
                 + " (EmailServer), kontenSpeichern()");
 
         String tmp = listeBenutzerkontenZuString(listeBenutzerkonten);
-        Datei konten = getSystemSoftware().getDateisystem().getDatei(verzeichnis, "konten.txt");
+        FiliusFile konten = verzeichnis.getFiliusFile("konten.txt");
         konten.setContent(tmp);
     }
 
@@ -400,7 +406,7 @@ public class EmailServer extends Anwendung implements I18n {
     public void kontenLaden() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), kontenLaden()");
-        Datei konten = getSystemSoftware().getDateisystem().getDatei(verzeichnis, "konten.txt");
+        FiliusFile konten = verzeichnis.getFiliusFile("konten.txt");
 
         if (konten != null) {
             setListeBenutzerkonten(stringZuListeBenutzerkonten(konten.getContent()));
@@ -412,10 +418,12 @@ public class EmailServer extends Anwendung implements I18n {
     public void setSystemSoftware(InternetKnotenBetriebssystem bs) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), setSystemSoftware(" + bs + ")");
-        super.setSystemSoftware(bs);
-        getSystemSoftware().getDateisystem().createDirectory(getSystemSoftware().getDateisystem().getRoot(),
-                "mailserver");
-        this.verzeichnis = FiliusFileSystem.pathToNode(getSystemSoftware().getDateisystem().getRoot(), "mailserver");
+        
+        super.setSystemSoftware(bs);        
+
+        FiliusFileSystem FFS = bs.getDateisystem();
+        FFS.getRoot().addDirectory("mailserver");
+        this.verzeichnis = FFS.toNode("mailserver");
     }
 
     public synchronized void setListeBenutzerkonten(List<EmailKonto> listeBenutzerkonten) {

@@ -50,8 +50,8 @@ import javax.swing.event.MouseInputAdapter;
 
 import filius.Main;
 import filius.gui.JBackgroundPanel;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.FiliusClassLoader;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
@@ -144,7 +144,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
         GUIApplicationWindow tempWindow;
 
         try {
-            softwareList = Information.getInformation().ladeProgrammListe();
+            softwareList = Information.getInstance().ladeProgrammListe();
         } catch (IOException e) {
             e.printStackTrace(Main.debug);
         }
@@ -209,12 +209,12 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
         }
         this.iconPanel.updateUI();
 
-        NetzwerkInterface nic = (NetzwerkInterface) ((InternetKnoten) betriebssystem.getKnoten())
-                .getNetzwerkInterfaces().get(0);
+        NetworkInterface nic = (NetworkInterface) ((InternetNode) betriebssystem.getKnoten())
+                .getNIlist().get(0);
         if (nic != null) {
             if (nic.getPort() != null) {
-                if (nic.getPort().getVerbindung() != null) {
-                    nic.getPort().getVerbindung().addObserver(this);
+                if (nic.getPort().getConnection() != null) {
+                    nic.getPort().getConnection().addObserver(this);
                     lbNetzwerk.setToolTipText("" + nic.getIp());
                 }
             }

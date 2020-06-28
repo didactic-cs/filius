@@ -67,28 +67,28 @@ public class GUIDocumentationSidebar extends GUISidebar implements I18n {
     @Override
     protected void addItemsToSidebar() {
         ImageIcon icon = new ImageIcon(getClass().getResource("/" + ADD_TEXT));
-        JSidebarButton newLabel = new JSidebarButton(messages.getString("docusidebar_msg1"), icon, TYPE_TEXTFIELD);
+        JNodeLabel newLabel = new JNodeLabel(messages.getString("docusidebar_msg1"), icon, TYPE_TEXTFIELD);
         buttonList.add(newLabel);
         leistenpanel.add(newLabel);
 
         icon = new ImageIcon(getClass().getResource("/" + ADD_RECTANGLE));
-        newLabel = new JSidebarButton(messages.getString("docusidebar_msg3"), icon, TYPE_RECTANGLE);
+        newLabel = new JNodeLabel(messages.getString("docusidebar_msg3"), icon, TYPE_RECTANGLE);
         buttonList.add(newLabel);
         leistenpanel.add(newLabel);
 
         icon = new ImageIcon(getClass().getResource("/" + EXPORT));
-        newLabel = new JSidebarButton(messages.getString("docusidebar_msg5"), icon, TYPE_EXPORT);
+        newLabel = new JNodeLabel(messages.getString("docusidebar_msg5"), icon, TYPE_EXPORT);
         newLabel.setToolTipText(messages.getString("docusidebar_msg6"));
         newLabel.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
-                GUIContainer.getGUIContainer().exportAsImage();
+                GUIContainer.getInstance().exportAsImage();
             }
         });
         buttonList.add(newLabel);
         leistenpanel.add(newLabel);
 
         icon = new ImageIcon(getClass().getResource("/" + REPORT));
-        newLabel = new JSidebarButton(messages.getString("docusidebar_msg7"), icon, TYPE_REPORT);
+        newLabel = new JNodeLabel(messages.getString("docusidebar_msg7"), icon, TYPE_REPORT);
         newLabel.setToolTipText(messages.getString("docusidebar_msg8"));
         newLabel.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {

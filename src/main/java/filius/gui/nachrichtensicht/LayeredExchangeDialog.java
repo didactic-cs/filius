@@ -39,7 +39,7 @@ import javax.swing.JTabbedPane;
 
 import filius.gui.JFrameList;
 import filius.hardware.knoten.Host;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.SystemSoftware;
 
@@ -111,12 +111,12 @@ public class LayeredExchangeDialog extends JFrame implements ExchangeDialog, I18
 			tabelle.setScrollPane(scrollPane);
 			panel.add(scrollPane, BorderLayout.CENTER);
 
-			String ipAddress = ((InternetKnoten) system.getKnoten()).getNetzwerkInterfaceByMac(identifier).getIp();
+			String ipAddress = ((InternetNode) system.getKnoten()).getNIbyMAC(identifier).getIp();
 			String tabTitle;
 			if (system.getKnoten() instanceof Host && ((Host) system.getKnoten()).isUseIPAsName()) {
 				tabTitle = ipAddress;
 			} else {
-				tabTitle = system.getKnoten().holeAnzeigeName() + " - " + ipAddress;
+				tabTitle = system.getKnoten().getDisplayName() + " - " + ipAddress;
 			}
 			tabbedPane.add(tabTitle, panel);
 

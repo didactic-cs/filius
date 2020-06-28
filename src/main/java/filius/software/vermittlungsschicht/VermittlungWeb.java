@@ -70,7 +70,7 @@ public class VermittlungWeb extends WebServerPlugIn implements I18n {
         }
         String html = null;
         try {
-            html = textDateiEinlesen("tmpl/routing_" + Information.getInformation().getLocale() + ".html");
+            html = textDateiEinlesen("tmpl/routing_" + Information.getInstance().getLocale() + ".html");
             html = html.replaceAll(":title:", messages.getString("sw_vermittlungweb_msg5"));
             html = html.replaceAll(":routing_entries:", forwardingEntries.toString());
             html = html.replaceAll(":hint:", messages.getString("sw_vermittlungweb_msg4"));
@@ -120,7 +120,7 @@ public class VermittlungWeb extends WebServerPlugIn implements I18n {
 
         String html = null;
         try {
-            html = textDateiEinlesen("tmpl/routing_" + Information.getInformation().getLocale() + ".html");
+            html = textDateiEinlesen("tmpl/routing_" + Information.getInstance().getLocale() + ".html");
             html = html.replaceAll(":title:", messages.getString("sw_vermittlungweb_msg6"));
             html = html.replaceAll(":routing_entries:", routingEntries.toString());
             html = html.replaceAll(":hint:", messages.getString("sw_vermittlungweb_msg1"));

@@ -26,7 +26,7 @@
 package filius.software.vermittlungsschicht;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
+import filius.hardware.NetworkInterface;
 import filius.software.ProtokollThread;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -62,7 +62,7 @@ public class ARPThread extends ProtokollThread {
                 + " (ARPThread), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
         ArpPaket arpPaket, antwortArp;
         InternetKnotenBetriebssystem bs;
-        NetzwerkInterface nic;
+        NetworkInterface nic;
 
         arpPaket = (ArpPaket) datenEinheit;
 

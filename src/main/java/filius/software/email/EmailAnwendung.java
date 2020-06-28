@@ -34,7 +34,7 @@ import java.util.Vector;
 import filius.Main;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.software.Anwendung;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
 
 /**
  * 
@@ -168,18 +168,17 @@ public class EmailAnwendung extends Anwendung {
     public void speichern() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), speichern()");
-        Datei datei = new Datei();
+        FiliusFile datei = new FiliusFile();
         datei.setContent(konto.toString());
         datei.setName("konten.txt");
         datei.setType("text/txt");
-        getSystemSoftware().getDateisystem().saveDatei(getSystemSoftware().getDateisystem().getRoot(), datei);
+        getSystemSoftware().getDateisystem().getRoot().saveFiliusFile(datei);
     }
 
     public void laden() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), laden()");
-        Datei datei = getSystemSoftware().getDateisystem().getDatei(getSystemSoftware().getDateisystem().getRoot(),
-                "konten.txt");
+        FiliusFile datei = getSystemSoftware().getDateisystem().getRoot().getFiliusFile("konten.txt");
         if (datei != null) {
             String kontenString = datei.getContent();
             String[] konten = kontenString.split("\n");

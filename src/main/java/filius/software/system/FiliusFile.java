@@ -26,45 +26,52 @@
 package filius.software.system;
 
 import java.io.Serializable;
-import java.util.Observable;
+import java.util.ArrayList;
 
 import filius.rahmenprogramm.Base64;
+import filius.software.system.FiliusFileListener.ChangeType;
 
 /**
- * In Filius, the class <b>Datei</b> is used to model a file.
- * The content of the file is stored in a string. Consequently, binary
+ * The class <b>FiliusFile</b> is used to model a file in Filius.
+ * The content of the file is stored as a string. Consequently, binary
  * contents need to be Base64 encoded to String.
  *
+ * @see filius.software.system.FiliusFileSystem
+ * @see filius.software.system.FiliusFileNode
+ * 
  * @author Nadja & Thomas Gerding
- *
  */
-public class Datei extends Observable implements Serializable {
+public class FiliusFile implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	// File's type: mp3, doc, txt...
-	private String type;
-
-	// File's content as String (binary data is Base64 encoded)
-	private String content;
-
+	
 	// File's name (also used by the toString() method)
 	private String name;
 
-	// real size of file without having enforced Base64 encoding
-	private long decodedSize = -1;
+	// File's type: text, web, image, sound, binary
+	private String type;
+
+	// File's content as String (binary data is Base64 encoded)
+	private String content;	
+
+	// Real size of the file without having enforced Base64 encoding
+	private transient long decodedSize = -1;
+	
+	// List of event listeners
+	private ArrayList<FiliusFileListener> listenerList = new ArrayList<FiliusFileListener>();
 
 	/**
-	 * <b>Datei</b> models a file in the Filius file system.
+	 * <b>FiliusFile</b> models a file in the Filius file system.
 	 * The serializability of the class is used to provide an easy way to store
 	 * the associated content along with the TreeNode it is attached to.
-	 *
+	 * It is important to keep this constructor without parameter for the serialization.
 	 */
-	public Datei() {
+	public FiliusFile() {
+		
 	}
 
 	/**
-	 * <b>Datei</b> creates a new instance of the class Datei
+	 * <b>FiliusFile</b> creates a new instance of the class FiliusFile
 	 *
 	 * @param name
 	 *            String containing the name of the file
@@ -73,12 +80,81 @@ public class Datei extends Observable implements Serializable {
 	 * @param content
 	 *            String containing the content of the file. Binary content is Base64 encoded.
 	 */
-	public Datei(String name, String type, String content) {
-		this.content = content;
+	public FiliusFile(String name, String type, String content) {		
 		this.name = name;
 		this.type = type;
+		this.content = content;
+	}	
+
+	/**
+	 * <b>getName</b> returns a String containing the name of the file.
+	 *
+	 * @return A String containing the file's name.
+	 */
+	public String getName() {
+		return name;
 	}
 
+	/**
+	 * <b>setName</b> assigns a name to the file.
+	 *
+	 * @param name A String containing the name.
+	 */
+	public void setName(String name) {
+		this.name = name;
+		callFileListeners(ChangeType.NAME);
+	}
+	
+	/**
+	 * <b>getType</b> returns a String containing the type of the file.
+	 *
+	 * @return A String containing the file's type.
+	 */
+	public String getType() {
+		if (type != null) return type;
+		else return "";
+	}
+
+	/**
+	 * <b>setType</b> assigns a type as a String.
+	 *
+	 * @param type A String containing the type.
+	 */
+	public void setType(String type) {
+		this.type = type;
+		callFileListeners(ChangeType.TYPE);
+	}
+
+	/**
+	 * <b>toString</b> returns a String containing the name of the file.
+	 *
+	 * @return A String containing the file's name.
+	 */
+//	public String toString() {
+//		return name;
+//	}
+
+	/**
+	 * <b>getContent</b> returns the file's content as a String. That is, returns the content
+	 * as it is internally stored (Base64 encoded in case the original data is binary).
+	 *
+	 * @return A String containing the file's content.
+	 */
+	public String getContent() {
+		return content;
+	}
+
+	/**
+	 * <b>setContent</b> assigns the file's content as a String. If the original data is in
+	 * binary form, it should first be converted to a Base64 encoded String.
+	 *
+	 * @param content A String containing the file's content.
+	 */
+	public void setContent(String content) {
+		this.content = content;
+		callFileListeners(ChangeType.CONTENT);
+	}
+	
 	/**
 	 * <b>getSize</b> returns the size of the file's content. <br>
 	 * For binary content, the returned value is the size of the data itself, not
@@ -115,28 +191,42 @@ public class Datei extends Observable implements Serializable {
 	public void setSize(long size) {
 		this.decodedSize = size;
 	}
+	
+	//***************************************************************************************
+	// Handling event listeners
+	//***************************************************************************************
+	
+    /**
+     * <b>addFileListener<b> adds a file listener to the list.
+     * 
+     * @param l the listener to be added
+     */
+    public void addFileListener(FiliusFileListener l) {
+    	
+        listenerList.add(l);
+    }
 
-	/**
-	 * <b>getContent</b> returns the file's content as a String. That is, returns the content
-	 * as it is internally stored (Base64 encoded in case the original data is binary).
-	 *
-	 * @return A String containing the file's content.
-	 */
-	public String getContent() {
-		return content;
-	}
-
-	/**
-	 * <b>setContent</b> assigns the file's content as a String. If the original data is in
-	 * binary form, it should first be converted to a Base64 encoded String.
-	 *
-	 * @param content A String containing the file's content.
-	 */
-	public void setContent(String content) {
-		this.content = content;
-		this.setChanged();
-		this.notifyObservers();
-	}
+    /**
+     * <b>removeFileListener<b> removes a file listener from the list.
+     *
+     * @param l the listener to be removed
+     */
+    public void removeFileListener(FiliusFileListener l) {
+    	
+        listenerList.remove(l);
+    }
+    
+    /**
+     * <b>callFileListeners<b> calls every file listener in the list.
+     *
+     * @param l the listener to be removed
+     */
+    private void callFileListeners(ChangeType ct) {
+    	
+        for (FiliusFileListener l : listenerList) {
+        	l.onChange(ct);
+        }
+    }
 
 	// Never used methods
 //	/**
@@ -159,52 +249,4 @@ public class Datei extends Observable implements Serializable {
 //	public void setDecodedContent(String content) {
 //		this.content = Base64.encodeObject(content);
 //	}
-
-	/**
-	 * <b>getType</b> returns a String containing the type of the file.
-	 *
-	 * @return A String containing the file's type.
-	 */
-	public String getType() {
-		if (type != null) return type;
-		else return "";
-	}
-
-	/**
-	 * <b>setType</b> assigns a type as a String.
-	 *
-	 * @param type A String containing the type.
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	/**
-	 * <b>getName</b> returns a String containing the name of the file.
-	 *
-	 * @return A String containing the file's name.
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * <b>setName</b> assigns a name to the file.
-	 *
-	 * @param name A String containing the name.
-	 */
-	public void setName(String name) {
-		this.name = name;
-		this.setChanged();
-		this.notifyObservers();
-	}
-
-	/**
-	 * <b>toString</b> returns a String containing the name of the file.
-	 *
-	 * @return A String containing the file's name.
-	 */
-	public String toString() {
-		return name;
-	}
 }

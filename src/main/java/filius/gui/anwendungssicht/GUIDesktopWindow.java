@@ -106,9 +106,9 @@ public class GUIDesktopWindow extends JFrame implements Observer {
 		String title;
 		Host host = (Host) desktopPanel.getBetriebssystem().getKnoten();
 		if (host.isUseIPAsName()) {
-			title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName();
+			title = desktopPanel.getBetriebssystem().getKnoten().getDisplayName();
 		} else {
-			title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName() + " - "
+			title = desktopPanel.getBetriebssystem().getKnoten().getDisplayName() + " - "
 			        + desktopPanel.getBetriebssystem().holeIPAdresse();
 		}
 		// Main.debug.println("GUIDesktopWindow: Titel = " + title);

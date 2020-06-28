@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
 import filius.hardware.knoten.Vermittlungsrechner;
@@ -193,7 +193,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     private void printDebugInfo() {
         Main.debug.println("DEBUG (" + this.hashCode() + "): start InternetKnotenBetriebssystem");
         if (this.getKnoten() != null) {
-            Main.debug.println("DEBUG (" + this.hashCode() + ") - Hostname = " + this.getKnoten().holeAnzeigeName());
+            Main.debug.println("DEBUG (" + this.hashCode() + ") - Hostname = " + this.getKnoten().getDisplayName());
             Main.debug.print("DEBUG (" + this.hashCode() + ") - Hardwaretyp = '");
             if (getKnoten() instanceof filius.hardware.knoten.Notebook) {
                 Main.debug.println("Notebook'");
@@ -230,20 +230,20 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         Main.debug.println("DEBUG (" + this.hashCode() + ") - UDP = " + udp.hashCode());
         if (this.getKnoten() != null) {
             if (getKnoten() instanceof Notebook) {
-                NetzwerkInterface nic = ((NetzwerkInterface) ((Notebook) getKnoten()).getNetzwerkInterfaces().get(0));
+                NetworkInterface nic = ((NetworkInterface) ((Notebook) getKnoten()).getNIlist().get(0));
                 Main.debug.println(
-                        "DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
+                        "DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetMask()
                                 + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
             } else if (getKnoten() instanceof Rechner) {
-                NetzwerkInterface nic = ((NetzwerkInterface) ((Rechner) getKnoten()).getNetzwerkInterfaces().get(0));
+                NetworkInterface nic = ((NetworkInterface) ((Rechner) getKnoten()).getNIlist().get(0));
                 Main.debug.println(
-                        "DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
+                        "DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetMask()
                                 + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
             } else if (getKnoten() instanceof Vermittlungsrechner) {
                 int nicNr = 0;
-                for (NetzwerkInterface nic : ((Vermittlungsrechner) getKnoten()).getNetzwerkInterfaces()) {
+                for (NetworkInterface nic : ((Vermittlungsrechner) getKnoten()).getNIlist()) {
                     Main.debug.println("DEBUG (" + this.hashCode() + ") - NIC" + nicNr + ": {IP=" + nic.getIp() + "/"
-                            + nic.getSubnetzMaske() + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW="
+                            + nic.getSubnetMask() + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW="
                             + nic.getGateway() + "}");
                     nicNr++;
                 }
@@ -265,7 +265,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         Main.debug.println(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), starten()");
 
-        dateisystem.fixDirectory(dateisystem.getRoot());
+        dateisystem.getRoot().fixDirectory();
 
         // Die Protokoll-Threads der einzelnen Schichten werden
         // beginnend mit der untersten Schicht gestartet.
@@ -446,7 +446,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
             return false;
         } else {
             try {
-                liste = Information.getInformation().ladeProgrammListe();
+                liste = Information.getInstance().ladeProgrammListe();
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
                 return false;
@@ -544,14 +544,14 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public String getStandardGateway() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), getStandardGateway()");
-        InternetKnoten knoten;
-        NetzwerkInterface nic;
+        InternetNode knoten;
+        NetworkInterface nic;
 
-        if (getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
+        if (getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
 
-            if (knoten.getNetzwerkInterfaces().size() > 0) {
-                nic = (NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0);
+            if (knoten.getNIlist().size() > 0) {
+                nic = (NetworkInterface) knoten.getNIlist().get(0);
                 return nic.getGateway();
             }
         }
@@ -568,17 +568,17 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public void setStandardGateway(String gateway) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setStandardGateway(" + gateway + ")");
-        InternetKnoten knoten;
-        NetzwerkInterface nic;
+        InternetNode knoten;
+        NetworkInterface nic;
         Iterator<?> it;
         gateway = (gateway != null && gateway.trim().equals("")) ? gateway.trim() : IP.ipCheck(gateway);
 
         if (gateway != null && EingabenUeberpruefung.isGueltig(gateway, EingabenUeberpruefung.musterIpAdresseAuchLeer)
-                && getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
-            it = knoten.getNetzwerkInterfaces().listIterator();
+                && getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
+            it = knoten.getNIlist().listIterator();
             while (it.hasNext()) {
-                nic = (NetzwerkInterface) it.next();
+                nic = (NetworkInterface) it.next();
                 nic.setGateway(gateway);
             }
         }
@@ -591,12 +591,12 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public void setzeIPAdresse(String ip) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setzeIPAdresse(" + ip + ")");
-        InternetKnoten knoten;
+        InternetNode knoten;
         ip = IP.ipCheck(ip);
         if (ip != null && EingabenUeberpruefung.isGueltig(ip, EingabenUeberpruefung.musterIpAdresse)
-                && getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
-            ((NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0)).setIp(ip);
+                && getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
+            ((NetworkInterface) knoten.getNIlist().get(0)).setIp(ip);
         }
     }
 
@@ -605,16 +605,16 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public String holeIPAdresse() {
-        if (!(getKnoten() instanceof InternetKnoten)) {
+        if (!(getKnoten() instanceof InternetNode)) {
             return null;
         }
-        InternetKnoten knoten = (InternetKnoten) getKnoten();
+        InternetNode knoten = (InternetNode) getKnoten();
 
         String ip = null;
-        NetzwerkInterface nic;
-        ListIterator it = knoten.getNetzwerkInterfaces().listIterator();
+        NetworkInterface nic;
+        ListIterator it = knoten.getNIlist().listIterator();
         while (it.hasNext()) {
-            nic = (NetzwerkInterface) it.next();
+            nic = (NetworkInterface) it.next();
             ip = nic.getIp();
 
             // search for a public IP
@@ -633,13 +633,13 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public String holeMACAdresse() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), holeMACAdresse()");
-        InternetKnoten knoten;
+        InternetNode knoten;
 
-        if (getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
+        if (getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
 
-            if (knoten.getNetzwerkInterfaces().size() > 0) {
-                NetzwerkInterface nic = (NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0);
+            if (knoten.getNIlist().size() > 0) {
+                NetworkInterface nic = (NetworkInterface) knoten.getNIlist().get(0);
                 return nic.getMac();
             }
         }
@@ -654,13 +654,13 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public String getDNSServer() {
         Main.debug.println(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), getDNSServer()");
-        InternetKnoten knoten;
+        InternetNode knoten;
 
-        if (getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
+        if (getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
 
-            if (knoten.getNetzwerkInterfaces().size() > 0) {
-                NetzwerkInterface nic = (NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0);
+            if (knoten.getNIlist().size() > 0) {
+                NetworkInterface nic = (NetworkInterface) knoten.getNIlist().get(0);
                 return nic.getDns();
             }
         }
@@ -674,17 +674,17 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public void setDNSServer(String dns) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setDNSServer(" + dns + ")");
-        InternetKnoten knoten;
-        NetzwerkInterface nic;
+        InternetNode knoten;
+        NetworkInterface nic;
         Iterator<?> it;
         dns = (dns != null && dns.trim().equals("")) ? dns.trim() : IP.ipCheck(dns);
 
         if (dns != null && EingabenUeberpruefung.isGueltig(dns, EingabenUeberpruefung.musterIpAdresseAuchLeer)
-                && getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
-            it = knoten.getNetzwerkInterfaces().listIterator();
+                && getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
+            it = knoten.getNIlist().listIterator();
             while (it.hasNext()) {
-                nic = (NetzwerkInterface) it.next();
+                nic = (NetworkInterface) it.next();
                 nic.setDns(dns);
             }
         }
@@ -697,13 +697,13 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public void setzeNetzmaske(String mask) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setzeNetzmaske(" + mask + ")");
-        InternetKnoten knoten;
+        InternetNode knoten;
         mask = IP.ipCheck(mask);
 
         if (mask != null && EingabenUeberpruefung.isGueltig(mask, EingabenUeberpruefung.musterSubNetz)
-                && getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
-            ((NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0)).setSubnetzMaske(mask);
+                && getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
+            ((NetworkInterface) knoten.getNIlist().get(0)).setSubnetMask(mask);
             // Main.debug.println("\t"
             // + ((NetzwerkInterface) knoten.getNetzwerkInterfaces()
             // .getFirst()).getSubnetzMaske());
@@ -717,11 +717,11 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public String holeNetzmaske() {
         Main.debug.println(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), holeNetzmaske()");
-        InternetKnoten knoten;
+        InternetNode knoten;
 
-        if (getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
-            return ((NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0)).getSubnetzMaske();
+        if (getKnoten() instanceof InternetNode) {
+            knoten = (InternetNode) getKnoten();
+            return ((NetworkInterface) knoten.getNIlist().get(0)).getSubnetMask();
         }
         return null;
 

@@ -99,9 +99,9 @@ public class ModemEmpfaenger extends ProtokollThread {
         if (firmware.isStarted()) {
             frame = (EthernetFrame) datenEinheit;
 
-            synchronized (((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer()) {
-                ((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer().add(frame);
-                ((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer().notify();
+            synchronized (((Modem) firmware.getKnoten()).getPort().getOutputBuffer()) {
+                ((Modem) firmware.getKnoten()).getPort().getOutputBuffer().add(frame);
+                ((Modem) firmware.getKnoten()).getPort().getOutputBuffer().notify();
             }
         }
     }

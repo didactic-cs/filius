@@ -27,7 +27,7 @@ package filius.software.www;
 
 import filius.Main;
 import filius.software.clientserver.ServerMitarbeiter;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
 import filius.software.transportschicht.TCPSocket;
 
 /*
@@ -48,7 +48,7 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
         HTTPNachricht antwort;
         WebServerPlugIn plugin;
         String dateipfad;
-        Datei datei;
+        FiliusFile datei;
         String tmp = null;
 
         antwort = new HTTPNachricht(HTTPNachricht.SERVER);

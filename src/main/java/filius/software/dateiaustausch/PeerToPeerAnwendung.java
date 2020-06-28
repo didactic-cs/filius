@@ -34,7 +34,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import filius.Main;
 import filius.software.Anwendung;
 import filius.software.system.Betriebssystem;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 
@@ -94,7 +95,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Verzeichnis, in dem die Dateien gespeichert werden, die anderen angeboten werden und in das heruntergeladene
      * Dateien gespeichert werden
      */
-    private DefaultMutableTreeNode verzeichnis;
+    private FiliusFileNode verzeichnis;
 
     /** maximale Anzahl von Teilnehmern, zu denen eine Verbindung aufgebaut wird */
     private int maxTeilnehmerZahl;
@@ -120,11 +121,9 @@ public class PeerToPeerAnwendung extends Anwendung {
                 + " (PeerToPeerAnwendung), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
 
-        FiliusFileSystem dateisystem = betriebssystem.getDateisystem();
-
-        dateisystem.createDirectory(betriebssystem.getDateisystem().getRoot(), "peer2peer");
-        verzeichnis = dateisystem
-                .absolutePathToNode(dateisystem.rootToAbsolutePath() + FiliusFileSystem.FILE_SEPARATOR + "peer2peer");
+        FiliusFileSystem FFS = betriebssystem.getDateisystem();
+        FFS.getRoot().addDirectory("peer2peer");
+        verzeichnis = FFS.toNode("peer2peer");
     }
 
     /**
@@ -170,8 +169,8 @@ public class PeerToPeerAnwendung extends Anwendung {
     PongPaket erstellePong(PingPaket ping) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), erstellePong(" + ping + ")");
-        List<Datei> dateien;
-        Datei aktuelle;
+        List<FiliusFile> dateien;
+        FiliusFile aktuelle;
         PongPaket pong;
         long anzahlBytes = 0;
         Betriebssystem bs;
@@ -181,10 +180,10 @@ public class PeerToPeerAnwendung extends Anwendung {
         } else {
             bs = (Betriebssystem) getSystemSoftware();
 
-            dateien = bs.getDateisystem().getDateiList(verzeichnis);
+            dateien = verzeichnis.getChildFiliusFiles();
 
             for (int i = 0; i < dateien.size(); i++) {
-                aktuelle = (Datei) dateien.get(i);
+                aktuelle = (FiliusFile) dateien.get(i);
                 anzahlBytes = anzahlBytes + aktuelle.getSize();
             }
             pong = new PongPaket(bs.holeIPAdresse(), 6346, dateien.size(), anzahlBytes);
@@ -221,12 +220,12 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @param pufferElement
      *            die ampfangene Anfrage
      */
-    LinkedList<Datei> verarbeiteAnfrage(String absender, QueryPaket anfrage) {
+    LinkedList<FiliusFile> verarbeiteAnfrage(String absender, QueryPaket anfrage) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeiteAnfrage(" + absender + "," + anfrage + ")");
-        LinkedList<Datei> ergebnisListe;
-        Datei ergebnis = null;
-        List<Datei> dateien;
+        LinkedList<FiliusFile> ergebnisListe;
+        FiliusFile ergebnis = null;
+        List<FiliusFile> dateien;
         String aktuellerName;
         String gesuchte;
 
@@ -234,10 +233,10 @@ public class PeerToPeerAnwendung extends Anwendung {
             fremdeAnfragen.add(anfrage.getGuid());
             schonmalVerschicktListe.add(anfrage.getGuid());
 
-            dateien = getSystemSoftware().getDateisystem().getDateiList(verzeichnis);
-            ergebnisListe = new LinkedList<Datei>();
+            dateien = verzeichnis.getChildFiliusFiles();
+            ergebnisListe = new LinkedList<FiliusFile>();
             for (int i = 0; i < dateien.size(); i++) {
-                ergebnis = (Datei) dateien.get(i);
+                ergebnis = (FiliusFile) dateien.get(i);
 
                 aktuellerName = ergebnis.getName().toLowerCase();
                 gesuchte = anfrage.getSuchKriterien().toLowerCase();
@@ -353,22 +352,20 @@ public class PeerToPeerAnwendung extends Anwendung {
     /**
      * Hilfsmethode fuer den lesenden Zugriff auf die Dateien im Peer-To-Peer-Verzeichnis des eigenen Rechners.
      */
-    Datei holeDatei(String dateiName) {
+    FiliusFile holeDatei(String dateiName) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), holeDatei()");
-        Datei datei;
 
-        datei = (Datei) getSystemSoftware().getDateisystem().getDatei(verzeichnis, dateiName);
-        return datei;
+        return verzeichnis.getFiliusFile(dateiName);
     }
 
     /**
      * Hilfsmethode fuer den schreibenden Zugriff auf die Dateien im Peer-To-Peer-Verzeichnis des eigenen Rechners.
      */
-    void speicherDatei(Datei datei) {
+    void speicherDatei(FiliusFile datei) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), speicherDatei(" + datei + ")");
-        getSystemSoftware().getDateisystem().saveDatei(verzeichnis, datei);
+        verzeichnis.saveFiliusFile(datei);
     }
 
     /**
@@ -405,7 +402,7 @@ public class PeerToPeerAnwendung extends Anwendung {
     void verarbeitePong(PongPaket pongPaket) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeitePong(" + pongPaket + ")" + "\n\tPong-Nachricht bei '"
-                + getSystemSoftware().getKnoten().holeAnzeigeName() + "' eingetroffen: " + pongPaket.toString());
+                + getSystemSoftware().getKnoten().getDisplayName() + "' eingetroffen: " + pongPaket.toString());
 
         if (eigeneAnfragen.contains(pongPaket.getGuid())) {
             hinzuTeilnehmer(pongPaket.getIpAdresse());
@@ -437,7 +434,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * 
      * @return
      */
-    public DefaultMutableTreeNode holeVerzeichnis() {
+    public FiliusFileNode holeVerzeichnis() {
         return verzeichnis;
     }
 

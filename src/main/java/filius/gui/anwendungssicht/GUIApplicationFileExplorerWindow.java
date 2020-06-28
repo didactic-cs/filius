@@ -36,14 +36,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.beans.ConstructorProperties;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Enumeration;
 import java.util.Observable;
 
@@ -69,14 +61,14 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import filius.software.system.Datei;
+import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.FiliusFileSystem.errorCode;
 
@@ -86,6 +78,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     
     private FiliusFileSystem FFS;
     private String importExportPath = null;
+    private FileFilter importExportFilter = null;
 
     // Icons
     private ImageIcon driveIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_drive.png"));
@@ -109,11 +102,11 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
     // Center components
     private JTree tvDirs;
-    private DefaultMutableTreeNode rootNode;
-    private DefaultMutableTreeNode currentDirNode;
-    private DefaultMutableTreeNode selectedNode;
-    private DefaultMutableTreeNode copySourceNode = null;
-    private DefaultMutableTreeNode cutSourceNode = null; 
+    private FiliusFileNode rootNode;
+    private FiliusFileNode currentDirNode;
+    private FiliusFileNode selectedNode;
+    private FiliusFileNode copySourceNode = null;
+    private FiliusFileNode cutSourceNode = null; 
     private JScrollPane tvsp;
     private JList lvFiles;
     private DefaultListModel fileList;
@@ -135,14 +128,8 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
 		@Override
         public boolean isLeaf(Object node) {
-
-			// Nodes are leaf when they have no child directory
-			for (Enumeration e = ((TreeNode)node).children(); e.hasMoreElements();) {
-
-	            DefaultMutableTreeNode subnode = (DefaultMutableTreeNode) e.nextElement();	            
-	            if (FFS.isDirectory(subnode)) return false;
-	        }			
-			return true; 
+			
+			return (((FiliusFileNode)node).getSubdirectoryCount() == 0);
         }
 		
 		@Override
@@ -151,7 +138,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 			// Only count the subnodes that are subdirectories	 
 			// This relies on the fact that the FiliusFileSystem stores the
 			// subdirectories prior to the files for a given directory node.
-			return FFS.countSubdirectoryNodes((DefaultMutableTreeNode)parent);
+			return ((FiliusFileNode)parent).getSubdirectoryCount();
 	    }
     }
 
@@ -168,7 +155,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
             if (expanded) setIcon(openDirIcon);
             else	      setIcon(closedDirIcon);
  
-            if (((DefaultMutableTreeNode) value).isRoot()) setIcon(driveIcon);
+            if (((FiliusFileNode) value).isRoot()) setIcon(driveIcon);
 
             return this;
         }
@@ -180,15 +167,15 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     	@Override
     	public Component getListCellRendererComponent(JList list, Object value, int index, boolean selected, boolean hasFocus) {
 
-    		DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+    		FiliusFileNode node = (FiliusFileNode) value;
     		
-    		if (FFS.isFile(node)) {
-    			setText(FFS.getName(node)+"  ("+String.valueOf(FFS.getSize(node))+" o)");
+    		if (node.isFile()) {
+    			setText(node.getName()+"  ("+String.valueOf(node.getSize())+" o)");
     		} else {
-    			setText(FFS.getName(node));
+    			setText(node.getName());
     		}
 
-    		switch (FFS.getType(node)) {
+    		switch (node.getType()) {
     			case "directory": setIcon(closedDirIcon); break;
     			case "image":     setIcon(imageFileIcon); break;
     			case "sound":     setIcon(soundFileIcon); break;
@@ -219,7 +206,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     public GUIApplicationFileExplorerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
         FFS = holeAnwendung().getSystemSoftware().getDateisystem();
-        FFS.sortTree(); // Only necessary for older versions of the FFS (saved as Dateisystem)
+        FFS.sortTree(); // Only necessary for older versions of the FFS (saved as Dateisystem)    <<< certainly not the best place
         rootNode = FFS.getRoot();
         currentDirNode = rootNode;
 
@@ -321,7 +308,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     	tvDirs.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tvDirs.getLastSelectedPathComponent();
+            	FiliusFileNode node = (FiliusFileNode) tvDirs.getLastSelectedPathComponent();
 
                 if (node != null) {
                     currentDirNode = node;
@@ -339,13 +326,13 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                     if (currentDirNode != null) {
                     	int index = lvFiles.locationToIndex(e.getPoint());
                     	if (index > -1) {
-                    		selectedNode = (DefaultMutableTreeNode) fileList.getElementAt(index);
+                    		selectedNode = (FiliusFileNode) fileList.getElementAt(index);
                     	}                    	
                     }
                     if (e.getClickCount() == 2) {
                     	int index = locationToRealIndex(lvFiles, e.getPoint());
                     	if (index > -1) {
-                    		openInApplication((DefaultMutableTreeNode) fileList.getElementAt(index));
+                    		openInApplication((FiliusFileNode) fileList.getElementAt(index));
                     	}                    	
                     }
             	}
@@ -354,7 +341,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                     if (currentDirNode != null) {
 
                         final JMenuItem miNewDirectory = new JMenuItem(messages.getString("fileexplorer_msg3"));
-                        final JMenuItem miNewFile = new JMenuItem("New empty file");                                // << I18n
+                        final JMenuItem miNewFile = new JMenuItem("New text file");                                 // << I18n
                         final JMenuItem miImportFile = new JMenuItem("Import a file");         						// << I18n
                         final JMenuItem miExportFile = new JMenuItem("Export");                                     // << I18n
                         final JMenuItem miCutFile = new JMenuItem(messages.getString("fileexplorer_msg5"));
@@ -366,7 +353,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                         ActionListener al = new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 if (e.getSource() == miNewDirectory) createSubdirectory();
-                                if (e.getSource() == miNewFile) createEmptyFile();
+                                if (e.getSource() == miNewFile) createFile();
                                 if (e.getSource() == miImportFile) importFile();
                                 if (e.getSource() == miExportFile) exportFile();
                                 if (e.getSource() == miDeleteFile) deleteFile();
@@ -391,7 +378,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
                         int index = locationToRealIndex(lvFiles, e.getPoint());
                         if (index == -1) {
-                            if (copySourceNode != null || (cutSourceNode != null && !FFS.isAncestorNode(selectedNode, cutSourceNode))) {
+                            if (copySourceNode != null || (cutSourceNode != null && !selectedNode.isAncestorOf(cutSourceNode))) {
                             	popMenu.add(miPasteFile);
                             	popMenu.addSeparator();
                             }
@@ -401,7 +388,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                             popMenu.add(miImportFile);
 
                         } else {
-                            selectedNode = (DefaultMutableTreeNode) fileList.getElementAt(index);
+                            selectedNode = (FiliusFileNode) fileList.getElementAt(index);
                             lvFiles.setSelectedIndex(index);
                             popMenu.add(miCutFile);
                             popMenu.add(miCopyFile);
@@ -445,12 +432,11 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     		public void internalFrameActivated(InternalFrameEvent e) {
     			
     			// Refresh the display when switching back to the file explorer       			  			
-    			Object node = lvFiles.getSelectedValue();
-    			
+    			Object node = lvFiles.getSelectedValue();    			
     			
     			refreshDisplay();
     			
-    			// Try to restore the memorized selection  		
+    			// Try to restore the memorized selection if it still exists 		
     			if (node != null) {
     				for (int i = 0; i < fileList.getSize(); i++) {
     					if (node ==  fileList.getElementAt(i)) {
@@ -506,41 +492,41 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     private void createSubdirectory() {
     	
     	while(true) {
-    		String newDir = JOptionPane.showInputDialog(this, "Type in the name of the new subdirectory", "New subdirectory",     // I18n
+    		String newDir = JOptionPane.showInputDialog(this, "Type in the name of a new subdirectory", "New subdirectory",     // I18n
     													JOptionPane.QUESTION_MESSAGE);  
     		if (newDir == null) return;
     		
     		if (newDir.isEmpty()) {
     			JOptionPane.showMessageDialog(this, "A name must be typed in!", "New subdirectory", JOptionPane.WARNING_MESSAGE);    			
-    		} else if (FFS.fileExists(currentDirNode, newDir)) {
+    		} else if (currentDirNode.hasChildNamed(newDir)) {
     			JOptionPane.showMessageDialog(this, "A file or directory with this name already exists!", "New subdirectory", JOptionPane.WARNING_MESSAGE); 
     		} else if (! FFS.nameIsValid(newDir)) {
     			JOptionPane.showMessageDialog(this, "The name typed in contains unallowed characters!"+
     		                                  "\nUnallowed characters are \\ | / \" : ? * < >", "New subdirectory", JOptionPane.WARNING_MESSAGE);     			
     		} else {
-    			FFS.createDirectory(currentDirNode, newDir);
+    			currentDirNode.addDirectory(newDir);
     			refreshDisplay();
     			return; 
     		}    		
     	}    	
     }
 
-    private void createEmptyFile() {
+    private void createFile() {
     	
     	while(true) {
-    		String newFile = JOptionPane.showInputDialog(this, "Type in the name of the new file", "New file",     // I18n
+    		String newFile = JOptionPane.showInputDialog(this, "Type in the name of a new text file", "New file",     // I18n
     													JOptionPane.QUESTION_MESSAGE);  
     		if (newFile == null) return;
     		
     		if (newFile.isEmpty()) {
     			JOptionPane.showMessageDialog(this, "A name must be typed in!", "New file", JOptionPane.WARNING_MESSAGE);    			
-    		} else if (FFS.fileExists(currentDirNode, newFile)) {
+    		} else if (currentDirNode.hasChildNamed(newFile)) {
     			JOptionPane.showMessageDialog(this, "A file or directory with this name already exists!", "New file", JOptionPane.WARNING_MESSAGE); 
     		} else if (! FFS.nameIsValid(newFile)) {
     			JOptionPane.showMessageDialog(this, "The name typed in contains unallowed characters!"+
     		                                  "\nUnallowed characters are \\ | / \" : ? * < >", "New file", JOptionPane.WARNING_MESSAGE); 
     		} else {
-    			FFS.createFile(currentDirNode, newFile);
+    			currentDirNode.addFile(newFile, "text", null);   
     			refreshDisplay();
     			return; 
     		}    		
@@ -550,7 +536,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     private void deleteFile() {
     	if (selectedNode == null) return;
     	
-    	String msg = "Are you sure that you want to delete ' "+ FFS.getName(selectedNode) +" ' ?";
+    	String msg = "Are you sure that you want to delete ' "+ selectedNode.getName() +" ' ?";
     	if (selectedNode.getChildCount() > 0) {
     		msg = msg + "\n" + "All the files and subdirectories it contains will also be deleted.";    		
     	}
@@ -584,14 +570,14 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     		// Create a copy of the copySourceNode 
     		
     		// Get a unique name for the copy
-    		String name = FFS.getName(copySourceNode);
-    		name = FFS.getUniqueName(currentDirNode, name);
+    		String name = copySourceNode.getName();
+    		name = currentDirNode.makeNameUnique(name);
     		
-    		DefaultMutableTreeNode newNode = FFS.cloneNode(copySourceNode);
+    		FiliusFileNode newNode = copySourceNode.duplicate();
     		
     		if (newNode != null) {
-    			FFS.setName(newNode, name);
-    			FFS.addSubNode(currentDirNode, newNode);
+    			newNode.setName(name);
+    			currentDirNode.addSubNode(newNode);
     			refreshDisplay();
     		}
     		
@@ -599,7 +585,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     		// Move the cutSourceNode
     		
     		if (cutSourceNode.getParent() != currentDirNode) {
-    			FFS.addSubNode(currentDirNode, cutSourceNode);
+    			currentDirNode.addSubNode(cutSourceNode);
     			refreshDisplay();
     		}    		
             cutSourceNode = null;
@@ -609,7 +595,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     private void renameFile() {
     	if (selectedNode == null) return;
 
-    	String currentName = FFS.getName(selectedNode);
+    	String currentName = selectedNode.getName();
     	
     	while(true) {
     		String newName = (String)JOptionPane.showInputDialog(this, "Type in the new name", "Renaming",            // I18n fileexplorer_msg9
@@ -620,13 +606,13 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     		
     		if (newName.isEmpty()) {
     			JOptionPane.showMessageDialog(this, "A name must be typed in!", "Renaming", JOptionPane.WARNING_MESSAGE);    			
-    		} else if (FFS.fileExists(currentDirNode, newName) && (!currentName.toLowerCase().equals(newName.toLowerCase()))) {
+    		} else if (currentDirNode.hasChildNamed(newName) && (!currentName.toLowerCase().equals(newName.toLowerCase()))) {
     			JOptionPane.showMessageDialog(this, "A file or directory with this name already exists!", "Renaming", JOptionPane.WARNING_MESSAGE); 	
     		} else if (! FFS.nameIsValid(newName)) {
     			JOptionPane.showMessageDialog(this, "The name typed in contains unallowed characters!"+
     		                                  "\nUnallowed characters are \\ | / \" : ? * < >", "New file", JOptionPane.WARNING_MESSAGE); 
     		} else {
-    			FFS.setName(selectedNode, newName);
+    			selectedNode.setName(newName);
     			refreshDisplay();
     			return; 
     		}
@@ -645,21 +631,23 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         	fc.addChoosableFileFilter(new FileNameExtensionFilter("Web files", "htm", "html", "css", "js"));
         	fc.addChoosableFileFilter(new FileNameExtensionFilter("Image files", "bmp", "jpeg", "jpg", "png"));
         	fc.addChoosableFileFilter(new FileNameExtensionFilter("Sound files", "mp2", "mp3", "wav"));
-        
+        	if (importExportFilter != null) fc.setFileFilter(importExportFilter);
+         	
         	// File selection
         	int dlgRes = fc.showDialog(this, dialogButton);
         	
         	// Cancel import operation
         	if (dlgRes == JFileChooser.CANCEL_OPTION) return;
         	
-        	// Keep path for future imports
+        	// Keep path and filter for future imports
         	importExportPath = fc.getSelectedFile().getParent();
+        	importExportFilter = fc.getFileFilter();
         	
         	// Split filePath and fileName    	
         	String filePath = importExportPath;
         	String fileName = fc.getSelectedFile().getName();
 
-        	errorCode erCode = FFS.importRealFile(currentDirNode, filePath, fileName);
+        	errorCode erCode = currentDirNode.importRealFile(filePath, fileName);
         	
         	// File imported with success
         	if (erCode == errorCode.NO_ERROR) {
@@ -667,7 +655,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         		return;   
         	}
         	
-        	String msg = "The selected file could not be imported.\n";                         // I18n
+        	String msg = "The selected file could not be imported.\n";                          // I18n
         	switch (erCode) {
         	case FILE_NOT_FOUND:        	
         		msg += "The file could not be found.";                                          // I18n
@@ -687,11 +675,11 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     	//
     }
     
-    public void openInApplication(DefaultMutableTreeNode node) {
-    	if (FFS.isDirectory(node)) {
+    public void openInApplication(FiliusFileNode node) {
+    	if (node.isDirectory()) {
     		tvDirs.setSelectionPath(new TreePath(node.getPath()));
     	} else {
-    		String type = FFS.getType(node);
+//    		String type = node.getType();
 //    		
 //    		if (type.equals("image")) {
 //        		GUIApplicationFileExplorerImageViewer.gI().preview(this, node);
@@ -706,7 +694,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
     @Override
     public void update(Observable arg0, Object arg1) {
-        refreshDisplay();
+        //refreshDisplay();
     }
     
 }

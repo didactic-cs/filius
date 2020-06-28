@@ -40,7 +40,7 @@ import filius.Main;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.Information;
 import filius.software.system.Betriebssystem;
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
 
 public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 
@@ -80,7 +80,7 @@ public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 	public void oeffnen() {
 		DMTNFileChooser fc;
 		int rueckgabe;
-		Datei aktuelleDatei;
+		FiliusFile aktuelleDatei;
 		String path;
 		ImageIcon image;
 
@@ -88,14 +88,13 @@ public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 		rueckgabe = fc.openDialog();
 
 		if (rueckgabe == DMTNFileChooser.OK) {
-			aktuelleDatei = holeAnwendung().getSystemSoftware().getDateisystem()
-			        .getDatei(fc.getAktuellerOrdner(), fc.getAktuellerDateiname());
+			aktuelleDatei = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());
 			if (aktuelleDatei != null) {
 				this.setTitle(aktuelleDatei.getName());
-				Base64.decodeToFile(aktuelleDatei.getContent(), Information.getInformation().getTempPfad()
+				Base64.decodeToFile(aktuelleDatei.getContent(), Information.getInstance().getTempPfad()
 				        + aktuelleDatei.getName());
 
-				path = Information.getInformation().getTempPfad() + aktuelleDatei.getName();
+				path = Information.getInstance().getTempPfad() + aktuelleDatei.getName();
 				image = new ImageIcon(path);
 				JLabel titelgrafik = new JLabel(image);
 				backPanel.add(titelgrafik, BorderLayout.CENTER);

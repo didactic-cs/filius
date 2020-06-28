@@ -34,8 +34,8 @@ import org.apache.commons.lang3.StringUtils;
 import filius.Main;
 import filius.exception.SocketException;
 import filius.exception.TimeOutException;
-import filius.exception.VerbindungsException;
-import filius.hardware.Verbindung;
+import filius.exception.ConnectionException;
+import filius.hardware.Connection;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
 
@@ -180,10 +180,10 @@ public class TCPSocket extends Socket implements Runnable {
      * @param betriebssystem
      * @param zielAdresse
      * @param zielPort
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
     public TCPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort)
-            throws VerbindungsException {
+            throws ConnectionException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.TCP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + ")");
@@ -197,9 +197,9 @@ public class TCPSocket extends Socket implements Runnable {
      * @param betriebssystem
      * @param zielAdresse
      * @param zielPort
-     * @throws VerbindungsException
+     * @throws ConnectionException
      */
-    public TCPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws VerbindungsException {
+    public TCPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws ConnectionException {
         super(betriebssystem, lokalerPort, IpPaket.TCP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
                 + betriebssystem + "," + lokalerPort + ")");
@@ -252,13 +252,13 @@ public class TCPSocket extends Socket implements Runnable {
      * Acknowledge Sequenznummer und sendet zugleich noch ein ACK-Segment.</li>
      * </ol>
      * 
-     * @throws VerbindungsException
+     * @throws ConnectionException
      *             wenn ein Fehler auftritt bzw. ein unerwartetes Segment waehrend des Verbindungsaufbaus empfangen
      *             wird.
      * @throws TimeOutException
      *             wenn eine Antwort nicht innerhalb der maximalen Round-Trip-Time empfangen wird.
      */
-    public synchronized void verbinden() throws VerbindungsException, TimeOutException {
+    public synchronized void verbinden() throws ConnectionException, TimeOutException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), verbinden()");
         TcpSegment tmp, segment;
         long sendezeit = Long.MAX_VALUE;
@@ -290,7 +290,7 @@ public class TCPSocket extends Socket implements Runnable {
                 synchronized (puffer) {
                     if (puffer.size() < 1) {
                         try {
-                            puffer.wait(Verbindung.holeRTT());
+                            puffer.wait(Connection.getRTT());
                         } catch (InterruptedException e) {}
                     }
                 }
@@ -314,9 +314,9 @@ public class TCPSocket extends Socket implements Runnable {
                         zustand = ESTABLISHED;
                     } else {
                         beenden();
-                        throw new VerbindungsException(messages.getString("sw_tcpsocket_msg1"));
+                        throw new ConnectionException(messages.getString("sw_tcpsocket_msg1"));
                     }
-                } else if (System.currentTimeMillis() - sendezeit > Verbindung.holeRTT()) {
+                } else if (System.currentTimeMillis() - sendezeit > Connection.getRTT()) {
                     beenden();
                     throw new TimeOutException(messages.getString("sw_tcpsocket_msg2"));
                 }
@@ -348,7 +348,7 @@ public class TCPSocket extends Socket implements Runnable {
                     synchronized (puffer) {
                         if (puffer.size() < 1) {
                             try {
-                                puffer.wait(Verbindung.holeRTT());
+                                puffer.wait(Connection.getRTT());
                             } catch (InterruptedException e) {}
                         }
                     }
@@ -364,7 +364,7 @@ public class TCPSocket extends Socket implements Runnable {
                             sendeAck(segment, null);
                         } else {
                             beenden();
-                            throw new VerbindungsException(messages.getString("sw_tcpsocket_msg3"));
+                            throw new ConnectionException(messages.getString("sw_tcpsocket_msg3"));
                         }
                     } else if (zustand != CLOSED) {
                         beenden();
@@ -384,7 +384,7 @@ public class TCPSocket extends Socket implements Runnable {
         // einer Exception
         if (zustand != ESTABLISHED && zustand != CLOSED) {
             zustand = CLOSED;
-            throw new VerbindungsException(messages.getString("sw_tcpsocket_msg5"));
+            throw new ConnectionException(messages.getString("sw_tcpsocket_msg5"));
         } else {
             // Main.debug.println("TCPSocket: Socket hat Verbindungsaufbau abgeschlossen.");
         }
@@ -433,13 +433,13 @@ public class TCPSocket extends Socket implements Runnable {
      * Diese Methode ist <b>synchronized</b>, weil sonst die durchgaengig aufsteigende Sequenznummer der Segmente nicht
      * gewaehrleistet wird.
      * 
-     * @throws VerbindungsException
+     * @throws ConnectionException
      *             wenn beim Aufruf keine Verbindung hergestellt ist oder waehrend der Uebertragung die Verbindung
      *             beendet wird.
      * @throws TimeOutException
      *             wenn eine Bestaetigung nicht rechtzeitig eintrifft
      */
-    public synchronized void senden(String nachricht) throws VerbindungsException, TimeOutException {
+    public synchronized void senden(String nachricht) throws ConnectionException, TimeOutException {
         Main.debug
                 .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), senden(" + nachricht + ")");
         TcpSegment segment, antwort;
@@ -454,7 +454,7 @@ public class TCPSocket extends Socket implements Runnable {
             // (no harmful exception, but part of the concept)
             Main.debug.println("EXCEPTION: " + getClass() + " (" + this.hashCode() + "); zustand=" + zustand);
             beenden();
-            throw new VerbindungsException(messages.getString("sw_tcpsocket_msg6"));
+            throw new ConnectionException(messages.getString("sw_tcpsocket_msg6"));
         }
 
         liste = erstelleSegmente(nachricht);
@@ -478,7 +478,7 @@ public class TCPSocket extends Socket implements Runnable {
                     // Wenn die Verbindung zwischenzeitlich unterbrochen
                     // wurde, wird eine Verbindungsexception ausgeloest.
                     beenden();
-                    throw new VerbindungsException(messages.getString("sw_tcpsocket_msg7"));
+                    throw new ConnectionException(messages.getString("sw_tcpsocket_msg7"));
                 }
 
                 sendeSegment(segment, i > 0);
@@ -493,7 +493,7 @@ public class TCPSocket extends Socket implements Runnable {
                     synchronized (puffer) {
                         if (puffer.size() < 1) {
                             try {
-                                puffer.wait(Verbindung.holeRTT());
+                                puffer.wait(Connection.getRTT());
                             } catch (InterruptedException e) {
                                 e.printStackTrace(Main.debug);
                             }
@@ -510,7 +510,7 @@ public class TCPSocket extends Socket implements Runnable {
                         }
                     }
                     rtt = System.currentTimeMillis() - versendeZeitpunkt;
-                } while (!bestaetigt && (rtt < Verbindung.holeRTT()) && zustand == ESTABLISHED);
+                } while (!bestaetigt && (rtt < Connection.getRTT()) && zustand == ESTABLISHED);
             }
             if (!bestaetigt && zustand != CLOSED) {
                 beenden();
@@ -527,13 +527,13 @@ public class TCPSocket extends Socket implements Runnable {
      * 
      * @return gibt den zusammengesetzten empfangenen Datenstring zurueck. Wenn die Verbindung vor Eingang einer
      *         Nachricht geschlossen wurde, wird null zurueck gegeben.
-     * @throws VerbindungsException
+     * @throws ConnectionException
      *             - wird geworfen, wenn beim Aufruf keine Verbindung hergestellt ist
      * @throws TimeOutException
      *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
      */
-    public String empfangen() throws VerbindungsException, TimeOutException {
-        return empfangen(Verbindung.holeRTT());
+    public String empfangen() throws ConnectionException, TimeOutException {
+        return empfangen(Connection.getRTT());
     }
 
     /**
@@ -544,12 +544,12 @@ public class TCPSocket extends Socket implements Runnable {
      * 
      * @return gibt den zusammengesetzten empfangenen Datenstring zurueck. Wenn die Verbindung vor Eingang einer
      *         Nachricht geschlossen wurde, wird null zurueck gegeben.
-     * @throws VerbindungsException
+     * @throws ConnectionException
      *             - wird geworfen, wenn beim Aufruf keine Verbindung hergestellt ist
      * @throws TimeOutException
      *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
      */
-    public String empfangen(long timeoutMillis) throws VerbindungsException, TimeOutException {
+    public String empfangen(long timeoutMillis) throws ConnectionException, TimeOutException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), empfangen()");
         StringBuffer nachricht = new StringBuffer();
         LinkedList<TcpSegment> segmentListe = new LinkedList<TcpSegment>();
@@ -562,7 +562,7 @@ public class TCPSocket extends Socket implements Runnable {
         // + "\n\tlokaler Port: " + lokalerPort);
 
         if (zustand != ESTABLISHED) {
-            throw new VerbindungsException(messages.getString("sw_tcpsocket_msg9"));
+            throw new ConnectionException(messages.getString("sw_tcpsocket_msg9"));
         }
 
         while (!beendet && zustand == ESTABLISHED) {
@@ -684,7 +684,7 @@ public class TCPSocket extends Socket implements Runnable {
                 synchronized (puffer) {
                     if (puffer.size() < 1) {
                         try {
-                            puffer.wait(Verbindung.holeRTT());
+                            puffer.wait(Connection.getRTT());
                         } catch (InterruptedException e) {}
                     }
                     if (zustand == TIME_WAIT) {

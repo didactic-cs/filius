@@ -32,7 +32,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import filius.software.system.Datei;
+import filius.software.system.FiliusFile;
 
 class GUITreeRenderer extends DefaultTreeCellRenderer {
 	private Icon dateiIcon, ordnerIcon;
@@ -64,7 +64,7 @@ class GUITreeRenderer extends DefaultTreeCellRenderer {
 
 	protected boolean isDatei(Object value) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-		if (node.getUserObject().getClass().equals(Datei.class)) {
+		if (node.getUserObject().getClass().equals(FiliusFile.class)) {
 			return true;
 		}
 		return false;
@@ -72,8 +72,8 @@ class GUITreeRenderer extends DefaultTreeCellRenderer {
 
 	protected String getDateiName(Object value) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-		if (node.getUserObject().getClass().equals(Datei.class)) {
-			Datei datei = (Datei) node.getUserObject();
+		if (node.getUserObject().getClass().equals(FiliusFile.class)) {
+			FiliusFile datei = (FiliusFile) node.getUserObject();
 			return datei.getName();
 		}
 		return "";

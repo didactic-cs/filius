@@ -30,7 +30,7 @@ import java.util.Hashtable;
 import filius.Main;
 import filius.exception.ServerSocketException;
 import filius.exception.TimeOutException;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
@@ -149,7 +149,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * 
      * @return
      */
-    public synchronized Socket oeffnen() throws VerbindungsException {
+    public synchronized Socket oeffnen() throws ConnectionException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), oeffnen()");
         Socket socket = null;
 

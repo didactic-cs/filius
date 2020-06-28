@@ -27,8 +27,8 @@ package filius.software.system;
 
 //Netzwerkziel, Netzwerkmaske, ZielIp(Gateway), Schnittstelle
 import filius.Main;
-import filius.hardware.knoten.InternetKnoten;
-import filius.hardware.knoten.Knoten;
+import filius.hardware.knoten.InternetNode;
+import filius.hardware.knoten.Node;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
 import filius.software.firewall.Firewall;
@@ -65,7 +65,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
         initialisiereAnwendungen();
     }
 
-    public void setKnoten(Knoten vermittlungsrechner) {
+    public void setKnoten(Node vermittlungsrechner) {
         super.setKnoten(vermittlungsrechner);
     }
 
@@ -106,7 +106,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
         server.setzePlugIn(webkonfig);
 
         server.erzeugeIndexDatei(ResourceUtil.getResourcePath("tmpl/vermittlung_index_"
-                + Information.getInformation().getLocale() + ".txt"));
+                + Information.getInstance().getLocale() + ".txt"));
 
         // ------------- RIP ------------------
         riptable = new RIPTable(this);
@@ -136,7 +136,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
 
         if (ripEnabled) {
             riptable.reset();
-            riptable.addLocalRoutes((InternetKnoten) this.getKnoten());
+            riptable.addLocalRoutes((InternetNode) this.getKnoten());
             ripserver.starten();
             ripserver.setAktiv(true);
             ripbeacon.starten();

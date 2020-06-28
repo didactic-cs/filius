@@ -27,7 +27,7 @@ public class AggregatedMessageTableTest {
     public void testWriteToStream() throws Exception {
         PipedOutputStream outputStream = new PipedOutputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(new PipedInputStream(outputStream), "UTF8"));
-        Information.getInformation().setLocale(Locale.GERMANY);
+        Information.getInstance().setLocale(Locale.GERMANY);
 
         AggregatedMessageTable messageTable = new AggregatedMessageTable(new AggregatedExchangeDialog(), null);
         messageTable.writeToStream(outputStream);

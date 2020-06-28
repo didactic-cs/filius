@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.knoten.InternetNode;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.system.SystemSoftware;
 
@@ -150,11 +150,11 @@ public class VermittlungsProtokollTest {
     }
 
     private InternetKnotenBetriebssystem initSystemSoftwareAndNodeMock(String localIpAddress, String subnetzMaske) {
-        InternetKnoten internetKnoten = mock(InternetKnoten.class);
-        NetzwerkInterface nic = new NetzwerkInterface();
+        InternetNode internetKnoten = mock(InternetNode.class);
+        NetworkInterface nic = new NetworkInterface();
         nic.setIp(localIpAddress);
-        nic.setSubnetzMaske(subnetzMaske);
-        when(internetKnoten.getNetzwerkInterfaces()).thenReturn(Arrays.asList(nic ));
+        nic.setSubnetMask(subnetzMaske);
+        when(internetKnoten.getNIlist()).thenReturn(Arrays.asList(nic ));
         InternetKnotenBetriebssystem betriebssystem = mock(InternetKnotenBetriebssystem.class);
         when(betriebssystem.getKnoten()).thenReturn(internetKnoten);
         return betriebssystem;

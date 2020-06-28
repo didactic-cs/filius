@@ -34,7 +34,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
-import filius.hardware.Kabel;
+import filius.hardware.Cable;
 import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
@@ -71,7 +71,7 @@ public class GUIDesignSidebar extends GUISidebar {
 
 	private void addCableItemToSidebar() {
 		newCableCursor = new JLabel(new ImageIcon(getClass().getResource("/" + KABEL)));
-		newCableCursor.setText(Kabel.TYPE);
+		newCableCursor.setText(Cable.TYPE);
 		newCableCursor.setVerticalTextPosition(SwingConstants.BOTTOM);
 		newCableCursor.setHorizontalTextPosition(SwingConstants.CENTER);
 		newCableCursor.setAlignmentX(0.5f);
@@ -86,7 +86,7 @@ public class GUIDesignSidebar extends GUISidebar {
 		newCableCursor.addMouseListener(new MouseInputAdapter() {
 			public void mousePressed(MouseEvent e) {
 				GUIEvents.getGUIEvents().resetAndShowCablePreview(
-				        e.getX() - GUIContainer.getGUIContainer().getSidebarScrollpane().getWidth(), e.getY());
+				        e.getX() - GUIContainer.getInstance().getSidebarScrollpane().getWidth(), e.getY());
 			}
 		});
 	}
@@ -100,7 +100,7 @@ public class GUIDesignSidebar extends GUISidebar {
 	private void addComponentItemsToSidebar() {
 		String[] bildDateien;
 		String[] hardwareTypen;
-		JSidebarButton newLabel;
+		JNodeLabel newLabel;
 		ImageIcon icon;
 
 		bildDateien = new String[5];
@@ -118,7 +118,7 @@ public class GUIDesignSidebar extends GUISidebar {
 
 		for (int i = 0; i < bildDateien.length && i < hardwareTypen.length; i++) {
 			icon = new ImageIcon(getClass().getResource("/" + bildDateien[i]));
-			newLabel = new JSidebarButton(hardwareTypen[i], icon, hardwareTypen[i]);
+			newLabel = new JNodeLabel(hardwareTypen[i], icon, hardwareTypen[i]);
 
 			/* Label wird liste und Leiste hinzugefuegt */
 			buttonList.add(newLabel);

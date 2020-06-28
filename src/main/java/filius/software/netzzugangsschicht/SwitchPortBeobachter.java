@@ -53,7 +53,7 @@ public class SwitchPortBeobachter extends ProtokollThread {
 	 * zu ueberwachenden Anschluss.
 	 */
 	public SwitchPortBeobachter(SwitchFirmware switchFirmware, Port anschluss) {
-		super(anschluss.holeEingangsPuffer());
+		super(anschluss.getInputBuffer());
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (SwitchPortBeobachter), constr: SwitchPortBeobachter(" + switchFirmware + "," + anschluss + ")");
 
@@ -94,23 +94,23 @@ public class SwitchPortBeobachter extends ProtokollThread {
 
 			zielAnschluss = switchFirmware.holeAnschlussFuerMAC(etp.getZielMacAdresse());
 			if (zielAnschluss != null) {
-				synchronized (zielAnschluss.holeAusgangsPuffer()) {
-					zielAnschluss.holeAusgangsPuffer().add(etp);
-					zielAnschluss.holeAusgangsPuffer().notify();
+				synchronized (zielAnschluss.getOutputBuffer()) {
+					zielAnschluss.getOutputBuffer().add(etp);
+					zielAnschluss.getOutputBuffer().notify();
 				}
 			} else {
 				// Broadcast
 				// Main.debug.println("SwitchPortBeobachter: Broadcast wird weitergeleitet.");
 
-				iter = ((Switch) switchFirmware.getKnoten()).getAnschluesse().listIterator();
+				iter = ((Switch) switchFirmware.getKnoten()).getPortList().listIterator();
 				while (iter.hasNext()) {
 					aktiverAnschluss = (Port) iter.next();
 					// Main.debug.println("\t an Anschluss "
 					// + aktiverAnschluss.toString());
-					if (!aktiverAnschluss.isPortFrei() && (aktiverAnschluss != anschluss)) {
-						synchronized (aktiverAnschluss.holeAusgangsPuffer()) {
-							aktiverAnschluss.holeAusgangsPuffer().add(etp);
-							aktiverAnschluss.holeAusgangsPuffer().notify();
+					if (aktiverAnschluss.isConnected() && (aktiverAnschluss != anschluss)) {
+						synchronized (aktiverAnschluss.getOutputBuffer()) {
+							aktiverAnschluss.getOutputBuffer().add(etp);
+							aktiverAnschluss.getOutputBuffer().notify();
 						}
 					}
 				}

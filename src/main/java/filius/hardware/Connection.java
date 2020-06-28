@@ -28,24 +28,24 @@ package filius.hardware;
 import java.io.Serializable;
 
 import filius.Main;
-import filius.exception.VerbindungsException;
+import filius.exception.ConnectionException;
 import filius.rahmenprogramm.I18n;
 
 /**
  * @author carsten
  * 
  */
-public abstract class Verbindung extends Hardware implements Serializable, I18n {
+public abstract class Connection extends Hardware implements Serializable, I18n {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Verzoegerung der Uebertragung in Millisekunden, wenn der Verzoegerungsfaktor 1 ist.
      */
-    private static final int MIN_VERZOEGERUNG = 50;
+    private static final int MIN_DELAY = 50;
 
     /** Faktor der Verzoegerungszeit, der zwischen 1 und 100 */
-    private static int verzoegerungsFaktor = 1;
+    private static int delayFactor = 1;
 
     /**
      * maximale Anzahl von Hops zum Datenaustausch. Diese Zahl wird verwendet, um eine Round-Trip-Time (RTT) zu
@@ -58,84 +58,76 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
 
     // extend RTT in case of slow machines by this factor; 1: no change
     private static int extendRTTfactor = 1;
+    private Port[] ports = null;
+    private SimplexConnection simplex01, simplex10;
+    private Thread thread01, thread10;
+    
+    public Port[] getPorts() {
+        return ports;
+    }
 
-    private Port[] anschluesse = null;
-
-    private SimplexVerbindung simplexEins, simplexZwei;
-
-    private Thread threadSimplexEins;
-
-    private Thread threadSimplexZwei;
-
-    public void setAnschluesse(Port[] anschluesse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), setAnschluesse("
-                + anschluesse + ")");
-        this.anschluesse = anschluesse;
+    public void setPorts(Port[] ports) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
+        		           " (Connection), setPorts(" + ports + ")");
+        
+        this.ports = ports;
 
         try {
-            verbinde();
-        } catch (VerbindungsException e) {
+            bindPorts();
+        } catch (ConnectionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace(Main.debug);
         }
     }
 
-    private void verbinde() throws VerbindungsException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), verbinde()" + "\t"
-                + anschluesse[0].hashCode() + " <-> " + anschluesse[1].hashCode());
+    private void bindPorts() throws ConnectionException {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
+        		           " (Connection), bind()" + "\t" + ports[0].hashCode() + " <-> " + ports[1].hashCode());
+        
         try {
-            simplexEins = new SimplexVerbindung(anschluesse[0], anschluesse[1], this);
-            simplexZwei = new SimplexVerbindung(anschluesse[1], anschluesse[0], this);
+            simplex01 = new SimplexConnection(ports[0], ports[1], this);
+            simplex10 = new SimplexConnection(ports[1], ports[0], this);
 
-            anschluesse[0].setVerbindung(this);
-            anschluesse[1].setVerbindung(this);
+            ports[0].setConnection(this);
+            ports[1].setConnection(this);
 
-            threadSimplexEins = new Thread(simplexEins);
-            threadSimplexZwei = new Thread(simplexZwei);
+            thread01 = new Thread(simplex01);
+            thread10 = new Thread(simplex10);
 
-            threadSimplexEins.start();
-            threadSimplexZwei.start();
+            thread01.start();
+            thread10.start();
         } catch (NullPointerException e) {
-            simplexEins = null;
-            simplexZwei = null;
-            anschluesse[0].setVerbindung(null);
-            anschluesse[1].setVerbindung(null);
-            throw new VerbindungsException("EXCEPTION: " + messages.getString("verbindung_msg1"));
+            simplex01 = null;
+            simplex10 = null;
+            ports[0].setConnection(null);
+            ports[1].setConnection(null);
+            throw new ConnectionException("EXCEPTION: " + messages.getString("verbindung_msg1"));
         }
     }
-
-    public Port[] getAnschluesse() {
-        return anschluesse;
+    
+    public void disconnectPorts() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Connection), disconnect()");
+        
+        simplex01.disconnectPorts();
+        simplex10.disconnectPorts();
+        thread01.interrupt();
+        thread10.interrupt();
     }
 
     /**
-     * Define the port that is connected to the given port.
+     * <b>findPortConnectedTo</b> returns the port that is connected to the given port.
      * 
-     * @throws Exception
-     *             If the given parameter is not a port of this connection.
+     * @return The connected port if any, or null if there is none.
      */
-    public Port findConnectedPort(Port port) throws Exception {
-        Port connectedPort = null;
-        if (port == anschluesse[0]) {
-            connectedPort = anschluesse[1];
-        } else if (port == anschluesse[1]) {
-            connectedPort = anschluesse[0];
-        } else {
-            throw new Exception("Invalid Parameter");
-        }
-        return connectedPort;
+    public Port findPortConnectedTo(Port port) {
+
+        if (port == ports[0])      return ports[1];
+        else if (port == ports[1]) return ports[0];
+        else                       return null;
     }
 
-    public void anschluesseTrennen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), anschluesseTrennen()");
-        simplexEins.anschluesseTrennen();
-        simplexZwei.anschluesseTrennen();
-        threadSimplexEins.interrupt();
-        threadSimplexZwei.interrupt();
-    }
-
-    public static int holeVerzoegerungsFaktor() {
-        return verzoegerungsFaktor;
+    public static int getDelayFactor() {
+        return delayFactor;
     }
 
     /**
@@ -144,17 +136,17 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
      * 100 liegen. Wenn der uebergebene Parameter ausserhalb dieses Bereichs liegt, wird er auf den Minimal- bzw.
      * Maximalwert gesetzt.
      * 
-     * @param verzoegerungsFaktor
+     * @param factor Integer between 1 and 100 representing a factor by which the delay will be multiplied
      */
-    public static void setzeVerzoegerungsFaktor(int verzoegerungsFaktor) {
-        Main.debug.println(
-                "INVOKED (static) filius.hardware.Verbindung, setzeVerzoegerungsFaktor(" + verzoegerungsFaktor + ")");
-        if (verzoegerungsFaktor < 1) {
-            Verbindung.verzoegerungsFaktor = 1;
-        } else if (verzoegerungsFaktor > 100) {
-            Verbindung.verzoegerungsFaktor = 100;
+    public static void setDelayFactor(int factor) {
+        Main.debug.println("INVOKED (static) (Connection), setDelayfactor(" + factor + ")");
+        
+        if (factor < 1) {
+            Connection.delayFactor = 1;
+        } else if (factor > 100) {
+            Connection.delayFactor = 100;
         } else {
-            Verbindung.verzoegerungsFaktor = verzoegerungsFaktor;
+            Connection.delayFactor = factor;
         }
     }
 
@@ -164,8 +156,8 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
      * 
      * @return Verzoegerung der Uebertragung zwischen zwei Knoten im Rechnernetz in Millisekunden
      */
-    public static int holeVerzoegerung() {
-        return verzoegerungsFaktor * MIN_VERZOEGERUNG;
+    public static int getDelay() {
+        return delayFactor * MIN_DELAY;
     }
 
     public static void setRTTfactor(int factor) {
@@ -182,7 +174,14 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
      * maximale Round-Trip-Time (RTT) in Millisekunden <br />
      * solange wird auf eine Antwort auf ein Segment gewartet
      */
-    public static int holeRTT() {
-        return MAX_HOPS * holeVerzoegerung() * extendRTTfactor;
+    public static int getRTT() {
+        return MAX_HOPS * getDelay() * extendRTTfactor;
     }
+    
+	public static final String TYPE = messages.getString("hw_kabel_msg1");
+
+	@Override
+	public String getHardwareType() {
+		return TYPE;
+	}
 }

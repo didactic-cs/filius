@@ -30,9 +30,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.Verbindung;
-import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.NetworkInterface;
+import filius.hardware.Connection;
+import filius.hardware.knoten.InternetNode;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.system.SystemSoftware;
@@ -146,7 +146,7 @@ public class ARP extends VermittlungsProtokoll {
                 sendeARPBroadcast(zielIp);
                 synchronized (arpTabelle) {
                     try {
-                        arpTabelle.wait(Verbindung.holeRTT() / 2);
+                        arpTabelle.wait(Connection.getRTT() / 2);
                     } catch (InterruptedException e) {
                         Main.debug.println("EXCEPTION (" + this.hashCode()
                                 + "): keine Anwort auf ARP-Broadcast fuer IP-Adresse " + zielIp + " eingegangen!");
@@ -167,7 +167,7 @@ public class ARP extends VermittlungsProtokoll {
 
     /** Hilfsmethode zum Versenden einer ARP-Anfrage */
     private void sendeARPBroadcast(String suchIp) {
-        NetzwerkInterface nic = getBroadcastNic(suchIp);
+        NetworkInterface nic = getBroadcastNic(suchIp);
         if (nic == null) {
             return;
         }
@@ -183,14 +183,14 @@ public class ARP extends VermittlungsProtokoll {
                 "FF:FF:FF:FF:FF:FF", EthernetFrame.ARP);
     }
 
-    public NetzwerkInterface getBroadcastNic(String zielStr) {
+    public NetworkInterface getBroadcastNic(String zielStr) {
         long netAddr, maskAddr, zielAddr = IP.inetAton(zielStr);
 
         long bestMask = -1;
-        NetzwerkInterface bestNic = null;
+        NetworkInterface bestNic = null;
 
-        for (NetzwerkInterface nic : ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces()) {
-            maskAddr = IP.inetAton(nic.getSubnetzMaske());
+        for (NetworkInterface nic : ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist()) {
+            maskAddr = IP.inetAton(nic.getSubnetMask());
             if (maskAddr <= bestMask) {
                 continue;
             }
@@ -202,7 +202,7 @@ public class ARP extends VermittlungsProtokoll {
         }
         if (null == bestNic) {
             bestMask = IP.inetAton(((InternetKnotenBetriebssystem) holeSystemSoftware()).holeNetzmaske());
-            bestNic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces().get(0);
+            bestNic = ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist().get(0);
         }
         return bestNic;
     }

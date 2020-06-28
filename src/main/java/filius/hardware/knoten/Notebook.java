@@ -33,7 +33,7 @@ public class Notebook extends Host implements I18n {
 	public static final String TYPE = messages.getString("hw_notebook_msg1");
 
 	@Override
-	public String holeHardwareTyp() {
+	public String getHardwareType() {
 		return TYPE;
 	}
 

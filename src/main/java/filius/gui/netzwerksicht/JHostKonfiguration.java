@@ -71,12 +71,12 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     }
 
     private void aendereAnzeigeName() {
-        if (holeHardware() != null) {
-            Host host = (Host) holeHardware();
+        if (getHardware() != null) {
+            Host host = (Host) getHardware();
             host.setUseIPAsName(useIpAsName.isSelected());
         }
 
-        GUIContainer.getGUIContainer().updateViewport();
+        GUIContainer.getInstance().updateViewport();
         updateAttribute();
     }
 
@@ -86,8 +86,8 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         Host host;
         Betriebssystem bs;
 
-        if (holeHardware() != null) {
-            host = (Host) holeHardware();
+        if (getHardware() != null) {
+            host = (Host) getHardware();
             if (!useIpAsName.isSelected()) {
                 host.setName(name.getText());
             }
@@ -107,7 +107,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             Main.debug.println("GUIRechnerKonfiguration: Aenderungen konnten nicht uebernommen werden.");
         }
 
-        GUIContainer.getGUIContainer().updateViewport();
+        GUIContainer.getInstance().updateViewport();
         updateAttribute();
     }
 
@@ -142,7 +142,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         name.addActionListener(actionListener);
         name.addFocusListener(focusListener);
 
-        tempBox = Box.createHorizontalBox();
+//        tempBox = Box.createHorizontalBox();
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
@@ -353,7 +353,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     private void showDhcpConfiguration() {
         JDHCPKonfiguration dhcpKonfig = new JDHCPKonfiguration(JMainFrame.getJMainFrame(),
                 messages.getString("jhostkonfiguration_msg8"),
-                (Betriebssystem) ((Host) holeHardware()).getSystemSoftware());
+                (Betriebssystem) ((Host) getHardware()).getSystemSoftware());
         dhcpKonfig.setVisible(true);
     }
 
@@ -377,9 +377,9 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         Betriebssystem bs;
         Host host;
 
-        if (holeHardware() != null) {
-            host = (Host) holeHardware();
-            name.setText(host.holeAnzeigeName());
+        if (getHardware() != null) {
+            host = (Host) getHardware();
+            name.setText(host.getDisplayName());
             useIpAsName.setSelected(host.isUseIPAsName());
             name.setEnabled(!host.isUseIPAsName());
 
