@@ -35,7 +35,7 @@ import filius.Main;
 import filius.exception.SocketException;
 import filius.exception.TimeOutException;
 import filius.exception.ConnectionException;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
 
@@ -290,7 +290,7 @@ public class TCPSocket extends Socket implements Runnable {
                 synchronized (puffer) {
                     if (puffer.size() < 1) {
                         try {
-                            puffer.wait(Connection.getRTT());
+                            puffer.wait(Cable.getRTT());
                         } catch (InterruptedException e) {}
                     }
                 }
@@ -316,7 +316,7 @@ public class TCPSocket extends Socket implements Runnable {
                         beenden();
                         throw new ConnectionException(messages.getString("sw_tcpsocket_msg1"));
                     }
-                } else if (System.currentTimeMillis() - sendezeit > Connection.getRTT()) {
+                } else if (System.currentTimeMillis() - sendezeit > Cable.getRTT()) {
                     beenden();
                     throw new TimeOutException(messages.getString("sw_tcpsocket_msg2"));
                 }
@@ -348,7 +348,7 @@ public class TCPSocket extends Socket implements Runnable {
                     synchronized (puffer) {
                         if (puffer.size() < 1) {
                             try {
-                                puffer.wait(Connection.getRTT());
+                                puffer.wait(Cable.getRTT());
                             } catch (InterruptedException e) {}
                         }
                     }
@@ -493,7 +493,7 @@ public class TCPSocket extends Socket implements Runnable {
                     synchronized (puffer) {
                         if (puffer.size() < 1) {
                             try {
-                                puffer.wait(Connection.getRTT());
+                                puffer.wait(Cable.getRTT());
                             } catch (InterruptedException e) {
                                 e.printStackTrace(Main.debug);
                             }
@@ -510,7 +510,7 @@ public class TCPSocket extends Socket implements Runnable {
                         }
                     }
                     rtt = System.currentTimeMillis() - versendeZeitpunkt;
-                } while (!bestaetigt && (rtt < Connection.getRTT()) && zustand == ESTABLISHED);
+                } while (!bestaetigt && (rtt < Cable.getRTT()) && zustand == ESTABLISHED);
             }
             if (!bestaetigt && zustand != CLOSED) {
                 beenden();
@@ -533,7 +533,7 @@ public class TCPSocket extends Socket implements Runnable {
      *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
      */
     public String empfangen() throws ConnectionException, TimeOutException {
-        return empfangen(Connection.getRTT());
+        return empfangen(Cable.getRTT());
     }
 
     /**
@@ -684,7 +684,7 @@ public class TCPSocket extends Socket implements Runnable {
                 synchronized (puffer) {
                     if (puffer.size() < 1) {
                         try {
-                            puffer.wait(Connection.getRTT());
+                            puffer.wait(Cable.getRTT());
                         } catch (InterruptedException e) {}
                     }
                     if (zustand == TIME_WAIT) {

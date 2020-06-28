@@ -73,8 +73,8 @@ public class EthernetThread extends ProtokollThread {
         // only process in case of correct MAC address, i.e., this packet is
         // addressed for this NIC (or broadcast)
         // otherwise stop processing:
-        if (!etp.getZielMacAdresse().equalsIgnoreCase("FF:FF:FF:FF:FF:FF") // broadcast
-                && !etp.getZielMacAdresse().equals(this.netzwerkInterface.getMac()))
+        if (!etp.getTargetMacAdresse().equalsIgnoreCase("FF:FF:FF:FF:FF:FF") // broadcast
+                && !etp.getTargetMacAdresse().equals(this.netzwerkInterface.getMac()))
             return;
         // //
 
@@ -84,10 +84,10 @@ public class EthernetThread extends ProtokollThread {
         // +", Protokoll: "+etp.getTyp()
         // +", ICMP? "+(etp.isICMP()));
 
-        if (etp.getTyp().equals(EthernetFrame.IP)) {
+        if (etp.getType().equals(EthernetFrame.IP)) {
             if (etp.isICMP()) {
                 synchronized (ethernet.holeICMPPuffer()) {
-                    ethernet.holeICMPPuffer().add((IcmpPaket) etp.getDaten());
+                    ethernet.holeICMPPuffer().add((IcmpPaket) etp.getData());
                     // Main.debug.println("DEBUG ("+this.hashCode()+", T"+this.getId()+") "+getClass()+" (EthernetThread), verarbeiteDateneinheit, ICMPPuffer="+ethernet.holeICMPPuffer().getFirst().toString());
                     ethernet.holeICMPPuffer().notifyAll(); // 'all' means:
                                                            // Terminal ping
@@ -98,29 +98,29 @@ public class EthernetThread extends ProtokollThread {
                 }
             } else {
                 synchronized (ethernet.holeIPPuffer()) {
-                    ethernet.holeIPPuffer().add((IpPaket) etp.getDaten());
+                    ethernet.holeIPPuffer().add((IpPaket) etp.getData());
                     ethernet.holeIPPuffer().notify();
                 }
             }
-        } else if (etp.getTyp().equals(EthernetFrame.ARP)) {
+        } else if (etp.getType().equals(EthernetFrame.ARP)) {
             // if ARP packet is not addressed to this specific NIC, but possibly
             // another NIC of this node, then return
             // (this is meant to prevent routers from responding to all ARP
             // packets meant for some of their NICs
             // without even having received the packet on this specific NIC,
             // i.e., without physical connection)
-            String zielIp = ((ArpPaket) etp.getDaten()).getZielIp();
+            String zielIp = ((ArpPaket) etp.getData()).getZielIp();
             if (!zielIp.equals(netzwerkInterface.getIp()) && !"0.0.0.0".equals(netzwerkInterface.getIp())) {
                 Main.debug.println("ERROR (" + this.hashCode() + "):  ARP packet seems to be sent from a NIC ("
-                        + ((ArpPaket) etp.getDaten()).getQuellIp() + ","
-                        + ((ArpPaket) etp.getDaten()).getQuellMacAdresse()
+                        + ((ArpPaket) etp.getData()).getQuellIp() + ","
+                        + ((ArpPaket) etp.getData()).getQuellMacAdresse()
                         + ") not connected to the currently considered NIC (" + netzwerkInterface.getIp() + ","
                         + netzwerkInterface.getMac() + ")");
                 return;
             }
             // otherwise process ARP packet
             synchronized (ethernet.holeARPPuffer()) {
-                ethernet.holeARPPuffer().add((ArpPaket) etp.getDaten());
+                ethernet.holeARPPuffer().add((ArpPaket) etp.getData());
                 ethernet.holeARPPuffer().notify();
             }
         } else {

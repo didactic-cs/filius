@@ -50,7 +50,7 @@ import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
 import filius.gui.quelltextsicht.FrameSoftwareWizard;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
@@ -303,13 +303,13 @@ public class GUIMainMenu implements Serializable, I18n {
         verzoegerung.setMaximum(10);
         verzoegerung.setMinimum(1);
         verzoegerung.setValue(verzoegerung.getMaximum());
-        Connection.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
+        Cable.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
         verzoegerung.setBounds(510, 10, 100, 44);
         verzoegerung.setOpaque(false);
         verzoegerung.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent arg0) {
-                Connection.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
+                Cable.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
                 geschwindigkeit.setText("" + verzoegerung.getValue() * 10 + "%");
             }
 

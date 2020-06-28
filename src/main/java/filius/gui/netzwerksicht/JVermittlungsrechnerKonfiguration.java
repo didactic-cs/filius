@@ -56,10 +56,9 @@ import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
-import filius.hardware.Cable;
 import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.hardware.knoten.InternetNode;
 import filius.hardware.knoten.Node;
 import filius.hardware.knoten.LocalNode;
@@ -401,8 +400,8 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
                     highlightedCable.setActive(false);
                 }
                 if (sel > 0 && sel < pane.getComponentCount() - 1) {
-                    Connection conn = ((NetworkInterface) ((Vermittlungsrechner) getHardware())
-                            .getNIlist().get(sel - 1)).getPort().getConnection();
+                    Cable conn = ((NetworkInterface) ((Vermittlungsrechner) getHardware())
+                            .getNIlist().get(sel - 1)).getPort().getCable();
                     if (conn != null) {
                         conn.setActive(true);
                         highlightedCable = (Cable) conn;
@@ -598,11 +597,11 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         ListIterator it1, it2;
         Node knoten;
 
-        if (nic.getPort().getConnection() == null)
+        if (nic.getPort().getCable() == null)
             return null;
 
         lokalerAnschluss = nic.getPort();
-        ports = lokalerAnschluss.getConnection().getPorts();
+        ports = lokalerAnschluss.getCable().getPorts();
         if (ports[0] == lokalerAnschluss)
             entfernterAnschluss = ports[1];
         else

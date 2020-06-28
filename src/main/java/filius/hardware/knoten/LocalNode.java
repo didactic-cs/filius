@@ -31,7 +31,7 @@ import java.util.List;
 
 import filius.Main;
 import filius.hardware.Port;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.hardware.NetworkInterface;
 
 public abstract class LocalNode extends Node {

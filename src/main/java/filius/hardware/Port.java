@@ -37,7 +37,7 @@ public class Port implements Serializable {
     
     private LinkedList<EthernetFrame> inputBuffer = new LinkedList<EthernetFrame>();
     private LinkedList<EthernetFrame> outputBuffer = new LinkedList<EthernetFrame>();
-    private Connection connection = null;
+    private Cable cable = null;
     private NetworkInterface nic = null;
     private Node owner = null;
 
@@ -52,7 +52,7 @@ public class Port implements Serializable {
     
     public boolean isConnected() {   
     	
-        return (connection != null);
+        return (cable != null);
     }
 
     public NetworkInterface getNIC() {
@@ -86,32 +86,32 @@ public class Port implements Serializable {
      */
     public Port getRemotePort() {
     	
-    	if (connection == null) return null;
-    	return connection.findPortConnectedTo(this);    	
+    	if (cable == null) return null;
+    	return cable.findPortConnectedTo(this);    	
     } 
     
-    public Connection getConnection() {
+    public Cable getCable() {
     	
-        return connection;
+        return cable;
     }
 
-    public boolean setConnection(Connection connection) {
+    public boolean setCable(Cable cable) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
-        		           " (Port), setConnection(" + connection + ")");
+        		           " (Port), setCable(" + cable + ")");
         
         if (! isConnected()) {
-            this.connection = connection;
+            this.cable = cable;
             return true;
         } else {
             return false;
         }
     }
 
-    public void removeConnection() {
+    public void removeCable() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
-        		           " (Port), removeConnection()");
+        		           " (Port), removeCable()");
         
-        this.connection = null;
+        this.cable = null;
     }
 
     public LinkedList<EthernetFrame> getOutputBuffer() {

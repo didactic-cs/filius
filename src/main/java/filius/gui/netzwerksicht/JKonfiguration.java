@@ -127,9 +127,8 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
     // Only one instance is used for all cables
     public static JKonfiguration getInstance(Cable cable) {
         
-        if (instanceJKK == null) {
-        	instanceJKK = new JKabelKonfiguration();           
-        }
+        if (instanceJKK == null) instanceJKK = new JKabelKonfiguration();           
+
         instanceJKK.setHardwares(cable);
         return instanceJKK;
     }   

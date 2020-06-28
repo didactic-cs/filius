@@ -30,7 +30,7 @@ import java.util.concurrent.TimeoutException;
 
 import filius.Main;
 import filius.exception.ConnectionException;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.transportschicht.UDPSocket;
 import filius.software.vermittlungsschicht.IP;
@@ -101,7 +101,7 @@ public class Resolver extends ClientAnwendung {
 
                     socket.verbinden();
                     socket.senden(anfrage.toString());
-                    tmp = socket.empfangen(10 * Connection.getRTT());
+                    tmp = socket.empfangen(10 * Cable.getRTT());
                     if (tmp == null) {
                         Main.debug.println("ERROR (" + this.hashCode() + "): keine Antwort auf Query empfangen");
                         throw new TimeoutException();

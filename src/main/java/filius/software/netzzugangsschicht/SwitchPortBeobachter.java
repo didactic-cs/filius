@@ -90,9 +90,9 @@ public class SwitchPortBeobachter extends ProtokollThread {
 		if (!switchFirmware.holeDurchgelaufeneFrames().contains(etp)) {
 			switchFirmware.holeDurchgelaufeneFrames().add(etp);
 
-			switchFirmware.hinzuSatEintrag(etp.getQuellMacAdresse(), anschluss);
+			switchFirmware.hinzuSatEintrag(etp.getSourceMacAdresse(), anschluss);
 
-			zielAnschluss = switchFirmware.holeAnschlussFuerMAC(etp.getZielMacAdresse());
+			zielAnschluss = switchFirmware.holeAnschlussFuerMAC(etp.getTargetMacAdresse());
 			if (zielAnschluss != null) {
 				synchronized (zielAnschluss.getOutputBuffer()) {
 					zielAnschluss.getOutputBuffer().add(etp);

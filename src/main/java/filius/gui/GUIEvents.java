@@ -153,9 +153,7 @@ public class GUIEvents implements I18n {
         if (!SwingUtilities.isLeftMouseButton(e)) return;    
         
         JMarkerPanel auswahl = container.getAuswahl();
-        int neuX, neuY, neuWidth, neuHeight;
-        int tmpX, tmpY; // for calculating the actual position (only within
-                        // working panel)
+        int neuX, neuY;
 
         JNodeLabel dragVorschau = container.getDragVorschau();
 
@@ -846,7 +844,7 @@ public class GUIEvents implements I18n {
             ziel2konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
                     .getInstance(cableItem.getCablePanel().getZiel2().getNode()));
         }
-        cableItem.getCable().disconnectPorts();
+        cableItem.getCable().disconnect();
         container.getCableItems().remove(cableItem);
         container.getDesignpanel().remove(cableItem.getCablePanel());
         container.updateViewport();

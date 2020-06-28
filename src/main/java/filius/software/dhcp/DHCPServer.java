@@ -36,7 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import filius.Main;
 import filius.exception.AddressRequestNotAcceptedException;
 import filius.exception.NoAvailableAddressException;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.software.clientserver.UDPServerAnwendung;
 import filius.software.transportschicht.Socket;
@@ -117,7 +117,7 @@ public class DHCPServer extends UDPServerAnwendung {
                 throw new NoAvailableAddressException();
             }
         }
-        long leaseTime = System.currentTimeMillis() + 4 * Connection.getRTT();
+        long leaseTime = System.currentTimeMillis() + 4 * Cable.getRTT();
         offeredAddresses.add(new DHCPAddressAssignment(mac, addressToOffer, leaseTime));
         return addressToOffer;
     }
@@ -134,7 +134,7 @@ public class DHCPServer extends UDPServerAnwendung {
     }
 
     public synchronized void blacklistAddress(String ip) {
-        long leaseTime = System.currentTimeMillis() + 4 * Connection.getRTT();
+        long leaseTime = System.currentTimeMillis() + 4 * Cable.getRTT();
         blacklist.add(new DHCPAddressAssignment("", ip, leaseTime));
     }
 

@@ -28,7 +28,7 @@ package filius.software.vermittlungsschicht;
 import java.util.LinkedList;
 
 import filius.Main;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.software.ProtokollThread;
 import filius.software.system.InternetKnotenBetriebssystem;
 
@@ -89,7 +89,7 @@ public class ICMPThread extends ProtokollThread {
         IcmpPaket response = null;
         synchronized (rcvdPackets) {
             try {
-                rcvdPackets.wait(Connection.getRTT());
+                rcvdPackets.wait(Cable.getRTT());
             } catch (InterruptedException e) {}
 
             if (rcvdPackets.size() > 0) {

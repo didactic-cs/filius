@@ -40,68 +40,70 @@ public class EthernetFrame implements Serializable {
 	public static final String IP = "0x800", ARP = "0x806";
 
 	/** Die Ziel-Adresse des Frames */
-	private String zielMacAdresse;
+	private String targetMacAdresse;
 
 	/** Die MAC-Adresse, von dem sendenden Rechner */
-	private String quellMacAdresse;
+	private String sourceMacAdresse;
 
 	/** Typ des uebergeordneten Protokolls (ARP oder IP) */
-	private String typ;
+	private String type;
 	private boolean icmpFlag;
 
 	/** die Nutzdaten */
-	private Object daten;
+	private Object data;
 
 	/** Konstruktor zur Initialisierung der Attribute des Frames */
-	public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (EthernetFrame), constr: EthernetFrame(" + daten + "," + quellMacAdresse + "," + zielMacAdresse
-		        + "," + typ + ")");
-		this.zielMacAdresse = zielMacAdresse;
-		this.quellMacAdresse = quellMacAdresse;
-		this.typ = typ;
-		this.daten = daten;
+	public EthernetFrame(Object data, String sourceMacAdresse, String targetMacAdresse, String type) {
+		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
+		                   " (EthernetFrame), constr: EthernetFrame(" + data + "," + 
+				           sourceMacAdresse + "," + targetMacAdresse + "," + type + ")");
+		
+		this.targetMacAdresse = targetMacAdresse;
+		this.sourceMacAdresse = sourceMacAdresse;
+		this.type = type;
+		this.data = data;
 		this.icmpFlag = false;
 	}
 
 	/** Konstruktor zur Initialisierung der Attribute des Frames */
-	public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ, boolean icmp) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (EthernetFrame), constr: EthernetFrame(" + daten + "," + quellMacAdresse + "," + zielMacAdresse
-		        + "," + typ + "," + icmp + ")");
-		this.zielMacAdresse = zielMacAdresse;
-		this.quellMacAdresse = quellMacAdresse;
-		this.typ = typ;
-		this.daten = daten;
+	public EthernetFrame(Object data, String sourceMacAdresse, String targetMacAdresse, String type, boolean icmp) {
+		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
+		                   " (EthernetFrame), constr: EthernetFrame(" + data + "," + 
+				           sourceMacAdresse + "," + targetMacAdresse + "," + type + "," + icmp + ")");
+		
+		this.targetMacAdresse = targetMacAdresse;
+		this.sourceMacAdresse = sourceMacAdresse;
+		this.type = type;
+		this.data = data;
 		this.icmpFlag = icmp;
 	}
 
 	public boolean isICMP() {
-		return (this.typ.equals(IP) && this.icmpFlag);
+		return (this.type.equals(IP) && this.icmpFlag);
 	}
 
 	/** Zugriff auf die Daten, die mit dem Frame verschickt werden */
-	public Object getDaten() {
-		return daten;
+	public Object getData() {
+		return data;
 	}
 
 	/** Zugriff auf die Absender-MAC-Adresse */
-	public String getQuellMacAdresse() {
-		return quellMacAdresse;
-	}
-
-	/** Zugriff auf den Protokolltyp. Zulaessig sind ARP und IP */
-	public String getTyp() {
-		return typ;
+	public String getSourceMacAdresse() {
+		return sourceMacAdresse;
 	}
 
 	/** Methode fuer den Zugriff auf die Ziel-MAC-Adresse */
-	public String getZielMacAdresse() {
-		return zielMacAdresse;
+	public String getTargetMacAdresse() {
+		return targetMacAdresse;
+	}
+	
+	/** Zugriff auf den Protokolltyp. Zulaessig sind ARP und IP */
+	public String getType() {
+		return type;
 	}
 
 	public String toString() {
-		return "[" + "quellMAC=" + quellMacAdresse + ", " + "zielMAC=" + zielMacAdresse + ", " + "typ=" + typ + ", "
+		return "[" + "quellMAC=" + sourceMacAdresse + ", " + "zielMAC=" + targetMacAdresse + ", " + "typ=" + type + ", "
 		        + "icmpFlag=" + icmpFlag + "]";
 	}
 }

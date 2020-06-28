@@ -46,7 +46,7 @@ import filius.gui.GUIContainer;
 import filius.gui.GUIMainMenu;
 import filius.gui.JMainFrame;
 import filius.gui.SplashScreen;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
@@ -310,7 +310,7 @@ public class Main implements I18n {
                     if (args.length > i + 1 && !args[i + 1].startsWith("-")) {
                         try {
                             int rtt = Integer.parseInt(args[++i]);
-                            Connection.setRTTfactor(rtt);
+                            Cable.setRTTfactor(rtt);
                         } catch (NumberFormatException e) {
                             System.err.println("Ungueltige Round-Trip-Time " + args[i] + ". Ganzzahl erwartet.\n");
                             showUsageInformation();

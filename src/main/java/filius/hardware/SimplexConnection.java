@@ -31,34 +31,39 @@ import filius.software.netzzugangsschicht.EthernetFrame;
 public class SimplexConnection implements Runnable {
 
     private boolean threadRunning = true;
-    private Connection connection = null;
+    private Cable cable = null;
     private Port port1 = null;
     private Port port2 = null;
 
     /**
-     * @author carsten
-     * @param port1
-     *            - Sender der einseitigen Verbindung
-     * @param port2
-     *            - Empfaenger der einseitigen Verbindung
-     * @param connection
-     *            - Verbindung, auf der die einseitige Kommunikation gestartet wird
+     * <b>SimplexConnection</b> this class models a simplex connection. It is driven by a thread.
+     * Each cable has two simplex connections, one for each direction.
      * 
-     *            Dieser Konstruktor wird innerhalb der Verbindung aufgerufen und in einem Thread gestartet. Davon gibt
-     *            es zwei Verbindungen, die die bidirektionale Verbindung zwischen den beiden Hardwares herstellt.
+     * @param port1
+     *            Port where the data is emitted.
+     * @param port2
+     *            Port where the data is received.
+     * @param cable
+     *            Cable to which this simplex connection belongs.
+     *            
+     * @author Carsten
      */
-    public SimplexConnection(Port port1, Port port2, Connection connection) {
+    public SimplexConnection(Port port1, Port port2, Cable cable) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
-                           " (SimplexConnection), constr: SimplexConnection(" + port1 + "," + port2 + "," + connection + ")");
+                           " (SimplexConnection), constr: SimplexConnection(" + port1 + "," + port2 + "," + cable + ")");
         
         this.port1 = port1;
         this.port2 = port2;
-        this.connection = connection;
+        this.cable = cable;
     }
 
     /**
-     * @author carsten Diese run-Methode des Threads (nur Runnable!) sorgt fuer die einzelnen Kommunikationen auf einer
-     *         Verbindung in beide Richtungen
+     * This method is only runnable and should not be called directly.
+     * It is the method run by the thread attached to the simplex connection.  
+     * It is responsible for transporting a frame from port1.outputBuffer to
+     * port2.inputBuffer and for letting the cable blink.
+     *         
+     * @author Carsten         
      */
     public void run() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexConnection), run()");
@@ -70,19 +75,19 @@ public class SimplexConnection implements Runnable {
                 if (port1.getOutputBuffer().size() < 1) {
                     try {
                         // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexConnection, run:   set wait()");
-                        connection.setActive(false);
+                        cable.setActive(false);
                         port1.getOutputBuffer().wait();
                     } catch (InterruptedException e) {}
                 }
                 if (port1.getOutputBuffer().size() > 0) {
                     // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexConnection, run:   set wait()");
-                    connection.setActive(true);
+                    cable.setActive(true);
                     frame = (EthernetFrame) port1.getOutputBuffer().getFirst();
                     port1.getOutputBuffer().remove(frame);
 
                     synchronized (this) {
                         try {
-                            Thread.sleep(Connection.getDelay());
+                            Thread.sleep(Cable.getDelay());
                         } catch (InterruptedException e) {}
                     }
 
@@ -112,19 +117,19 @@ public class SimplexConnection implements Runnable {
     }
 
     public void disconnectPorts() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
-                           " (SimplexConnection), disconnectPorts()");
-        port1.removeConnection();
-        port2.removeConnection();
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexConnection), disconnectPorts()");
+        
+        port1.removeCable();
+        port2.removeCable();
         this.setThreadRunning(false);
     }
 
-    public Connection getConnection() {
-        return connection;
+    public Cable getCable() {
+        return cable;
     }
 
-    public void setConnection(Connection connection) {
-        this.connection = connection;
+    public void setCable(Cable cable) {
+        this.cable = cable;
     }
 
     public boolean isThreadRunning() {

@@ -54,10 +54,9 @@ import javax.swing.SpringLayout;
 
 import filius.Main;
 import filius.gui.GUIContainer;
-import filius.hardware.Cable;
 import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.hardware.knoten.InternetNode;
 import filius.hardware.knoten.Node;
 import filius.hardware.knoten.LocalNode;
@@ -149,7 +148,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
             Node node = nicToNodeMap.get(nic);
             if (node != null) {
                 String remoteAddress = "";
-                Connection connection = this.getConnectedCable(nic);
+                Cable connection = this.getConnectedCable(nic);
                 Port[] ports = connection.getPorts();
                 for (Port port : ports) {
                     if (port.getNIC() != null && port.getNIC() != nic) {
@@ -508,13 +507,13 @@ public class JConnectionsDialog extends JDialog implements I18n {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), holeVerbundeneKomponente(" + nic + ")");
 
-        if (nic.getPort().getConnection() == null) {
+        if (nic.getPort().getCable() == null) {
             return null;
         }
 
         Port lokalerAnschluss, entfernterAnschluss;
         lokalerAnschluss = nic.getPort();
-        Port[] ports = lokalerAnschluss.getConnection().getPorts();
+        Port[] ports = lokalerAnschluss.getCable().getPorts();
         if (ports[0] == lokalerAnschluss) {
             entfernterAnschluss = ports[1];
         } else {
@@ -544,7 +543,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
     private Cable getConnectedCable(NetworkInterface nic) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), getConnectedCable(" + nic + ")");
-        Connection nicConn = nic.getPort().getConnection();
+        Cable nicConn = nic.getPort().getCable();
         if (nicConn == null) {
             return null;
         }
@@ -561,7 +560,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
         for (GUIKabelItem cableItem : GUIContainer.getInstance().getCableItems()) {
             if (cableItem.getCable().getPorts()[0].equals(port)
                     || cableItem.getCable().getPorts()[1].equals(port)) {
-                cableItem.getCable().disconnectPorts();
+                cableItem.getCable().disconnect();
                 GUIContainer.getInstance().removeCableItem(cableItem);
                 GUIContainer.getInstance().updateViewport();
                 break;
@@ -570,12 +569,12 @@ public class JConnectionsDialog extends JDialog implements I18n {
     }
 
     private void swapConnection(Port port1, Port port2) {
-        Cable kabel1 = null;
+    	Cable kabel1 = null;
         int portIdx1 = 0;
         Cable kabel2 = null;
         int portIdx2 = 0;
         for (GUIKabelItem cableItem : GUIContainer.getInstance().getCableItems()) {
-            Cable cable = cableItem.getCable();
+        	Cable cable = cableItem.getCable();
             if (cable.getPorts()[0].equals(port1)) {
                 kabel1 = cable;
                 portIdx1 = 0;
@@ -591,30 +590,30 @@ public class JConnectionsDialog extends JDialog implements I18n {
             }
         }
         if (kabel1 != null && kabel2 != null && kabel1 != kabel2) {
-            kabel1.disconnectPorts();
-            kabel2.disconnectPorts();
+            kabel1.disconnect();
+            kabel2.disconnect();
 
             Port[] anschluesse = kabel1.getPorts();
-            port2.setConnection(kabel1);
+            port2.setCable(kabel1);
             anschluesse[portIdx1] = port2;
             kabel1.setPorts(anschluesse);
 
             anschluesse = kabel2.getPorts();
-            port1.setConnection(kabel2);
+            port1.setCable(kabel2);
             anschluesse[portIdx2] = port1;
             kabel2.setPorts(anschluesse);
         } else if (kabel1 == null && kabel2 != null) {
-            kabel2.disconnectPorts();
+            kabel2.disconnect();
 
-            port1.setConnection(kabel2);
+            port1.setCable(kabel2);
             Port[] anschluesse = kabel2.getPorts();
             anschluesse[portIdx2] = port1;
             kabel2.setPorts(anschluesse);
         } else if (kabel1 != null && kabel2 == null) {
-            kabel1.disconnectPorts();
+            kabel1.disconnect();
 
             Port[] anschluesse = kabel1.getPorts();
-            port2.setConnection(kabel1);
+            port2.setCable(kabel1);
             anschluesse[portIdx1] = port2;
             kabel1.setPorts(anschluesse);
         }

@@ -44,7 +44,7 @@ import filius.exception.TimeOutException;
 import filius.exception.ConnectionException;
 import filius.gui.GUIContainer;
 import filius.gui.netzwerksicht.GUIKnotenItem;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.hardware.knoten.Host;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.system.Betriebssystem;
@@ -132,7 +132,7 @@ public class DHCPClient extends ClientAnwendung {
                     zustand = DISCOVER;
                     break;
                 case DISCOVER:
-                    config = discover(udpSocket, operatingSystem.holeMACAdresse(), Connection.getRTT());
+                    config = discover(udpSocket, operatingSystem.holeMACAdresse(), Cable.getRTT());
                     zustand = VALIDATE;
                     break;
                 case VALIDATE:
@@ -140,12 +140,12 @@ public class DHCPClient extends ClientAnwendung {
                     zustand = validAddress ? REQUEST : DECLINE;
                     break;
                 case DECLINE:
-                    decline(udpSocket, operatingSystem.holeMACAdresse(), config, Connection.getRTT());
+                    decline(udpSocket, operatingSystem.holeMACAdresse(), config, Cable.getRTT());
                     zustand = DISCOVER;
                     break;
                 case REQUEST:
                     boolean acknowledged = request(udpSocket, operatingSystem.holeMACAdresse(), config,
-                            Connection.getRTT());
+                            Cable.getRTT());
                     zustand = acknowledged ? ASSIGN_IP : DISCOVER;
                     break;
                 case ASSIGN_IP:

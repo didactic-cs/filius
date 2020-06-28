@@ -242,11 +242,11 @@ public class Lauscher implements I18n {
 
                     neuerEintrag[1] = timestampStr;
                     frame = (EthernetFrame) frameMitZeitstempel[1];
-                    neuerEintrag[2] = frame.getQuellMacAdresse();
-                    neuerEintrag[3] = frame.getZielMacAdresse();
+                    neuerEintrag[2] = frame.getSourceMacAdresse();
+                    neuerEintrag[3] = frame.getTargetMacAdresse();
                     neuerEintrag[4] = ETHERNET;
                     neuerEintrag[5] = PROTOKOLL_SCHICHTEN[0];
-                    neuerEintrag[6] = frame.getTyp();
+                    neuerEintrag[6] = frame.getType();
 
                     daten.addElement(neuerEintrag);
 
@@ -255,8 +255,8 @@ public class Lauscher implements I18n {
 
                     neuerEintrag[1] = timestampStr;
 
-                    if (frame.getTyp().equals(EthernetFrame.IP) && !frame.isICMP()) {
-                        ipPaket = (IpPaket) frame.getDaten();
+                    if (frame.getType().equals(EthernetFrame.IP) && !frame.isICMP()) {
+                        ipPaket = (IpPaket) frame.getData();
                         neuerEintrag[2] = ipPaket.getSender();
                         neuerEintrag[3] = ipPaket.getEmpfaenger();
                         neuerEintrag[4] = IP;
@@ -333,8 +333,8 @@ public class Lauscher implements I18n {
 
                         if (neuerEintrag[6] != null && !((String) neuerEintrag[6]).trim().equals(""))
                             daten.addElement(neuerEintrag);
-                    } else if (frame.getTyp().equals(EthernetFrame.ARP)) {
-                        arpPaket = (ArpPaket) frame.getDaten();
+                    } else if (frame.getType().equals(EthernetFrame.ARP)) {
+                        arpPaket = (ArpPaket) frame.getData();
                         neuerEintrag[2] = arpPaket.getQuellIp();
                         neuerEintrag[3] = arpPaket.getZielIp();
                         neuerEintrag[4] = ARP;
@@ -349,8 +349,8 @@ public class Lauscher implements I18n {
                                 + arpPaket.getQuellMacAdresse();
 
                         daten.addElement(neuerEintrag);
-                    } else if (frame.getTyp().equals(EthernetFrame.IP) && frame.isICMP()) {
-                        icmpPaket = (IcmpPaket) frame.getDaten();
+                    } else if (frame.getType().equals(EthernetFrame.IP) && frame.isICMP()) {
+                        icmpPaket = (IcmpPaket) frame.getData();
                         neuerEintrag[2] = icmpPaket.getQuellIp();
                         neuerEintrag[3] = icmpPaket.getZielIp();
                         neuerEintrag[4] = ICMP;

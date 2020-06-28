@@ -106,15 +106,15 @@ public class FirewallThread extends ProtokollThread implements I18n {
 		// Main.debug.println("DEBUG EVAL: accept ipPacket = "+firewall.allowedIPpacket(ipPaket));
 
 		// if (ipPaket == null || !firewall.pruefePaketVerwerfen(ipPaket)) {
-		boolean isIcmp = frame.getDaten() instanceof IcmpPaket;
+		boolean isIcmp = frame.getData() instanceof IcmpPaket;
 		if (firewall.isActivated() && firewall.getDropICMP() && isIcmp) {
-			IcmpPaket icmp = (IcmpPaket) frame.getDaten();
+			IcmpPaket icmp = (IcmpPaket) frame.getData();
 			firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getQuellIp() + " -> "
 			        + icmp.getZielIp() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
 			return;
 		}
-		if (frame.getDaten() != null && frame.getDaten() instanceof IpPaket
-		        && !firewall.allowedIPpacket((IpPaket) frame.getDaten())) {
+		if (frame.getData() != null && frame.getData() instanceof IpPaket
+		        && !firewall.allowedIPpacket((IpPaket) frame.getData())) {
 			return;
 		}
 		synchronized (ausgangsPuffer) {

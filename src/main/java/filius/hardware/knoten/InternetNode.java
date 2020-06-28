@@ -33,7 +33,7 @@ import java.util.ListIterator;
 import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 
 @SuppressWarnings("serial")
 public abstract class InternetNode extends Node {

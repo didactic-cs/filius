@@ -51,7 +51,7 @@ import javax.swing.JFileChooser;
 import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 
 /**
  * In dieser Klasse werden die Verwaltungs-Informationen des Rahmenprogramms verwaltet, die unabhaengig von einem
@@ -629,8 +629,8 @@ public class Information implements Serializable {
                                     String country = configValue.substring(configValue.indexOf("_") + 1);
                                     this.setLocale(new Locale(language, country));
                                 } else if (configKey.equalsIgnoreCase("rtt")) {
-                                    if (Connection.getRTTfactor() == 1) {
-                                        Connection.setRTTfactor(Integer.parseInt(configValue));
+                                    if (Cable.getRTTfactor() == 1) {
+                                        Cable.setRTTfactor(Integer.parseInt(configValue));
                                     }
                                 } else if (configKey.equalsIgnoreCase("native-look-n-feel")) {
                                     if (configValue.trim().equals("1")) {

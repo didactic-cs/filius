@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 
 import filius.Main;
 import filius.hardware.NetworkInterface;
-import filius.hardware.Connection;
+import filius.hardware.Cable;
 import filius.hardware.knoten.InternetNode;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -146,7 +146,7 @@ public class ARP extends VermittlungsProtokoll {
                 sendeARPBroadcast(zielIp);
                 synchronized (arpTabelle) {
                     try {
-                        arpTabelle.wait(Connection.getRTT() / 2);
+                        arpTabelle.wait(Cable.getRTT() / 2);
                     } catch (InterruptedException e) {
                         Main.debug.println("EXCEPTION (" + this.hashCode()
                                 + "): keine Anwort auf ARP-Broadcast fuer IP-Adresse " + zielIp + " eingegangen!");
