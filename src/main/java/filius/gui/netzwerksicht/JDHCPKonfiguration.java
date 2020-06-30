@@ -359,6 +359,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
 
         tabellenModell = new DefaultTableModel(0, 2);
         staticAddressTable = new JTableEditable(tabellenModell, false);
+        staticAddressTable.getTableHeader().setReorderingAllowed(false);
         staticAddressTable.setIntercellSpacing(new Dimension(5, 5));
         staticAddressTable.setRowHeight(30);
         staticAddressTable.setShowGrid(false);

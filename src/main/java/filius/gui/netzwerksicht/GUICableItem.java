@@ -32,30 +32,29 @@ import filius.hardware.Cable;
 /**
  * 
  * Die Klasse GUIKabelItem ist die Verbindung von Grafikdarstellung und "realem"
- * Kabel. Sie enthält Jeweils ein JCablePanel und ein Cabel. Dazu stellt es die
+ * Kabel. Sie enthält Jeweils ein JCablePanel und ein Cable. Dazu stellt es die
  * getter und setter Methoden bereit.
  * 
  * @author Thomas Gerding & Johannes Bade
  * 
  */
 @SuppressWarnings("serial")
-public class GUIKabelItem implements Serializable {
+public class GUICableItem implements Serializable {
 	
 	private Cable cable;
 	private JCablePanel cablePanel;	
 
-	public GUIKabelItem() {
+	public GUICableItem() {
 		cablePanel = new JCablePanel();
 	}
 
 	public Cable getCable() {
-
 		return cable;
 	}
 
 	public void setCable(Cable cable) {
 		this.cable = cable;
-		cable.addObserver(cablePanel);
+		cable.addListener(cablePanel);
 	}
 
 	public JCablePanel getCablePanel() {
@@ -69,9 +68,9 @@ public class GUIKabelItem implements Serializable {
 	public String toString() {
 		String result = "[";
 		if (cable != null)
-			result += "dasKabel (id)=" + cable.hashCode() + ", ";
+			result += "cable (id)=" + cable.hashCode() + ", ";
 		else
-			result += "dasKabel=<null>, ";
+			result += "cable=<null>, ";
 		if (cablePanel != null) {
 			result += "kabelpanel (id)=" + cablePanel.hashCode() + ", ";
 			if (cablePanel.getZiel1() != null) {

@@ -229,7 +229,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
             tfIpAdresse.setEnabled(true);
             btStartStop.setPreferredSize(new Dimension(300, 30));
             btStartStop.setActionCommand(CMD_START_CLIENT);
-            aktiv = modem.istModemVerbindungAktiv();
+            aktiv = modem.isConnectionActive();
             btStartStop.setText(aktiv ? messages.getString("jmodemkonfiguration_msg6")
                     : messages.getString("jmodemkonfiguration_msg5"));
         } else {

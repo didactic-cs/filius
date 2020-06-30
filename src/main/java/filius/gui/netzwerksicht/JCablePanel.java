@@ -41,27 +41,35 @@ import javax.swing.JPanel;
 import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.GUIMainMenu;
+import filius.hardware.CableActiveListener;
 
 /**
  * 
  * @author Johannes Bade
  */
 @SuppressWarnings("serial")
-public class JCablePanel extends JPanel implements Observer {
+public class JCablePanel extends JPanel implements CableActiveListener {
 	    
-    private GUIKnotenItem ziel1, ziel2;
+    private GUINodeItem ziel1, ziel2;
     private int xZiel1, yZiel1, xZiel2, yZiel2;
     private boolean flip;
-
-    private Color kabelFarbe = new Color(64, 64, 64);
-    private final Color farbeStandard = new Color(64, 64, 64);
-    private final Color farbeBlinken = new Color(0, 255, 64);
-    private final Color farbeAktiv = new Color(0, 128, 255);
-    private boolean active = false;  // Can only be true in design mode (See also Hardware.active. Perhaps redundant. To fix after removing the observers)
+    
+    // selected is only used in Design mode 
+    private boolean selected = false;
+    
+    // active is used in Simulation mode  
+    // and also in Design mode when the configuration of a router is shown and 
+    private boolean active = false;  
+    
+    private final Color standardColor = new Color(64, 64, 64);   // darkgray    
+    private final Color selectedColor = new Color(0, 128, 255);  // blue
+    private final Color activeColor   = new Color(0, 255, 64);   // green
+    
+    private Color color = standardColor; 
+    
 
     public JCablePanel() {
         super();
-
         this.setOpaque(false);
     }
 
@@ -124,7 +132,7 @@ public class JCablePanel extends JPanel implements Observer {
         
         // Draw the curve
         Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(kabelFarbe);
+        g2.setColor(color);
         g2.setStroke(new BasicStroke(2));
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);   
         g2.draw(curve);
@@ -170,61 +178,76 @@ public class JCablePanel extends JPanel implements Observer {
         return false;
     }
 
-    public GUIKnotenItem getZiel1() {
+    public GUINodeItem getZiel1() {
         return ziel1;
     }
 
-    public void setZiel1(GUIKnotenItem ziel1) {
+    public void setZiel1(GUINodeItem ziel1) {
         this.ziel1 = ziel1;
     }
 
-    public GUIKnotenItem getZiel2() {
+    public GUINodeItem getZiel2() {
         return ziel2;
     }
 
-    public void setZiel2(GUIKnotenItem ziel2) {
+    public void setZiel2(GUINodeItem ziel2) {
         this.ziel2 = ziel2;
         updateBounds();
     }
+    
+    /** 
+     * <b>updateColor</b> changes the color of the cable in order
+     * to reflect its current status
+     * 
+     */
+    public void updateColor() {
+    	
+    	switch (GUIContainer.getInstance().getActiveSite()) {
+    	
+    		case (GUIMainMenu.MODUS_ENTWURF): {
+    			
+    			if (selected || active) color = selectedColor; 
+    			else color = standardColor;  
+    			break;
+    		} 
+    		
+    		case (GUIMainMenu.MODUS_AKTION): {
+    			
+    			if (active) color = activeColor; 
+    			else color = standardColor;  
+    			break;
+    		} 
+    		
+    		case (GUIMainMenu.MODUS_DOKUMENTATION): {
+
+    			color = standardColor;  
+    		} 
+    	}  	
+
+    	updateUI();  	
+    }
         
     @Transient
-    public boolean getActive() {
-        return active;
+    public boolean getSelected() {
+    	
+        return selected;
     }
 
     @Transient
-    public void setActive(boolean active) {
-        this.active = active;
-        if (active) kabelFarbe = farbeAktiv;     // blau
-        else        kabelFarbe = farbeStandard;  // dunkelgrau
-
-        updateUI();
+    public void setSelected(boolean selected) {
+    	
+    	if (this.selected == selected) return;
+    	
+        this.selected = selected;  
+        updateColor();
     }
-
-    /**
-     * @author Johannes Bade
-     * 
-     *         Wird genutzt um Kabel blinken zu lassen 
-     *         und auch bei der Konfiguration eines Vermittlungsrechnersanschluss 
+    
+    /** 
+     * {@inheritDoc}
      */
-    public void update(Observable o, Object arg) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), update(" + o + ","
-                + arg + ")");
-
-        if (arg.equals(Boolean.TRUE)) {
-            if (GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_ENTWURF) {
-            	kabelFarbe = farbeAktiv;   // blau
-            }
-            else  {
-            	kabelFarbe = farbeBlinken; // grün
-            }
-            this.setLocation(this.getX() - 1, this.getY());  // What's the point 
-            this.setLocation(this.getX() + 1, this.getY());  // of these two lines ? 
-
-        } else {
-            kabelFarbe = farbeStandard;    // dunkelgrau
-        }
-
-        updateUI();
+    public void onActiveChange(boolean active) {
+    	
+    	this.active = active;  
+        updateColor();	
     }
 }

@@ -53,7 +53,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import filius.gui.GUIContainer;
-import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.GUINodeItem;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
@@ -115,8 +115,8 @@ public class ReportGenerator {
     void addComponentConfigSection(Document document) throws BadElementException, IOException, DocumentException {
         createSection(document, "Component Configuration", 1);
 
-        List<GUIKnotenItem> components = GUIContainer.getInstance().getKnotenItems();
-        for (GUIKnotenItem item : components) {
+        List<GUINodeItem> components = GUIContainer.getInstance().getKnotenItems();
+        for (GUINodeItem item : components) {
             if (item.getNode() instanceof InternetNode) {
                 createSection(document, item.getNode().getDisplayName(), 2);
                 InternetKnotenBetriebssystem systemSoftware = (InternetKnotenBetriebssystem) item.getNode()
@@ -200,7 +200,7 @@ public class ReportGenerator {
         for (String interfaceId : interfaceIDs) {
             String hostname = "Unknown";
             String ipAddress = "0.0.0.0";
-            for (GUIKnotenItem item : GUIContainer.getInstance().getKnotenItems()) {
+            for (GUINodeItem item : GUIContainer.getInstance().getKnotenItems()) {
                 if (item.getNode() instanceof InternetNode) {
                     InternetNode node = (InternetNode) item.getNode();
                     NetworkInterface nic = node.getNIbyMAC(interfaceId);

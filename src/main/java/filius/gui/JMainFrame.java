@@ -51,7 +51,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import filius.Main;
-import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.GUINodeItem;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 
 public class JMainFrame extends javax.swing.JFrame implements WindowListener, Observer {
@@ -84,16 +84,16 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             && GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_ENTWURF) {
                         if (GUIContainer.getInstance().isMarkerVisible()) {
                             // multiple items are selected
-                            List<GUIKnotenItem> itemlist = GUIContainer.getInstance().getKnotenItems();
+                            List<GUINodeItem> itemlist = GUIContainer.getInstance().getKnotenItems();
                             JMarkerPanel auswahl = GUIContainer.getInstance().getAuswahl();
                             JScrollPane scrollPane = GUIContainer.getInstance().getScrollPane();
-                            GUIKnotenItem tempitem;
+                            GUINodeItem tempitem;
                             int tx, ty, twidth, theight;
-                            LinkedList<GUIKnotenItem> markedlist = new LinkedList<GUIKnotenItem>();
-                            ListIterator<GUIKnotenItem> it = itemlist.listIterator();
+                            LinkedList<GUINodeItem> markedlist = new LinkedList<GUINodeItem>();
+                            ListIterator<GUINodeItem> it = itemlist.listIterator();
                             while (it.hasNext()) {
                             	// Code adapted from GUIEvents.mausReleased
-                            	tempitem = (GUIKnotenItem) it.next();
+                            	tempitem = (GUINodeItem) it.next();
                             	tx = tempitem.getNodeLabel().getX();
                                 twidth = tempitem.getNodeLabel().getWidth();
                                 ty = tempitem.getNodeLabel().getY();
@@ -112,8 +112,8 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                                 // Main.debug.println("\t"+((GUIKnotenItem)
                                 // markedlist.get(i)).getKnoten().getName());
                                 GUIEvents.getGUIEvents().itemLoeschen(
-                                        ((GUIKnotenItem) markedlist.get(i)).getNodeLabel(),
-                                        ((GUIKnotenItem) markedlist.get(i)));
+                                        ((GUINodeItem) markedlist.get(i)).getNodeLabel(),
+                                        ((GUINodeItem) markedlist.get(i)));
                             }
                             auswahl.setVisible(false);
                             GUIContainer.getInstance().getMarkierung().setVisible(false);

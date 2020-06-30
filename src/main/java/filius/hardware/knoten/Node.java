@@ -26,8 +26,6 @@
 package filius.hardware.knoten;
 
 import java.util.LinkedList;
-import java.util.List;
-
 import filius.Main;
 import filius.hardware.Hardware;
 import filius.hardware.Port;

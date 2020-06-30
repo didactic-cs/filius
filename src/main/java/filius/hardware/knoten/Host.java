@@ -29,6 +29,7 @@ import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.software.system.Betriebssystem;
 
+@SuppressWarnings("serial")
 public abstract class Host extends InternetNode {
 
 	private boolean useIPAsName = false;

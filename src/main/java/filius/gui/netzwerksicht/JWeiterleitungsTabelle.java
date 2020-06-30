@@ -62,6 +62,8 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
         super(new DefaultTableModel(1, 4));
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JWeiterleitungsTabelle("
                 + konfig + ")");
+        
+        getTableHeader().setReorderingAllowed(false);
 
         this.konfig = konfig;
 

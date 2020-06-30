@@ -120,15 +120,15 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
         } catch (UnknownHostException e) {
             e.printStackTrace(Main.debug);
             benachrichtigeBeobacher(messages.getString("modemfirmware_msg1"));
-            ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
+            ((Modem) getKnoten()).setConnectionActive(false);
         } catch (IOException e) {
             e.printStackTrace(Main.debug);
             benachrichtigeBeobacher(messages.getString("modemfirmware_msg2"));
-            ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
+            ((Modem) getKnoten()).setConnectionActive(false);
         } catch (InterruptedException e) {
             e.printStackTrace(Main.debug);
             benachrichtigeBeobacher(null);
-            ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
+            ((Modem) getKnoten()).setConnectionActive(false);
         }
     }
 
@@ -141,7 +141,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
         benachrichtigeBeobacher(null);
         in = socket.getInputStream();
         out = socket.getOutputStream();
-        ((Modem) getKnoten()).setzeModemVerbindungAktiv(true);
+        ((Modem) getKnoten()).setConnectionActive(true);
         if (in != null && out != null) {
             leerePortPuffer();
             empfaenger = new ModemEmpfaenger(this, in);
@@ -207,7 +207,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
             socket = null;
         }
         benachrichtigeBeobacher(null);
-        ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
+        ((Modem) getKnoten()).setConnectionActive(false);
     }
 
     public void verbindungZuruecksetzen() {
@@ -243,7 +243,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
             serverSocket.close();
         } catch (Exception e) {
             Main.debug.println("EXCEPTION (" + this.hashCode() + "): Modemverbindung beendet.");
-            ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
+            ((Modem) getKnoten()).setConnectionActive(false);
         } finally {
             benachrichtigeBeobacher(null);
         }

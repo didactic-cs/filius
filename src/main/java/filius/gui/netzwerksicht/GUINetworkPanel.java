@@ -38,9 +38,8 @@ import filius.hardware.knoten.Rechner;
 import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 
+@SuppressWarnings("serial")
 public class GUINetworkPanel extends GUIMainArea {
-
-    private static final long serialVersionUID = 1L;
 
     public GUINetworkPanel(int width, int height) {
         setLayout(null);
@@ -49,44 +48,46 @@ public class GUINetworkPanel extends GUIMainArea {
         setBounds(0, 0, width, height);
     }
 
-    public void updateViewport(List<GUIKnotenItem> knoten, List<GUIKabelItem> kabel) {
+    public void updateViewport(List<GUINodeItem> guiKnoten, List<GUICableItem> guiKabel) {
+    	
         removeAll();
 
-        for (GUIKnotenItem tempitem : knoten) {
-            Node tempKnoten = tempitem.getNode();
-            JNodeLabel templabel = tempitem.getNodeLabel();
+        for (GUINodeItem item : guiKnoten) {
+            Node node = item.getNode();
+            JNodeLabel label = item.getNodeLabel();
 
-            tempKnoten.addObserver(templabel);
-            tempKnoten.getSystemSoftware().addObserver(templabel);
+            if (node instanceof Modem) ((Modem)node).addListener(label);
+            node.getSystemSoftware().addObserver(label);                           // << to replace
 
-            templabel.setSelektiert(false);
-            // When the text is changed, the location is recomputed so that the icon does not move (which might happen when the text is wider than the icon)
-            templabel.setTextAndUpdateLocation(tempKnoten.getDisplayName());
-            templabel.setTyp(tempKnoten.getHardwareType());
-            if (tempitem.getNode() instanceof InternetNode) {
-                templabel.updateTooltip((InternetNode) tempitem.getNode());
+            label.setSelected(false);
+            // When the text is changed, the location is recomputed so that the icon does not move 
+            // (which otherwise happens when the text is wider than the icon)
+            label.setTextAndUpdateLocation(node.getDisplayName());
+            label.setType(node.getHardwareType());
+            if (item.getNode() instanceof InternetNode) {
+                label.updateTooltip((InternetNode) item.getNode());
             }
-            if (tempitem.getNode() instanceof Switch) {
-                if (((Switch) tempitem.getNode()).isCloud())
-                    templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH_CLOUD)));
+            if (item.getNode() instanceof Switch) {
+                if (((Switch) item.getNode()).isCloud())
+                    label.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH_CLOUD)));
                 else
-                    templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH)));
-            } else if (tempitem.getNode() instanceof Vermittlungsrechner) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.VERMITTLUNGSRECHNER)));
-            } else if (tempitem.getNode() instanceof Rechner) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.RECHNER)));
-            } else if (tempitem.getNode() instanceof Notebook) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK)));
-            } else if (tempitem.getNode() instanceof Modem) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM)));
+                    label.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH)));
+            } else if (item.getNode() instanceof Vermittlungsrechner) {
+                label.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.VERMITTLUNGSRECHNER)));
+            } else if (item.getNode() instanceof Rechner) {
+                label.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.RECHNER)));
+            } else if (item.getNode() instanceof Notebook) {
+                label.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK)));
+            } else if (item.getNode() instanceof Modem) {
+                label.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM)));
             }
 
-            templabel.setBounds(tempitem.getNodeLabel().getBounds());
-            add(templabel);
+            label.setBounds(item.getNodeLabel().getBounds());
+            add(label);
         }
 
-        for (GUIKabelItem tempcable : kabel) {
-            add(tempcable.getCablePanel());
+        for (GUICableItem item : guiKabel) {
+            add(item.getCablePanel());
         }
     }
 }

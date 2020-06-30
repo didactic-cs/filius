@@ -30,10 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import filius.Main;
-import filius.hardware.NetworkInterface;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.VermittlungsrechnerBetriebssystem;
 
+@SuppressWarnings("serial")
 public class Vermittlungsrechner extends InternetNode implements I18n {
 
     public static final String TYPE = messages.getString("hw_vermittlungsrechner_msg1");

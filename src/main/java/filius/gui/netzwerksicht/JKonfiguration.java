@@ -55,9 +55,8 @@ import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 
-public class JKonfiguration extends JBackgroundPanel implements Observer {
-
-    private static final long serialVersionUID = 1L;
+@SuppressWarnings("serial")
+public class JKonfiguration extends JBackgroundPanel /*implements Observer*/ {
 
     /**
      * Panel mit den spezifischen Attributen der Komponenten zur Anzeige und Konfiguration
@@ -70,6 +69,7 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
 
     protected static HashMap<Hardware, JKonfiguration> instances = new HashMap<Hardware, JKonfiguration>();
     
+    // There is a unique JKabelKonfiguration instance
     protected static JKabelKonfiguration instanceJKK = null; 
 
     /** unveraenderbare Hoehe des Konfigurations-Panels (konfigPanel) */
@@ -80,7 +80,8 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
 
         initKonfigPanel();
         if (hardware != null) {
-            hardware.addObserver(this);
+//            hardware.addObserver(this);   // a revoir. Ne créer qu'un panneau par type et actualiser le contenu quand l'élément redevient actif
+        									// ensuite supprimer oberver
             initAttributPanel();
             updateAttribute();
         }
@@ -254,7 +255,6 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
      * Mit dieser Methode werden die hardwarespezifischen Eingabe- und Anzeigekomponenten initialisiert.
      * 
      * @param rightBox
-     *            TODO
      */
     protected void initAttributEingabeBox(Box box, Box rightBox) {}
 
@@ -281,8 +281,8 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
         }
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        updateAttribute();
-    }
+//    @Override
+//    public void update(Observable o, Object arg) {
+//        updateAttribute();
+//    }
 }

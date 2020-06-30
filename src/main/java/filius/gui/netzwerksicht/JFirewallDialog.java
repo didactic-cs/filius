@@ -309,6 +309,7 @@ public class JFirewallDialog extends JDialog implements I18n {
 
 		model = new DefaultTableModel(0, 8);
 		ruleTable = new JTableEditable(model,true);
+		ruleTable.getTableHeader().setReorderingAllowed(false);
 		ruleTable.setParentGUI(this);
 		ruleTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		ruleTable.setIntercellSpacing(new Dimension(10, 5));

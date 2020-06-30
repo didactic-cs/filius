@@ -43,7 +43,7 @@ import filius.exception.NoValidDhcpResponseException;
 import filius.exception.TimeOutException;
 import filius.exception.ConnectionException;
 import filius.gui.GUIContainer;
-import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.GUINodeItem;
 import filius.hardware.Cable;
 import filius.hardware.knoten.Host;
 import filius.software.clientserver.ClientAnwendung;
@@ -102,7 +102,7 @@ public class DHCPClient extends ClientAnwendung {
     private List<DHCPServer> getDHCPServers() {
         SystemSoftware syssoft;
         List<DHCPServer> activeDHCPServers = new ArrayList<DHCPServer>();
-        for (GUIKnotenItem knotenItem : GUIContainer.getInstance().getKnotenItems()) {
+        for (GUINodeItem knotenItem : GUIContainer.getInstance().getKnotenItems()) {
             syssoft = knotenItem.getNode().getSystemSoftware();
             if (syssoft instanceof Betriebssystem) {
                 if (((Betriebssystem) syssoft).getDHCPServer().isAktiv()) {
@@ -167,7 +167,7 @@ public class DHCPClient extends ClientAnwendung {
         udpSocket.schliessen();
 
         Host host = ((Host) getSystemSoftware().getKnoten());
-        host.notifyObserver();
+//        host.notifyGuiElement();
         getSystemSoftware().benachrichtigeBeobacher(host);
     }
 

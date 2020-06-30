@@ -20,10 +20,8 @@ import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.I18n;
 
-
+@SuppressWarnings("serial")
 public class JKabelKonfiguration extends JKonfiguration implements I18n {
-
-	private static final long serialVersionUID = 1L;
 	
 	private Port[] ports;
 	private JLabel[][] labels;

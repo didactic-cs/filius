@@ -29,7 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import filius.Main;
-import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.GUINodeItem;
 
 /**
  * Klasse für LogEinträge. Diese wird benötigt um Einträge sortierbar und
@@ -49,7 +49,7 @@ public class LogEintrag {
 	 * Schichten: 1 - Vermittlungsschicht 2 - Transportschicht 3 -
 	 * Anwendungsschicht
 	 */
-	private GUIKnotenItem ausloesendesItem; // GUIItem zu dem der LogEintrag
+	private GUINodeItem ausloesendesItem; // GUIItem zu dem der LogEintrag
 	                                        // gehört (auslösende Stelle, wenn
 	                                        // möglich?!)
 

@@ -39,7 +39,7 @@ import filius.hardware.knoten.Rechner;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 
-public class GUIKnotenItem {
+public class GUINodeItem {
 
 	private Node node; 
     private JNodeLabel nodeLabel;    
@@ -57,13 +57,13 @@ public class GUIKnotenItem {
                 if (GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_AKTION) {
                     SzenarioVerwaltung.getInstance().setzeGeaendert();
                     if (e.getButton() == 3) {
-                        GUIEvents.getGUIEvents().kontextMenueAktionsmodus(GUIKnotenItem.this, e.getX(), e.getY());
+                        GUIEvents.getGUIEvents().kontextMenueAktionsmodus(GUINodeItem.this, e.getX(), e.getY());
                     } else if (e.getButton() == 1) {
-                        if (GUIKnotenItem.this.getNode() instanceof Rechner
-                                || GUIKnotenItem.this.getNode() instanceof Notebook) {
-                            GUIContainer.getInstance().showDesktop(GUIKnotenItem.this);
-                        } else if (GUIKnotenItem.this.getNode() instanceof Switch) {
-                            SatViewerControl.getInstance().showViewer((Switch) GUIKnotenItem.this.getNode());
+                        if (GUINodeItem.this.getNode() instanceof Rechner
+                                || GUINodeItem.this.getNode() instanceof Notebook) {
+                            GUIContainer.getInstance().showDesktop(GUINodeItem.this);
+                        } else if (GUINodeItem.this.getNode() instanceof Switch) {
+                            SatViewerControl.getInstance().showViewer((Switch) GUINodeItem.this.getNode());
                         }
                     }
                 }

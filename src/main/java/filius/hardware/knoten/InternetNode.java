@@ -25,7 +25,6 @@
  */
 package filius.hardware.knoten;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -33,7 +32,6 @@ import java.util.ListIterator;
 import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
-import filius.hardware.Cable;
 
 @SuppressWarnings("serial")
 public abstract class InternetNode extends Node {

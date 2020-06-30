@@ -609,7 +609,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
 
         it1 = GUIContainer.getInstance().getKnotenItems().listIterator();
         while (it1.hasNext()) {
-            knoten = ((GUIKnotenItem) it1.next()).getNode();
+            knoten = ((GUINodeItem) it1.next()).getNode();
             if (knoten instanceof LocalNode) {
                 it2 = ((LocalNode) knoten).getPortList().listIterator();
                 while (it2.hasNext()) {

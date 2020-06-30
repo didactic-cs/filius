@@ -52,8 +52,8 @@ import java.util.zip.ZipOutputStream;
 import filius.Main;
 import filius.gui.GUIErrorHandler;
 import filius.gui.netzwerksicht.GUIDocuItem;
-import filius.gui.netzwerksicht.GUIKabelItem;
-import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.GUICableItem;
+import filius.gui.netzwerksicht.GUINodeItem;
 import filius.gui.netzwerksicht.JNodeLabel;
 
 public class SzenarioVerwaltung extends Observable implements I18n {
@@ -105,7 +105,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
      * Ordner Anwendungen in einem leeren temporaeren Ordner speichern und daraus ein neues ZIP-Archiv erstellen, dass
      * an beliebigem Ort gespeichert werden kann
      */
-    public boolean speichern(String datei, List<GUIKnotenItem> hardwareItems, List<GUIKabelItem> kabelItems,
+    public boolean speichern(String datei, List<GUINodeItem> hardwareItems, List<GUICableItem> kabelItems,
             List<GUIDocuItem> docuItems) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern(" + datei + ","
                 + hardwareItems + "," + kabelItems + ")");
@@ -144,8 +144,8 @@ public class SzenarioVerwaltung extends Observable implements I18n {
         return erfolg;
     }
 
-    private static boolean netzwerkSpeichern(String datei, List<GUIKnotenItem> hardwareItems,
-            List<GUIKabelItem> kabelItems, List<GUIDocuItem> docuItems) {
+    private static boolean netzwerkSpeichern(String datei, List<GUINodeItem> hardwareItems,
+            List<GUICableItem> kabelItems, List<GUIDocuItem> docuItems) {
         Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkSpeichern(" + datei
                 + "," + hardwareItems + "," + kabelItems + ")");
         XMLEncoder mx = null;
@@ -193,7 +193,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
         }
     }
 
-    public boolean laden(String datei, List<GUIKnotenItem> hardwareItems, List<GUIKabelItem> kabelItems,
+    public boolean laden(String datei, List<GUINodeItem> hardwareItems, List<GUICableItem> kabelItems,
             List<GUIDocuItem> docuItems) throws FileNotFoundException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", laden(" + datei + "," + hardwareItems
                 + "," + kabelItems + ")");
@@ -278,6 +278,8 @@ public class SzenarioVerwaltung extends Observable implements I18n {
             	line = line.replaceAll("subnetzMaske", "subnetMask");        
             	
             	// Node related
+            	line = line.replaceAll("filius.gui.netzwerksicht.GUIKnotenItem", "filius.gui.netzwerksicht.GUINodeItem");
+            	line = line.replaceAll("filius.gui.netzwerksicht.GUIKabelItem", "filius.gui.netzwerksicht.GUICableItem");
             	line = line.replaceAll("filius.gui.netzwerksicht.JSidebarButton", "filius.gui.netzwerksicht.JNodeLabel");
             	line = line.replaceAll("property=\"knoten\"", "property=\"node\"");  
             	line = line.replaceAll("property=\"imageLabel\"", "property=\"nodeLabel\"");
@@ -297,8 +299,8 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     	return true;
     }
 
-    private static boolean netzwerkLaden(String datei, List<GUIKnotenItem> hardwareItems,
-                                         List<GUIKabelItem> kabelItems, List<GUIDocuItem> docuItems) {
+    private static boolean netzwerkLaden(String datei, List<GUINodeItem> hardwareItems,
+                                         List<GUICableItem> kabelItems, List<GUIDocuItem> docuItems) {
         Main.debug.println("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkLaden(" + 
                            datei + "," + hardwareItems + "," + kabelItems + ")");
         
@@ -364,11 +366,11 @@ public class SzenarioVerwaltung extends Observable implements I18n {
                 tmpObject = xmldec.readObject();
             }
             if (tmpObject instanceof List && !((List) tmpObject).isEmpty()
-                    && ((List) tmpObject).get(0) instanceof GUIKnotenItem) {
-                List<GUIKnotenItem> tempList = (List<GUIKnotenItem>) tmpObject;
-                for (GUIKnotenItem tmpNode : tempList) {
+                    && ((List) tmpObject).get(0) instanceof GUINodeItem) {
+                List<GUINodeItem> tempList = (List<GUINodeItem>) tmpObject;
+                for (GUINodeItem tmpNode : tempList) {
                     if (tmpNode.getNodeLabel() == null) tmpNode.setNodeLabel(new JNodeLabel());             
-                    tmpNode.getNodeLabel().setTyp(tmpNode.getNode().getHardwareType());
+                    tmpNode.getNodeLabel().setType(tmpNode.getNode().getHardwareType());
                     hardwareItems.add(tmpNode);
 //                    if (needsFix) tmpNode.getNode().fixPortsOwner();
                 }
@@ -376,9 +378,9 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
             tmpObject = xmldec.readObject();
             if (tmpObject instanceof List && !((List<?>) tmpObject).isEmpty()
-                    && ((List<?>) tmpObject).get(0) instanceof GUIKabelItem) {
-                List<GUIKabelItem> tempList = (List<GUIKabelItem>) tmpObject;
-                for (GUIKabelItem cable : tempList) {
+                    && ((List<?>) tmpObject).get(0) instanceof GUICableItem) {
+                List<GUICableItem> tempList = (List<GUICableItem>) tmpObject;
+                for (GUICableItem cable : tempList) {
                     kabelItems.add(cable);
                 }
             }

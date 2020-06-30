@@ -41,8 +41,8 @@ import javax.swing.SwingUtilities;
 
 import filius.Main;
 import filius.gui.nachrichtensicht.ExchangeDialog;
-import filius.gui.netzwerksicht.GUIKabelItem;
-import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.GUICableItem;
+import filius.gui.netzwerksicht.GUINodeItem;
 import filius.gui.netzwerksicht.GUINetworkPanel;
 import filius.gui.netzwerksicht.JCablePanel;
 import filius.gui.netzwerksicht.JKonfiguration;
@@ -71,28 +71,29 @@ public class GUIEvents implements I18n {
     
     private int shiftX, shiftY;
 
-    private GUIKabelItem neuesKabel;
+    private GUICableItem neuesKabel;
 
     private static GUIEvents ref;   
 
     private boolean aufmarkierung = false;
 
-    private List<GUIKnotenItem> markedlist;
+    private List<GUINodeItem> markedlist;
     
-    private JNodeLabel loeschLabel, aktivesLabel = null;
+    private JNodeLabel loeschLabel, selectedLabel = null;
 
-    private GUIKnotenItem loeschItem, aktivesItem, frozenAktivesItem, ziel2;       
+    private GUINodeItem loeschItem, selectedItem, frozenSelectedItem, ziel2;       
     
-    private GUIKabelItem activeCable, frozenActiveCable;    
+    private GUICableItem selectedCable, frozenSelectedCable;    
     
-    private boolean activeFrozen = false;
+    private boolean selectedIsFrozen = false;
 
     private JCablePanel kabelPanelVorschau;
     
     private GUIContainer container;
+    
 
     private GUIEvents() {
-        markedlist = new LinkedList<GUIKnotenItem>();
+        markedlist = new LinkedList<GUINodeItem>();
         container = GUIContainer.getInstance();
     }
 
@@ -106,7 +107,7 @@ public class GUIEvents implements I18n {
 
     public void mausReleased() {
 
-        List<GUIKnotenItem> itemlist = container.getKnotenItems();
+        List<GUINodeItem> itemlist = container.getKnotenItems();
         JMarkerPanel auswahl = container.getAuswahl();
         JMarkerPanel markierung = container.getMarkierung();
 
@@ -115,8 +116,8 @@ public class GUIEvents implements I18n {
         if (auswahl.isVisible()) {
             int tx, ty, twidth, theight;
             int minx = 999999, miny = 999999, maxx = 0, maxy = 0;
-            markedlist = new LinkedList<GUIKnotenItem>();
-            for (GUIKnotenItem tempitem : itemlist) {
+            markedlist = new LinkedList<GUINodeItem>();
+            for (GUINodeItem tempitem : itemlist) {
                 tx = tempitem.getNodeLabel().getX();
                 twidth = tempitem.getNodeLabel().getWidth();
                 ty = tempitem.getNodeLabel().getY();
@@ -161,12 +162,12 @@ public class GUIEvents implements I18n {
 
         // Einzelnes Item verschieben
         if (!container.isMarkerVisible()) {
-            if (aktivesLabel != null && !dragVorschau.isVisible()) {
+            if (selectedLabel != null && !dragVorschau.isVisible()) {
             	neuX = e.getX() + shiftX;
             	if (neuX < 0) {
             		neuX = 0;
             	} else {
-            		int maxX = container.getWidth() - aktivesLabel.getWidth();
+            		int maxX = container.getWidth() - selectedLabel.getWidth();
             		if (neuX > maxX) {
             			neuX = maxX - 1;
             	    }            		
@@ -176,13 +177,13 @@ public class GUIEvents implements I18n {
             	if (neuY < 0) {
             		neuY = 0;
             	} else {
-            		int maxY = container.getHeight() - aktivesLabel.getHeight();
+            		int maxY = container.getHeight() - selectedLabel.getHeight();
             		if (neuY > maxY) {
             			neuY = maxY - 1;
             	    }            		
             	}
             	
-                aktivesLabel.setLocation(neuX, neuY);
+                selectedLabel.setLocation(neuX, neuY);
                 container.updateCables();
             } else {
                 mausposx = e.getX();
@@ -238,7 +239,7 @@ public class GUIEvents implements I18n {
         SzenarioVerwaltung.getInstance().setzeGeaendert();
 
         if (neuesKabel == null) {
-            neuesKabel = new GUIKabelItem();
+            neuesKabel = new GUICableItem();
         }
         updateAktivesItem(e.getX(), e.getY());
 
@@ -258,22 +259,22 @@ public class GUIEvents implements I18n {
         if (e.getButton() == MouseEvent.BUTTON3) {
         	
         	// On a node
-            if (aktivesItem != null && aktivesLabel != null) {
+            if (selectedItem != null && selectedLabel != null) {
 
                 if (!container.getKabelvorschau().isVisible()) {
-                    kontextMenueEntwurfsmodus(aktivesLabel, e.getX(), e.getY());
+                    kontextMenueEntwurfsmodus(selectedLabel, e.getX(), e.getY());
                 } else {
                     resetAndHideCablePreview();
                 }
                 
              // Show selection frame
-                aktivesLabel.setSelektiert(true);
+                selectedLabel.setSelected(true);
                 
             // On a cable?    
             } else {
             	updateActiveCable(e.getX(), e.getY());
             	
-                GUIKabelItem cableItem = findClickedCable(e);
+                GUICableItem cableItem = findClickedCable(e);
                 if ((kabelPanelVorschau == null || !kabelPanelVorschau.isVisible())
                         && container.getActiveSite() == GUIMainMenu.MODUS_ENTWURF
                         && cableItem != null) {
@@ -288,7 +289,7 @@ public class GUIEvents implements I18n {
             if (e.getButton() == MouseEvent.BUTTON1) {
             	
                 // A node is active
-                if (aktivesItem != null && aktivesLabel != null) {
+                if (selectedItem != null && selectedLabel != null) {
                 	
                     // The connector tool is selected
                     if (container.getKabelvorschau().isVisible()) {
@@ -296,11 +297,11 @@ public class GUIEvents implements I18n {
                         // hide property panel (JKonfiguration)
                     	container.getProperty().minimieren();
 
-                        if (aktivesItem.getNode() instanceof Node) {
-                            Node tempKnoten = (Node) aktivesItem.getNode();
+                        if (selectedItem.getNode() instanceof Node) {
+                            Node tempKnoten = (Node) selectedItem.getNode();
                             boolean success = true;
-                            if (aktivesItem.getNode() instanceof Node) {
-                                tempKnoten = (Node) aktivesItem.getNode();
+                            if (selectedItem.getNode() instanceof Node) {
+                                tempKnoten = (Node) selectedItem.getNode();
                                 Port anschluss = tempKnoten.getFreePort();
                                 if (anschluss == null) {
                                     success = false;
@@ -324,26 +325,26 @@ public class GUIEvents implements I18n {
                       // 
                     } else {
                     	// Update property panel
-                        container.setProperty(aktivesItem);
+                        container.setProperty(selectedItem);
                         
                         // Display property panel if double-clicked
                         if (e.getClickCount() == 2) container.getProperty().maximieren();
                                                                 
                         // Show selection frame
-                        aktivesLabel.setSelektiert(true);
+                        selectedLabel.setSelected(true);
                         
                         // Die Verschiebung speichern für spätere Verwendung in mausDragged
-                        shiftX = aktivesLabel.getX() - e.getX();                           
-                        shiftY = aktivesLabel.getY() - e.getY();    
+                        shiftX = selectedLabel.getX() - e.getX();                           
+                        shiftY = selectedLabel.getY() - e.getY();    
                     }
            	
                 // No node is active	
                 } else {
                 	// Did the click occur on a cable?
                 	updateActiveCable(e.getX(), e.getY());
-                	if (activeCable != null) {
+                	if (selectedCable != null) {
                 		
-                		container.setProperty(activeCable);
+                		container.setProperty(selectedCable);
                 		
                 		if (e.getClickCount() == 2) container.getProperty().maximieren();
                 		
@@ -370,8 +371,8 @@ public class GUIEvents implements I18n {
         if (neuesKabel.getCablePanel().getZiel1() == null) {
             connectCableToFirstComponent(currentPosX, currentPosY);
         } else {
-            if (neuesKabel.getCablePanel().getZiel2() == null && neuesKabel.getCablePanel().getZiel1() != aktivesItem) {
-                connectCableToSecondComponent(aktivesItem);
+            if (neuesKabel.getCablePanel().getZiel2() == null && neuesKabel.getCablePanel().getZiel1() != selectedItem) {
+                connectCableToSecondComponent(selectedItem);
             }
             int posX = currentPosX;
             int posY = currentPosY;
@@ -381,13 +382,13 @@ public class GUIEvents implements I18n {
 
     private void connectCableToFirstComponent(int currentPosX, int currentPosY) {
         // Main.debug.println("\tmausPressed: IF-2.2.1.2.1");
-        neuesKabel.getCablePanel().setZiel1(aktivesItem);
+        neuesKabel.getCablePanel().setZiel1(selectedItem);
         container.getKabelvorschau().setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel2.png")));
         kabelPanelVorschau = new JCablePanel();
         container.getDesignpanel().add(kabelPanelVorschau);
-        kabelPanelVorschau.setZiel1(aktivesItem);
+        kabelPanelVorschau.setZiel1(selectedItem);
         container.setZiel2Label(new JNodeLabel());
-        ziel2 = new GUIKnotenItem();
+        ziel2 = new GUINodeItem();
         ziel2.setNodeLabel(container.getZiel2Label());
 
         container.getZiel2Label().setBounds(currentPosX, currentPosY, 8, 8);
@@ -396,13 +397,13 @@ public class GUIEvents implements I18n {
         container.setKabelPanelVorschau(kabelPanelVorschau);
     }
 
-    private GUIKabelItem findClickedCable(MouseEvent e) {
+    private GUICableItem findClickedCable(MouseEvent e) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", clickedCable(" + e + ")");
         // Falls kein neues Objekt erstellt werden soll
         int xPos = e.getX() + container.getXOffset();
         int yPos = e.getY() + container.getYOffset();
 
-        for (GUIKabelItem tempitem : container.getCableItems()) {
+        for (GUICableItem tempitem : container.getCableItems()) {
             // item clicked, i.e., mouse pointer within item bounds
             if (tempitem.getCablePanel().clicked(xPos, yPos)) {
                 // mouse pointer really close to the drawn line, too
@@ -414,34 +415,34 @@ public class GUIEvents implements I18n {
 
     private void updateAktivesItem(int posX, int posY) {
         // Falls kein neues Objekt erstellt werden soll
-        aktivesLabel = null;
-        aktivesItem = null;        
+        selectedLabel = null;
+        selectedItem = null;        
         
         if (!container.isMarkerVisible()) {
         	
         	// Unselect all nodes and determine which is the active one
-            for (GUIKnotenItem tempItem : container.getKnotenItems()) {
+            for (GUINodeItem tempItem : container.getKnotenItems()) {
                 JNodeLabel tempLabel = tempItem.getNodeLabel();
-                tempLabel.setSelektiert(false);
+                tempLabel.setSelected(false);
                 tempLabel.revalidate();
                 tempLabel.updateUI();
 
                 if (tempLabel.inBounds(posX, posY)) {
-                    aktivesItem = tempItem;
-                    aktivesLabel = tempItem.getNodeLabel();
+                    selectedItem = tempItem;
+                    selectedLabel = tempItem.getNodeLabel();
                 }
             }  
             
-            if (aktivesItem != null) unselectActiveCable();
+            if (selectedItem != null) unselectActiveCable();
         }
     }
     
     // Remove the active cable if any
     protected void removeActiveCable() {     
     	
-    	if (activeCable != null) {
-    		removeSingleCable(activeCable);
-    		activeCable = null;
+    	if (selectedCable != null) {
+    		removeSingleCable(selectedCable);
+    		selectedCable = null;
     		container.getProperty().minimieren();
     		container.setProperty(null);
     	}
@@ -451,25 +452,25 @@ public class GUIEvents implements I18n {
     // Activation is used in design mode only to highlight a cable
     protected void unselectActiveCable() {     
     	
-    	if (activeCable != null) {
-    		activeCable.getCablePanel().setActive(false);
-    		activeCable = null;
+    	if (selectedCable != null) {
+    		selectedCable.getCablePanel().setSelected(false);
+    		selectedCable = null;
     	}
     }
     
     // Determine if a cable can be set active based on the coordinates
     private void updateActiveCable(int x, int y) {      
     	
-    	for (GUIKabelItem cable : container.getCableItems()) {
+    	for (GUICableItem cable : container.getCableItems()) {
 
     		JCablePanel cp = cable.getCablePanel();
     		if (cp.clicked(x, y)) {
-    			if (cable == activeCable) return;
+    			if (cable == selectedCable) return;
     			
     			unselectActiveCable();   
     			
-    			cp.setActive(true);
-    			activeCable = cable;
+    			cp.setSelected(true);
+    			selectedCable = cable;
     			return;
     		}
     	}
@@ -477,23 +478,23 @@ public class GUIEvents implements I18n {
     	unselectActiveCable();   
     }
     
-    public GUIKabelItem getActiveCable() {
-        return activeCable;
+    public GUICableItem getActiveCable() {
+        return selectedCable;
     }
     
-    public GUIKnotenItem getActiveItem() {
-        return aktivesItem;
+    public GUINodeItem getActiveItem() {
+        return selectedItem;
     }
     
     // Keep track of which element is active
     // when leaving the design mode
     public void freezeActiveElements() {
     	
-    	if (! activeFrozen) {
-    		frozenAktivesItem = aktivesItem;
-        	frozenActiveCable = activeCable; 
+    	if (! selectedIsFrozen) {
+    		frozenSelectedItem = selectedItem;
+        	frozenSelectedCable = selectedCable; 
         	
-        	activeFrozen = true;
+        	selectedIsFrozen = true;
     	}    	
     }
     
@@ -501,15 +502,15 @@ public class GUIEvents implements I18n {
     // returning to the design mode
     public void unFreezeActiveElements() {
     	
-    	if (activeFrozen) {
-    		if (frozenAktivesItem != null) {
-    			aktivesItem = frozenAktivesItem;
-    			aktivesItem.getNodeLabel().setSelektiert(true);    			
-    		} else if (frozenActiveCable != null) {
-    			activeCable = frozenActiveCable;
-    			activeCable.getCablePanel().setActive(true);
+    	if (selectedIsFrozen) {
+    		if (frozenSelectedItem != null) {
+    			selectedItem = frozenSelectedItem;
+    			selectedItem.getNodeLabel().setSelected(true);    			
+    		} else if (frozenSelectedCable != null) {
+    			selectedCable = frozenSelectedCable;
+    			selectedCable.getCablePanel().setSelected(true);
     		}        	
-        	activeFrozen = false;
+        	selectedIsFrozen = false;
     	}  
     }
 
@@ -517,15 +518,15 @@ public class GUIEvents implements I18n {
      * method called in case of new item creation in GUIContainer, such that this creation process will be registered
      * and the according item is marked active
      */
-    public void setNewItemActive(GUIKnotenItem item) {
-        aktivesItem = item;
+    public void setNewItemActive(GUINodeItem item) {
+        selectedItem = item;
     }
 
-    private void desktopAnzeigen(GUIKnotenItem aktivesItem) {
+    private void desktopAnzeigen(GUINodeItem aktivesItem) {
     	container.showDesktop(aktivesItem);
     }
 
-    private void connectCableToSecondComponent(GUIKnotenItem tempitem) {
+    private void connectCableToSecondComponent(GUINodeItem tempitem) {
        
         GUINetworkPanel draftpanel = container.getDesignpanel();
         NetworkInterface nic1, nic2;
@@ -586,7 +587,7 @@ public class GUIEvents implements I18n {
     }
 
     private void resetCableTool() {
-        neuesKabel = new GUIKabelItem();
+        neuesKabel = new GUICableItem();
         container.getKabelvorschau()
                 .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel1.png")));
         ziel2 = null;
@@ -619,7 +620,7 @@ public class GUIEvents implements I18n {
      * @param e
      *            MouseEvent (Für Position d. Kontextmenü u.a.)
      */
-    public void kontextMenueAktionsmodus(final GUIKnotenItem knotenItem, int posX, int posY) {
+    public void kontextMenueAktionsmodus(final GUINodeItem knotenItem, int posX, int posY) {
         if (knotenItem != null) {
             if (knotenItem.getNode() instanceof InternetNode) {
 
@@ -667,7 +668,7 @@ public class GUIEvents implements I18n {
         }
     }
 
-    private void datenAustauschAnzeigen(GUIKnotenItem item, String macAddress) {
+    private void datenAustauschAnzeigen(GUINodeItem item, String macAddress) {
         InternetKnotenBetriebssystem bs;
         ExchangeDialog exchangeDialog = container.getExchangeDialog();
 
@@ -694,8 +695,8 @@ public class GUIEvents implements I18n {
 
         updateAktivesItem(posX, posY);
 
-        if (aktivesItem != null) {
-            if (aktivesItem.getNode() instanceof Rechner || aktivesItem.getNode() instanceof Notebook) {
+        if (selectedItem != null) {
+            if (selectedItem.getNode() instanceof Rechner || selectedItem.getNode() instanceof Notebook) {
                 textKabelEntfernen = messages.getString("guievents_msg5");
             } else {
                 textKabelEntfernen = messages.getString("guievents_msg6");
@@ -717,7 +718,7 @@ public class GUIEvents implements I18n {
                     } else if (e.getActionCommand() == pmKabelEntfernen.getActionCommand()) {
                         kabelEntfernen();
                     } else if (e.getActionCommand() == pmShowConfig.getActionCommand()) {
-                    	container.setProperty(aktivesItem);
+                    	container.setProperty(selectedItem);
                     	container.getProperty().maximieren();
                     }
                 }
@@ -736,14 +737,14 @@ public class GUIEvents implements I18n {
             popmen.show(container.getDesignpanel(), posX, posY);
 
             loeschLabel = templabel;
-            loeschItem = aktivesItem;
+            loeschItem = selectedItem;
         }
     }
 
     /**
      * context menu in case of clicking on single cable item --> used for deleting a single cable
      */
-    private void contextMenuCable(final GUIKabelItem cable, int posX, int posY) {
+    private void contextMenuCable(final GUICableItem cable, int posX, int posY) {
         final JMenuItem pmRemoveCable = new JMenuItem(messages.getString("guievents_msg5"));
         pmRemoveCable.setActionCommand("removecable");
 
@@ -769,16 +770,16 @@ public class GUIEvents implements I18n {
      * Löscht das durch loeschlabel angegebene Item NOTE: made public for using del key to delete items without local
      * context menu action (cf. JMainFrame)
      */
-    public void itemLoeschen(JNodeLabel loeschlabel, GUIKnotenItem loeschitem) {
+    public void itemLoeschen(JNodeLabel loeschlabel, GUINodeItem loeschitem) {
         loeschlabel.setVisible(false);
         container.setProperty(null);
-        ListIterator<GUIKabelItem> iteratorAlleKabel = container.getCableItems().listIterator();
-        GUIKabelItem kabel = new GUIKabelItem();
-        LinkedList<GUIKabelItem> loeschKabel = new LinkedList<GUIKabelItem>();
+        ListIterator<GUICableItem> iteratorAlleKabel = container.getCableItems().listIterator();
+        GUICableItem kabel = new GUICableItem();
+        LinkedList<GUICableItem> loeschKabel = new LinkedList<GUICableItem>();
 
         // Zu löschende Elemente werden in eine temporäre Liste gepackt
         while (iteratorAlleKabel.hasNext()) {
-            kabel = (GUIKabelItem) iteratorAlleKabel.next();
+            kabel = (GUICableItem) iteratorAlleKabel.next();
             if (kabel.getCablePanel().getZiel1().equals(loeschitem)
                     || kabel.getCablePanel().getZiel2().equals(loeschitem)) {
                 loeschKabel.add(kabel);
@@ -788,7 +789,7 @@ public class GUIEvents implements I18n {
         // Temporäre Liste der zu löschenden Kabel wird iteriert und dabei
         // werden die Kabel aus der globalen Kabelliste gelöscht
         // und vom Panel entfernt
-        ListIterator<GUIKabelItem> iteratorLoeschKabel = loeschKabel.listIterator();
+        ListIterator<GUICableItem> iteratorLoeschKabel = loeschKabel.listIterator();
         while (iteratorLoeschKabel.hasNext()) {
             kabel = iteratorLoeschKabel.next();
 
@@ -821,7 +822,7 @@ public class GUIEvents implements I18n {
     }
 
     // remove a single cable without using touching the connected node
-    protected void removeSingleCable(GUIKabelItem cableItem) {
+    protected void removeSingleCable(GUICableItem cableItem) {
         Main.debug.println("INVOKED filius.gui.GUIEvents, removeSingleCable(" + cableItem + ")");
         if (cableItem == null)
             return; // no cable to be removed (this variable should be set in
@@ -863,13 +864,13 @@ public class GUIEvents implements I18n {
      * 
      */
     private void kabelEntfernen() {
-        ListIterator<GUIKabelItem> iteratorAlleKabel = container.getCableItems().listIterator();
-        GUIKabelItem tempKabel = null;
-        LinkedList<GUIKabelItem> loeschListe = new LinkedList<GUIKabelItem>();
+        ListIterator<GUICableItem> iteratorAlleKabel = container.getCableItems().listIterator();
+        GUICableItem tempKabel = null;
+        LinkedList<GUICableItem> loeschListe = new LinkedList<GUICableItem>();
 
         // Zu löschende Elemente werden in eine temporäre Liste gepackt
         while (iteratorAlleKabel.hasNext()) {
-            tempKabel = (GUIKabelItem) iteratorAlleKabel.next();
+            tempKabel = (GUICableItem) iteratorAlleKabel.next();
             if (tempKabel.getCablePanel().getZiel1().equals(loeschItem)) {
                 loeschListe.add(tempKabel);
             }
@@ -883,7 +884,7 @@ public class GUIEvents implements I18n {
         // Temporäre Liste der zu löschenden Kabel wird iteriert und dabei
         // werden die Kabel aus der globalen Kabelliste gelöscht
         // und vom Panel entfernt
-        ListIterator<GUIKabelItem> iteratorLoeschKabel = loeschListe.listIterator();
+        ListIterator<GUICableItem> iteratorLoeschKabel = loeschListe.listIterator();
         while (iteratorLoeschKabel.hasNext()) {
             tempKabel = iteratorLoeschKabel.next();
             this.removeSingleCable(tempKabel);

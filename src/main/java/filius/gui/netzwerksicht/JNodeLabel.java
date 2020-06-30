@@ -41,36 +41,21 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
-
 import filius.Main;
 import filius.gui.JMainFrame;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetNode;
+import filius.hardware.knoten.ModemConnectedListener;
 import filius.rahmenprogramm.I18n;
 
 @SuppressWarnings("serial")
-public class JNodeLabel extends JLabel implements Observer, I18n {
+public class JNodeLabel extends JLabel implements ModemConnectedListener, I18n, Observer {
 
-    private String typ;
-    private boolean selektiert;
-    private boolean modemVerbunden;
-
-    public boolean isSelektiert() {
-        return selektiert;
-    }
-
-    public void setSelektiert(boolean selektiert) {
-        this.selektiert = selektiert;
-    }
-
-    public String getTyp() {
-        return typ;
-    }
-
-    public void setTyp(String typ) {
-        this.typ = typ;
-    }
+    private String type;
+    private boolean selected;
+    private boolean modemConnected;    
+    
 
     public JNodeLabel() {
         this.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -84,21 +69,38 @@ public class JNodeLabel extends JLabel implements Observer, I18n {
         this.setHorizontalTextPosition(SwingConstants.CENTER);
     }
 
-    public JNodeLabel(String text, Icon icon, String typ) {
+    public JNodeLabel(String text, Icon icon, String type) {
         this(text, icon);
-        this.typ = typ;
+        this.type = type;
         this.setAlignmentX(0.5f);
     }
+    
+    public boolean isSelected() {
+        return selected;
+    }
 
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    // What's the point of this method?
     @Override
-    public Rectangle getBounds() {
+    public Rectangle getBounds() {   
         return new Rectangle((int) super.getBounds().getX(), (int) super.getBounds().getY(), this.getWidth(),
                 this.getHeight());
     }
 
     public boolean inBounds(int x, int y) {
-        return x >= this.getX() && x <= this.getX() + this.getWidth() && y >= this.getY()
-                && y <= this.getY() + this.getHeight();
+        return (x >= this.getX()) && (x <= this.getX() + this.getWidth()) && 
+        	   (y >= this.getY()) && (y <= this.getY() + this.getHeight());
     }
 
     public int getWidth() {
@@ -130,6 +132,7 @@ public class JNodeLabel extends JLabel implements Observer, I18n {
 
     // Update location after a text change so that the icon does not move 
     public void setTextAndUpdateLocation(String text) {
+    	
     	int icoW = (getIcon() != null ? getIcon().getIconWidth() : 0);
     	if (icoW % 2 == 1) icoW--;  // Trick to avoid a one pixel shift when the icon's width is odd
     	int dW = (getWidth() - icoW)/2;    	
@@ -140,17 +143,18 @@ public class JNodeLabel extends JLabel implements Observer, I18n {
     
     // Update location after the initial text assignment so that the icon does not move
     public void initTextAndUpdateLocation(String text) {
+    	
     	setTextAndUpdateLocation(text);    	 	
     	setLocation(getX(), getY() + 10);  // The reason for this 10px down is not clear but it is necessary to fix the icon at the end of the drag-and-drop creation 
-    }
-    
+    }   
+     
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
 
-        if (selektiert) {
+        if (selected) {
             g.setColor(new Color(0, 0, 0));
             Graphics2D g2 = (Graphics2D) g;
             Stroke stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1, new float[] { 2 }, 0);
@@ -161,33 +165,22 @@ public class JNodeLabel extends JLabel implements Observer, I18n {
             g2.fillRect(0, 0, this.getWidth() - 1, this.getHeight() - 1);
         }
 
-        if (modemVerbunden) {
+        // Green disk on modem when connected
+        if (modemConnected) {
             g2d.setColor(new Color(0, 255, 0));
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.fillOval((this.getWidth() / 2) - 6, (this.getHeight() / 2) - 6, 12, 12);
         }
     }
-
-    public void update(Observable o, Object arg) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JSidebarButton), update(" + o + ","
-                + arg + ")");
-
-        if (arg != null && arg.equals(Boolean.TRUE)) {
-            modemVerbunden = true;
-        } else if (arg != null && arg.equals(Boolean.FALSE)) {
-            modemVerbunden = false;
-        } else if (arg != null && arg instanceof String) {
-            JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), arg);
-        } else if (arg != null && arg instanceof Host) {
-            this.setText(((Host) arg).getDisplayName());
-        }
-        if (arg != null && arg instanceof InternetNode) {
-            updateTooltip((InternetNode) arg);
-        }
-        this.updateUI();
+    
+    public void onModemConnectedChange (boolean connected) {
+    	
+        modemConnected = connected;
+        updateUI();
     }
-
+    
     void updateTooltip(InternetNode knoten) {
+    	
         StringBuilder tooltip = new StringBuilder();
         tooltip.append("<html><pre>");
 
@@ -206,6 +199,27 @@ public class JNodeLabel extends JLabel implements Observer, I18n {
         }
 
         tooltip.append("</pre></html>");
-        setToolTipText(tooltip.toString());
+        setToolTipText(tooltip.toString()); 
+    }
+    
+
+    // Observer to be replaced by Listeners
+    // observable: systemApplication dans GUINetworkPanel
+    
+    public void update(Observable o, Object arg) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JNodeLabel), update(" + o + ","
+                + arg + ")");
+
+        if (arg != null && arg instanceof String) {
+            JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), arg);
+            
+        } else if (arg != null && arg instanceof Host) {
+            this.setText(((Host) arg).getDisplayName());
+        }
+        
+        if (arg != null && arg instanceof InternetNode) {
+            updateTooltip((InternetNode) arg);
+        }
+        this.updateUI();
     }
 }

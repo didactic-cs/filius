@@ -26,36 +26,35 @@
 package filius.hardware;
 
 import java.io.Serializable;
-import java.util.Observable;
-
-import filius.Main;
 
 @SuppressWarnings("serial")
-public abstract class Hardware extends Observable implements Serializable {
-
-    private boolean active = false; // ist die Hardware gerade aktiv? 
-                                    // vor allem wichtig fuer die GUI
-
+public abstract class Hardware /*extends Observable*/ implements Serializable {
+      
+//    Active status of the hardware (Is it really usefull for all hardwares? or cables only?)
+//    private boolean active = false;   
+    
+//    public boolean isActive() {
+//        return active;
+//    }
+//
+//    public void setActive(boolean active) {
+//        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Hardware), setActive(" + active + ")");
+//
+//        if (this.active != active) {
+//            this.active = active;
+//            // Notify the GUI
+//            if (guiElement instanceof HardwareActiveListener) ((HardwareActiveListener)guiElement).onActiveChange(active); 
+//        }
+//    }
+    
+    // To be removed (after fixing Modem, DHCPClient, others?)
+//    public void notifyGuiElement() { 
+//    	if (guiElement instanceof HardwareActiveListener) ((HardwareActiveListener)guiElement).onActiveChange(active); 
+////        setChanged();
+////        notifyObservers(active);
+//    }
+    
     public String getHardwareType() {
         return "";
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Hardware), setActive(" + active + ")");
-
-        if (this.active != active) {
-            this.active = active;
-
-            notifyObserver();
-        }
-    }
-
-    public void notifyObserver() {
-        setChanged();
-        notifyObservers(active);
-    }
+    }    
 }

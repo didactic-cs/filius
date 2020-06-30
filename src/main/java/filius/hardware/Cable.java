@@ -26,6 +26,7 @@
 package filius.hardware;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import filius.Main;
 import filius.exception.ConnectionException;
@@ -51,7 +52,7 @@ public class Cable extends Hardware implements Serializable, I18n {
     /**
      * maximale Anzahl von Hops zum Datenaustausch. Diese Zahl wird verwendet, um eine Round-Trip-Time (RTT) zu
      * berechnen. Da es auch möglich ist, Datenaustausch mit einem einem virtuellen Rechnernetz ueber eine
-     * 'Modemverbindung' zu erstellen, wird diese Zahl hoch angesetzt. <br />
+     * 'Modemverbindung' zu erstellen, wird diese Zahl hoch angesetzt. <br>
      * Mit dieser Zahl sind die HOPS fuer einen Round-Trip als fuer die Hin- und Zurueck-Uebertragung beim
      * Datenaustausch mit einem anderen Knoten gemeint.
      */
@@ -59,6 +60,17 @@ public class Cable extends Hardware implements Serializable, I18n {
 
     // extend RTT in case of slow machines by this factor; 1: no change
     private static int extendRTTfactor = 1;
+    
+    // Cable becomes active when data flows through it in Simulation mode
+    // or when the configuration panel of a router is shown in Design mode
+    // and the tab of the port corresponding to the cable is selected. 
+    // The GUI component of the cable reflects this by updating its color.
+    // The network icon of the desktops also uses this.
+    private boolean active = false;   
+    
+    // List of event listeners that need to be notified when active changes.
+ 	private ArrayList<CableActiveListener> listenerList = new ArrayList<CableActiveListener>();
+ 	
     private Port[] ports = null;
     private SimplexConnection simplex01, simplex10;
     private Thread thread01, thread10;
@@ -178,9 +190,43 @@ public class Cable extends Hardware implements Serializable, I18n {
     public static int getRTT() {
         return MAX_HOPS * getDelay() * extendRTTfactor;
     }
+    
+	//***************************************************************************************
+	// Active status
+	//***************************************************************************************
+    
+    public boolean isActive() {
+    	
+        return active;
+    }
+
+    public void setActive(boolean active) {
+
+        if (this.active != active) {
+            this.active = active;
+            // Notify the listeners (GUI of the cable and network icon of desktops)  
+            for (CableActiveListener l : listenerList) l.onActiveChange(active);
+        }
+    }
+    
+	//***************************************************************************************
+	// Handling event listeners
+	//***************************************************************************************
+	
+    /**
+     * <b>addListener<b> adds a listener to the list.<br>
+     * Each listener is notified every time the active status changes.
+     * 
+     * @param l the listener to be added
+     */
+    public void addListener(CableActiveListener l) {
+    	
+    	if (!listenerList.contains(l)) listenerList.add(l);
+    }
 
 	@Override
 	public String getHardwareType() {
+		
 		return TYPE;
 	}
 }

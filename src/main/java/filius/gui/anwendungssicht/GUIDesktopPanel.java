@@ -50,6 +50,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import filius.Main;
 import filius.gui.JBackgroundPanel;
+import filius.hardware.CableActiveListener;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.FiliusClassLoader;
@@ -57,7 +58,7 @@ import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.software.system.Betriebssystem;
 
-public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer {
+public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActiveListener, Observer {
 
     private static final long serialVersionUID = 1L;
 
@@ -150,8 +151,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
         }
         this.iconPanel.removeAll();
 
-        tmpLabel = new GUIDesktopIcon(new ImageIcon(getClass()
-                .getResource("/gfx/desktop/icon_softwareinstallation.png")));
+        tmpLabel = new GUIDesktopIcon(new ImageIcon(getClass().getResource("/gfx/desktop/icon_softwareinstallation.png")));
         tmpLabel.setAnwendungsName(messages.getString("desktoppanel_msg1"));
         tmpLabel.setInvokeName("Software-Installation");
         tmpLabel.setToolTipText(tmpLabel.getAnwendungsName());
@@ -209,13 +209,16 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
         }
         this.iconPanel.updateUI();
 
-        NetworkInterface nic = (NetworkInterface) ((InternetNode) betriebssystem.getKnoten())
-                .getNIlist().get(0);
+        // Network icon
+        NetworkInterface nic = (NetworkInterface) ((InternetNode) betriebssystem.getKnoten()).getNIlist().get(0);
         if (nic != null) {
             if (nic.getPort() != null) {
                 if (nic.getPort().getCable() != null) {
-                    nic.getPort().getCable().addObserver(this);
-                    lbNetzwerk.setToolTipText("" + nic.getIp());
+                	// Blinking of the network icon
+                	nic.getPort().getCable().addListener(this);
+//                    nic.getPort().getCable().addObserver(this);
+                    // IP in the tooltip
+                    lbNetzwerk.setToolTipText(nic.getIp()+"/"+nic.getSubnetMask());
                 }
             }
         }
@@ -303,16 +306,27 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
     public void setParameter(String[] parameter) {
         this.parameter = parameter;
     }
+    
+    /** 
+     * {@inheritDoc}
+     */
+    public void onActiveChange (boolean active) {
 
-    public void update(Observable o, Object arg) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIDesktopPanel), update(" + o + ","
-                + arg + ")");
-        if (arg == null) {
-            updateAnwendungen();
-        } else if (arg.equals(Boolean.TRUE)) {
+        if (active) {
             lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_c.png")));
         } else {
             lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_aus.png")));
         }
+    }
+
+    public void update(Observable o, Object arg) {
+        if (arg == null) {
+            updateAnwendungen();
+        }
+//        } else if (arg.equals(Boolean.TRUE)) {
+//            lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_c.png")));
+//        } else {
+//            lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_aus.png")));
+//        }
     }
 }

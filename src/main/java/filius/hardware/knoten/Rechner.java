@@ -31,6 +31,7 @@ import filius.rahmenprogramm.I18n;
 /**
  * @author Nadja
  */
+@SuppressWarnings("serial")
 public class Rechner extends Host implements I18n {
 
 	public static final String TYPE = messages.getString("hw_rechner_msg1");

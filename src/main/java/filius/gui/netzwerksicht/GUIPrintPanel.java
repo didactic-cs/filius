@@ -56,7 +56,7 @@ public class GUIPrintPanel extends JPanel {
         setSize(footer.getWidth() + 2 * EMPTY_BORDER, footer.getHeight() + 2 * EMPTY_BORDER);
     }
 
-    public void updateViewport(List<GUIKnotenItem> knoten, List<GUIKabelItem> kabel, List<GUIDocuItem> docuItems) {
+    public void updateViewport(List<GUINodeItem> knoten, List<GUICableItem> kabel, List<GUIDocuItem> docuItems) {
         networkPanel.updateViewport(knoten, kabel);
         docuPanel.updateViewport(docuItems, false);
 

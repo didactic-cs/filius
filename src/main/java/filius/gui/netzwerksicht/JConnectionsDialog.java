@@ -520,7 +520,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
             entfernterAnschluss = ports[0];
         }
 
-        for (GUIKnotenItem knotenItem : GUIContainer.getInstance().getKnotenItems()) {
+        for (GUINodeItem knotenItem : GUIContainer.getInstance().getKnotenItems()) {
             Node knoten = knotenItem.getNode();
             if (knoten instanceof LocalNode) {
                 for (Port port : ((LocalNode) knoten).getPortList()) {
@@ -548,7 +548,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
             return null;
         }
 
-        for (GUIKabelItem cable : GUIContainer.getInstance().getCableItems()) {
+        for (GUICableItem cable : GUIContainer.getInstance().getCableItems()) {
             if (nicConn.equals(cable.getCable())) {
                 return (Cable) cable.getCable();
             }
@@ -557,7 +557,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
     }
 
     private void removeConnection(Port port) {
-        for (GUIKabelItem cableItem : GUIContainer.getInstance().getCableItems()) {
+        for (GUICableItem cableItem : GUIContainer.getInstance().getCableItems()) {
             if (cableItem.getCable().getPorts()[0].equals(port)
                     || cableItem.getCable().getPorts()[1].equals(port)) {
                 cableItem.getCable().disconnect();
@@ -573,7 +573,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
         int portIdx1 = 0;
         Cable kabel2 = null;
         int portIdx2 = 0;
-        for (GUIKabelItem cableItem : GUIContainer.getInstance().getCableItems()) {
+        for (GUICableItem cableItem : GUIContainer.getInstance().getCableItems()) {
         	Cable cable = cableItem.getCable();
             if (cable.getPorts()[0].equals(port1)) {
                 kabel1 = cable;

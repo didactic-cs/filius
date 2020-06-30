@@ -28,6 +28,7 @@ package filius.hardware.knoten;
 import filius.Main;
 import filius.rahmenprogramm.I18n;
 
+@SuppressWarnings("serial")
 public class Notebook extends Host implements I18n {
 
 	public static final String TYPE = messages.getString("hw_notebook_msg1");

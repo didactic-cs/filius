@@ -40,14 +40,15 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
+import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.tools.ToolProvider;
 
 import filius.Main;
-import filius.gui.netzwerksicht.GUIKabelItem;
-import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.GUICableItem;
+import filius.gui.netzwerksicht.GUINodeItem;
 import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
 import filius.gui.quelltextsicht.FrameSoftwareWizard;
 import filius.hardware.Cable;
@@ -409,7 +410,7 @@ public class GUIMainMenu implements Serializable, I18n {
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), resetCableHL(" + mode + ")");
         if (mode == MODUS_AKTION) { // change to simulation view: de-highlight
                                     // all cables
-            for (GUIKabelItem cableItem : container.getCableItems()) {
+            for (GUICableItem cableItem : container.getCableItems()) {
                 if (cableItem.getCable() != null) cableItem.getCable().setActive(false);
             }
             GUIEvents.getGUIEvents().unselectActiveCable();
@@ -445,7 +446,9 @@ public class GUIMainMenu implements Serializable, I18n {
                 btWizard.setEnabled(true);
             }
             
-            GUIEvents.getGUIEvents().unFreezeActiveElements();         
+            GUIEvents.getGUIEvents().unFreezeActiveElements();   
+            
+            ToolTipManager.sharedInstance().setDismissDelay(3000);
             
         } else if (mode == MODUS_DOKUMENTATION) {
         	GUIEvents.getGUIEvents().freezeActiveElements(); 
@@ -466,6 +469,9 @@ public class GUIMainMenu implements Serializable, I18n {
             if (isSoftwareWizardEnabled()) {
                 btWizard.setEnabled(false);
             }
+            
+            ToolTipManager.sharedInstance().setDismissDelay(3000);
+            
         } else if (mode == MODUS_AKTION && aktuellerModus != MODUS_AKTION) {
             // Main.debug.println("\tMode: MODUS_AKTION");
         	GUIEvents.getGUIEvents().freezeActiveElements(); 
@@ -477,7 +483,7 @@ public class GUIMainMenu implements Serializable, I18n {
             container.setActiveSite(MODUS_AKTION);
             GUIHilfe.getGUIHilfe().laden("simulationsmodus");
 
-            for (GUIKnotenItem knotenItem : container.getKnotenItems()) {
+            for (GUINodeItem knotenItem : container.getKnotenItems()) {
                 SystemSoftware system;
                 system = knotenItem.getNode().getSystemSoftware();
                 system.starten();
@@ -492,12 +498,15 @@ public class GUIMainMenu implements Serializable, I18n {
 
             geschwindigkeit.setEnabled(true);
             verzoegerung.setEnabled(true);
+            
+            // Tooltips remain visible longer
+            ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
         }
         aktuellerModus = mode;
     }
 
     private void stopSimulation() {
-        for (GUIKnotenItem knotenItem : container.getKnotenItems()) {
+        for (GUINodeItem knotenItem : container.getKnotenItems()) {
             SystemSoftware system;
             system = knotenItem.getNode().getSystemSoftware();
             try {
