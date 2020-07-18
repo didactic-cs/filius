@@ -42,7 +42,7 @@
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "Filius-Setup-${PRODUCT_VERSION}.exe"
-InstallDir "$PROGRAMFILES\Filius"
+InstallDir "$PROGRAMFILES64\Filius"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -70,7 +70,7 @@ Section "Filius" SEC01
   SetOutPath "$INSTDIR"
   File "Einfuehrung_Filius.pdf"
   CreateDirectory "$SMPROGRAMS\Filius"
-  CreateShortCut "$SMPROGRAMS\Filius\Filius.pdf.lnk" "$INSTDIR\Einfuehrung_Filius.pdf"
+  CreateShortCut "$SMPROGRAMS\Filius\Filius.pdf.lnk" "$INSTDIR\Einfuehrung_Filius.pdf" 
   File "Filius.exe"
   CreateShortCut "$SMPROGRAMS\Filius\Filius.lnk" "$INSTDIR\Filius.exe"
   File "filius.jar"
@@ -92,7 +92,7 @@ SectionEnd
 Section -AdditionalIcons
   SetOutPath $INSTDIR
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\Filius\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
+  CreateShortCut "$SMPROGRAMS\Filius\www.lernsoftware-filius.de.lnk" "$INSTDIR\${PRODUCT_NAME}.url" "" "$INSTDIR\Filius.exe" 
 SectionEnd
 
 Section -Post
@@ -109,19 +109,19 @@ SectionEnd
 
 Function un.onUninstSuccess
   HideWindow
-  MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) wurde erfolgreich deinstalliert."
+  MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) wurde erfolgreich deinstalliert." /SD IDOK
 FunctionEnd
 
 Function un.onInit
 !insertmacro MUI_UNGETLANGUAGE
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Sie sind dabei $(^Name) und alle seinen Komponenten zu entfernen. Fortfahren?" IDYES +2
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Sie sind dabei $(^Name) und alle seinen Komponenten zu entfernen. Fortfahren?" /SD IDYES IDYES +2
   Abort
 FunctionEnd
 
 Section Uninstall
   SetShellVarContext all
 
-  Delete "$SMPROGRAMS\Filius\Website.lnk"
+  Delete "$SMPROGRAMS\Filius\www.lernsoftware-filius.de.lnk"
   Delete "$SMPROGRAMS\Filius\Filius.lnk"
   Delete "$SMPROGRAMS\Filius\Filius.pdf.lnk"
 

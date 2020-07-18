@@ -1,3 +1,9 @@
+filius (1.10.1) unstable; urgency=low
+ * Silent Uninstall for Windows
+ * Default install folder under Windows is now C:\Program Files\Filius
+ * Use secured URL (https)
+-- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 18 July 2020 00:00:00 +0000
+
 filius (1.10.0) unstable; urgency=low
  * Uebersetzung zur Simulationsgeschwindigkeit korrigiert
  * Falsche Nummerierung Abschnittsueberschriften im Report behoben

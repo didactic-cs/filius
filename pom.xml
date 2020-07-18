@@ -5,9 +5,9 @@
 
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>1.10.0</version>
+	<version>1.10.1</version>
 	<properties>
-		<buildDate>14.06.2020</buildDate>
+		<buildDate>18.07.2020</buildDate>
 		<publisher>Stefan Freischlad</publisher>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.10</junit.version>
@@ -28,7 +28,7 @@
 
 	<name>Filius</name>
 	<description>Lernsoftware zu Rechnernetzen</description>
-	<url>http://www.lernsoftware-filius.de</url>
+	<url>https://www.lernsoftware-filius.de</url>
 
 	<dependencies>
 
