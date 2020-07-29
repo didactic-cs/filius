@@ -13,6 +13,6 @@
 
     <p align="center"> <img src="splashscreen-mini.png"> </p>
 
-    <p> http://www.lernsoftware-filius.de </p>
+    <p> https://www.lernsoftware-filius.de </p>
   </body>
 </html>

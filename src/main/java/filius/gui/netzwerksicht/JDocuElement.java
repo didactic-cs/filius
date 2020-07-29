@@ -90,7 +90,7 @@ public class JDocuElement extends JPanel implements I18n {
     private boolean isText;
     private JDocuTextArea textArea;
 
-    private static final int RECT_CORNER_SIZE = 30;
+    private static final int RECT_CORNER_SIZE = 10;
     private static final int RECT_MIN_WIDTH = 20;
     private static final int RECT_MIN_HEIGHT = 20;
     private static final int TEXT_CORNER_SIZE = 10;
@@ -575,37 +575,35 @@ public class JDocuElement extends JPanel implements I18n {
     }
 
     public void setText(String text) {
-
         if (isText)
             textArea.setText(text);
     }
 
     public Color getColor() {
-
         return referenceColor;
     }
 
     public void setColor(Color color) {
-
+        if (null == color) {
+            color = Color.LIGHT_GRAY;
+        }
         referenceColor = color;
-
         if (isText) {
             textArea.setForeground(color);
         } else {
-            int R = color.getRed();
-            R = 255 + (R - 255) * 8 / 10;
-            int G = color.getGreen();
-            G = 255 + (G - 255) * 8 / 10;
-            int B = color.getBlue();
-            B = 255 + (B - 255) * 8 / 10;
-            opaqueColor = new Color(R, G, B);
+            int red = color.getRed();
+            red = 255 + (red - 255) * 8 / 10;
+            int green = color.getGreen();
+            green = 255 + (green - 255) * 8 / 10;
+            int blue = color.getBlue();
+            blue = 255 + (blue - 255) * 8 / 10;
+            opaqueColor = new Color(red, green, blue);
             transparentColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 200);
             borderColor = new Color(color.getRed() * 4 / 5, color.getGreen() * 4 / 5, color.getBlue() * 4 / 5);
         }
     }
 
     public Font getFont() {
-
         if (isText) {
             return textArea.getFont();
         } else {
@@ -614,7 +612,6 @@ public class JDocuElement extends JPanel implements I18n {
     }
 
     public void setFont(Font font) {
-
         if (isText) {
             textArea.setFont(font);
         }
@@ -626,10 +623,9 @@ public class JDocuElement extends JPanel implements I18n {
 
     @Override
     public void setEnabled(boolean enabled) {
-
-        if (enabled == this.enabled)
+        if (enabled == this.enabled) {
             return;
-
+        }
         this.enabled = enabled;
         setFocusable(enabled);
 
@@ -638,12 +634,12 @@ public class JDocuElement extends JPanel implements I18n {
             textArea.setFocusable(enabled);
         }
 
-        if (!enabled)
+        if (!enabled) {
             setLocalFocus(false);
+        }
     }
 
     public void setLocalFocus(boolean focused) {
-
         if (focused == localFocus)
             return;
 
@@ -811,7 +807,7 @@ public class JDocuElement extends JPanel implements I18n {
 
                 // Draw the border
                 g2.setColor(borderColor);
-                Stroke stroke = new BasicStroke(2);
+                Stroke stroke = new BasicStroke(1);
                 g2.setStroke(stroke);
                 g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, RECT_CORNER_SIZE, RECT_CORNER_SIZE);
             }

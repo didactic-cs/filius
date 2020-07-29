@@ -128,7 +128,7 @@ public class InfoDialog extends JDialog implements I18n {
             maintainer = new JLabel();
             maintainer.setText("<html>" + "<b>" + messages.getString("infodialog_msg5") + "</b>" + "<p>"
                     + "Stefan Freischlad <br/>&nbsp;</p>" + "<p>" + messages.getString("infodialog_msg8") + "<br/>"
-                    + " http://www.lernsoftware-filius.de." + "</p></html>");
+                    + " https://www.lernsoftware-filius.de." + "</p></html>");
             maintainer.setVerticalAlignment(SwingConstants.TOP);
             maintainer.setForeground(Color.WHITE);
             maintainer.setFont(new Font("Dialog", Font.PLAIN, 12));
