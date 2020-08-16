@@ -5,9 +5,9 @@
 
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>1.10.2</version>
+	<version>1.10.3</version>
 	<properties>
-		<buildDate>29.07.2020</buildDate>
+		<buildDate>16.08.2020</buildDate>
 		<publisher>Stefan Freischlad</publisher>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.10</junit.version>
@@ -330,7 +330,7 @@
 								<configuration>
 									<target>
 										<gzip destfile="${project.build.directory}/changelog.gz"
-											src="${project.basedir}/src/info/Changelog.txt" />
+											src="${project.basedir}/src/info/Changelog.md" />
 									</target>
 								</configuration>
 								<goals>

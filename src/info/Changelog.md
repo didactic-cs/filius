@@ -1,83 +1,95 @@
-filius (1.10.2) unstable; urgency=low
+# Changelog Filius
+
+## [1.10.3] - 2020-08-16
+
+### Fixed
+- Manually configured DHCP settings for gateway and dns server were not persisted if they were equal to the os settings.
+
+## [1.10.2] - 2020-07-29
+### Fixed
  * Fix bug when loading old project files with documentation elements
+
+### Changed
  * Reduce corner radius of document elements
- * Use secured URL (https)
--- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Wed, 29 July 2020 00:00:00 +0000
+ * Use secured Filius homepage URL (https)
 
-filius (1.10.1) unstable; urgency=low
+## [1.10.1] - 2020-07-18
+### Fixed
  * Silent Uninstall for Windows
- * Default install folder under Windows is now C:\Program Files\Filius
- * Use secured URL (https)
--- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 18 July 2020 00:00:00 +0000
+ * Use secured Filius homepage URL (https)
 
-filius (1.10.0) unstable; urgency=low
+### Changed
+ * Default install folder under Windows is now C:\Program Files\Filius
+
+## [1.10.0] - 2020-06-14
+### Fixed
  * Uebersetzung zur Simulationsgeschwindigkeit korrigiert
  * Falsche Nummerierung Abschnittsueberschriften im Report behoben
- * Abschnitt zum Nachrichtenaustausch im Report nur, wenn Inhalte vorliegen
  * Fehlerbehebung zur Erstellung von Kabelverbindungen
  * Korrektur Rechtschreibung in franzoesischer Uebersetzung
  * Korrektur der kaputten Anzeige fuer Terminal-Anwendung
  * Fehlerbehebung im Einfachen Client: Immer auf eingehende Nachrichten warten (auch ohne Versand einer Nachricht)
+
+### Changed
+ * Abschnitt zum Nachrichtenaustausch im Report nur, wenn Inhalte vorliegen
  * Redaktionelle Ueberarbeitung der Hilfeseiten 
  * Grundlegende Ueberarbeitung Dokumentationsmodus mit Formatierungsmoeglichkeiten
+
+### Added
  * Möglichkeit, Reiter zum Nachrichtenaustausch zu schliessen
  * Wiederherstellen der angezeigten Fenster bei Wechsel zwischen Anwendungsmodi
  * Hilfeseite für Dokumentationsmodus hinzugefügt
--- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 14 June 2020 00:00:00 +0000
 
-filius (1.9.0) unstable; urgency=low
- * Export der Konfiguration und des Datenaustauschs als PDF-Datei
+## [1.9.0] - 2020-05-02
+### Fixed
  * Fehlerbehebung im Einfachen Client: Auf Serverantworten erst nach Versand einer Nachricht warten
  * Fehlerbehebung TCP-Server: Sockets beim anhalten des Servers gemaess Spezifikation zum Verbindungsabbau schliessen
  * Fehlerbehebung: Sockets im Zustand CLOSED immer aus Socket-Liste entfernen
  * Fehlerbehebung: Versand leerer Nachrichten ermoeglichen (war die Nachricht leer, wurde nichts gesendet)
- * Verbesserung Source Address Table (SAT): Fenster mit SAT werden nicht mehr mehrfach geoeffnet und automatisch aktualisiert
  * Fehlerbehebung: Netstat zeigt jetzt auch serverseitig die Verbindungen an
- * Verbesserung: Netstat zeigt jetzt lokale und entfernte Adresse mit IP-Adresse und Port an
  * Fehlerbehebung: Der Befehl cat fuer eine nicht vorhandene Datei fuehrte zu einem Fehler
  * Fehlerbehebung: TCP-Socket-Zeitueberschreitungen wurden nicht korrekt verarbeitet
- * Verbesserung: Gnutella ermoeglicht jetzt das Zuruecksetzen der bekannten Peers
  * Fehlerbehebung: Die Sequenznummern in TCP wurden falsch hochgezaehlt
--- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 02 Mai 2020 00:00:00 +0000
 
-filius (1.8.2) unstable; urgency=low
+### Changed
+ * Verbesserung Source Address Table (SAT): Fenster mit SAT werden nicht mehr mehrfach geoeffnet und automatisch aktualisiert
+ * Verbesserung: Netstat zeigt jetzt lokale und entfernte Adresse mit IP-Adresse und Port an
+ 
+### Added
+ * Verbesserung: Gnutella ermoeglicht jetzt das Zuruecksetzen der bekannten Peers
+ * Export der Konfiguration und des Datenaustauschs als PDF-Datei
+
+## [1.8.2] - 2020-04-21
   * Fehlerbehebung Modem: Verklemmung, wenn beide verbundenen Modems in gleicher Filius-Instanz laufen
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 21 Mar 2020 00:00:00 +0000
 
-filius (1.8.1) unstable; urgency=low
+## [1.8.1] - 2020-02-01
   * Korrekturen zur franzoesischen Typographie
   * Internationalisierung "Netzwerk" in Gnutella
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 01 Feb 2020 00:00:00 +0000
  
-filius (1.8.0) unstable; urgency=low
+## [1.8.0] - 2020-01-20
   * Export aus Dokumentationsmodus als SVG moeglich (zusaetzlich zu PNG)
   * Hinweis/Tooltip zur Einstellung der Simulationsgeschwindigkeit
   * Fehlerbehebung zur Anzeige/Aktualisierung des Modemnamens
   * Verschiedene Fehler im Dokumentationsmodus behoben
   * Korrektur zum Verschieben von mehreren Elementen im Entwurfsmodus 
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Mon, 20 Jan 2020 00:00:00 +0000
  
-filius (1.7.4) unstable; urgency=low
+## [1.7.4] - 2019-01-08
   * Sprache Franzoesisch hinzugefuegt (Uebersetzung durch Patrice Treton)
   * Fehlerkorrekturen I18n
   * Software-Assistent wird in Vorgabeeinstellung immer angezeigt
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 08 Jun 2019 00:00:00 +0000
 
-filius (1.7.3) unstable; urgency=low
+## [1.7.3] - 2018-08-21
   * Abhängigkeit zu Java 8 in Windows-Version korrigiert
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Tue, 21 Aug 2018 00:00:00 +0000
 
-filius (1.7.2) unstable; urgency=low
+## [1.7.2] - 2016-02-07
   * Konfigurierbare Groesse der Arbeitsflaeche zum Aufbau der Rechnernetze (konfigurierbar in filius.ini)
   * Fehlerbehebung: Fenstergroesse fuer E-Mail Verfassen so angepasst, dass es auch unter Mac OS funktioniert
   * Fehlerbehebung: Anhalten einer Server-Anwendung gibt den Port frei, der fuer den Serversocket verwendet wurde
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Wed, 07 Feb 2016 00:00:00 +0000
 
-filius (1.7.1) unstable; urgency=low
+## [1.7.1] - 2016-02-03
   * Fehlerbehebung: Sprachselektion bei erstmaligem Starten wieder aktiviert
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Wed, 03 Feb 2016 00:00:00 +0000
  
-filius (1.7.0) unstable; urgency=low
+## [1.7.0] - 2016-01-30
   * Neues Windowsinstallationsprogramm
   * Systemvoraussetzung Java 8
   * Aufrufparameter 'verbose' ergaenzt
@@ -92,14 +104,13 @@ filius (1.7.0) unstable; urgency=low
   * Fehlerbehebung: Validierung E-Mail-Adressen korrigiert (Reg. Ausdruck angepasst)
   * Fehlerbehebung: DHCP funktioniert jetzt auch, wenn zwischendurch das Projekt gewechselt wurde
   * Fehlerbehebung: Wenn ein Projekt ohne Dateiendung gespeichert wird, werden jetzt auch die Textelemente mit gespeichert
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sat, 30 Jan 2016 00:00:00 +0000
   
-filius (1.6.1) unstable; urgency=low
+## [1.6.1]
   * Fehlerbehebung: Fehlerhafte Bestimmung von IP-Adressen als Broadcast behoben
   * Fehlerbehebung: TTL wird jetzt nicht mehr fuer lokal adressierte Pakete dekrementiert
   * Verbesserung des Datenaustauschprotokolls als Textdatei
 
-filius (1.6) unstable; urgency=low
+## [1.6]
   * Fehlerbehebung: Robustere Eingabe der Rechnerkonfiguration
   * Fehlerbehebung: Verbindungsherstellung/-trennung mit Modem stabiler realisiert
   * Ausgabe einer Fehlermeldung, wenn ein Broadcast-Ping ausgefuehrt werden soll
@@ -110,7 +121,7 @@ filius (1.6) unstable; urgency=low
   * Maximale Anzahl von Verbindungen zu Switch (von 8) auf 24 erhoeht
   * Fehlerbehebung: TTL wird jetzt korrekt inkrementiert
 
-filius (1.5.4) unstable; urgency=low
+## [1.5.4]
   * Fehlerbehebung: Inkompatibilität beim Oeffnen von Projektdateien, die mit aelterer Version erstellt wurden, behoben
   * Fehlerbehebung: Kabelwerkzeug wurde an falscher Position angezeigt, wenn Arbeitsbereich per Schieber verschoben wurde
   * Fehlerbehebung: Absender und Empfaenger einer Mail wurde nicht in Projektdatei gespeichert
@@ -119,7 +130,7 @@ filius (1.5.4) unstable; urgency=low
   * Fehlerbehebung: Loeschen gesendeter Mails war nicht mehr moeglich
   * Fehlerbehebung: POP3-Server hat nicht immer geantwortet
 
-filius (1.5.3) unstable; urgency=low
+## [1.5.3] - 2013-11-07
   * Moeglichkeit, Textfelder und Strukturierungsfelder einzufuegen
   * Exportieren der Netzansicht als PNG moeglich
   * Bounce-Mails bei nicht erreichbaren Empfaengern
@@ -129,43 +140,36 @@ filius (1.5.3) unstable; urgency=low
   * Fehlerbehebung: Linux-Startskript ohne 'realpath'
   * Fehlerbehebung: mehrere E-Mail-Benutzerkonten in E-Mail-Anwendung möglich
   * Fehlerbehebung: einzelne Nachrichten wurden bei Wechsel zwischen Entwurfs- und Aktionsmodus wiederholt verarbeitet 
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Thu, 07 Nov 2013 00:00:00 +0000
 
-filius (1.5.2) unstable; urgency=low
+## [1.5.2] - 2013-07-05
   * Umbenennung "Terminal" zu "Befehlszeile"/"Command line"
   * Neue Befehlszeilenwerkzeuge: arp, cat
   * Synchronisation von Dateiinhalten mit Anzeige im Texteditor (insbesondere für E-Mail- und DNS-Server)
   * Validierung von DNS-Server-Konfigurationseingaben und Hinweise bei falscher Eingabe
   * DNS-Server-Konfiguration in Tabellen editierbar
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 05 Jul 2013 00:00:00 +0000
 
-filius (1.5.1) unstable; urgency=low
+## [1.5.1] - 2013-02-13
   * Kleine Fehlerbehebungen
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 13 Feb 2013 00:00:00 +0000
 
-filius (1.5) unstable; urgency=low
+## [1.5] - 2013-02-03
   * Firewall grundlegend ueberarbeitet (Firewall-Konfiguration in Projektdateien nicht kompatibel mit aelteren Versionen)
   * Neuer Nachrichtendialog (alter Nachrichtendialog in filius.ini aktivierbar)
   * Im Entwurfsmodus: erstellen mehrerer Kabelverbindungen mit einmaliger Selektion des Kabelwerkzeugs moeglich
   * Anzahl der Pings ueber Kommandozeile wieder auf vier reduziert (Anpassung ueber filius.ini moeglich)
   * Fehlerhafte Anzeige des Icons eines Vermittlungsrechners in Abhaengigkeit des Verbindungsstatus behoben
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 03 Feb 2013 00:00:00 +0000
   
-filius (1.4.5.3) unstable; urgency=low
+## [1.4.5.3] - 2012-11-25
   * Fehler zu DNS-Server bei schnellem Wechsel Starten/Beenden
   * Fehler zu ICMP (ping/traceroute) behoben
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 25 Nov 2012 00:00:00 +0000
 
-filius (1.4.5.2) unstable; urgency=low
+## [1.4.5.2] - 2012-11-12
   * Fehlerbehebung: Ping zu Vermittlungsrechner funktionierte nicht fuer alle Schnittstellen
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 12 Nov 2012 00:00:00 +0000
 
-filius (1.4.5.1) unstable; urgency=low
+## [1.4.5.1] - 2012-11-11
   * Fehlerbehebung: Fortschrittsanzeige bei Mail-Abruf wurde nicht mehr ausgeblendet und Mails nicht vollstaendig angezeigt
   * Fehlerbehebung: Durch die rekursive DNS-Namensaufloesung muss die zeitliche Begrenzung des Resolvers auf ein vielfaches der maximalen Round-Trip-Time betragen
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 11 Nov 2012 00:00:00 +0000
 
-filius (1.4.5) unstable; urgency=low
+## [1.4.5] - 2012-11-04
   * Domainserver unterstuetzen als Option rekursive Domainnamensaufloesung.
   * Re-Integration eines Forks (Dank an pyropeter)
     - erweitertes ICMP
@@ -177,9 +181,8 @@ filius (1.4.5) unstable; urgency=low
     - kann jetzt alle Versuche eines TCP-Verbindungsaufbaus ablehnen.
     - Absender- und Empfaenger-Regeln gelten nur noch fuer TCP (nicht mehr fuer UPD)
   * Als Rechnername kann jetzt die IP-Adresse verwendet werden.
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 04 Nov 2012 00:00:00 +0000
 
-filius (1.4.4) unstable; urgency=low
+## [1.4.4] - 2012-03-13
   * Domain Name System: Jetzt kann auch ein Resource Record fuer einen Wurzel-Name-Server konfiguriert werden.
   * Web-Server: Ueberarbeitung des Designs der Vorgabe-Webseite
   * Kleinere Anpassungen der Darstellungen (u.a. Umbenennung des "Echo-Client" zu "Einfacher Client")
@@ -191,9 +194,8 @@ filius (1.4.4) unstable; urgency=low
     - Flag fuer manuelle Einstellungen des DHCP-Servers wird persistiert
     - Schnittstellenverwaltung der Vermittlungsrechner bei angeschlossenem Switch fuehrte zum Programmabbruch
     - Anzeige des Kontextmenue fuer Kabel im Aktionsmodus wurde nicht unterdrueckt
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 13 Mar 2012 00:00:00 +0000
 
-filius (1.4.3) unstable; urgency=low
+## [1.4.3] - 2011-11-10
   * Domain Name System: Das DNS erlaubt jetzt rekursive Abfragen zur Aufloesung eines Domainnamens.
   * Webserver: Die optionale Konfiguration der virtuellen Hosts kann jetzt ausgeblendet werden.
   * Firewall: Die Firewall der Vermittlungsrechner kann jetzt dezidiert fuer die Netzwerkschnittstellen aktiviert werden.
@@ -202,19 +204,16 @@ filius (1.4.3) unstable; urgency=low
   * Fehlerbehebung:
     - Netzwerkschnittstellenkonfiguration Vermittlungsrechner: Jetzt wird die richtige IP-Adresse eines verbundenen Vermittlungsrechners angezeigt.
     - Datenaustausch ueber Vermittlungsrechner: Wenn Standardgateway nicht gesetzt wurde, erfolgt jetzt korrekte Ausnahmebehandlung.
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 10 Nov 2011 00:00:00 +0000
 
-filius (1.4.2) unstable; urgency=low
+## [1.4.2] - 2011-09-15
   * Fehler bei Aufruf mit Parameter "-wd" zur expliziten Auswahl des Arbeitsverzeichnisses behoben
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 15 Sept 2011 00:00:00 +0000
 
-filius (1.4.1) unstable; urgency=low
+## [1.4.1] - 2011-09-01
   * Fehler bei Aenderung des Aufbaus behoben
   * TCP-Timeout-Fehlermeldung erfolgt nicht mehr im Konfigurationsmodus
   * Fehlerhafte Modemfunktionalität korrigiert
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 01 Sept 2011 00:00:00 +0000
 
-filius (1.4) unstable; urgency=low
+## [1.4] - 2011-08-07
   * Fehlerbehebung: 
     - Bildbetrachter: Anzeige von Bildern wieder möglich 
     - E-Mail-Programm: Platzhaltergrafik für Nachrichten wird wieder angezeigt
@@ -229,31 +228,26 @@ filius (1.4) unstable; urgency=low
   * Echo-Client: Jetzt können hierüber E-Mails versendet (SMTP) und abgerufen (POP3) werden.
   * Rechnerkonfiguration: Jetzt können Gateway- und DNS-Server-Adressen wieder entfernt werden.
   * Nachrichtenansicht: Jetzt steht eine Option "automatisches Scrollen" über Kontextmenü zur Verfügung und das Dialogfenster bleibt immer im Vordergrund.
- -- Stefan Freischlad <kontakt@lernsoftware-filius.de>  Sun, 07 Aug 2011 00:00:00 +0000
 
-filius (1.3.1.4) unstable; urgency=low
+## [1.3.1.4] - 2011-04-30
   * Verwendung von Java Native Access zur korrekten Ermittlung von Benutzerverzeichnissen unter MS Windows (vgl. Java Bug #4787931: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4787931
   * Kontrolle bei Programmstart, ob Arbeitspfad schreibbar ist. Schreibrechte sind notwendig für Dateioperationen wie Speichern/Laden von Szenarien)
   * bei fehlenden Schreibrechten wird sofort Dialog angezeigt zur manuellen Korrektur durch den Benutzer, d.h. Auswahl eines anderen Verzeichnisses
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 30 Apr 2011 00:00:00 +0000
 
-filius (1.3.1.3) unstable; urgency=low
+## [1.3.1.3] - 2011-01-30
   * kleine Bugfixes
   * Problem bei Ping-Nachrichten (v.a. Modem betroffen) behoben
   * Darstellungsmöglichkeit von Switches als Netzwerkwolken (identische Funktionalität wie Switch, lediglich Erscheinung aus didaktischen Gründen verändert!) [Rücknahme: - fehlerhaftes Verhalten bei Problemen mit Log-Datei behoben]
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 30 Jan 2011 00:00:00 +0000
  
-filius (1.3.1.2) unstable; urgency=low
+## [1.3.1.2] - 2010-11-08
   * kleinere Bugfixes
   * verbesserte Log-Daten-Aufzeichnung (aussagekräftigere Auflistung der relevanten hashCodes zur Verfolgung von Aktivitäten)
   * Platzieren der Log-Datei in Arbeitsverzeichnis (.filius) statt in Ort des Startens der Anwendung wegen Rechteproblemen bei Betriebssystem
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 08 Nov 2010 00:00:00 +0000
 
-filius (1.3.1.1) unstable; urgency=low
+## [1.3.1.1] - 2010-09-20
   * Bugfix bei IP Adressevaluation; Zahlenbereich war begrenzt durch Fehler in Regulärem Ausdruck
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 20 Sep 2010 00:00:00 +0000
 
-filius (1.3.1) unstable; urgency=low
+## [1.3.1] - 2010-08-04
   * E-Mail-System überarbeitet; bessere Darstellung im Mailprogramm
   * Antwortfunktion bei Mailprogramm korrigiert
   * Fehler bei Mailverwaltung im Server korrigiert, u.a. beim Löschen abgerufener Mails
@@ -262,38 +256,33 @@ filius (1.3.1) unstable; urgency=low
   * Erweiterung des Webservers um virtuelle Hosts
   * Bugfixes z.B. bei Graphikeinbindung
   * Startup-Skript für Mac OS X hinzugefügt; Tests auf Mac OS X erfolgreich
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 04 Aug 2010 00:00:00 +0000
 
-filius (1.3.0.4) unstable; urgency=low
+## [1.3.0.4] - 2010-07-07
   * Hinzufügen eines Startup-Skripts für UNIX-basierte Systeme (Filius.sh)
   * Parameterunterstützung zur Verlegung des Arbeitsverzeichnisses ".filius": '-wd <path>'
   * Überprüfung der DNS-Einträge; falls URL leer wird Eintrag nicht übernommen/gespeichert
   * Fehlplatzierung bei Kabel behoben
   * Kontextmenü zum Löschen von Kabeln an engeren Kollisionsbereich gebunden
   * Kontextmenü zum Löschen von Kabeln nur angezeigt, falls keine Kabelvorschau aktiv
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 07 Jul 2010 00:00:00 +0000
 
-filius (1.3.0.3) unstable; urgency=low
+## [1.3.0.3] - 2010-04-19
   * Fehler bei der direkten Bearbeitung von DNS-Einträgen in der Tabelle korrigiert
   * Daten werden nun getrennt nach A bzw. MX Einträgen verarbeitet (JTableEditable)
   * Pfadunstimmigkeiten bei Hilfe-Dateien (bei Aufruf der Jar-Datei aus anderem Verzeichnis) beseitigt
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 19 Apr 2010 00:00:00 +0000
 
-filius (1.3.0.2) unstable; urgency=low
+## [1.3.0.2] - 2010-04-15
   * Bilder in JAR-Datei integriert
   * Korrektur der Pfadzuweisungen, um Dateien innerhalb der JAR-Datei zu finden
   * Fehler bei Suche von FLS-Datei als Parameter beseitigt
   * Fehler bei Pfadbestimmung korrigiert, damit Filius von beliebiger Stelle aus aufgerufen werden kann (betrifft JAR und EXE!)
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 15 Apr 2010 00:00:00 +0000
 
-filius (1.3.0.1) unstable; urgency=low
+## [1.3.0.1] - 2010-04-09
   * Datei-Explorer importiert beliebige Dateien bis zu einer Größe von 150KB
   * bei fehlgeschlagener DHCP-Anfrage werden Zeroconf-Adressen zugewiesen (169.254.x.x)
   * ping-Befehl wurde in Befehlsliste bei Terminal aufgenommen
   * Überschrift für Tabellenausgabe bei route-Befehl
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 09 Apr 2010 00:00:00 +0000
 
-filius (1.3.0) unstable; urgency=low
+## [1.3.0] - 2010-03-31
   * Terminal-Funktionen implementiert (move, copy, dir, help, ...)
   * Hilfeseite zur Auflistung aller unterstützter Terminal-Befehle
   * Ping-Befehl implementiert in Terminal
@@ -315,4 +304,3 @@ filius (1.3.0) unstable; urgency=low
   * Überschriften in diversen Dialogen zur besseren Usability
   * fehlerhafte Pattern für IP-Adressen korrigiert
   * Sprache bei Buttons in Dialogen korrigiert
- -- Christian Eibl <kontakt@lernsoftware-filius.de>  Sun, 31 Mar 2010 00:00:00 +0000
