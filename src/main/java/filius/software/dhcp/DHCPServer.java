@@ -42,7 +42,8 @@ import filius.software.clientserver.UDPServerAnwendung;
 import filius.software.transportschicht.Socket;
 
 /**
- * In dieser Klasse und in DHCPServerMitarbeiter wird ein Sever fuer Dynamic Host Configuration Protocol implementiert. <br />
+ * In dieser Klasse und in DHCPServerMitarbeiter wird ein Sever fuer Dynamic Host Configuration Protocol implementiert.
+ * <br />
  * In dieser Klasse werden die Einstellungen des Server verwaltet. Das Protokoll zur Vereinbarung einer IP-Adresse wird
  * durch DHCPServerMitarbeiter realisiert. D. h. zu jeder eingehenden Anfrage wird ein neuer Mitarbeiter erzeugt.
  */
@@ -253,8 +254,8 @@ public class DHCPServer extends UDPServerAnwendung {
     }
 
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (DHCPServer), starten()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DHCPServer), starten()");
         dynamicAssignedAddresses.clear();
         lastOfferedAddress = null;
         super.starten();
@@ -331,6 +332,10 @@ public class DHCPServer extends UDPServerAnwendung {
     }
 
     public String getDnsserverip() {
+        return dhcpDNS;
+    }
+
+    public String determineDnsserverip() {
         String dns;
         if (useDhcpSettings) {
             dns = dhcpDNS;
@@ -348,6 +353,10 @@ public class DHCPServer extends UDPServerAnwendung {
     }
 
     public String getGatewayip() {
+        return dhcpGateway;
+    }
+
+    public String determineGatewayip() {
         String gateway;
         if (useDhcpSettings) {
             gateway = dhcpGateway;

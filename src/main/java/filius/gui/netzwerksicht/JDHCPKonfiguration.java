@@ -131,7 +131,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
         tfNetzmaske.setEditable(false);
 
         lbGateway = new JLabel(messages.getString("jdhcpkonfiguration_msg4"));
-        tfGateway = new JTextField(server.getGatewayip());
+        tfGateway = new JTextField(server.determineGatewayip());
         tfGateway.setPreferredSize(new Dimension(150, 25));
         tfGateway.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
@@ -141,7 +141,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
         tfGateway.setEditable(server.isOwnSettings());
 
         lbDNSServer = new JLabel(messages.getString("jdhcpkonfiguration_msg5"));
-        tfDNSServer = new JTextField(server.getDnsserverip());
+        tfDNSServer = new JTextField(server.determineDnsserverip());
         tfDNSServer.setPreferredSize(new Dimension(150, 25));
         tfDNSServer.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
@@ -321,8 +321,8 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
             public void actionPerformed(ActionEvent arg0) {
                 if (ueberpruefen(EingabenUeberpruefung.musterMacAddress, macAddressTextField)
                         && ueberpruefen(EingabenUeberpruefung.musterIpAdresse, ipAddressTextField)) {
-                    ((DefaultTableModel) staticAddressTable.getModel()).addRow(new Object[] {
-                            macAddressTextField.getText(), ipAddressTextField.getText() });
+                    ((DefaultTableModel) staticAddressTable.getModel())
+                            .addRow(new Object[] { macAddressTextField.getText(), ipAddressTextField.getText() });
                     macAddressTextField.setText("");
                     ipAddressTextField.setText("");
                 }
@@ -346,8 +346,8 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
                     }
                     ((DefaultTableModel) staticAddressTable.getModel()).setRowCount(0);
                     for (int i = 0; i < macAddresses.size() && i < ipAddresses.size(); i++) {
-                        ((DefaultTableModel) staticAddressTable.getModel()).addRow(new Object[] { macAddresses.get(i),
-                                ipAddresses.get(i) });
+                        ((DefaultTableModel) staticAddressTable.getModel())
+                                .addRow(new Object[] { macAddresses.get(i), ipAddresses.get(i) });
                     }
                 }
             }
@@ -378,27 +378,23 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
 
     /** Listens to the check boxes. */
     public void itemStateChanged(java.awt.event.ItemEvent e) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (JDHCPKonfiguration) itemStateChanged(" + e + "); source=" + e.getItemSelectable());
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration) itemStateChanged("
+                + e + "); source=" + e.getItemSelectable());
         Object source = e.getItemSelectable();
 
         if (source == cbUseInternal) {
             // Main.debug.println("\titemStateChanged; source==cbUseInternal");
-            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            if (cbUseInternal.isSelected()) {
                 server.setOwnSettings(true);
-                tfGateway.setText(server.getGatewayip());
                 tfGateway.setEditable(true);
-                tfDNSServer.setText(server.getDnsserverip());
                 tfDNSServer.setEditable(true);
             } else {
                 server.setOwnSettings(false);
-                tfGateway.setText(server.getGatewayip());
                 tfGateway.setEditable(false);
-                tfDNSServer.setText(server.getDnsserverip());
                 tfDNSServer.setEditable(false);
             }
-        } else {
-            // Main.debug.println("\titemStateChanged; source ("+source+") != cbUseInternal ("+cbUseInternal+")");
+            tfGateway.setText(server.determineGatewayip());
+            tfDNSServer.setText(server.determineDnsserverip());
         }
     }
 
@@ -407,8 +403,8 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
         tfObergrenze.setText(server.getObergrenze());
         tfUntergrenze.setText(server.getUntergrenze());
         tfNetzmaske.setText(server.getSubnetzmaske());
-        tfGateway.setText(server.getGatewayip());
-        tfDNSServer.setText(server.getDnsserverip());
+        tfGateway.setText(server.determineGatewayip());
+        tfDNSServer.setText(server.determineDnsserverip());
         cbUseInternal.setSelected(server.isOwnSettings());
         cbAktiv.setSelected(server.isAktiv());
         ((DefaultTableModel) staticAddressTable.getModel()).setRowCount(0);

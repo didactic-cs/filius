@@ -123,7 +123,7 @@ public class DHCPServerMitarbeiter extends ServerMitarbeiter {
         try {
             String serverIpAddress = dhcpServer.holeServerIpAddress();
             DHCPMessage response = DHCPMessage.createOfferMessage(mac, dhcpServer.offerAddress(mac),
-                    dhcpServer.getSubnetzmaske(), dhcpServer.getGatewayip(), dhcpServer.getDnsserverip(),
+                    dhcpServer.getSubnetzmaske(), dhcpServer.determineGatewayip(), dhcpServer.determineDnsserverip(),
                     serverIpAddress);
             udpSocket.sendeBroadcast(serverIpAddress, response.toString());
         } catch (NoAvailableAddressException e) {}
