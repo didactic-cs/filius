@@ -26,6 +26,7 @@
 package filius.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +41,7 @@ import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import filius.Main;
 import filius.rahmenprogramm.I18n;
@@ -60,8 +62,11 @@ public class GUIHilfe implements I18n {
 
         epHtml = new JEditorPane("text/html;charset=UTF-8", null);
         epHtml.setText(messages.getString("guihilfe_msg2"));
-        laden("entwurfsmodus");
+        epHtml.setEditable(false);
+        epHtml.setMinimumSize(new Dimension(1, 1));
         spHtmlScroller = new JScrollPane(epHtml);
+        spHtmlScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        spHtmlScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         jf.getContentPane().add(spHtmlScroller, BorderLayout.CENTER);
     }
