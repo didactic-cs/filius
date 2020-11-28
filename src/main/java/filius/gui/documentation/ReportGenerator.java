@@ -286,7 +286,9 @@ public class ReportGenerator {
         Paragraph paragraph = new Paragraph(title, font);
         paragraph.setAlignment(Paragraph.ALIGN_CENTER);
         document.add(paragraph);
-        document.add(new Chunk(storagePath, SMALL_FONT));
+        if (null != storagePath) {
+            document.add(new Chunk(storagePath, SMALL_FONT));
+        }
         document.add(Chunk.NEWLINE);
         return document;
     }

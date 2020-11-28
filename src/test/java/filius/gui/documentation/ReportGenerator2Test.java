@@ -41,4 +41,14 @@ public class ReportGenerator2Test {
         generator.closeDocument(document);
     }
 
+    @Test
+    public void testGenerateReport_ScenarioNotSaved() throws Exception {
+        Main.starten(null);
+        Document document = generator.initDocument(PDF_OUTPUT);
+
+        generator.addOverviewSection(document);
+        generator.addComponentConfigSection(document);
+        generator.closeDocument(document);
+    }
+
 }
