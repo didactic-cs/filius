@@ -164,7 +164,7 @@ public class ReportGenerator {
                         appNames[i] = apps[i].holeAnwendungsName();
                     }
                     String appList = StringUtils.join(appNames, ", ");
-                    chunk = new Chunk(appList.isBlank() ? "-" : appList, DEFAULT_FONT);
+                    chunk = new Chunk(StringUtils.isBlank(appList) ? "-" : appList, DEFAULT_FONT);
                     document.add(chunk);
                     document.add(Chunk.NEWLINE);
                     document.add(Chunk.NEWLINE);
