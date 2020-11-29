@@ -1,9 +1,14 @@
 # Changelog Filius
 
-## [1.10.3] - 2020-08-16
-
+## [1.10.4] - 2020-11-29
 ### Fixed
-- Manually configured DHCP settings for gateway and dns server were not persisted if they were equal to the os settings.
+* There was an incompatibility within Report generation on Java 8.
+* It was not possible to generate a report of unsaved scenarios.
+* The contents of the help dialog were editable.
+
+## [1.10.3] - 2020-08-16
+### Fixed
+* Manually configured DHCP settings for gateway and dns server were not persisted if they were equal to the os settings.
 
 ## [1.10.2] - 2020-07-29
 ### Fixed

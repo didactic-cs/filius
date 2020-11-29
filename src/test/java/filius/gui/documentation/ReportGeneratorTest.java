@@ -8,6 +8,8 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -17,6 +19,7 @@ import com.itextpdf.text.Document;
 import filius.Main;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 
+@RunWith(JUnit4.class)
 public class ReportGeneratorTest {
     private static final String PDF_OUTPUT = "test.pdf";
     private static final Object[][] DATA = {
