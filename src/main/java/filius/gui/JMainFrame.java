@@ -33,9 +33,12 @@ package filius.gui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.MouseInfo;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
@@ -47,7 +50,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import filius.Main;
@@ -69,8 +71,8 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (e.getID() == KeyEvent.KEY_PRESSED && !(e.getSource() instanceof JTextField)) {
                     Main.debug.print("KEY dispatcher:\n" + "\tkey:'" + e.getKeyCode() + "'\n" + "\tmodifier: '"
-                            + e.getModifiers() + "'\n" + "\tmodifierText: '"
-                            + KeyEvent.getKeyModifiersText(e.getModifiers()) + "'\n" + "\tkeyChar: '" + e.getKeyChar()
+                            + e.getModifiersEx() + "'\n" + "\tmodifierText: '"
+                            + KeyEvent.getModifiersExText(e.getModifiersEx()) + "'\n" + "\tkeyChar: '" + e.getKeyChar()
                             + "'\n" + "\tsourceType: '" + e.getSource().getClass().getSimpleName() + "'\n");
 
                     /* ignore space bar pressing on buttons */
@@ -85,7 +87,6 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             // multiple items are selected
                             List<GUIKnotenItem> itemlist = GUIContainer.getGUIContainer().getKnotenItems();
                             JMarkerPanel auswahl = GUIContainer.getGUIContainer().getAuswahl();
-                            JScrollPane scrollPane = GUIContainer.getGUIContainer().getScrollPane();
                             GUIKnotenItem tempitem;
                             int tx, ty, twidth, theight;
                             LinkedList<GUIKnotenItem> markedlist = new LinkedList<GUIKnotenItem>();
@@ -116,7 +117,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                                         ((GUIKnotenItem) markedlist.get(i)));
                             }
                             auswahl.setVisible(false);
-                            GUIContainer.getGUIContainer().getMarkierung().setVisible(false);
+                            GUIContainer.getGUIContainer().hideMarker();
                             return true;
                         } else if (GUIEvents.getGUIEvents().getActiveItem() != null) {
                             // single item active
@@ -126,7 +127,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             return true;
                         }
                     }
-                    if (e.getModifiers() == 2) { // CTRL key pressed
+                    if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == KeyEvent.CTRL_DOWN_MASK) { // CTRL key pressed
                         // Main.debug.println("KeyDispatcher: CTRL-Key pressed, waiting for additional key!");
                         switch (e.getKeyCode()) {
                         case 78: // N (new)
@@ -172,7 +173,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                         }
                     }
                     // ALT key pressed; only makes sense for cables!
-                    if (e.getModifiers() == 8) {
+                    if ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) == KeyEvent.ALT_DOWN_MASK) {
                         // key '1' (cable)
                         if ((e.getKeyCode() == 49)
                                 && (GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF)) {
@@ -207,9 +208,32 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
 
     private void initComponents() {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setSize(1000, 700);
+        setDefaultBounds();
+    }
+
+    private void setDefaultBounds() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation(screenSize.width / 2 - (getWidth() / 2), screenSize.height / 2 - (getHeight() / 2));
+        int width = (int) Math.min(1000, 0.8 * screenSize.getWidth());
+        int height = (int) Math.min(700, 0.8 * screenSize.getHeight());
+        super.setBounds(
+                new Rectangle(screenSize.width / 2 - (width / 2), screenSize.height / 2 - (height / 2), width, height));
+    }
+
+    @Override
+    public void setBounds(Rectangle newBounds) {
+        boolean validBounds = false;
+        for (GraphicsDevice screenDevice : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+            Rectangle bounds = screenDevice.getDefaultConfiguration().getBounds();
+            if ((newBounds.x >= bounds.x && newBounds.x + newBounds.width <= bounds.x + bounds.width)
+                    && (newBounds.y >= bounds.y && newBounds.y + newBounds.height <= bounds.y + bounds.height)) {
+                validBounds = true;
+                super.setBounds(newBounds);
+                break;
+            }
+        }
+        if (!validBounds) {
+            setDefaultBounds();
+        }
     }
 
     public void windowActivated(WindowEvent e) {}

@@ -845,6 +845,10 @@ public class GUIContainer implements Serializable, I18n {
         return designSelectionArea;
     }
 
+    public void hideMarker() {
+        designSelectionArea.setVisible(false);
+    }
+
     public boolean isMarkerVisible() {
         return designSelectionArea.isVisible();
     }

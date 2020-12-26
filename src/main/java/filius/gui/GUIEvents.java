@@ -238,14 +238,14 @@ public class GUIEvents implements I18n {
         updateAktivesItem(e.getX(), e.getY());
 
         if (GUIContainer.getGUIContainer().getMarkierung().inBounds(e.getX(), e.getY())) {
-            if (GUIContainer.getGUIContainer().getMarkierung().isVisible()) {
+            if (GUIContainer.getGUIContainer().isMarkerVisible()) {
                 aufmarkierung = true;
                 startPosX = e.getX();
                 startPosY = e.getY();
             }
         } else {
             aufmarkierung = false;
-            GUIContainer.getGUIContainer().getMarkierung().setVisible(false);
+            GUIContainer.getGUIContainer().hideMarker();
             auswahl.setBounds(0, 0, 0, 0);
         }
 
@@ -335,7 +335,7 @@ public class GUIEvents implements I18n {
 
     public void cancelMultipleSelection() {
         aufmarkierung = false;
-        GUIContainer.getGUIContainer().getMarkierung().setVisible(false);
+        GUIContainer.getGUIContainer().hideMarker();
         GUIContainer.getGUIContainer().getAuswahl().setBounds(0, 0, 0, 0);
     }
 
