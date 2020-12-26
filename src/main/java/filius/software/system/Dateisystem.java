@@ -34,6 +34,9 @@ import java.util.StringTokenizer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import filius.Main;
 
 /**
@@ -62,9 +65,6 @@ public class Dateisystem implements Serializable {
      */
     private DefaultMutableTreeNode root;
 
-    /** das aktuelle Arbeitsverzeichnis */
-    private DefaultMutableTreeNode arbeitsVerzeichnis;
-
     /**
      * Diese Klasse muss fuer die persistente Speicherung einer Filius-Projektdatei den Anforderungen einer JavaBean
      * genuegen. Daher ist der Paramterlose Konstruktor wichtig!
@@ -72,7 +72,6 @@ public class Dateisystem implements Serializable {
     public Dateisystem() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), constr: Dateisystem()");
         root = new DefaultMutableTreeNode("root");
-        arbeitsVerzeichnis = root;
     }
 
     // print entire tree, starting from root node
@@ -89,7 +88,7 @@ public class Dateisystem implements Serializable {
             Main.debug.println("[" + tmpRoot.getUserObject().toString() + "]");
         }
         indent = indent + " |";
-        for (Enumeration e = tmpRoot.children(); e.hasMoreElements();) {
+        for (Enumeration<TreeNode> e = tmpRoot.children(); e.hasMoreElements();) {
             node = (DefaultMutableTreeNode) e.nextElement();
             printSubtree(indent, node);
         }
@@ -109,13 +108,12 @@ public class Dateisystem implements Serializable {
     public boolean dateiVorhanden(DefaultMutableTreeNode verzeichnis, String dateiName) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), dateiVorhanden("
                 + verzeichnis + "," + dateiName + ")");
-        DefaultMutableTreeNode enode;
 
         if (verzeichnis == null) {
             return false;
         } else {
-            for (Enumeration e = verzeichnis.children(); e.hasMoreElements();) {
-                enode = (DefaultMutableTreeNode) e.nextElement();
+            for (Enumeration<TreeNode> e = verzeichnis.children(); e.hasMoreElements();) {
+                DefaultMutableTreeNode enode = (DefaultMutableTreeNode) e.nextElement();
 
                 if (enode.getUserObject().toString().equalsIgnoreCase(dateiName)) {
                     return true;
@@ -143,7 +141,7 @@ public class Dateisystem implements Serializable {
 
     /**
      * Gibt einen String zurueck, der den Pfad zu des als Parameter angegebenen Knotens darstellt (z.B.
-     * root/ordner/unterordner).
+     * /ordner/unterordner).
      * 
      * @param node
      *            Der Knoten im Verzeichnisbaum kann ein Verzeichnis oder eine Datei repraesentieren
@@ -152,18 +150,14 @@ public class Dateisystem implements Serializable {
      * @see FILE_SEPARATOR
      */
     public static String absoluterPfad(DefaultMutableTreeNode node) {
-        Main.debug.println("INVOKED (static) filius.software.system.Dateisystem, absoluterPfad(" + node + ")");
-        StringBuffer pfad;
-        Object[] pfadObjekte;
-
-        pfadObjekte = node.getUserObjectPath();
-        pfad = new StringBuffer();
-        pfad.append(pfadObjekte[0].toString());
-        for (int i = 1; i < pfadObjekte.length; i++) {
-            pfad.append(FILE_SEPARATOR + pfadObjekte[i].toString());
+        StringBuffer buffer = new StringBuffer();
+        for (Object pathElement : ArrayUtils.remove(node.getUserObjectPath(), 0)) {
+            buffer.append(FILE_SEPARATOR).append(pathElement);
         }
-        // Main.debug.println("\tpfad='"+stripRoot(pfad.toString())+"'");
-        return stripRoot(pfad.toString());
+        if (buffer.length() == 0) {
+            buffer.append(FILE_SEPARATOR);
+        }
+        return buffer.toString();
     }
 
     public String holeRootPfad() {
@@ -185,7 +179,7 @@ public class Dateisystem implements Serializable {
         if (pfad.equals(FILE_SEPARATOR) || pfad.isEmpty()) {
             return root;
         }
-        Enumeration enumeration;
+        Enumeration<TreeNode> enumeration;
         DefaultMutableTreeNode node;
 
         enumeration = root.preorderEnumeration();
@@ -213,20 +207,16 @@ public class Dateisystem implements Serializable {
     public static DefaultMutableTreeNode verzeichnisKnoten(DefaultMutableTreeNode verzeichnis, String pfad) {
         Main.debug.println("INVOKED (static) filius.software.system.Dateisystem, verzeichnisKnoten(" + verzeichnis + ","
                 + pfad + ")");
-        Enumeration enumeration;
         DefaultMutableTreeNode node;
         String absolutePath;
 
-        if (pfad.length() > 0 && pfad.substring(0, 1).equals(FILE_SEPARATOR)) { // 'pfad'
-                                                                                // is
-                                                                                // absolute
-                                                                                // path!
+        if (pfad.length() > 0 && pfad.substring(0, 1).equals(FILE_SEPARATOR)) {
             absolutePath = evaluatePathString(pfad);
         } else {
             absolutePath = evaluatePathString(absoluterPfad(verzeichnis) + FILE_SEPARATOR + pfad);
         }
 
-        enumeration = verzeichnis.preorderEnumeration();
+        Enumeration<TreeNode> enumeration = verzeichnis.preorderEnumeration();
         while (enumeration.hasMoreElements()) {
             node = (DefaultMutableTreeNode) enumeration.nextElement();
             if (absolutePath.equalsIgnoreCase(absoluterPfad(node))) {
@@ -409,10 +399,7 @@ public class Dateisystem implements Serializable {
         DefaultMutableTreeNode node;
         DefaultMutableTreeNode neuerNode = null;
         String absPath;
-        if (neuesVerzeichnis.length() > 0 && neuesVerzeichnis.substring(0, 1).equals(FILE_SEPARATOR)) { // 'pfad'
-                                                                                                        // is
-                                                                                                        // absolute
-                                                                                                        // path!
+        if (neuesVerzeichnis.length() > 0 && neuesVerzeichnis.substring(0, 1).equals(FILE_SEPARATOR)) {
             absPath = evaluatePathString(neuesVerzeichnis);
         } else {
             absPath = evaluatePathString(verzeichnisPfad + FILE_SEPARATOR + neuesVerzeichnis);
@@ -523,21 +510,14 @@ public class Dateisystem implements Serializable {
         }
     }
 
-    public DefaultMutableTreeNode getArbeitsVerzeichnis() {
-        return arbeitsVerzeichnis;
-    }
-
-    public void setArbeitsVerzeichnis(DefaultMutableTreeNode arbeitsVerzeichnis) {
-        this.arbeitsVerzeichnis = arbeitsVerzeichnis;
-    }
-
     // change current working directory
-    public DefaultMutableTreeNode changeDirectory(String absPath) {
-        return verzeichnisKnoten(absPath);
+    public DefaultMutableTreeNode changeDirectory(String path) {
+        DefaultMutableTreeNode newDir = verzeichnisKnoten(toAbsolutePath(path));
+        return newDir;
     }
 
     public DefaultMutableTreeNode changeDirectory(String currDir, String relPath) {
-        return verzeichnisKnoten(currDir + Dateisystem.FILE_SEPARATOR + relPath);
+        return changeDirectory(currDir + Dateisystem.FILE_SEPARATOR + relPath);
     }
 
     /**
@@ -579,10 +559,11 @@ public class Dateisystem implements Serializable {
     // String representation
     private static String stripRoot(String path) {
         Main.debug.println("INVOKED (static) filius.software.system.Dateisystem, stripRoot(" + path + ")");
-        if (path.indexOf(Dateisystem.FILE_SEPARATOR) >= 0)
+        if (path.indexOf(Dateisystem.FILE_SEPARATOR) >= 0) {
             return path.substring(path.indexOf(Dateisystem.FILE_SEPARATOR));
-        else
-            return "/";
+        } else {
+            return path;
+        }
     }
 
     // get directory part in absolute file pathname
@@ -601,5 +582,22 @@ public class Dateisystem implements Serializable {
             return path.substring(path.lastIndexOf(Dateisystem.FILE_SEPARATOR) + 1);
         else
             return path;
+    }
+
+    public String toAbsolutePath(String path) {
+        return toAbsolutePath(root, path);
+    }
+
+    /**
+     * Define the absolute path as string. But it may not exist!
+     */
+    public String toAbsolutePath(DefaultMutableTreeNode currentDir, String path) {
+        String absolutePath;
+        if (StringUtils.startsWith(path, FILE_SEPARATOR)) {
+            absolutePath = path;
+        } else {
+            absolutePath = absoluterPfad(currentDir) + FILE_SEPARATOR + path;
+        }
+        return absolutePath;
     }
 }

@@ -596,11 +596,10 @@ public class Terminal extends ClientAnwendung implements I18n {
      */
     public String test(String[] args) {
         String ergebnis = messages.getString("sw_terminal_msg23");
-
-        if (this.getSystemSoftware().getDateisystem().speicherDatei(args[0], new Datei("test.txt", "txt", "blaaa"))) {
+        if (this.getSystemSoftware().getDateisystem().speicherDatei(aktuellerOrdner,
+                new Datei("test.txt", "txt", "blaaa"))) {
             ergebnis = messages.getString("sw_terminal_msg24");
         }
-
         benachrichtigeBeobachter(ergebnis);
         return ergebnis;
     }

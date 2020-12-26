@@ -63,303 +63,299 @@ import filius.software.system.Datei;
  */
 public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 
-	private static final long serialVersionUID = 1L;
-	private JTextArea editorField;
-	private JPanel backPanel;
-	private GUIApplicationWindow diesesFenster;
-	private Datei aktuelleDatei = null;
-	private String original = "";
-	private DefaultMutableTreeNode arbeitsVerzeichnis;
-	private JTabbedPane tpTabs;
+    private static final long serialVersionUID = 1L;
+    private JTextArea editorField;
+    private JPanel backPanel;
+    private GUIApplicationWindow diesesFenster;
+    private Datei aktuelleDatei = null;
+    private String original = "";
+    private DefaultMutableTreeNode arbeitsVerzeichnis;
+    private JTabbedPane tpTabs;
 
-	public GUIApplicationTextEditorWindow(GUIDesktopPanel desktop, String appName) {
-		super(desktop, appName);
-		this.diesesFenster = this;
+    public GUIApplicationTextEditorWindow(GUIDesktopPanel desktop, String appName) {
+        super(desktop, appName);
+        this.diesesFenster = this;
 
-		this.setTitle(messages.getString("texteditor_msg1"));
-		editorField = new JTextArea("");
-		editorField.setEditable(true);
-		editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
+        this.setTitle(messages.getString("texteditor_msg1"));
+        editorField = new JTextArea("");
+        editorField.setEditable(true);
+        editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
 
-		this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getArbeitsVerzeichnis();
+        this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
 
-		String dateiName = holeParameter()[0];
-		if (!dateiName.equals("")) {
+        String dateiName = holeParameter()[0];
+        if (!dateiName.equals("")) {
 
-			if (this.arbeitsVerzeichnis == null) {
+            if (this.arbeitsVerzeichnis == null) {
 
-				this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
+                this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
 
-			}
-			Datei datei = holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(arbeitsVerzeichnis, dateiName);
-			if (datei != null) {
-				this.setTitle(dateiName);
-				editorField.setText(datei.getDateiInhalt());
-				original = datei.getDateiInhalt();
-				aktuelleDatei = datei;
-			}
-		}
+            }
+            Datei datei = holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(arbeitsVerzeichnis, dateiName);
+            if (datei != null) {
+                this.setTitle(dateiName);
+                editorField.setText(datei.getDateiInhalt());
+                original = datei.getDateiInhalt();
+                aktuelleDatei = datei;
+            }
+        }
 
-		JScrollPane tpPane = new JScrollPane(editorField);
-		tpPane.setBorder(null);
+        JScrollPane tpPane = new JScrollPane(editorField);
+        tpPane.setBorder(null);
 
-		/* Tabs */
-		tpTabs = new JTabbedPane();
-		tpTabs.setUI(new CloseableBrowserTabbedPaneUI());
-		Box editorBox = Box.createHorizontalBox();
+        /* Tabs */
+        tpTabs = new JTabbedPane();
+        tpTabs.setUI(new CloseableBrowserTabbedPaneUI());
+        Box editorBox = Box.createHorizontalBox();
 
-		// editorBox.add(editorField);
-		editorBox.add(tpPane);
-		editorBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        // editorBox.add(editorField);
+        editorBox.add(tpPane);
+        editorBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		tabVerhalten();
+        tabVerhalten();
 
-		backPanel = new JPanel(new BorderLayout());
-		backPanel.add(editorBox, BorderLayout.CENTER);
+        backPanel = new JPanel(new BorderLayout());
+        backPanel.add(editorBox, BorderLayout.CENTER);
 
-		this.getContentPane().add(backPanel);
+        this.getContentPane().add(backPanel);
 
-		JMenuBar mb = new JMenuBar();
+        JMenuBar mb = new JMenuBar();
 
-		JMenu menuDatei = new JMenu(messages.getString("texteditor_msg2"));
+        JMenu menuDatei = new JMenu(messages.getString("texteditor_msg2"));
 
-		menuDatei.add(new AbstractAction(messages.getString("texteditor_msg3")) {
-			private static final long serialVersionUID = 4307765243000198382L;
+        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg3")) {
+            private static final long serialVersionUID = 4307765243000198382L;
 
-			public void actionPerformed(ActionEvent arg0) {
-				neu();
-			}
-		});
+            public void actionPerformed(ActionEvent arg0) {
+                neu();
+            }
+        });
 
-		menuDatei.add(new AbstractAction(messages.getString("texteditor_msg4")) {
-			private static final long serialVersionUID = 1L;
+        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg4")) {
+            private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent arg0) {
-				oeffnen();
-			}
-		});
+            public void actionPerformed(ActionEvent arg0) {
+                oeffnen();
+            }
+        });
 
-		menuDatei.add(new AbstractAction(messages.getString("texteditor_msg5")) {
-			private static final long serialVersionUID = 1L;
+        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg5")) {
+            private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent arg0) {
-				speichern();
-			}
-		});
-		menuDatei.add(new AbstractAction(messages.getString("texteditor_msg6")) {
-			private static final long serialVersionUID = 1L;
+            public void actionPerformed(ActionEvent arg0) {
+                speichern();
+            }
+        });
+        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg6")) {
+            private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent arg0) {
-				speichernUnter();
-			}
-		});
-		menuDatei.addSeparator();
-		menuDatei.add(new AbstractAction(messages.getString("texteditor_msg7")) {
-			private static final long serialVersionUID = 1L;
+            public void actionPerformed(ActionEvent arg0) {
+                speichernUnter();
+            }
+        });
+        menuDatei.addSeparator();
+        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg7")) {
+            private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent arg0) {
-				beenden();
-			}
-		});
+            public void actionPerformed(ActionEvent arg0) {
+                beenden();
+            }
+        });
 
-		mb.add(menuDatei);
+        mb.add(menuDatei);
 
-		this.setJMenuBar(mb);
-		pack();
-	}
+        this.setJMenuBar(mb);
+        pack();
+    }
 
-	public void speichern() {
-		if (aktuelleDatei != null) {
-			original = editorField.getText();
-			aktuelleDatei.setDateiInhalt(original);
-		} else {
-			speichernUnter();
-		}
-	}
+    public void speichern() {
+        if (aktuelleDatei != null) {
+            original = editorField.getText();
+            aktuelleDatei.setDateiInhalt(original);
+        } else {
+            speichernUnter();
+        }
+    }
 
-	public void speichernUnter() {
-		DMTNFileChooser fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
-		int rueckgabe = fc.saveDialog();
+    public void speichernUnter() {
+        DMTNFileChooser fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
+        int rueckgabe = fc.saveDialog();
 
-		if (rueckgabe == DMTNFileChooser.OK) {
-			String dateiNameNeu = fc.getAktuellerDateiname();
-			Datei tmpFile = new Datei(dateiNameNeu, messages.getString("texteditor_msg8"), editorField.getText());
-			this.holeAnwendung().getSystemSoftware().getDateisystem().speicherDatei(fc.getAktuellerOrdner(), tmpFile);
-			changeCurrentFile(tmpFile);
-		}
-	}
+        if (rueckgabe == DMTNFileChooser.OK) {
+            String dateiNameNeu = fc.getAktuellerDateiname();
+            Datei tmpFile = new Datei(dateiNameNeu, messages.getString("texteditor_msg8"), editorField.getText());
+            this.holeAnwendung().getSystemSoftware().getDateisystem().speicherDatei(fc.getAktuellerOrdner(), tmpFile);
+            changeCurrentFile(tmpFile);
+        }
+    }
 
-	public void changeCurrentFile(Datei tmpFile) {
-		if (aktuelleDatei != null) {
-			aktuelleDatei.deleteObserver(this);
-		}
-		aktuelleDatei = tmpFile;
-		updateFromFile();
-		if (aktuelleDatei != null) {
-			aktuelleDatei.addObserver(this);
-		}
-	}
+    public void changeCurrentFile(Datei tmpFile) {
+        if (aktuelleDatei != null) {
+            aktuelleDatei.deleteObserver(this);
+        }
+        aktuelleDatei = tmpFile;
+        updateFromFile();
+        if (aktuelleDatei != null) {
+            aktuelleDatei.addObserver(this);
+        }
+    }
 
-	public void oeffnen() {
-		DMTNFileChooser fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
-		int rueckgabe = fc.openDialog();
-		if (rueckgabe == DMTNFileChooser.OK) {
-			String aktuellerDateiname = fc.getAktuellerDateiname();
-			Datei tmpFile = holeAnwendung().getSystemSoftware().getDateisystem()
-			        .holeDatei(fc.getAktuellerOrdner(), aktuellerDateiname);
-			changeCurrentFile(tmpFile);
-		} else {
-			Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
-		}
-	}
+    public void oeffnen() {
+        DMTNFileChooser fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
+        int rueckgabe = fc.openDialog();
+        if (rueckgabe == DMTNFileChooser.OK) {
+            String aktuellerDateiname = fc.getAktuellerDateiname();
+            Datei tmpFile = holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(fc.getAktuellerOrdner(),
+                    aktuellerDateiname);
+            changeCurrentFile(tmpFile);
+        } else {
+            Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
+        }
+    }
 
-	private void updateFromFile() {
-		if (aktuelleDatei != null) {
-			this.setTitle(aktuelleDatei.getName());
-			original = aktuelleDatei.getDateiInhalt();
-			editorField.setText(original);
-		} else {
-			Main.debug.println("ERROR (" + this.hashCode()
-			        + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
-		}
-	}
+    private void updateFromFile() {
+        if (aktuelleDatei != null) {
+            this.setTitle(aktuelleDatei.getName());
+            original = aktuelleDatei.getDateiInhalt();
+            editorField.setText(original);
+        } else {
+            Main.debug.println(
+                    "ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
+        }
+    }
 
-	public void beenden() {
-		if (original != editorField.getText()) {
-			if (JOptionPane.showConfirmDialog(this, messages.getString("texteditor_msg9"),
-			        messages.getString("texteditor_msg10"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				speichern();
-			}
+    public void beenden() {
+        if (original != editorField.getText()) {
+            if (JOptionPane.showConfirmDialog(this, messages.getString("texteditor_msg9"),
+                    messages.getString("texteditor_msg10"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                speichern();
+            }
 
-		}
-		diesesFenster.doDefaultCloseAction();
-	}
+        }
+        diesesFenster.doDefaultCloseAction();
+    }
 
-	public void starten(String[] param) {
-		String dateiName = holeParameter()[0];
-		if (!dateiName.equals("")) {
-			this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getArbeitsVerzeichnis();
-			if (this.arbeitsVerzeichnis == null) {
-				this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
-			}
-			Datei datei = this.holeAnwendung().getSystemSoftware().getDateisystem()
-			        .holeDatei(arbeitsVerzeichnis, dateiName);
-			if (datei != null) {
-				editorField = new JTextArea();
-				editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
-				this.setTitle(dateiName);
-				editorField.setText(datei.getDateiInhalt());
-				original = datei.getDateiInhalt();
-				aktuelleDatei = datei;
+    public void starten(String[] param) {
+        String dateiName = holeParameter()[0];
+        if (!dateiName.equals("")) {
+            Datei datei = this.holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(arbeitsVerzeichnis,
+                    dateiName);
+            if (datei != null) {
+                editorField = new JTextArea();
+                editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
+                this.setTitle(dateiName);
+                editorField.setText(datei.getDateiInhalt());
+                original = datei.getDateiInhalt();
+                aktuelleDatei = datei;
 
-				JScrollPane tpPane = new JScrollPane(editorField);
-				tpPane.setBorder(null);
+                JScrollPane tpPane = new JScrollPane(editorField);
+                tpPane.setBorder(null);
 
-				/* Tabs */
-				tpTabs.addTab(datei.getName(), tpPane);
-				tpTabs.setSelectedIndex(tpTabs.getTabCount() - 1);
-			}
+                /* Tabs */
+                tpTabs.addTab(datei.getName(), tpPane);
+                tpTabs.setSelectedIndex(tpTabs.getTabCount() - 1);
+            }
 
-		}
+        }
 
-	}
+    }
 
-	public void tabVerhalten() {
-		/* Tabs schliessbar machen */
-		tpTabs.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent me) {
-				if (me.getButton() == 3) {
+    public void tabVerhalten() {
+        /* Tabs schliessbar machen */
+        tpTabs.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent me) {
+                if (me.getButton() == 3) {
 
-					JPopupMenu popmen = new JPopupMenu();
-					final JMenuItem miTabsSchliessen = new JMenuItem(messages.getString("texteditor_msg11"));
-					miTabsSchliessen.setActionCommand("tabsschliessen");
-					final JMenuItem miAndereTabsSchliessen = new JMenuItem(messages.getString("texteditor_msg12"));
-					miAndereTabsSchliessen.setActionCommand("anderetabsschliessen");
+                    JPopupMenu popmen = new JPopupMenu();
+                    final JMenuItem miTabsSchliessen = new JMenuItem(messages.getString("texteditor_msg11"));
+                    miTabsSchliessen.setActionCommand("tabsschliessen");
+                    final JMenuItem miAndereTabsSchliessen = new JMenuItem(messages.getString("texteditor_msg12"));
+                    miAndereTabsSchliessen.setActionCommand("anderetabsschliessen");
 
-					ActionListener al = new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							if (e.getActionCommand().equals(miTabsSchliessen.getActionCommand())) {
-								while (tpTabs.getTabCount() > 0) {
-									tpTabs.remove(tpTabs.getTabCount() - 1);
-								}
-							}
-							if (e.getActionCommand().equals(miAndereTabsSchliessen.getActionCommand())) {
-								Component komponente = tpTabs.getSelectedComponent();
-								String tmpTitel = tpTabs.getTitleAt(tpTabs.getSelectedIndex());
+                    ActionListener al = new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            if (e.getActionCommand().equals(miTabsSchliessen.getActionCommand())) {
+                                while (tpTabs.getTabCount() > 0) {
+                                    tpTabs.remove(tpTabs.getTabCount() - 1);
+                                }
+                            }
+                            if (e.getActionCommand().equals(miAndereTabsSchliessen.getActionCommand())) {
+                                Component komponente = tpTabs.getSelectedComponent();
+                                String tmpTitel = tpTabs.getTitleAt(tpTabs.getSelectedIndex());
 
-								while (tpTabs.getTabCount() > 0) {
-									tpTabs.remove(tpTabs.getTabCount() - 1);
-								}
-								if (komponente != null) {
-									tpTabs.addTab(tmpTitel, komponente);
-									tpTabs.setSelectedComponent(komponente);
-								}
+                                while (tpTabs.getTabCount() > 0) {
+                                    tpTabs.remove(tpTabs.getTabCount() - 1);
+                                }
+                                if (komponente != null) {
+                                    tpTabs.addTab(tmpTitel, komponente);
+                                    tpTabs.setSelectedComponent(komponente);
+                                }
 
-							}
-						}
+                            }
+                        }
 
-					};
+                    };
 
-					miTabsSchliessen.addActionListener(al);
-					miAndereTabsSchliessen.addActionListener(al);
+                    miTabsSchliessen.addActionListener(al);
+                    miAndereTabsSchliessen.addActionListener(al);
 
-					popmen.add(miTabsSchliessen);
-					popmen.add(miAndereTabsSchliessen);
-					popmen.setVisible(true);
+                    popmen.add(miTabsSchliessen);
+                    popmen.add(miAndereTabsSchliessen);
+                    popmen.setVisible(true);
 
-					zeigePopupMenu(popmen, me.getX(), me.getY());
+                    zeigePopupMenu(popmen, me.getX(), me.getY());
 
-				}
-				if (me.getButton() == 1) {
-					boolean treffer = false;
-					Rectangle aktuellesRect = null;
-					CloseableBrowserTabbedPaneUI tpui = (CloseableBrowserTabbedPaneUI) tpTabs.getUI();
+                }
+                if (me.getButton() == 1) {
+                    boolean treffer = false;
+                    Rectangle aktuellesRect = null;
+                    CloseableBrowserTabbedPaneUI tpui = (CloseableBrowserTabbedPaneUI) tpTabs.getUI();
 
-					ListIterator it = tpui.getButton_positionen().listIterator();
-					while (it.hasNext()) {
-						Rectangle rect = (Rectangle) it.next();
-						if (rect.intersects(new Rectangle(me.getX(), me.getY(), 1, 1))) {
-							treffer = true;
-							aktuellesRect = rect;
-						}
-					}
+                    ListIterator it = tpui.getButton_positionen().listIterator();
+                    while (it.hasNext()) {
+                        Rectangle rect = (Rectangle) it.next();
+                        if (rect.intersects(new Rectangle(me.getX(), me.getY(), 1, 1))) {
+                            treffer = true;
+                            aktuellesRect = rect;
+                        }
+                    }
 
-					if (treffer) {
-						int abfrage = showConfirmDialog(messages.getString("texteditor_msg13"));
+                    if (treffer) {
+                        int abfrage = showConfirmDialog(messages.getString("texteditor_msg13"));
 
-						if (abfrage == JOptionPane.YES_OPTION) {
-							tpui.getButton_positionen().remove(aktuellesRect);
-							tpTabs.remove(tpTabs.getSelectedIndex());
-						}
-					}
+                        if (abfrage == JOptionPane.YES_OPTION) {
+                            tpui.getButton_positionen().remove(aktuellesRect);
+                            tpTabs.remove(tpTabs.getSelectedIndex());
+                        }
+                    }
 
-					/* Neuer Tab bei Doppelklick */
-					if (me.getClickCount() == 2) {
-						neu();
-					}
+                    /* Neuer Tab bei Doppelklick */
+                    if (me.getClickCount() == 2) {
+                        neu();
+                    }
+                }
+            }
+        });
+    }
 
-				}
-			}
-		});
-	}
+    public void neu() {
+        editorField.setText("");
+        setTitle(messages.getString("texteditor_msg1"));
+        changeCurrentFile(null);
+    }
 
-	public void neu() {
-		editorField.setText("");
-		setTitle(messages.getString("texteditor_msg1"));
-		changeCurrentFile(null);
-	}
+    public void updateUnchangedTextFromFile() {
+        if (original != null && editorField != null && aktuelleDatei != null
+                && original.equals(editorField.getText())) {
+            original = aktuelleDatei.getDateiInhalt();
+            editorField.setText(original);
+        }
+    }
 
-	public void updateUnchangedTextFromFile() {
-		if (original != null && editorField != null && aktuelleDatei != null && original.equals(editorField.getText())) {
-			original = aktuelleDatei.getDateiInhalt();
-			editorField.setText(original);
-		}
-	}
-
-	@Override
-	public void update(Observable observable, Object arg1) {
-		if (observable == aktuelleDatei) {
-			updateUnchangedTextFromFile();
-		}
-	}
+    @Override
+    public void update(Observable observable, Object arg1) {
+        if (observable == aktuelleDatei) {
+            updateUnchangedTextFromFile();
+        }
+    }
 }
