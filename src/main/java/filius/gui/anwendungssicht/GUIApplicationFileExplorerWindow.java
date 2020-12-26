@@ -451,8 +451,8 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         fileImportFrame.getContentPane().add(backPanel);
 
         fileImportFrame.setClosable(true);
-        fileImportFrame.setResizable(false);
         fileImportFrame.setBounds(30, 80, 350, 200);
+        fileImportFrame.setResizable(true);
         fileImportFrame.setVisible(true);
 
         addFrame(fileImportFrame);

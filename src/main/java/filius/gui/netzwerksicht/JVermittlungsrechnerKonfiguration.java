@@ -507,7 +507,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         changeBasicSettingsDialog.setLocation(screenSize.width / 2 - 300, screenSize.height / 2 - 200);
 
         changeBasicSettingsDialog.setSize(750, 530);
-        changeBasicSettingsDialog.setResizable(false);
+        changeBasicSettingsDialog.setResizable(true);
 
         changeBasicSettingsDialog.setVisible(true);
     }
@@ -573,8 +573,8 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         for (int i = 0; it.hasNext(); i++) {
             tempNic = (NetzwerkInterface) it.next();
             if (holeVerbundeneKomponente(tempNic) == null) {
-                tpNetzwerkKarten
-                        .setIconAt(i + 1, new ImageIcon(getClass().getResource("/gfx/allgemein/conn_fail.png")));
+                tpNetzwerkKarten.setIconAt(i + 1,
+                        new ImageIcon(getClass().getResource("/gfx/allgemein/conn_fail.png")));
             } else {
                 tpNetzwerkKarten.setIconAt(i + 1, new ImageIcon(getClass().getResource("/gfx/allgemein/conn_ok.png")));
             }

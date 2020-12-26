@@ -322,22 +322,18 @@ public class Dateisystem implements Serializable {
      *            ein String nach dem in Dateinnamen gesucht wird
      * @return eine Liste von Dateien, in deren Dateiname der Suchstring enthalten ist
      */
-    public LinkedList<Datei> dateiSuche(String suchVerzeichnis, String suchString) {
+    public List<Datei> dateiSuche(String suchVerzeichnis, String suchString) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), dateiSuche("
                 + suchVerzeichnis + "," + suchString + ")");
-        LinkedList<Datei> dateien = new LinkedList<Datei>();
-        DefaultMutableTreeNode verzeichnisNode, node;
-        Datei tmpDatei;
 
-        verzeichnisNode = verzeichnisKnoten(suchVerzeichnis);
-
-        for (Enumeration e = verzeichnisNode.children(); e.hasMoreElements();) {
-            node = (DefaultMutableTreeNode) e.nextElement();
+        List<Datei> dateien = new LinkedList<Datei>();
+        for (Enumeration<TreeNode> e = verzeichnisKnoten(suchVerzeichnis).children(); e.hasMoreElements();) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.nextElement();
 
             if (node.getUserObject() instanceof Datei) {
-                tmpDatei = (Datei) node.getUserObject();
+                Datei tmpDatei = (Datei) node.getUserObject();
                 if (tmpDatei.getName().toLowerCase().matches("(.+)?" + suchString.toLowerCase() + "(.+)?")) {
-                    dateien.addLast(tmpDatei);
+                    dateien.add(tmpDatei);
                 }
             }
         }
@@ -490,19 +486,16 @@ public class Dateisystem implements Serializable {
      *         Liste enthaelt Datei-Objekte fuer Dateien und Strings fuer Verzeichnisse. Wenn das Verzeichnis nicht
      *         existiert wird null zurueckgeliefert.
      */
-    public LinkedList<Object> listeVerzeichnis(DefaultMutableTreeNode verzeichnis) {
+    public List<Object> listeVerzeichnis(DefaultMutableTreeNode verzeichnis) {
         Main.debug
                 .println("INVOKED (" + this.hashCode() + ") " + getClass() + ", listeVerzeichnis(" + verzeichnis + ")");
         LinkedList<Object> liste = new LinkedList<Object>();
-        Enumeration enumeration;
-        DefaultMutableTreeNode tmpNode;
-
         if (verzeichnis == null) {
             return null;
         } else {
-            enumeration = verzeichnis.children();
+            Enumeration<TreeNode> enumeration = verzeichnis.children();
             while (enumeration.hasMoreElements()) {
-                tmpNode = (DefaultMutableTreeNode) enumeration.nextElement();
+                DefaultMutableTreeNode tmpNode = (DefaultMutableTreeNode) enumeration.nextElement();
                 liste.addLast(tmpNode.getUserObject());
             }
             return liste;

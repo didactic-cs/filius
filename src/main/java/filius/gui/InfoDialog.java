@@ -75,7 +75,6 @@ public class InfoDialog extends JDialog implements I18n {
                 (getToolkit().getScreenSize().height - getHeight()) / 2);
         this.setForeground(Color.blue);
         this.setTitle(messages.getString("infodialog_msg1"));
-        this.setResizable(false);
         this.setContentPane(getJContentPane());
     }
 

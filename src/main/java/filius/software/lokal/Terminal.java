@@ -308,28 +308,16 @@ public class Terminal extends ClientAnwendung implements I18n {
         Main.debug.println(")");
         if (!numParams(args, 0, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43"));
-            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43"); // wrong
-                                                                                                      // number
-                                                                                                      // of
-                                                                                                      // parameters
+            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43");
         }
-        LinkedList<Object> liste;
-        StringBuffer inhalt;
-        String currPath;
-        int anzahlVerzeichnisse = 0;
-        int anzahlDateien = 0;
-        Datei tmpDatei;
-        int leerzeichen;
 
+        List<Object> liste;
+        String currPath;
         if (args[0].isEmpty()) {
             liste = getSystemSoftware().getDateisystem().listeVerzeichnis(aktuellerOrdner);
             currPath = Dateisystem.absoluterPfad(aktuellerOrdner);
         } else {
-            if (args[0].length() > 0 && args[0].substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // argument
-                                                                                                      // given
-                                                                                                      // as
-                                                                                                      // absolute
-                                                                                                      // path!
+            if (args[0].length() > 0 && args[0].substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) {
                 liste = getSystemSoftware().getDateisystem()
                         .listeVerzeichnis(getSystemSoftware().getDateisystem().verzeichnisKnoten(args[0]));
                 currPath = Dateisystem.evaluatePathString(args[0]);
@@ -345,31 +333,33 @@ public class Terminal extends ClientAnwendung implements I18n {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg8"));
             return messages.getString("sw_terminal_msg8");
         } else {
-            inhalt = new StringBuffer();
-            inhalt.append(messages.getString("sw_terminal_msg9") + " " + currPath + ":\n");
+            StringBuffer inhalt = new StringBuffer();
+            inhalt.append(messages.getString("sw_terminal_msg9") + " " + currPath + ":");
 
+            int anzahlVerzeichnisse = 0;
+            int anzahlDateien = 0;
             for (Object tmp : liste) {
+                inhalt.append("\n");
                 // Fall Datei:
                 if (tmp instanceof Datei) {
                     anzahlDateien++;
-                    tmpDatei = (Datei) tmp;
-                    leerzeichen = 40 - tmpDatei.getName().length();
-                    inhalt.append(tmpDatei.getName() + stringFuellen(leerzeichen, ".") + tmpDatei.holeGroesse() + "\n");
+                    Datei tmpDatei = (Datei) tmp;
+                    int leerzeichen = 40 - tmpDatei.getName().length();
+                    inhalt.append(tmpDatei.getName() + stringFuellen(leerzeichen, ".") + tmpDatei.holeGroesse());
                 }
                 // Fall Ordner:
                 else {
                     anzahlVerzeichnisse++;
-                    inhalt.append("[" + tmp + "]\n");
+                    inhalt.append("[" + tmp + "]");
                 }
             }
-
+            inhalt.append("\n");
             inhalt.append(messages.getString("sw_terminal_msg10") + anzahlVerzeichnisse);
-            inhalt.append(messages.getString("sw_terminal_msg11") + anzahlDateien + "\n");
+            inhalt.append(messages.getString("sw_terminal_msg11") + anzahlDateien);
 
+            benachrichtigeBeobachter(inhalt.toString());
+            return inhalt.toString();
         }
-
-        benachrichtigeBeobachter(inhalt.toString());
-        return inhalt.toString();
     }
 
     /**
@@ -478,22 +468,17 @@ public class Terminal extends ClientAnwendung implements I18n {
         String ergebnis = "";
         if (!numParams(args, 0, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43"));
-            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43"); // wrong
-                                                                                                      // number
-                                                                                                      // of
-                                                                                                      // parameters
+            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43");
         }
         if (numParams(args, 1)) {
             DefaultMutableTreeNode newDir;
-            if (args[0].charAt(0) == '/') // absolute path
+            if (args[0].charAt(0) == '/') {
                 newDir = getSystemSoftware().getDateisystem().changeDirectory(args[0]);
-            else
-                // relative path
+            } else {
                 newDir = getSystemSoftware().getDateisystem()
                         .changeDirectory(Dateisystem.absoluterPfad(aktuellerOrdner), args[0]);
-            if (newDir != null) { // first, check whether directory change was
-                                  // successful; otherwise stay in current
-                                  // directory
+            }
+            if (newDir != null) {
                 aktuellerOrdner = newDir;
             } else {
                 ergebnis = messages.getString("sw_terminal_msg20");
@@ -612,7 +597,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     public String test(String[] args) {
         String ergebnis = messages.getString("sw_terminal_msg23");
 
-        if (this.getSystemSoftware().getDateisystem().speicherDatei(args[0], new Datei("test", "txt", "blaaa"))) {
+        if (this.getSystemSoftware().getDateisystem().speicherDatei(args[0], new Datei("test.txt", "txt", "blaaa"))) {
             ergebnis = messages.getString("sw_terminal_msg24");
         }
 

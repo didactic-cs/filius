@@ -82,7 +82,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
         this.server = bs.getDHCPServer();
 
         this.setSize(380, 380);
-        this.setResizable(false);
+        this.setResizable(true);
 
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         Point location = new Point((screen.width / 2) - 190, (screen.height / 2) - 140);
