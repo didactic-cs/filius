@@ -74,6 +74,22 @@ public class Dateisystem implements Serializable {
         root = new DefaultMutableTreeNode("root");
     }
 
+    /**
+     * @deprecated Still used for persistency in project files up to version 1.10. This method is replaced by getRoot()
+     */
+    @Deprecated
+    public DefaultMutableTreeNode getArbeitsVerzeichnis() {
+        return root;
+    }
+
+    /**
+     * @deprecated Still used for persistency in project files up to version 1.10. This method is replaced by setRoot()
+     */
+    @Deprecated
+    public void setArbeitsVerzeichnis(DefaultMutableTreeNode arbeitsVerzeichnis) {
+        this.root = arbeitsVerzeichnis;
+    }
+
     // print entire tree, starting from root node
     public void printTree() {
         printSubtree("", root);
