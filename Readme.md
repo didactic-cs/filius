@@ -1,6 +1,9 @@
 # Filius - Simple Network Simulation
 Filius is a network simulator for educational purpose
 
+## Licencse
+Filius is provided under the terms of GPLv2 or GPLv3.
+
 ## Requirements
 Filius is a Java application. It is required that there is a Java Runtime Environment 8 or higher. Support of Java 8 is deprecated and will end soon.
 
@@ -10,7 +13,7 @@ For most features, JRE will do. The feature to implement and run your own applic
 Windows, Linux
 
 ## Available Languages
-English, German, French
+German, French, English
 
 ## Configuration
 The personal configuration, i.e. selected language as well as the ui state when leaving the program, is stored within the personal home directory within a folder named ".filius".

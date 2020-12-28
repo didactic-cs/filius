@@ -35,6 +35,12 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<includes>
+				<include>*.md</include>
+				<include>*.txt</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>src/info</directory>
 			<outputDirectory></outputDirectory>
 			<includes>

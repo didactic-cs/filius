@@ -67,6 +67,7 @@ Section "Filius" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File "Changelog.md"
+  File "Readme.md"
   SetOutPath "$INSTDIR"
   File "Einfuehrung_Filius.pdf"
   CreateDirectory "$SMPROGRAMS\Filius"

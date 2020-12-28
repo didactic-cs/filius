@@ -159,9 +159,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         inputField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "doNothing");
         inputField.getActionMap().put("doNothing", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println(e.getSource() + " - do nothing");
-            }
+            public void actionPerformed(ActionEvent e) {}
         });
 
         inputField.addKeyListener(new KeyListener() {
