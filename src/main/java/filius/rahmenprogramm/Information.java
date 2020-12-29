@@ -67,8 +67,6 @@ public class Information implements Serializable {
     /** Zur Implementierung des Singleton */
     private static Information information = null;
 
-    private static WinFolders winFolders = new WinFolders();
-
     private static boolean lowResolution = false;
 
     private static boolean posixCommandLineToolBehaviour = false;
@@ -142,23 +140,9 @@ public class Information implements Serializable {
         return oldExchangeDialog;
     }
 
-    // ////////////////////////////
     private static String getHomeDir() {
-        if (com.sun.jna.Platform.isWindows()) {
-            try {
-                String path = winFolders.getFolder(0x001C); // CSIDL_LOCAL_APPDATA
-                return path;
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("EXCEPTION: error on using Java native access");
-                return System.getProperty("user.home");
-            }
-        } else {
-            return System.getProperty("user.home");
-        }
+        return System.getProperty("user.home");
     }
-
-    // ////////////////////////////////////
 
     /**
      * ensure a correct and well functioning path to write all necessary data
