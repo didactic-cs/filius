@@ -412,7 +412,7 @@ public class HTTPNachricht implements I18n {
     protected static String encodePath(String path) {
         String urlEncodedPath = "";
         try {
-            urlEncodedPath = URIUtil.encodePath(path);
+            urlEncodedPath = URIUtil.encodePath(path, "utf8");
         } catch (URIException e) {}
         return urlEncodedPath;
     }
@@ -420,7 +420,7 @@ public class HTTPNachricht implements I18n {
     protected static String decodePath(String urlEncodedPath) {
         String path = "";
         try {
-            path = URIUtil.decode(urlEncodedPath);
+            path = URIUtil.decode(urlEncodedPath, "utf8");
         } catch (URIException e) {}
         return path;
     }
