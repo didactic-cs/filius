@@ -73,8 +73,8 @@ import filius.software.email.EmailServer;
 public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
 
     /**
-	 *
-	 */
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     private JPanel listPanel, formPanel, backPanel, logPanel;
@@ -135,6 +135,12 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
 
             public void focusGained(FocusEvent arg0) {}
         });
+        domainField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                gueltigkeitPruefen(domainField, EingabenUeberpruefung.musterDomain);
+            }
+
+        });
 
         Box obenBox = Box.createHorizontalBox();
         obenBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -157,10 +163,11 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
             public void mousePressed(MouseEvent e) {
                 {
 
-                    EmailKonto mailAccount = (EmailKonto) ((EmailServer) holeAnwendung()).getListeBenutzerkonten().get(
-                            markierteZeile);
-                    int Auswahl = showOptionDialog(messages.getString("emailserver_msg11")
-                            + mailAccount.getBenutzername().toString() + messages.getString("emailserver_msg12"),
+                    EmailKonto mailAccount = (EmailKonto) ((EmailServer) holeAnwendung()).getListeBenutzerkonten()
+                            .get(markierteZeile);
+                    int Auswahl = showOptionDialog(
+                            messages.getString("emailserver_msg11") + mailAccount.getBenutzername().toString()
+                                    + messages.getString("emailserver_msg12"),
                             messages.getString("emailserver_msg13"), JOptionPane.YES_NO_CANCEL_OPTION,
                             JOptionPane.QUESTION_MESSAGE, null, null, null);
 
@@ -214,7 +221,6 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
             public void keyReleased(KeyEvent e) {
                 gueltigkeitPruefen(benutzernameField, EingabenUeberpruefung.musterEmailBenutzername);
             }
-
         });
         passwortField = new JPasswordField();
 

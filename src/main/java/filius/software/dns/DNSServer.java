@@ -56,8 +56,8 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (DNSServer), starten()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), starten()");
         super.starten();
 
         Dateisystem dateisystem = getSystemSoftware().getDateisystem();
@@ -71,8 +71,8 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (DNSServer), beenden()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), beenden()");
         super.beenden();
     }
 
@@ -145,9 +145,7 @@ public class DNSServer extends UDPServerAnwendung {
             if (rrec.getType().equals(type)) {
                 countA++;
             }
-            if (countA - 1 == recordIdx) { // found A entry with (filtered)
-                                           // index recordIdx
-                // Main.debug.println("DEBUG ("+this.hashCode()+") "+getClass()+", changeSingleEntry:  aktuell: countA="+countA+", rrec="+rrec);
+            if (countA - 1 == recordIdx) {
                 if (partIdx == 0) { // change URL
                     rrec.setDomainname(newValue);
                 } else if (partIdx == 3) { // change IP

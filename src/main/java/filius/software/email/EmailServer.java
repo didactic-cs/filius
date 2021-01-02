@@ -95,8 +95,8 @@ public class EmailServer extends Anwendung implements I18n {
      * SMTPServer beendet.
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (EmailServer), beenden()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (EmailServer), beenden()");
         super.beenden();
 
         kontenSpeichern();
@@ -115,8 +115,8 @@ public class EmailServer extends Anwendung implements I18n {
      * Verbindungsanfragen wartet.
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (EmailServer), starten()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (EmailServer), starten()");
         super.starten();
 
         Datei konten = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, "konten.txt");
@@ -455,8 +455,9 @@ public class EmailServer extends Anwendung implements I18n {
     }
 
     public void setMailDomain(String mailDomain) {
-        if (mailDomain != null && EingabenUeberpruefung.isGueltig(mailDomain, EingabenUeberpruefung.musterDomain))
+        if (mailDomain != null && EingabenUeberpruefung.isGueltig(mailDomain, EingabenUeberpruefung.musterDomain)) {
             this.mailDomain = mailDomain;
+        }
     }
 
     public void emailWeiterleiten(Email email, String absender, String rcpt) {
@@ -497,8 +498,8 @@ public class EmailServer extends Anwendung implements I18n {
             unknownRecipientResponse.setEmpfaenger(Arrays.asList(email.getAbsender()));
             unknownRecipientResponse.setBetreff("Non Delivery Notification");
             StringBuilder mailBody = new StringBuilder();
-            mailBody.append("The mail could not be delivered either because user or mail domain is unknown.").append(
-                    "\n");
+            mailBody.append("The mail could not be delivered either because user or mail domain is unknown.")
+                    .append("\n");
             mailBody.append("Message could not be delivered to the following recipients:\n");
             for (String unknownRecipient : unknownRecipients) {
                 mailBody.append("\t").append(unknownRecipient).append("\n");

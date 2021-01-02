@@ -44,27 +44,27 @@ public class EingabenUeberpruefung implements I18n {
 
     // NOTE: include *.*.*.0 to be able to still use this pattern for routing
     // table configuration as network identifier
-    public static final Pattern musterIpAdresse = Pattern
-            .compile("^(0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))$");
-    public static final Pattern musterIpAdresseAuchLeer = Pattern
-            .compile("^((0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))){0,1}$");
+    public static final Pattern musterIpAdresse = Pattern.compile(
+            "^(0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))$");
+    public static final Pattern musterIpAdresseAuchLeer = Pattern.compile(
+            "^((0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))){0,1}$");
 
-    public static final Pattern musterSubNetz = Pattern
-            .compile("^(0*([1-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*([0-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*([0-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))$");
+    public static final Pattern musterSubNetz = Pattern.compile(
+            "^(0*([1-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*([0-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*([0-9]|1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))$");
     private static final String rawMailAddress = "[a-zA-Z0-9]([\\-_\\.]{0,1}[a-zA-Z0-9])*@[a-zA-Z0-9]([\\-_\\.]{0,1}[a-zA-Z0-9])*\\.{0,1}";
-    public static final Pattern musterEmailAdresse = Pattern.compile("^[a-zA-Z0-9 \\-_\\.]* <" + rawMailAddress + ">"
-            + "|" + rawMailAddress + "$");
+    public static final Pattern musterEmailAdresse = Pattern
+            .compile("^[a-zA-Z0-9 \\-_\\.]* <" + rawMailAddress + ">" + "|" + rawMailAddress + "$");
     public static final Pattern musterKlassenName = Pattern.compile("[A-Z]([a-zA-Z]{2,})?");
     public static final Pattern musterPort = Pattern
             .compile("([1-9]|[1-9][0-9]{1,3}|[1-5][0-9]{1,4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])");
-    public static final Pattern musterPortAuchLeer = Pattern
-            .compile("(^$|[1-9]|[1-9][0-9]{1,3}|[1-5][0-9]{1,4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])");
+    public static final Pattern musterPortAuchLeer = Pattern.compile(
+            "(^$|[1-9]|[1-9][0-9]{1,3}|[1-5][0-9]{1,4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])");
     public static final Pattern musterKeineLeerzeichen = Pattern.compile("[^\\s]*");
     public static final Pattern musterEmailBenutzername = Pattern.compile("([a-zA-Z0-9]|\\.|\\_|\\-)*");
     public static final Pattern musterMindEinZeichen = Pattern.compile("(.){1,}");
     public static final Pattern musterNurZahlen = Pattern.compile("\\d");
     public static final Pattern musterDomain = Pattern
-            .compile("^([a-zA-Z][a-zA-Z0-9\\-_]*(\\.[a-zA-Z0-9][a-zA-Z0-9\\-_]*)*){0,1}\\.{0,1}$");
+            .compile("^([a-zA-Z][a-zA-Z0-9\\-_]*(\\.[a-zA-Z][a-zA-Z0-9\\-_]*)*){0,1}\\.{0,1}$");
     public static final Pattern musterSubnetBinary = Pattern.compile("^11*0*$");
     public static final Pattern musterMacAddress = Pattern.compile("^[0-9a-fA-f]{2}(:[0-9a-fA-f]{2}){5}$");
 
@@ -99,8 +99,8 @@ public class EingabenUeberpruefung implements I18n {
                 while (currBin.length() < 8)
                     currBin = "0" + currBin;
                 binary += currBin;
-                Main.debug.println("DEBUG (EingabenUeberpruefung), '" + token[i] + "' ~~> binary (" + i + ") = '"
-                        + binary + "'");
+                Main.debug.println(
+                        "DEBUG (EingabenUeberpruefung), '" + token[i] + "' ~~> binary (" + i + ") = '" + binary + "'");
             }
         } catch (Exception e) {
             return false;
