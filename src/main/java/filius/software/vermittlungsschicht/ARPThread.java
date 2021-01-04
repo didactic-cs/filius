@@ -35,7 +35,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * Klasse zur Ueberwachung des Puffers fuer eingehende ARP-Pakete
  * 
  */
-public class ARPThread extends ProtokollThread {
+public class ARPThread extends ProtokollThread<ArpPaket> {
 
     /**
      * die Implementierung des Address Resolution Protocols mit der Verwaltung der ARP-Eintraege
@@ -57,28 +57,23 @@ public class ARPThread extends ProtokollThread {
      * Aus jedem ARP-Paket wird ein neuer Eintrag fuer die ARP-Tabelle erzeugt (unabhaengig davon, ob es eine Anfrage
      * oder eine Antwort ist). Wenn die Anfrage eine eigene IP-Adresse betrifft, wird ein Antwort-Paket verschickt.
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
+    protected void verarbeiteDatenEinheit(ArpPaket arpPaket) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (ARPThread), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
-        ArpPaket arpPaket, antwortArp;
-        InternetKnotenBetriebssystem bs;
-        NetzwerkInterface nic;
-
-        arpPaket = (ArpPaket) datenEinheit;
+                + " (ARPThread), verarbeiteDatenEinheit(" + arpPaket.toString() + ")");
 
         // Aus jedem ARP-Paket wird ein neuer ARP-Eintrag erzeugt
         if (!arpPaket.getQuellIp().equalsIgnoreCase("0.0.0.0")) {
             vermittlung.hinzuARPTabellenEintrag(arpPaket.getQuellIp(), arpPaket.getQuellMacAdresse());
         }
 
-        bs = (InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware();
-        nic = vermittlung.getBroadcastNic(arpPaket.getQuellIp());
+        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware();
+        NetzwerkInterface nic = vermittlung.getBroadcastNic(arpPaket.getQuellIp());
 
         // wenn die Anfrage eine Anfrage fuer eine eigene
         // IP-Adresse ist, wird eine Antwort verschickt
         if (nic != null && arpPaket.getZielMacAdresse().equalsIgnoreCase("ff:ff:ff:ff:ff:ff")
                 && arpPaket.getZielIp().equalsIgnoreCase(nic.getIp())) {
-            antwortArp = new ArpPaket();
+            ArpPaket antwortArp = new ArpPaket();
             antwortArp.setProtokollTyp(arpPaket.getProtokollTyp());
             antwortArp.setQuellIp(nic.getIp());
             antwortArp.setQuellMacAdresse(nic.getMac());

@@ -41,88 +41,68 @@ import filius.software.vermittlungsschicht.IpPaket;
  * tauscht den Ip-Pakete-Puffer aus, sodass sie nach Regeln selektieren kann, welche Pakete
  * als gueltig weitergeleitet werden
  */
-public class FirewallThread extends ProtokollThread implements I18n {
+public class FirewallThread extends ProtokollThread<EthernetFrame> implements I18n {
 
-	private LinkedList<EthernetFrame> ausgangsPuffer;
-	private Firewall firewall;
-	private NetzwerkInterface netzwerkInterface = null;
+    private LinkedList<EthernetFrame> ausgangsPuffer;
+    private Firewall firewall;
+    private NetzwerkInterface netzwerkInterface = null;
 
-	public NetzwerkInterface getNetzwerkInterface() {
-		return netzwerkInterface;
-	}
+    public NetzwerkInterface getNetzwerkInterface() {
+        return netzwerkInterface;
+    }
 
-	public FirewallThread(Firewall firewall, NetzwerkInterface nic) {
-		super(new LinkedList<EthernetFrame>());
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FirewallThread), constr: FirewallThread(" + firewall + ")");
-		this.firewall = firewall;
-		this.netzwerkInterface = nic;
-	}
+    public FirewallThread(Firewall firewall, NetzwerkInterface nic) {
+        super(new LinkedList<EthernetFrame>());
+        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FirewallThread), constr: FirewallThread(" + firewall + ")");
+        this.firewall = firewall;
+        this.netzwerkInterface = nic;
+    }
 
-	/*
-	 * tauscht den IP-Puffer zwischen Ethernetschicht und Vermittlungsschicht
-	 * aus, und startet den Thread zur Überwachung des Datenaustausches
-	 */
-	public void starten() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FirewallThread), starten()");
-		LinkedList<EthernetFrame> eingangsPuffer;
+    /*
+     * tauscht den IP-Puffer zwischen Ethernetschicht und Vermittlungsschicht aus, und startet den Thread zur
+     * Überwachung des Datenaustausches
+     */
+    public void starten() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FirewallThread), starten()");
 
-		super.starten();
+        super.starten();
 
-		this.ausgangsPuffer = netzwerkInterface.getPort().holeEingangsPuffer();
-		eingangsPuffer = (LinkedList<EthernetFrame>) holeEingangsPuffer();
-		netzwerkInterface.getPort().setzeEingangsPuffer(eingangsPuffer);
+        this.ausgangsPuffer = netzwerkInterface.getPort().holeEingangsPuffer();
+        LinkedList<EthernetFrame> eingangsPuffer = holeEingangsPuffer();
+        netzwerkInterface.getPort().setzeEingangsPuffer(eingangsPuffer);
 
-	}
+    }
 
-	public void beenden() {
-		super.beenden();
+    public void beenden() {
+        super.beenden();
 
-		netzwerkInterface.getPort().setzeEingangsPuffer(this.ausgangsPuffer);
-	}
+        netzwerkInterface.getPort().setzeEingangsPuffer(this.ausgangsPuffer);
+    }
 
-	// getter und setter:
+    // getter und setter:
 
-	@Override
-	protected void verarbeiteDatenEinheit(Object datenEinheit) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FirewallThread), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
-		IpPaket ipPaket = null;
-		EthernetFrame frame = (EthernetFrame) datenEinheit;
-
-		// Hier erfolgt nun die Abfrage, ob die Pakete laut Firewall in Ordnung
-		// sind:
-		// Bei false werden die Pakete weitergeleitet
-		// Am Ende in den Ausgangspuffer schreiben, und weiterreichen an
-		// EthernetThread
-		// oder nicht weiterleiten
-
-		// Main.debug.println("DEBUG EVAL: firewall.getDropICMP = "+firewall.getDropICMP());
-		// Main.debug.println("DEBUG EVAL: is ICMP = "+(frame.getDaten()
-		// instanceof IcmpPaket));
-		// Main.debug.println("DEBUG EVAL: ipPacket null = "+(ipPaket==null));
-		// if(ipPaket!=null)
-		// Main.debug.println("DEBUG EVAL: accept ipPacket = "+firewall.allowedIPpacket(ipPaket));
-
-		// if (ipPaket == null || !firewall.pruefePaketVerwerfen(ipPaket)) {
-		boolean isIcmp = frame.getDaten() instanceof IcmpPaket;
-		if (firewall.isActivated() && firewall.getDropICMP() && isIcmp) {
-			IcmpPaket icmp = (IcmpPaket) frame.getDaten();
-			firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getQuellIp() + " -> "
-			        + icmp.getZielIp() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
-			return;
-		}
-		if (frame.getDaten() != null && frame.getDaten() instanceof IpPaket
-		        && !firewall.allowedIPpacket((IpPaket) frame.getDaten())) {
-			return;
-		}
-		synchronized (ausgangsPuffer) {
-			// Main.debug.println("FirewallThread: Paket wurde von FirewallThread weitergeleitet");
-
-			ausgangsPuffer.add(frame);
-			ausgangsPuffer.notify();
-		}
-	}
+    @Override
+    protected void verarbeiteDatenEinheit(EthernetFrame frame) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FirewallThread), verarbeiteDatenEinheit(" + frame.toString() + ")");
+        // if (ipPaket == null || !firewall.pruefePaketVerwerfen(ipPaket)) {
+        boolean isIcmp = frame.getDaten() instanceof IcmpPaket;
+        if (firewall.isActivated() && firewall.getDropICMP() && isIcmp) {
+            IcmpPaket icmp = (IcmpPaket) frame.getDaten();
+            firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getQuellIp() + " -> "
+                    + icmp.getZielIp() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
+            return;
+        }
+        if (frame.getDaten() != null && frame.getDaten() instanceof IpPaket
+                && !firewall.allowedIPpacket((IpPaket) frame.getDaten())) {
+            return;
+        }
+        synchronized (ausgangsPuffer) {
+            ausgangsPuffer.add(frame);
+            ausgangsPuffer.notify();
+        }
+    }
 
 }

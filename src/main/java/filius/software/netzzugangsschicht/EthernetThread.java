@@ -36,7 +36,7 @@ import filius.software.vermittlungsschicht.IpPaket;
 /**
  * Diese Klasse ueberwacht die Eingangspuffer von Netzwerkkarten.
  */
-public class EthernetThread extends ProtokollThread {
+public class EthernetThread extends ProtokollThread<EthernetFrame> {
 
     /** die Netzwerkkarte, deren Anschluss ueberwacht wird */
     private NetzwerkInterface netzwerkInterface;
@@ -60,13 +60,9 @@ public class EthernetThread extends ProtokollThread {
      * Hier werden die Nutzdaten des ankommenden Frames entweder in den Puffer fuer IP-Pakete oder fuer ARP-Pakete
      * geschrieben.
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
+    protected void verarbeiteDatenEinheit(EthernetFrame etp) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (EthernetThread), verarbeiteDateneinheit(" + datenEinheit.toString() + ")");
-        EthernetFrame etp;
-
-        etp = (EthernetFrame) datenEinheit;
-
+                + " (EthernetThread), verarbeiteDateneinheit(" + etp.toString() + ")");
         // record receipt (independent of further processing)
         Lauscher.getLauscher().addDatenEinheit(netzwerkInterface.getMac(), etp);
 
@@ -74,27 +70,17 @@ public class EthernetThread extends ProtokollThread {
         // addressed for this NIC (or broadcast)
         // otherwise stop processing:
         if (!etp.getZielMacAdresse().equalsIgnoreCase("FF:FF:FF:FF:FF:FF") // broadcast
-                && !etp.getZielMacAdresse().equals(this.netzwerkInterface.getMac()))
+                && !etp.getZielMacAdresse().equals(this.netzwerkInterface.getMac())) {
             return;
-        // //
-
-        // Main.debug.println(getClass().toString()
-        // +"\n\tverareiteDatenEinheit() wurde aufgerufen"
-        // +"\n\t"+etp.getQuellMacAdresse()+" -> "+etp.getZielMacAdresse()
-        // +", Protokoll: "+etp.getTyp()
-        // +", ICMP? "+(etp.isICMP()));
+        }
 
         if (etp.getTyp().equals(EthernetFrame.IP)) {
             if (etp.isICMP()) {
                 synchronized (ethernet.holeICMPPuffer()) {
                     ethernet.holeICMPPuffer().add((IcmpPaket) etp.getDaten());
-                    // Main.debug.println("DEBUG ("+this.hashCode()+", T"+this.getId()+") "+getClass()+" (EthernetThread), verarbeiteDateneinheit, ICMPPuffer="+ethernet.holeICMPPuffer().getFirst().toString());
-                    ethernet.holeICMPPuffer().notifyAll(); // 'all' means:
-                                                           // Terminal ping
-                                                           // command (if any in
-                                                           // this instance) and
-                                                           // default network
-                                                           // packet processing
+                    ethernet.holeICMPPuffer().notifyAll();
+                    // 'all' means: Terminal ping command (if any in this instance) and default network packet
+                    // processing
                 }
             } else {
                 synchronized (ethernet.holeIPPuffer()) {

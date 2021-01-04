@@ -35,48 +35,46 @@ import filius.software.ProtokollThread;
 import filius.software.system.ModemFirmware;
 
 /**
- * Diese Klasse dient dazu, die Verbindung zu einer zweiten Instanz eines Modems
- * ueber eine TCP/IP-Verbindung herzustellen. Hiermit wird die Verbindung zu dem
- * virtuellen Rechnernetz ueberwacht.
+ * Diese Klasse dient dazu, die Verbindung zu einer zweiten Instanz eines Modems ueber eine TCP/IP-Verbindung
+ * herzustellen. Hiermit wird die Verbindung zu dem virtuellen Rechnernetz ueberwacht.
  */
-public class ModemSender extends ProtokollThread {
+public class ModemSender extends ProtokollThread<EthernetFrame> {
 
-	/**
-	 * Der Stream zur Uebertragung der Frames ueber den TCP/IP-Socket
-	 */
-	private ObjectOutputStream out;
+    /**
+     * Der Stream zur Uebertragung der Frames ueber den TCP/IP-Socket
+     */
+    private ObjectOutputStream out;
 
-	/**
-	 * Der Konstruktor, in dem der zu beobachtendende Puffer an den Konstruktor
-	 * der Oberklasse weitergibt und die Firmware und Socket initialisiert.
-	 */
-	public ModemSender(ModemFirmware firmware, OutputStream out) {
-		super(((Modem) firmware.getKnoten()).getErstenAnschluss().holeEingangsPuffer());
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ModemAnschlussBeobachterIntern), constr: ModemAnschlussBeobachterIntern(" + firmware + "," + out
-		        + ")");
+    /**
+     * Der Konstruktor, in dem der zu beobachtendende Puffer an den Konstruktor der Oberklasse weitergibt und die
+     * Firmware und Socket initialisiert.
+     */
+    public ModemSender(ModemFirmware firmware, OutputStream out) {
+        super(((Modem) firmware.getKnoten()).getErstenAnschluss().holeEingangsPuffer());
+        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ModemAnschlussBeobachterIntern), constr: ModemAnschlussBeobachterIntern(" + firmware + "," + out
+                + ")");
 
-		try {
-			this.out = new ObjectOutputStream(out);
-		} catch (IOException e) {
-			e.printStackTrace(Main.debug);
-		}
-	}
+        try {
+            this.out = new ObjectOutputStream(out);
+        } catch (IOException e) {
+            e.printStackTrace(Main.debug);
+        }
+    }
 
-	/**
-	 * Methode zur Verarbeitung von Frames aus dem angeschlossenen virtuellen
-	 * Rechnernetzes. <br />
-	 * Hier werden eingehende Frames lediglich in den Stream geschrieben.
-	 */
-	protected void verarbeiteDatenEinheit(Object datenEinheit) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ModemAnschlussBeobachterIntern), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
+    /**
+     * Methode zur Verarbeitung von Frames aus dem angeschlossenen virtuellen Rechnernetzes. <br />
+     * Hier werden eingehende Frames lediglich in den Stream geschrieben.
+     */
+    protected void verarbeiteDatenEinheit(EthernetFrame datenEinheit) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ModemAnschlussBeobachterIntern), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
 
-		try {
-			out.writeObject(datenEinheit);
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace(Main.debug);
-		}
-	}
+        try {
+            out.writeObject(datenEinheit);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace(Main.debug);
+        }
+    }
 }

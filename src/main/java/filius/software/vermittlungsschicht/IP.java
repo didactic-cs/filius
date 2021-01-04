@@ -70,8 +70,8 @@ public class IP extends VermittlungsProtokoll implements I18n {
      */
     public IP(InternetKnotenBetriebssystem systemsoftware) {
         super(systemsoftware);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware
-                + ")");
+        Main.debug.println(
+                "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware + ")");
     }
 
     public static long inetAton(String ipStr) {
@@ -182,8 +182,8 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @throws RouteNotFoundException
      */
     private void sendeUnicast(IpPaket paket, Route route) throws RouteNotFoundException {
-        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaceByIp(route
-                .getInterfaceIpAddress());
+        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten())
+                .getNetzwerkInterfaceByIp(route.getInterfaceIpAddress());
         String netzmaske = nic.getSubnetzMaske();
 
         if (gleichesRechnernetz(paket.getEmpfaenger(), route.getInterfaceIpAddress(), netzmaske)) {
@@ -273,8 +273,8 @@ public class IP extends VermittlungsProtokoll implements I18n {
             } catch (RouteNotFoundException e) {
                 bs.holeICMP().sendeICMP(ICMP.TYPE_DESTINATION_UNREACHABLE, ICMP.CODE_DEST_NETWORK_UNREACHABLE,
                         paket.getSender());
-                bs.benachrichtigeBeobacher(messages.getString("sw_ip_msg4") + " \"" + bs.getKnoten().getName()
-                        + "\"!\n" + messages.getString("sw_ip_msg5") + " " + paket.getEmpfaenger() + " "
+                bs.benachrichtigeBeobacher(messages.getString("sw_ip_msg4") + " \"" + bs.getKnoten().getName() + "\"!\n"
+                        + messages.getString("sw_ip_msg5") + " " + paket.getEmpfaenger() + " "
                         + messages.getString("sw_ip_msg6"));
             }
         }
@@ -288,14 +288,14 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @return die Liste mit Segmenten fuer UDP- oder TCP-Segmente
      */
     public LinkedList<IpPaket> holePaketListe(int protokollTyp) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), holePaketListe(" + protokollTyp
-                + ")");
-        if (protokollTyp == IpPaket.TCP)
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), holePaketListe(" + protokollTyp + ")");
+        if (protokollTyp == IpPaket.TCP) {
             return ipPaketListeTCP;
-        else if (protokollTyp == IpPaket.UDP)
+        } else if (protokollTyp == IpPaket.UDP) {
             return ipPaketListeUDP;
-        else
-            return null;
+        }
+        return null;
     }
 
     /**

@@ -25,8 +25,6 @@
  */
 package filius.software.netzzugangsschicht;
 
-import java.util.ListIterator;
-
 import filius.Main;
 import filius.hardware.Port;
 import filius.hardware.knoten.Switch;
@@ -34,87 +32,69 @@ import filius.software.ProtokollThread;
 import filius.software.system.SwitchFirmware;
 
 /**
- * Der Switch-Portbeobachter dient dazu, eingehende Frames an einem
- * Switch-Anschluss abzuholen und an den richtigen Anschluss weiterzuleiten.
+ * Der Switch-Portbeobachter dient dazu, eingehende Frames an einem Switch-Anschluss abzuholen und an den richtigen
+ * Anschluss weiterzuleiten.
  */
-public class SwitchPortBeobachter extends ProtokollThread {
+public class SwitchPortBeobachter extends ProtokollThread<EthernetFrame> {
 
-	/** Die Switch-Firmware */
-	private SwitchFirmware switchFirmware;
+    /** Die Switch-Firmware */
+    private SwitchFirmware switchFirmware;
 
-	/** Der Switch-Anschluss, der ueberwacht wird */
-	private Port anschluss;
+    /** Der Switch-Anschluss, der ueberwacht wird */
+    private Port anschluss;
 
-	// private boolean threadRunning = false;
+    // private boolean threadRunning = false;
 
-	/**
-	 * Der Konstruktor initialisiert den Eingangspuffer durch Aufruf des
-	 * Konstruktors der Oberklasse und initialisert die Switch-Firmware und den
-	 * zu ueberwachenden Anschluss.
-	 */
-	public SwitchPortBeobachter(SwitchFirmware switchFirmware, Port anschluss) {
-		super(anschluss.holeEingangsPuffer());
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (SwitchPortBeobachter), constr: SwitchPortBeobachter(" + switchFirmware + "," + anschluss + ")");
+    /**
+     * Der Konstruktor initialisiert den Eingangspuffer durch Aufruf des Konstruktors der Oberklasse und initialisert
+     * die Switch-Firmware und den zu ueberwachenden Anschluss.
+     */
+    public SwitchPortBeobachter(SwitchFirmware switchFirmware, Port anschluss) {
+        super(anschluss.holeEingangsPuffer());
+        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (SwitchPortBeobachter), constr: SwitchPortBeobachter(" + switchFirmware + "," + anschluss + ")");
 
-		this.switchFirmware = switchFirmware;
-		this.anschluss = anschluss;
-	}
+        this.switchFirmware = switchFirmware;
+        this.anschluss = anschluss;
+    }
 
-	/**
-	 * Methode zur Weiterleitung der Frames zu dem richtigen Anschluss des
-	 * Switch.
-	 * <ol>
-	 * <li>Dazu wird zunaechst geprueft, ob der Frame bereits weitergeleitet
-	 * wurde. Wenn es eine Wiederholung ist, die durch einen Zyklus im Netzwerk
-	 * entstanden sein kann, wird der Frame verworfen.</li>
-	 * <li>Dann wird der Frame zu der von der Firmware verwalteten Liste der
-	 * weitergeleiteten Frames hinzugefuegt.</li>
-	 * <li>Die SAT-Tabelle wird ergaenzt.</li>
-	 * <li>Der Frame wird an einen Anschluss weitergeleitet, wenn fuer die
-	 * Ziel-MAC-Adresse ein Eintrag in der SAT existiert.</li>
-	 * <li>Wenn kein SAT-Eintrag existiert wird der Frame als Broadcast an alle
-	 * Anschluesse des Switch weitergeleitet.</li>
-	 * </ol>
-	 */
-	public void verarbeiteDatenEinheit(Object datenEinheit) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (SwitchPortBeobachter), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
-		EthernetFrame etp;
-		ListIterator iter;
-		Port zielAnschluss;
-		Port aktiverAnschluss;
+    /**
+     * Methode zur Weiterleitung der Frames zu dem richtigen Anschluss des Switch.
+     * <ol>
+     * <li>Dazu wird zunaechst geprueft, ob der Frame bereits weitergeleitet wurde. Wenn es eine Wiederholung ist, die
+     * durch einen Zyklus im Netzwerk entstanden sein kann, wird der Frame verworfen.</li>
+     * <li>Dann wird der Frame zu der von der Firmware verwalteten Liste der weitergeleiteten Frames hinzugefuegt.</li>
+     * <li>Die SAT-Tabelle wird ergaenzt.</li>
+     * <li>Der Frame wird an einen Anschluss weitergeleitet, wenn fuer die Ziel-MAC-Adresse ein Eintrag in der SAT
+     * existiert.</li>
+     * <li>Wenn kein SAT-Eintrag existiert wird der Frame als Broadcast an alle Anschluesse des Switch
+     * weitergeleitet.</li>
+     * </ol>
+     */
+    public void verarbeiteDatenEinheit(EthernetFrame etp) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (SwitchPortBeobachter), verarbeiteDatenEinheit(" + etp.toString() + ")");
 
-		etp = (EthernetFrame) datenEinheit;
+        if (!switchFirmware.holeDurchgelaufeneFrames().contains(etp)) {
+            switchFirmware.holeDurchgelaufeneFrames().add(etp);
+            switchFirmware.hinzuSatEintrag(etp.getQuellMacAdresse(), anschluss);
 
-		if (!switchFirmware.holeDurchgelaufeneFrames().contains(etp)) {
-			switchFirmware.holeDurchgelaufeneFrames().add(etp);
-
-			switchFirmware.hinzuSatEintrag(etp.getQuellMacAdresse(), anschluss);
-
-			zielAnschluss = switchFirmware.holeAnschlussFuerMAC(etp.getZielMacAdresse());
-			if (zielAnschluss != null) {
-				synchronized (zielAnschluss.holeAusgangsPuffer()) {
-					zielAnschluss.holeAusgangsPuffer().add(etp);
-					zielAnschluss.holeAusgangsPuffer().notify();
-				}
-			} else {
-				// Broadcast
-				// Main.debug.println("SwitchPortBeobachter: Broadcast wird weitergeleitet.");
-
-				iter = ((Switch) switchFirmware.getKnoten()).getAnschluesse().listIterator();
-				while (iter.hasNext()) {
-					aktiverAnschluss = (Port) iter.next();
-					// Main.debug.println("\t an Anschluss "
-					// + aktiverAnschluss.toString());
-					if (!aktiverAnschluss.isPortFrei() && (aktiverAnschluss != anschluss)) {
-						synchronized (aktiverAnschluss.holeAusgangsPuffer()) {
-							aktiverAnschluss.holeAusgangsPuffer().add(etp);
-							aktiverAnschluss.holeAusgangsPuffer().notify();
-						}
-					}
-				}
-			}
-		}
-	}
+            Port zielAnschluss = switchFirmware.holeAnschlussFuerMAC(etp.getZielMacAdresse());
+            if (zielAnschluss != null) {
+                synchronized (zielAnschluss.holeAusgangsPuffer()) {
+                    zielAnschluss.holeAusgangsPuffer().add(etp);
+                    zielAnschluss.holeAusgangsPuffer().notify();
+                }
+            } else {
+                for (Port aktiverAnschluss : ((Switch) switchFirmware.getKnoten()).getAnschluesse()) {
+                    if (!aktiverAnschluss.isPortFrei() && (aktiverAnschluss != anschluss)) {
+                        synchronized (aktiverAnschluss.holeAusgangsPuffer()) {
+                            aktiverAnschluss.holeAusgangsPuffer().add(etp);
+                            aktiverAnschluss.holeAusgangsPuffer().notify();
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
