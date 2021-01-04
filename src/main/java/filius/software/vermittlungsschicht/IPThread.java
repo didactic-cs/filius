@@ -46,7 +46,7 @@ public class IPThread extends ProtokollThread<IpPaket> {
                 + " (IPThread), constr: IPThread(" + vermittlung + ")");
 
         this.vermittlung = vermittlung;
-    }
+    } 
 
     /**
      * In dieser Methode wird zunaechst das Feld Time-to-Live (TTL) des eingehenden Pakets dekrementiert. Anschliessend

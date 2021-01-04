@@ -79,7 +79,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
         super.beenden();
 
         netzwerkInterface.getPort().setzeEingangsPuffer(this.ausgangsPuffer);
-    }
+    } 
 
     // getter und setter:
 
