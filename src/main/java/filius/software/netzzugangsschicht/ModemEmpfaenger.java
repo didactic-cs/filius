@@ -38,7 +38,7 @@ import filius.software.system.ModemFirmware;
  * Diese Klasse setzt die Beobachtung eines TCP/IP-Sockets um, die ein Modem mit einem zweiten Modem verbindet und
  * leitet die Frames an das angeschlossene virtuelle Rechnernetz weiter.
  */
-public class ModemEmpfaenger extends ProtokollThread {
+public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
 
     /**
      * Die Modem-Firmware zur Verbindung von Rechnernetzen ueber eine TCP/IP-Verbindung
@@ -77,7 +77,7 @@ public class ModemEmpfaenger extends ProtokollThread {
         }
         while (running) {
             try {
-                Object object = in.readObject();
+                EthernetFrame object = (EthernetFrame) in.readObject();
                 verarbeiteDatenEinheit(object);
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
@@ -91,16 +91,12 @@ public class ModemEmpfaenger extends ProtokollThread {
     /**
      * Hier werden ankommende Frames von einem Modem an das angeschlossene virtuelle Rechnernetz weitergegeben.
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
+    protected void verarbeiteDatenEinheit(EthernetFrame datenEinheit) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterExtern), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
-        EthernetFrame frame;
-
         if (firmware.isStarted()) {
-            frame = (EthernetFrame) datenEinheit;
-
             synchronized (((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer()) {
-                ((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer().add(frame);
+                ((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer().add(datenEinheit);
                 ((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer().notify();
             }
         }

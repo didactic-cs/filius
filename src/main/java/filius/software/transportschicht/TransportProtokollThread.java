@@ -31,38 +31,29 @@ import filius.software.ProtokollThread;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
 
-public class TransportProtokollThread extends ProtokollThread {
+public class TransportProtokollThread extends ProtokollThread<IpPaket> {
 
-	private TransportProtokoll protokoll;
+    private TransportProtokoll protokoll;
 
-	public TransportProtokollThread(TransportProtokoll protokoll) {
-		super(((InternetKnotenBetriebssystem) protokoll.holeSystemSoftware()).holeIP().holePaketListe(
-		        protokoll.holeTyp()));
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (TransportProtokollThread), constr: TransportProtokollThread(" + protokoll + ")");
-		this.protokoll = protokoll;
-	}
+    public TransportProtokollThread(TransportProtokoll protokoll) {
+        super(((InternetKnotenBetriebssystem) protokoll.holeSystemSoftware()).holeIP()
+                .holePaketListe(protokoll.holeTyp()));
+        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (TransportProtokollThread), constr: TransportProtokollThread(" + protokoll + ")");
+        this.protokoll = protokoll;
+    }
 
-	protected void verarbeiteDatenEinheit(Object datenEinheit) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (TransportProtokollThread), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
-		SocketSchnittstelle socket;
-		IpPaket paket;
-		Segment segment;
+    protected void verarbeiteDatenEinheit(IpPaket paket) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (TransportProtokollThread), verarbeiteDatenEinheit(" + paket.toString() + ")");
 
-		paket = (IpPaket) datenEinheit;
-		segment = (Segment) paket.getSegment();
-
-		// Main.debug.println(getClass()
-		// + "\n\tverarbeiteDatenEinheit() aufgerufen" + "\n\tZielport: "
-		// + segment.getZielPort());
-
-		try {
-			socket = protokoll.holeSocket(segment.getZielPort());
-			socket.hinzufuegen(paket.getSender(), segment.getQuellPort(), segment);
-		} catch (SocketException e) {
-			if (!paket.getEmpfaenger().equals("255.255.255.255") && !paket.getEmpfaenger().equals("0.0.0.0"))
-				e.printStackTrace(Main.debug);
-		}
-	}
+        Segment segment = (Segment) paket.getSegment();
+        try {
+            SocketSchnittstelle socket = protokoll.holeSocket(segment.getZielPort());
+            socket.hinzufuegen(paket.getSender(), segment.getQuellPort(), segment);
+        } catch (SocketException e) {
+            if (!paket.getEmpfaenger().equals("255.255.255.255") && !paket.getEmpfaenger().equals("0.0.0.0"))
+                e.printStackTrace(Main.debug);
+        }
+    }
 }

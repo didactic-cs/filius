@@ -36,7 +36,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * Klasse zur Ueberwachung des Puffers fuer eingehende ICMP-Pakete
  * 
  */
-public class ICMPThread extends ProtokollThread {
+public class ICMPThread extends ProtokollThread<IcmpPaket> {
 
     private ICMP vermittlung;
 
@@ -54,9 +54,7 @@ public class ICMPThread extends ProtokollThread {
     /**
      * Methode zur Verarbeitung eingehender ICMP-Pakete <br />
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
-        IcmpPaket icmpPaket = ((IcmpPaket) datenEinheit).clone();
-
+    protected void verarbeiteDatenEinheit(IcmpPaket icmpPaket) {
         if (vermittlung.isLocalAddress(icmpPaket.getZielIp())
                 || vermittlung.isApplicableBroadcast(icmpPaket.getZielIp())) {
             if (icmpPaket.isEchoRequest()) {

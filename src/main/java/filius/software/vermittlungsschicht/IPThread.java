@@ -32,7 +32,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
 /**
  * Thread zur Ueberwachung des IP-Puffers, in den von der Ethernet-Schicht eingehende IP-Pakete geschrieben werden
  */
-public class IPThread extends ProtokollThread {
+public class IPThread extends ProtokollThread<IpPaket> {
 
     /** Die IPsschicht */
     private IP vermittlung;
@@ -53,8 +53,8 @@ public class IPThread extends ProtokollThread {
      * wird es an die Methode weiterleitenPaket() des IP uebergeben. Dort werden Pakete, die fuer diesen Rechner
      * bestimmt sind, an die Transportschicht weiter gegeben und Pakete an andere Rechner weitergeleitet.
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
-        IpPaket ipPaket = ((IpPaket) datenEinheit).clone();
+    protected void verarbeiteDatenEinheit(IpPaket datenEinheit) {
+        IpPaket ipPaket = datenEinheit.clone();
 
         if (vermittlung.isLocalAddress(ipPaket.getEmpfaenger()) || ipPaket.getEmpfaenger().equals("255.255.255.255")) {
             vermittlung.benachrichtigeTransportschicht(ipPaket);
