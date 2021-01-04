@@ -46,7 +46,7 @@ import filius.software.dns.DNSServer;
 import filius.software.firewall.Firewall;
 import filius.software.www.WebServer;
 
-public class JTableEditable extends JTable {
+public class JFirewallRuleTable extends JTable {
 
 	public class ColorTableCellRenderer implements TableCellRenderer {
 		private HashMap<Integer, Color> cellData = new HashMap<Integer, Color>();
@@ -94,14 +94,14 @@ public class JTableEditable extends JTable {
 
 	private Object parentGUI;
 
-	public JTableEditable(TableModel model, boolean editable) {
+	public JFirewallRuleTable(TableModel model, boolean editable) {
 		super(model);
 		setEditable(editable);
 		for (int i = 0; i < getColumnCount(); i++)
 			this.getColumnModel().getColumn(i).setCellRenderer(new ColorTableCellRenderer());
 	}
 
-	public JTableEditable(TableModel model, boolean editable, String type) {
+	public JFirewallRuleTable(TableModel model, boolean editable, String type) {
 		super(model);
 		setEditable(editable);
 		this.typeID = type;

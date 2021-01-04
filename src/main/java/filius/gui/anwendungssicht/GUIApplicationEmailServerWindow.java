@@ -180,7 +180,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         });
 
         DefaultTableModel kontenListenTabelleModell = new DefaultTableModel(0, 2);
-        kontenListenTabelle = new JTableEditable(kontenListenTabelleModell, false);
+        kontenListenTabelle = new JFirewallRuleTable(kontenListenTabelleModell, false);
         kontenListenTabelle.setDragEnabled(false);
         kontenListenTabelle.setIntercellSpacing(new Dimension(5, 5));
         kontenListenTabelle.setRowHeight(30);

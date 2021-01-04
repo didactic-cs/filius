@@ -87,21 +87,16 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
     protected void verarbeiteDatenEinheit(EthernetFrame frame) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), verarbeiteDatenEinheit(" + frame.toString() + ")");
-        // if (ipPaket == null || !firewall.pruefePaketVerwerfen(ipPaket)) {
-        boolean isIcmp = frame.getDaten() instanceof IcmpPaket;
-        if (firewall.isActivated() && firewall.getDropICMP() && isIcmp) {
+        if (frame.getDaten() instanceof IcmpPaket && !firewall.acceptICMP()) {
             IcmpPaket icmp = (IcmpPaket) frame.getDaten();
             firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getQuellIp() + " -> "
                     + icmp.getZielIp() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
-            return;
-        }
-        if (frame.getDaten() != null && frame.getDaten() instanceof IpPaket
-                && !firewall.allowedIPpacket((IpPaket) frame.getDaten())) {
-            return;
-        }
-        synchronized (ausgangsPuffer) {
-            ausgangsPuffer.add(frame);
-            ausgangsPuffer.notify();
+        } else if (!(frame.getDaten() != null && frame.getDaten() instanceof IpPaket
+                && !firewall.acceptIPPacket((IpPaket) frame.getDaten()))) {
+            synchronized (ausgangsPuffer) {
+                ausgangsPuffer.add(frame);
+                ausgangsPuffer.notify();
+            }
         }
     }
 

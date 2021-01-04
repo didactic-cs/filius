@@ -30,7 +30,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Vector;
 
@@ -63,223 +62,215 @@ import filius.software.firewall.FirewallRule;
  */
 public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	private JTable tTabellePort;
+    private JTable tTabellePort;
 
-	private JTextField tfPort;
+    private JTextField tfPort;
 
-	private JComboBox cbAlleAbsender;
+    private JComboBox cbAlleAbsender;
 
-	private JTextArea log; // Log-Fenster
+    private JTextArea log; // Log-Fenster
 
-	private JCheckBox cbEinAus = new JCheckBox();
-	private JCheckBox cbIcmp = new JCheckBox();
+    private JCheckBox cbEinAus = new JCheckBox();
+    private JCheckBox cbIcmp = new JCheckBox();
 
-	private void initKomponenten() {
-		Box box;
-		JEditorPane text;
-		JLabel label;
-		JButton button;
-		TableColumnModel columnModel;
-		JPanel panel;
-		JScrollPane scrollPane;
-		Box boxFirewall;
-		JTabbedPane tp;
+    private void initKomponenten() {
+        Box box;
+        JEditorPane text;
+        JLabel label;
+        JButton button;
+        TableColumnModel columnModel;
+        JPanel panel;
+        JScrollPane scrollPane;
+        Box boxFirewall;
+        JTabbedPane tp;
 
-		boxFirewall = Box.createVerticalBox();
-		boxFirewall.add(Box.createVerticalStrut(10));
+        boxFirewall = Box.createVerticalBox();
+        boxFirewall.add(Box.createVerticalStrut(10));
 
-		cbEinAus = new JCheckBox(messages.getString("firewall_msg1"));
-		cbEinAus.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				((Firewall) holeAnwendung()).setActivated(cbEinAus.isSelected()); // new
-				                                                                  // format
-				cbIcmp.setEnabled(cbEinAus.isSelected());
-				updateAttribute();
+        cbEinAus = new JCheckBox(messages.getString("firewall_msg1"));
+        cbEinAus.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                ((Firewall) holeAnwendung()).setActivated(cbEinAus.isSelected()); // new
+                                                                                  // format
+                cbIcmp.setEnabled(cbEinAus.isSelected());
+                updateAttribute();
 
-			}
-		});
-		boxFirewall.add(cbEinAus);
+            }
+        });
+        boxFirewall.add(cbEinAus);
 
-		cbIcmp = new JCheckBox(messages.getString("firewall_msg13"));// Bei
-		cbIcmp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				((Firewall) holeAnwendung()).setDropICMP(!cbIcmp.isSelected()); // old
-				                                                                // format
-				updateAttribute();
+        cbIcmp = new JCheckBox(messages.getString("firewall_msg13"));// Bei
+        cbIcmp.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                ((Firewall) holeAnwendung()).setDropICMP(!cbIcmp.isSelected()); // old
+                                                                                // format
+                updateAttribute();
 
-			}
-		});
-		boxFirewall.add(cbIcmp);
-		boxFirewall.add(Box.createVerticalStrut(10));
+            }
+        });
+        boxFirewall.add(cbIcmp);
+        boxFirewall.add(Box.createVerticalStrut(10));
 
-		text = new JEditorPane();
-		text.setEditable(false);
-		text.setText(messages.getString("firewall_msg2"));
-		text.setBackground(boxFirewall.getBackground());
+        text = new JEditorPane();
+        text.setEditable(false);
+        text.setText(messages.getString("firewall_msg2"));
+        text.setBackground(boxFirewall.getBackground());
 
-		box = Box.createHorizontalBox();
-		box.add(Box.createHorizontalStrut(10));
+        box = Box.createHorizontalBox();
+        box.add(Box.createHorizontalStrut(10));
 
-		label = new JLabel(messages.getString("firewall_msg3"));
-		box.add(label);
-		box.add(Box.createHorizontalStrut(10));
+        label = new JLabel(messages.getString("firewall_msg3"));
+        box.add(label);
+        box.add(Box.createHorizontalStrut(10));
 
-		tfPort = new JTextField();
-		tfPort.setPreferredSize(new Dimension(30, 15));
-		box.add(tfPort);
-		box.add(Box.createHorizontalStrut(10));
+        tfPort = new JTextField();
+        tfPort.setPreferredSize(new Dimension(30, 15));
+        box.add(tfPort);
+        box.add(Box.createHorizontalStrut(10));
 
-		cbAlleAbsender = new JComboBox();
-		cbAlleAbsender.addItem(messages.getString("firewall_msg4"));
-		cbAlleAbsender.addItem(messages.getString("firewall_msg5"));
-		cbAlleAbsender.setSelectedIndex(0);
-		box.add(cbAlleAbsender);
-		box.add(Box.createHorizontalStrut(10));
+        cbAlleAbsender = new JComboBox();
+        cbAlleAbsender.addItem(messages.getString("firewall_msg4"));
+        cbAlleAbsender.addItem(messages.getString("firewall_msg5"));
+        cbAlleAbsender.setSelectedIndex(0);
+        box.add(cbAlleAbsender);
+        box.add(Box.createHorizontalStrut(10));
 
-		boxFirewall.add(box);
-		boxFirewall.add(Box.createVerticalStrut(10));
+        boxFirewall.add(box);
+        boxFirewall.add(Box.createVerticalStrut(10));
 
-		box = Box.createHorizontalBox();
-		box.add(Box.createHorizontalStrut(10));
+        box = Box.createHorizontalBox();
+        box.add(Box.createHorizontalStrut(10));
 
-		button = new JButton(messages.getString("firewall_msg6"));
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				hinzuRegel();
-				updateAttribute();
-			}
-		});
-		box.add(button);
-		box.add(Box.createHorizontalStrut(10));
+        button = new JButton(messages.getString("firewall_msg6"));
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                hinzuRegel();
+                updateAttribute();
+            }
+        });
+        box.add(button);
+        box.add(Box.createHorizontalStrut(10));
 
-		button = new JButton(messages.getString("firewall_msg7"));
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				loescheRegel();
-				updateAttribute();
-			}
-		});
-		box.add(button);
-		box.add(Box.createHorizontalStrut(10));
+        button = new JButton(messages.getString("firewall_msg7"));
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loescheRegel();
+                updateAttribute();
+            }
+        });
+        box.add(button);
+        box.add(Box.createHorizontalStrut(10));
 
-		boxFirewall.add(box);
-		boxFirewall.add(Box.createVerticalStrut(10));
+        boxFirewall.add(box);
+        boxFirewall.add(Box.createVerticalStrut(10));
 
-		DefaultTableModel tabellenModell = new DefaultTableModel(0, 2);
-		tTabellePort = new JTable(tabellenModell);
-		tTabellePort.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tTabellePort.setIntercellSpacing(new Dimension(10, 5));
-		tTabellePort.setRowHeight(30);
-		tTabellePort.setShowGrid(false);
-		tTabellePort.setFillsViewportHeight(true);
-		tTabellePort.setBackground(Color.WHITE);
-		tTabellePort.setShowHorizontalLines(true);
+        DefaultTableModel tabellenModell = new DefaultTableModel(0, 2);
+        tTabellePort = new JTable(tabellenModell);
+        tTabellePort.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tTabellePort.setIntercellSpacing(new Dimension(10, 5));
+        tTabellePort.setRowHeight(30);
+        tTabellePort.setShowGrid(false);
+        tTabellePort.setFillsViewportHeight(true);
+        tTabellePort.setBackground(Color.WHITE);
+        tTabellePort.setShowHorizontalLines(true);
 
-		columnModel = tTabellePort.getColumnModel();
-		columnModel.getColumn(0).setHeaderValue(messages.getString("firewall_msg8"));
-		columnModel.getColumn(0).setWidth(20);
-		columnModel.getColumn(1).setHeaderValue(messages.getString("firewall_msg9"));
-		columnModel.getColumn(1).setWidth(300);
+        columnModel = tTabellePort.getColumnModel();
+        columnModel.getColumn(0).setHeaderValue(messages.getString("firewall_msg8"));
+        columnModel.getColumn(0).setWidth(20);
+        columnModel.getColumn(1).setHeaderValue(messages.getString("firewall_msg9"));
+        columnModel.getColumn(1).setWidth(300);
 
-		scrollPane = new JScrollPane(tTabellePort);
-		scrollPane.setPreferredSize(new Dimension(90, 250));
+        scrollPane = new JScrollPane(tTabellePort);
+        scrollPane.setPreferredSize(new Dimension(90, 250));
 
-		boxFirewall.add(scrollPane);
-		boxFirewall.add(Box.createVerticalStrut(10));
+        boxFirewall.add(scrollPane);
+        boxFirewall.add(Box.createVerticalStrut(10));
 
-		tp = new JTabbedPane();
-		tp.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				updateAttribute();
-			}
-		});
+        tp = new JTabbedPane();
+        tp.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent arg0) {
+                updateAttribute();
+            }
+        });
 
-		panel = new JPanel(new BorderLayout());
-		panel.add(boxFirewall, BorderLayout.CENTER);
-		tp.add(messages.getString("firewall_msg10"), panel);
+        panel = new JPanel(new BorderLayout());
+        panel.add(boxFirewall, BorderLayout.CENTER);
+        tp.add(messages.getString("firewall_msg10"), panel);
 
-		log = new JTextArea();
-		scrollPane = new JScrollPane(log);
-		tp.add(messages.getString("firewall_msg11"), scrollPane);
+        log = new JTextArea();
+        scrollPane = new JScrollPane(log);
+        tp.add(messages.getString("firewall_msg11"), scrollPane);
 
-		getContentPane().add(tp);
-		pack();
-	}
+        getContentPane().add(tp);
+        pack();
+    }
 
-	private void hinzuRegel() {
-		boolean unterscheideNetzwerk;
-		int port;
+    private void hinzuRegel() {
+        boolean unterscheideNetzwerk;
+        int port;
 
-		try {
-			port = Integer.parseInt(tfPort.getText());
-			unterscheideNetzwerk = (cbAlleAbsender.getSelectedIndex() == 1); // index
-			                                                                 // 0:
-			                                                                 // all
-			                                                                 // sources;
-			                                                                 // index
-			                                                                 // 1:
-			                                                                 // only
-			                                                                 // local
-			                                                                 // network
+        try {
+            port = Integer.parseInt(tfPort.getText());
+            unterscheideNetzwerk = (cbAlleAbsender.getSelectedIndex() == 1);
+            // index 0: all sources; index 1: only local network
 
-			((Firewall) holeAnwendung()).eintragHinzufuegenPort("" + port, unterscheideNetzwerk); // old
-			                                                                                      // (includes
-			                                                                                      // new
-			                                                                                      // rule
-			                                                                                      // creation)
-			// ((Firewall) holeAnwendung()).addRule(new FirewallRule());
-			tfPort.setText("");
-		} catch (Exception e) {
-		}
-		updateAttribute();
-	}
+            FirewallRule newRule = new FirewallRule("", "", "", "", port, FirewallRule.ALL_PROTOCOLS,
+                    FirewallRule.ACCEPT);
+            if (unterscheideNetzwerk) {
+                newRule.srcIP = FirewallRule.SAME_NETWORK;
+            }
+            ((Firewall) holeAnwendung()).addRule(newRule);
+            tfPort.setText("");
+            log.append(messages.getString("sw_firewall_msg5") + port + "\n");
+        } catch (Exception e) {}
+        updateAttribute();
+    }
 
-	private void loescheRegel() {
-		if (tTabellePort.getSelectedRow() != -1) {
-			((Firewall) holeAnwendung()).entferneRegelPort(tTabellePort.getSelectedRow());
-		}
-		updateAttribute();
-	}
+    private void loescheRegel() {
+        if (tTabellePort.getSelectedRow() != -1) {
+            ((Firewall) holeAnwendung()).deleteRule(tTabellePort.getSelectedRow());
+            log.append(messages.getString("sw_firewall_msg7") + "\n");
+        }
+        updateAttribute();
+    }
 
-	/*
-	 * @author Weyer Im Konstruktor werden alle Dinge erzeugt, die in der GUI
-	 * angezeigt werden muessen
-	 */
-	public GUIApplicationFirewallWindow(final GUIDesktopPanel desktop, String appName) {
+    /*
+     * @author Weyer Im Konstruktor werden alle Dinge erzeugt, die in der GUI angezeigt werden muessen
+     */
+    public GUIApplicationFirewallWindow(final GUIDesktopPanel desktop, String appName) {
 
-		super(desktop, appName);
+        super(desktop, appName);
 
-		// setAnwendungsIcon("gfx/desktop/icon_firewall.png");
-		initKomponenten();
-		updateAttribute();
-	}
+        // setAnwendungsIcon("gfx/desktop/icon_firewall.png");
+        initKomponenten();
+        updateAttribute();
+    }
 
-	/*
-	 * @author Weyer bringt das aktuell angezeigte Fenster immer auf den
-	 * neuesten Stand mit aktuellen Daten
-	 */
-	public void updateAttribute() {
-		DefaultTableModel model;
+    /*
+     * @author Weyer bringt das aktuell angezeigte Fenster immer auf den neuesten Stand mit aktuellen Daten
+     */
+    public void updateAttribute() {
+        DefaultTableModel model;
 
-		model = (DefaultTableModel) tTabellePort.getModel();
-		model.setRowCount(0);
+        model = (DefaultTableModel) tTabellePort.getModel();
+        model.setRowCount(0);
 
-		Vector<FirewallRule> ruleset = ((Firewall) holeAnwendung()).getRuleset();
-		for (int i = 0; i < ruleset.size(); i++) {
-			model.addRow(ruleset.get(i).getVectorPFW());
-		}
+        Vector<FirewallRule> ruleset = ((Firewall) holeAnwendung()).getRuleset();
+        for (int i = 0; i < ruleset.size(); i++) {
+            model.addRow(ruleset.get(i).getVectorPFW());
+        }
 
-		cbEinAus.setSelected(((Firewall) holeAnwendung()).isActivated());
-		cbIcmp.setSelected(!((Firewall) holeAnwendung()).getDropICMP());
-	}
+        cbEinAus.setSelected(((Firewall) holeAnwendung()).isActivated());
+        cbIcmp.setSelected(!((Firewall) holeAnwendung()).getDropICMP());
+    }
 
-	public void update(Observable arg0, Object nachricht) {
-		log.append(nachricht + "\n");
-	}
+    public void update(Observable arg0, Object nachricht) {
+        log.append(nachricht + "\n");
+    }
 
 }

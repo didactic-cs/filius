@@ -74,9 +74,9 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 	private JButton mxAddButton, aAddButton, buttonStart, buttonEntfernen, buttonMXEntfernen, nsAddButton,
 	        nsRemoveButton;
 
-	private JTableEditable aRecordsTable;
-	private JTableEditable mxRecordsTable;
-	private JTableEditable nsRecordsTable;
+	private JFirewallRuleTable aRecordsTable;
+	private JFirewallRuleTable mxRecordsTable;
+	private JFirewallRuleTable nsRecordsTable;
 
 	public GUIApplicationDNSServerWindow(final GUIDesktopPanel desktop, String appName) {
 		super(desktop, appName);
@@ -246,7 +246,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		vBox.add(Box.createVerticalStrut(5));
 
 		tabellenModell = new DefaultTableModel(0, 2);
-		aRecordsTable = new JTableEditable(tabellenModell, true, "A");
+		aRecordsTable = new JFirewallRuleTable(tabellenModell, true, "A");
 		aRecordsTable.setParentGUI(this); // tell the table who presents its
 		                                  // values, such that the back-end DNS
 		                                  // server can be found for adapting
@@ -356,7 +356,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		vBox.add(Box.createVerticalStrut(5));
 
 		tabellenModell = new DefaultTableModel(0, 2);
-		mxRecordsTable = new JTableEditable(tabellenModell, true, "MX");
+		mxRecordsTable = new JFirewallRuleTable(tabellenModell, true, "MX");
 		mxRecordsTable.setParentGUI(this); // tell the table who presents its
 		                                   // values, such that the back-end DNS
 		                                   // server can be found for adapting
@@ -465,7 +465,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		vBox.add(Box.createVerticalStrut(5));
 
 		tabellenModell = new DefaultTableModel(0, 2);
-		nsRecordsTable = new JTableEditable(tabellenModell, true, "NS");
+		nsRecordsTable = new JFirewallRuleTable(tabellenModell, true, "NS");
 		nsRecordsTable.setParentGUI(this); // tell the table who presents its
 		                                   // values, such that the back-end DNS
 		                                   // server can be found for adapting
@@ -498,7 +498,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		updateRecordsTable(mxRecordsTable);
 	}
 
-	private synchronized void updateRecordsTable(JTableEditable table) {
+	private synchronized void updateRecordsTable(JFirewallRuleTable table) {
 		String type = table.getType();
 
 		List<ResourceRecord> tempListe = ((DNSServer) holeAnwendung()).holeResourceRecords();

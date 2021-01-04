@@ -32,7 +32,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedList;
 import java.util.Vector;
 
 import javax.swing.AbstractCellEditor;
@@ -48,482 +47,495 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import filius.Main;
-import filius.hardware.NetzwerkInterface;
-import filius.hardware.knoten.InternetKnoten;
+import filius.gui.anwendungssicht.JFirewallRuleTable;
+import filius.gui.anwendungssicht.JFirewallRuleTable.ColorTableCellRenderer;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
 import filius.software.firewall.FirewallRule;
-import filius.gui.anwendungssicht.JTableEditable;
-import filius.gui.anwendungssicht.JTableEditable.ColorTableCellRenderer;
 
 public class JFirewallDialog extends JDialog implements I18n {
 
-	public class ComboBoxTableCellEditor extends AbstractCellEditor implements TableCellEditor 
-	{
-	    /**
-		 * 
-		 */
-		private static final long serialVersionUID = -4372708685136408285L;
-		private JComboBox cmbBox;
-//	    private String [] values = {"First", "Second", "Third"};
+    public class ComboBoxTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -4372708685136408285L;
+        private JComboBox cmbBox;
+        // private String [] values = {"First", "Second", "Third"};
 
-	    public ComboBoxTableCellEditor(String[] values)
-	    {
-		    // create a new ComboBox with values provided as parameter (array of Strings)
-		    cmbBox = new JComboBox(values);
-	    }
+        public ComboBoxTableCellEditor(String[] values) {
+            // create a new ComboBox with values provided as parameter (array of Strings)
+            cmbBox = new JComboBox(values);
+        }
 
-	    @Override
-	    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int rowIndex, int colIndex) 
-	    {
-		    if(isSelected)
-		    {
-			    cmbBox.setSelectedItem(value);
-			    TableModel model = table.getModel();
-			    model.setValueAt(value, rowIndex, colIndex);
-		    }
-	
-		    return cmbBox;
-	    }
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int rowIndex,
+                int colIndex) {
+            if (isSelected) {
+                cmbBox.setSelectedItem(value);
+                TableModel model = table.getModel();
+                model.setValueAt(value, rowIndex, colIndex);
+            }
 
-	    @Override
-	    public Object getCellEditorValue() 
-	    {
-	    	return cmbBox.getSelectedItem();
-	    }
-	}
-	
-	private static final long serialVersionUID = 1L;
+            return cmbBox;
+        }
 
-	private static final Color TAB_COLOR = new Color(240, 240, 240);
+        @Override
+        public Object getCellEditorValue() {
+            return cmbBox.getSelectedItem();
+        }
+    }
 
-	JFirewallDialog jfd = null;
-	private Firewall firewall;
-	DefaultTableModel dtmTabelle;
-	DefaultTableModel dtmTabellePort;
-	JScrollPane spTabelle;
-	JScrollPane spTabellePort;
-	Box boxFirewall;
-	Box boxTabellen;
+    private static final long serialVersionUID = 1L;
 
-	private JTableEditable ruleTable;
-	private JComboBox defaultPolicyCombo;
+    private static final Color TAB_COLOR = new Color(240, 240, 240);
 
-	private JCheckBox rejectConnections;
-	private JCheckBox activateFirewall;
-	private JCheckBox dropICMP;
-	private JCheckBox onlyFilterSYN;
+    JFirewallDialog jfd = null;
+    private Firewall firewall;
+    DefaultTableModel dtmTabelle;
+    DefaultTableModel dtmTabellePort;
+    JScrollPane spTabelle;
+    JScrollPane spTabellePort;
+    Box boxFirewall;
+    Box boxTabellen;
 
-	public JFirewallDialog(Firewall firewall, JFrame dummyFrame) {
-		super(dummyFrame, messages.getString("jfirewalldialog_msg1"), true);
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JFirewallDialog("
-		        + firewall + "," + dummyFrame + ")");
-		this.firewall = firewall;
+    private JFirewallRuleTable ruleTable;
+    private JComboBox defaultPolicyCombo;
 
-		jfd = this;
+    private JCheckBox activateFirewall;
+    private JCheckBox dropICMP;
+    private JCheckBox onlyFilterSYN;
 
-//		this.setSize(1000, 200); // no effect due to call of setBounds in JFirewallKonfiguration
-		erzeugeFenster();
-	}
+    public JFirewallDialog(Firewall firewall, JFrame dummyFrame) {
+        super(dummyFrame, messages.getString("jfirewalldialog_msg1"), true);
+        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JFirewallDialog(" + firewall
+                + "," + dummyFrame + ")");
+        this.firewall = firewall;
 
-	private Box erzeugeNicBox() {
-		Box vBox, hBox;
+        jfd = this;
 
-		vBox = Box.createVerticalBox();
-		vBox.add(Box.createVerticalStrut(10));
+        // this.setSize(1000, 200); // no effect due to call of setBounds in JFirewallKonfiguration
+        erzeugeFenster();
+    }
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(Box.createHorizontalStrut(10));
+    private Box erzeugeNicBox() {
+        Box vBox, hBox;
 
-		activateFirewall = new JCheckBox(messages.getString("jfirewalldialog_msg38"));
-		activateFirewall.setOpaque(false);
-		activateFirewall.setSelected(firewall.getRejectIncomingConnections());
-		activateFirewall.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				firewall.setActivated(((JCheckBox) e.getSource()).isSelected());
-			}
-		});
+        vBox = Box.createVerticalBox();
+        vBox.add(Box.createVerticalStrut(10));
 
-		hBox.add(activateFirewall);
-		hBox.add(Box.createHorizontalGlue());
+        hBox = Box.createHorizontalBox();
+        hBox.add(Box.createHorizontalStrut(10));
 
-		vBox.add(hBox);
+        activateFirewall = new JCheckBox(messages.getString("jfirewalldialog_msg38"));
+        activateFirewall.setOpaque(false);
+        activateFirewall.setSelected(firewall.isActivated());
+        activateFirewall.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                firewall.setActivated(((JCheckBox) e.getSource()).isSelected());
+            }
+        });
 
-		JTextArea label = new JTextArea();
-		label.setEditable(false);
-		label.setLineWrap(true);
-		label.setWrapStyleWord(true);
-		label.setOpaque(false);
-		label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
-		label.setText(messages.getString("jfirewalldialog_msg39"));
+        hBox.add(activateFirewall);
+        hBox.add(Box.createHorizontalGlue());
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(label);
-		hBox.add(Box.createHorizontalStrut(10));
-		
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(10));
+        vBox.add(hBox);
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(Box.createHorizontalStrut(10));
+        JTextArea label = new JTextArea();
+        label.setEditable(false);
+        label.setLineWrap(true);
+        label.setWrapStyleWord(true);
+        label.setOpaque(false);
+        label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
+        label.setText(messages.getString("jfirewalldialog_msg39"));
 
-		dropICMP = new JCheckBox(messages.getString("jfirewalldialog_msg40"));
-		dropICMP.setOpaque(false);
-		dropICMP.setSelected(firewall.getRejectIncomingConnections());
-		dropICMP.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				firewall.setDropICMP(((JCheckBox) e.getSource()).isSelected());
-			}
-		});
+        hBox = Box.createHorizontalBox();
+        hBox.add(label);
+        hBox.add(Box.createHorizontalStrut(10));
 
-		hBox.add(dropICMP);
-		hBox.add(Box.createHorizontalGlue());
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(10));
 
-		vBox.add(hBox);
+        hBox = Box.createHorizontalBox();
+        hBox.add(Box.createHorizontalStrut(10));
 
-		label = new JTextArea();
-		label.setEditable(false);
-		label.setLineWrap(true);
-		label.setWrapStyleWord(true);
-		label.setOpaque(false);
-		label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
-		label.setText(messages.getString("jfirewalldialog_msg41"));
+        dropICMP = new JCheckBox(messages.getString("jfirewalldialog_msg40"));
+        dropICMP.setOpaque(false);
+        dropICMP.setSelected(firewall.getDropICMP());
+        dropICMP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                firewall.setDropICMP(((JCheckBox) e.getSource()).isSelected());
+            }
+        });
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(label);
-		hBox.add(Box.createHorizontalStrut(10));
-		
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(10));
+        hBox.add(dropICMP);
+        hBox.add(Box.createHorizontalGlue());
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(Box.createHorizontalStrut(10));
+        vBox.add(hBox);
 
-		onlyFilterSYN = new JCheckBox(messages.getString("jfirewalldialog_msg42"));
-		onlyFilterSYN.setOpaque(false);
-		onlyFilterSYN.setSelected(firewall.getRejectIncomingConnections());
-		onlyFilterSYN.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				firewall.setAllowRelatedPackets(((JCheckBox) e.getSource()).isSelected());
-			}
-		});
+        label = new JTextArea();
+        label.setEditable(false);
+        label.setLineWrap(true);
+        label.setWrapStyleWord(true);
+        label.setOpaque(false);
+        label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
+        label.setText(messages.getString("jfirewalldialog_msg41"));
 
-		hBox.add(onlyFilterSYN);
-		hBox.add(Box.createHorizontalGlue());
+        hBox = Box.createHorizontalBox();
+        hBox.add(label);
+        hBox.add(Box.createHorizontalStrut(10));
 
-		vBox.add(hBox);
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(10));
 
-		label = new JTextArea();
-		label.setEditable(false);
-		label.setLineWrap(true);
-		label.setWrapStyleWord(true);
-		label.setOpaque(false);
-		label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
-		label.setText(messages.getString("jfirewalldialog_msg43"));
+        hBox = Box.createHorizontalBox();
+        hBox.add(Box.createHorizontalStrut(10));
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(label);
-		hBox.add(Box.createHorizontalStrut(10));
-		
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(10));
+        onlyFilterSYN = new JCheckBox(messages.getString("jfirewalldialog_msg42"));
+        onlyFilterSYN.setOpaque(false);
+        onlyFilterSYN.setSelected(firewall.getDropSYNSegmentsOnly());
+        onlyFilterSYN.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                firewall.setDropSYNSegmentsOnly(((JCheckBox) e.getSource()).isSelected());
+            }
+        });
 
-		
-		vBox.add(Box.createVerticalStrut(1000));
+        hBox.add(onlyFilterSYN);
+        hBox.add(Box.createHorizontalGlue());
 
-		return vBox;
-	}
+        vBox.add(hBox);
 
-	private Box firewallRuleBox() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", firewallRuleBox()");
-		JScrollPane scrollPane;
-		Box vBox, hBox;
-		DefaultTableModel model;
-		TableColumnModel columnModel;
-		JButton button;
-		JLabel label;
-		JTextArea textArea;
+        label = new JTextArea();
+        label.setEditable(false);
+        label.setLineWrap(true);
+        label.setWrapStyleWord(true);
+        label.setOpaque(false);
+        label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
+        label.setText(messages.getString("jfirewalldialog_msg43"));
 
-		vBox = Box.createVerticalBox();
-		vBox.add(Box.createVerticalStrut(10));
+        hBox = Box.createHorizontalBox();
+        hBox.add(label);
+        hBox.add(Box.createHorizontalStrut(10));
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(Box.createHorizontalStrut(10));
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(10));
 
-		textArea = new JTextArea();
-		textArea.setText(messages.getString("jfirewalldialog_msg37"));
-		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);
-		textArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
-		textArea.setEditable(false);
-		textArea.setOpaque(false);
+        vBox.add(Box.createVerticalStrut(1000));
 
-		hBox.add(textArea);
-		hBox.add(Box.createHorizontalStrut(10));
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(10));
+        return vBox;
+    }
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(Box.createHorizontalStrut(10));
-		
-		label = new JLabel(messages.getString("jfirewalldialog_msg36"));
+    private Box firewallRuleBox() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", firewallRuleBox()");
+        JScrollPane scrollPane;
+        Box vBox, hBox;
+        DefaultTableModel model;
+        TableColumnModel columnModel;
+        JButton button;
+        JLabel label;
+        JTextArea textArea;
 
-		hBox.add(label);
-		hBox.add(Box.createHorizontalStrut(10));
+        vBox = Box.createVerticalBox();
+        vBox.add(Box.createVerticalStrut(10));
 
-		defaultPolicyCombo = new JComboBox();
-		defaultPolicyCombo.addItem(messages.getString("jfirewalldialog_msg33"));
-		defaultPolicyCombo.addItem(messages.getString("jfirewalldialog_msg34"));
-		
-		defaultPolicyCombo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				firewall.setDefaultPolicyString((String) defaultPolicyCombo.getSelectedItem());
-				updateRuleTable();
-			}
-		});
-		hBox.add(defaultPolicyCombo);
-		hBox.add(Box.createHorizontalStrut(10));
-		
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(10));
-		
-		hBox = Box.createHorizontalBox();
-		hBox.add(Box.createHorizontalStrut(10));
+        hBox = Box.createHorizontalBox();
+        hBox.add(Box.createHorizontalStrut(10));
 
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(10));
+        textArea = new JTextArea();
+        textArea.setText(messages.getString("jfirewalldialog_msg37"));
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
+        textArea.setEditable(false);
+        textArea.setOpaque(false);
 
-		model = new DefaultTableModel(0, 8);
-		ruleTable = new JTableEditable(model,true);
-		ruleTable.setParentGUI(this);
-		ruleTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		ruleTable.setIntercellSpacing(new Dimension(10, 5));
-		ruleTable.setRowHeight(30);
-		ruleTable.setShowGrid(true);
-		ruleTable.setFillsViewportHeight(true);
-		ruleTable.setBackground(Color.WHITE);
-		ruleTable.setShowHorizontalLines(true);
+        hBox.add(textArea);
+        hBox.add(Box.createHorizontalStrut(10));
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(10));
 
-		columnModel = ruleTable.getColumnModel();
-		columnModel.getColumn(0).setHeaderValue(messages.getString("jfirewalldialog_msg26"));
-		columnModel.getColumn(0).setCellEditor(null);  // ID column must be read-only
-		columnModel.getColumn(1).setHeaderValue(messages.getString("jfirewalldialog_msg27"));
-		columnModel.getColumn(2).setHeaderValue(messages.getString("jfirewalldialog_msg28"));
-		columnModel.getColumn(3).setHeaderValue(messages.getString("jfirewalldialog_msg29"));
-		columnModel.getColumn(4).setHeaderValue(messages.getString("jfirewalldialog_msg30"));
-		columnModel.getColumn(5).setHeaderValue(messages.getString("jfirewalldialog_msg31"));
-		String[] protValues = {"*","TCP","UDP"};
-		columnModel.getColumn(5).setCellEditor(new ComboBoxTableCellEditor(protValues));
-		columnModel.getColumn(6).setHeaderValue(messages.getString("jfirewalldialog_msg35"));
-		columnModel.getColumn(7).setHeaderValue(messages.getString("jfirewalldialog_msg32"));
-		String[] actionValues = {messages.getString("jfirewalldialog_msg33"),messages.getString("jfirewalldialog_msg34")};
-		columnModel.getColumn(7).setCellEditor(new ComboBoxTableCellEditor(actionValues));
-		columnModel.getColumn(0).setPreferredWidth(30);
-		columnModel.getColumn(1).setPreferredWidth(130);
-		columnModel.getColumn(2).setPreferredWidth(130);
-		columnModel.getColumn(3).setPreferredWidth(130);
-		columnModel.getColumn(4).setPreferredWidth(130);
-		columnModel.getColumn(5).setPreferredWidth(80);
-		columnModel.getColumn(6).setPreferredWidth(60);
-		columnModel.getColumn(7).setPreferredWidth(80);
+        hBox = Box.createHorizontalBox();
+        hBox.add(Box.createHorizontalStrut(10));
 
-		scrollPane = new JScrollPane(ruleTable);
-		scrollPane.setPreferredSize(new Dimension(555, 300));
+        label = new JLabel(messages.getString("jfirewalldialog_msg36"));
 
-		vBox.add(scrollPane);
-		vBox.add(Box.createVerticalStrut(10));
+        hBox.add(label);
+        hBox.add(Box.createHorizontalStrut(10));
 
-		hBox = Box.createHorizontalBox();
-		hBox.add(Box.createHorizontalStrut(10));
+        defaultPolicyCombo = new JComboBox();
+        defaultPolicyCombo.addItem(messages.getString("jfirewalldialog_msg33"));
+        defaultPolicyCombo.addItem(messages.getString("jfirewalldialog_msg34"));
 
-		button = new JButton(messages.getString("jfirewalldialog_msg22"));
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowSel = -1;
-				boolean success = false;
-				try {
-					if(ruleTable.getSelectedRowCount() == 1) {
-						rowSel = ruleTable.getSelectedRow();
-						String idStr = (String) ruleTable.getValueAt(
-								rowSel, 0);
-						success = firewall.moveUp(Integer.parseInt(idStr));
-					}
-				} catch (Exception ex) {
-				}
-				updateRuleTable();
-				if(rowSel >= 0 && success)
-					ruleTable.setRowSelectionInterval(rowSel-1, rowSel-1);
-			}
-		});
-		hBox.add(button);
-		hBox.add(Box.createHorizontalStrut(10));
+        defaultPolicyCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                firewall.setDefaultPolicy(stringToPolicy((String) defaultPolicyCombo.getSelectedItem()));
+                updateRuleTable();
+            }
+        });
+        hBox.add(defaultPolicyCombo);
+        hBox.add(Box.createHorizontalStrut(10));
 
-		button = new JButton(messages.getString("jfirewalldialog_msg23"));
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowSel = -1;
-				boolean success = false;
-				try {
-					if(ruleTable.getSelectedRowCount() == 1) {
-						rowSel = ruleTable.getSelectedRow();
-						String idStr = (String) ruleTable.getValueAt(
-								rowSel, 0);
-						success = firewall.moveDown(Integer.parseInt(idStr));
-					}
-				} catch (Exception ex) {
-				}
-				updateRuleTable();
-				if(rowSel >= 0 && success)
-					ruleTable.setRowSelectionInterval(rowSel+1, rowSel+1);
-			}
-		});
-		hBox.add(button);
-		hBox.add(Box.createHorizontalStrut(30));
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(10));
 
-		button = new JButton(messages.getString("jfirewalldialog_msg24"));
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				firewall.addRule();
-				updateRuleTable();
-			}
-		});
-		hBox.add(button);
-		hBox.add(Box.createHorizontalStrut(10));
+        hBox = Box.createHorizontalBox();
+        hBox.add(Box.createHorizontalStrut(10));
 
-		button = new JButton(messages.getString("jfirewalldialog_msg25"));
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowSel = -1;
-				try {
-					if(ruleTable.getSelectedRowCount() == 1) {
-						rowSel = ruleTable.getSelectedRow();
-						String idStr = (String) ruleTable.getValueAt(
-								rowSel, 0);
-						Main.debug.println("DEBUG (" + this.hashCode() + ") " + getClass() + ", del action: rowSel="+rowSel+", rows count="+firewall.getRuleset().size());
-						firewall.delRule(Integer.parseInt(idStr));
-					}
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-				updateRuleTable();
-				if(rowSel >= 0)
-					if(rowSel < firewall.getRuleset().size())
-						ruleTable.setRowSelectionInterval(rowSel, rowSel);
-					else if(firewall.getRuleset().size() > 0)
-						ruleTable.setRowSelectionInterval(firewall.getRuleset().size()-1, firewall.getRuleset().size()-1);
-			}
-		});
-		hBox.add(button);
-		hBox.add(Box.createHorizontalStrut(10));
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(10));
 
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(10));
-		
-		this.updateRuleTable();
+        model = new DefaultTableModel(0, 8);
+        ruleTable = new JFirewallRuleTable(model, true);
+        ruleTable.setParentGUI(this);
+        ruleTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        ruleTable.setIntercellSpacing(new Dimension(10, 5));
+        ruleTable.setRowHeight(30);
+        ruleTable.setShowGrid(true);
+        ruleTable.setFillsViewportHeight(true);
+        ruleTable.setBackground(Color.WHITE);
+        ruleTable.setShowHorizontalLines(true);
 
-		return vBox;
-	}
+        columnModel = ruleTable.getColumnModel();
+        columnModel.getColumn(0).setHeaderValue(messages.getString("jfirewalldialog_msg26"));
+        columnModel.getColumn(0).setCellEditor(null); // ID column must be read-only
+        columnModel.getColumn(1).setHeaderValue(messages.getString("jfirewalldialog_msg27"));
+        columnModel.getColumn(2).setHeaderValue(messages.getString("jfirewalldialog_msg28"));
+        columnModel.getColumn(3).setHeaderValue(messages.getString("jfirewalldialog_msg29"));
+        columnModel.getColumn(4).setHeaderValue(messages.getString("jfirewalldialog_msg30"));
+        columnModel.getColumn(5).setHeaderValue(messages.getString("jfirewalldialog_msg31"));
+        String[] protValues = { "*", "TCP", "UDP" };
+        columnModel.getColumn(5).setCellEditor(new ComboBoxTableCellEditor(protValues));
+        columnModel.getColumn(6).setHeaderValue(messages.getString("jfirewalldialog_msg35"));
+        columnModel.getColumn(7).setHeaderValue(messages.getString("jfirewalldialog_msg32"));
+        String[] actionValues = { messages.getString("jfirewalldialog_msg33"),
+                messages.getString("jfirewalldialog_msg34") };
+        columnModel.getColumn(7).setCellEditor(new ComboBoxTableCellEditor(actionValues));
+        columnModel.getColumn(0).setPreferredWidth(30);
+        columnModel.getColumn(1).setPreferredWidth(130);
+        columnModel.getColumn(2).setPreferredWidth(130);
+        columnModel.getColumn(3).setPreferredWidth(130);
+        columnModel.getColumn(4).setPreferredWidth(130);
+        columnModel.getColumn(5).setPreferredWidth(80);
+        columnModel.getColumn(6).setPreferredWidth(60);
+        columnModel.getColumn(7).setPreferredWidth(80);
 
-	/*
-	 * @author Weyer hier wird das ganze Fenster bestückt
-	 */
-	private void erzeugeFenster() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", erzeugeFenster()");
-		JTabbedPane tp;
-		JPanel hauptPanel;
+        scrollPane = new JScrollPane(ruleTable);
+        scrollPane.setPreferredSize(new Dimension(555, 300));
 
-		hauptPanel = new JPanel(new BorderLayout());
+        vBox.add(scrollPane);
+        vBox.add(Box.createVerticalStrut(10));
 
-		tp = new JTabbedPane();
-		tp.add(messages.getString("jfirewalldialog_msg18"), erzeugeNicBox());
-		tp.setBackgroundAt(0, TAB_COLOR);
-		
-		tp.add(messages.getString("jfirewalldialog_msg21"), firewallRuleBox());
-		tp.setBackgroundAt(1, TAB_COLOR);
+        hBox = Box.createHorizontalBox();
+        hBox.add(Box.createHorizontalStrut(10));
 
-		hauptPanel.add(tp, BorderLayout.CENTER);
-		hauptPanel.setBackground(TAB_COLOR);
+        button = new JButton(messages.getString("jfirewalldialog_msg22"));
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int rowSel = -1;
+                boolean success = false;
+                try {
+                    if (ruleTable.getSelectedRowCount() == 1) {
+                        rowSel = ruleTable.getSelectedRow();
+                        String idStr = (String) ruleTable.getValueAt(rowSel, 0);
+                        success = firewall.moveUp(Integer.parseInt(idStr));
+                    }
+                } catch (Exception ex) {}
+                updateRuleTable();
+                if (rowSel >= 0 && success)
+                    ruleTable.setRowSelectionInterval(rowSel - 1, rowSel - 1);
+            }
+        });
+        hBox.add(button);
+        hBox.add(Box.createHorizontalStrut(10));
 
-		getContentPane().add(hauptPanel);
-	}
+        button = new JButton(messages.getString("jfirewalldialog_msg23"));
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int rowSel = -1;
+                boolean success = false;
+                try {
+                    if (ruleTable.getSelectedRowCount() == 1) {
+                        rowSel = ruleTable.getSelectedRow();
+                        String idStr = (String) ruleTable.getValueAt(rowSel, 0);
+                        success = firewall.moveDown(Integer.parseInt(idStr));
+                    }
+                } catch (Exception ex) {}
+                updateRuleTable();
+                if (rowSel >= 0 && success)
+                    ruleTable.setRowSelectionInterval(rowSel + 1, rowSel + 1);
+            }
+        });
+        hBox.add(button);
+        hBox.add(Box.createHorizontalStrut(30));
 
-	private void updateCellColors() {
-		TableColumnModel colModel = ruleTable.getColumnModel();
-		ColorTableCellRenderer cellSrcIP = (ColorTableCellRenderer) colModel.getColumn(1).getCellRenderer();
-		ColorTableCellRenderer cellSrcMask = (ColorTableCellRenderer) colModel.getColumn(2).getCellRenderer();
-		ColorTableCellRenderer cellDestIP = (ColorTableCellRenderer) colModel.getColumn(3).getCellRenderer();
-		ColorTableCellRenderer cellDestMask = (ColorTableCellRenderer) colModel.getColumn(4).getCellRenderer();
-		ColorTableCellRenderer cellPort = (ColorTableCellRenderer) colModel.getColumn(6).getCellRenderer();
-		for(int i=0; i<ruleTable.getRowCount(); i++) {
-			if(EingabenUeberpruefung.isGueltig((String) ruleTable.getValueAt(i,1), EingabenUeberpruefung.musterIpAdresseAuchLeer))
-				cellSrcIP.resetColor(i, 1);
-			else
-				cellSrcIP.setColor(i, 1, EingabenUeberpruefung.farbeFalsch);
-			if(! ((String) ruleTable.getValueAt(i,1)).isEmpty())
-				if(((String) ruleTable.getValueAt(i,2)).isEmpty())
-					cellSrcMask.setColor(i, 2, EingabenUeberpruefung.farbeFalsch);
-				else if(! EingabenUeberpruefung.isValidSubnetmask((String) ruleTable.getValueAt(i, 2)))
-					cellSrcMask.setColor(i, 2, EingabenUeberpruefung.farbeFalsch);
-				else
-					cellSrcMask.resetColor(i, 2);
-			else
-				cellSrcMask.resetColor(i, 2);
-			if(EingabenUeberpruefung.isGueltig((String) ruleTable.getValueAt(i,3), EingabenUeberpruefung.musterIpAdresseAuchLeer))
-				cellDestIP.resetColor(i, 3);
-			else
-				cellDestIP.setColor(i, 3, EingabenUeberpruefung.farbeFalsch);
-			if(! ((String) ruleTable.getValueAt(i,3)).isEmpty())
-				if(((String) ruleTable.getValueAt(i,4)).isEmpty())
-					cellDestMask.setColor(i, 4, EingabenUeberpruefung.farbeFalsch);
-				else if(! EingabenUeberpruefung.isValidSubnetmask((String) ruleTable.getValueAt(i, 4)))
-					cellDestMask.setColor(i, 4, EingabenUeberpruefung.farbeFalsch);
-				else
-					cellDestMask.resetColor(i, 4);
-			else
-				cellDestMask.resetColor(i, 4);
-			if(EingabenUeberpruefung.isGueltig(((String) ruleTable.getValueAt(i,6)).trim(), EingabenUeberpruefung.musterPortAuchLeer))
-				cellPort.resetColor(i, 6);
-			else
-				cellPort.setColor(i, 6, EingabenUeberpruefung.farbeFalsch);
-		}
-	}
-	
-	public void updateRuleTable() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateRuleTable()");
-		
-		DefaultTableModel model;
-		Vector<FirewallRule> ruleset = firewall.getRuleset();
-		
-		model = (DefaultTableModel) this.ruleTable.getModel();
-		model.setRowCount(0);
-		for (int i = 0; i < ruleset.size(); i++) {
-			Main.debug.println("DEBUG Rule #"+(i+1)+": "+ruleset.get(i).toString());
-			model.addRow(ruleset.get(i).getVector(i+1));
-		}
-		// (re-)set colors in cells
-		updateCellColors();
-		
-		defaultPolicyCombo.setSelectedItem(firewall.getDefaultPolicyString());
-		activateFirewall.setSelected(firewall.isActivated());
-		dropICMP.setSelected(firewall.getDropICMP());
-		onlyFilterSYN.setSelected(firewall.getAllowRelatedPackets());
-	}
+        button = new JButton(messages.getString("jfirewalldialog_msg24"));
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                firewall.addRule();
+                updateRuleTable();
+            }
+        });
+        hBox.add(button);
+        hBox.add(Box.createHorizontalStrut(10));
 
-	public Firewall getFirewall() {
-		return firewall;
-	}
+        button = new JButton(messages.getString("jfirewalldialog_msg25"));
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int rowSel = -1;
+                try {
+                    if (ruleTable.getSelectedRowCount() == 1) {
+                        rowSel = ruleTable.getSelectedRow();
+                        String idStr = (String) ruleTable.getValueAt(rowSel, 0);
+                        Main.debug.println("DEBUG (" + this.hashCode() + ") " + getClass() + ", del action: rowSel="
+                                + rowSel + ", rows count=" + firewall.getRuleset().size());
+                        firewall.deleteRule(Integer.parseInt(idStr) - 1);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                updateRuleTable();
+                if (rowSel >= 0)
+                    if (rowSel < firewall.getRuleset().size())
+                        ruleTable.setRowSelectionInterval(rowSel, rowSel);
+                    else if (firewall.getRuleset().size() > 0)
+                        ruleTable.setRowSelectionInterval(firewall.getRuleset().size() - 1,
+                                firewall.getRuleset().size() - 1);
+            }
+        });
+        hBox.add(button);
+        hBox.add(Box.createHorizontalStrut(10));
+
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(10));
+
+        this.updateRuleTable();
+
+        return vBox;
+    }
+
+    /*
+     * change default policy
+     * 
+     * @param langPolicy new default policy; provided as String in the language currently chosen
+     */
+    public short stringToPolicy(String langPolicy) {
+        if (langPolicy.equals(messages.getString("jfirewalldialog_msg33"))) {
+            return FirewallRule.ACCEPT;
+        } else {
+            return FirewallRule.DROP;
+        }
+    }
+
+    public String policyToString(short policy) {
+        if (policy == FirewallRule.ACCEPT) {
+            return messages.getString("jfirewalldialog_msg33");
+        } else if (policy == FirewallRule.DROP) {
+            return messages.getString("jfirewalldialog_msg34");
+        } else {
+            return "";
+        }
+    }
+
+    /*
+     * @author Weyer hier wird das ganze Fenster bestückt
+     */
+    private void erzeugeFenster() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", erzeugeFenster()");
+        JTabbedPane tp;
+        JPanel hauptPanel;
+
+        hauptPanel = new JPanel(new BorderLayout());
+
+        tp = new JTabbedPane();
+        tp.add(messages.getString("jfirewalldialog_msg18"), erzeugeNicBox());
+        tp.setBackgroundAt(0, TAB_COLOR);
+
+        tp.add(messages.getString("jfirewalldialog_msg21"), firewallRuleBox());
+        tp.setBackgroundAt(1, TAB_COLOR);
+
+        hauptPanel.add(tp, BorderLayout.CENTER);
+        hauptPanel.setBackground(TAB_COLOR);
+
+        getContentPane().add(hauptPanel);
+    }
+
+    private void updateCellColors() {
+        TableColumnModel colModel = ruleTable.getColumnModel();
+        ColorTableCellRenderer cellSrcIP = (ColorTableCellRenderer) colModel.getColumn(1).getCellRenderer();
+        ColorTableCellRenderer cellSrcMask = (ColorTableCellRenderer) colModel.getColumn(2).getCellRenderer();
+        ColorTableCellRenderer cellDestIP = (ColorTableCellRenderer) colModel.getColumn(3).getCellRenderer();
+        ColorTableCellRenderer cellDestMask = (ColorTableCellRenderer) colModel.getColumn(4).getCellRenderer();
+        ColorTableCellRenderer cellPort = (ColorTableCellRenderer) colModel.getColumn(6).getCellRenderer();
+        for (int i = 0; i < ruleTable.getRowCount(); i++) {
+            if (EingabenUeberpruefung.isGueltig((String) ruleTable.getValueAt(i, 1),
+                    EingabenUeberpruefung.musterIpAdresseAuchLeer))
+                cellSrcIP.resetColor(i, 1);
+            else
+                cellSrcIP.setColor(i, 1, EingabenUeberpruefung.farbeFalsch);
+            if (!((String) ruleTable.getValueAt(i, 1)).isEmpty())
+                if (((String) ruleTable.getValueAt(i, 2)).isEmpty())
+                    cellSrcMask.setColor(i, 2, EingabenUeberpruefung.farbeFalsch);
+                else if (!EingabenUeberpruefung.isValidSubnetmask((String) ruleTable.getValueAt(i, 2)))
+                    cellSrcMask.setColor(i, 2, EingabenUeberpruefung.farbeFalsch);
+                else
+                    cellSrcMask.resetColor(i, 2);
+            else
+                cellSrcMask.resetColor(i, 2);
+            if (EingabenUeberpruefung.isGueltig((String) ruleTable.getValueAt(i, 3),
+                    EingabenUeberpruefung.musterIpAdresseAuchLeer))
+                cellDestIP.resetColor(i, 3);
+            else
+                cellDestIP.setColor(i, 3, EingabenUeberpruefung.farbeFalsch);
+            if (!((String) ruleTable.getValueAt(i, 3)).isEmpty())
+                if (((String) ruleTable.getValueAt(i, 4)).isEmpty())
+                    cellDestMask.setColor(i, 4, EingabenUeberpruefung.farbeFalsch);
+                else if (!EingabenUeberpruefung.isValidSubnetmask((String) ruleTable.getValueAt(i, 4)))
+                    cellDestMask.setColor(i, 4, EingabenUeberpruefung.farbeFalsch);
+                else
+                    cellDestMask.resetColor(i, 4);
+            else
+                cellDestMask.resetColor(i, 4);
+            if (EingabenUeberpruefung.isGueltig(((String) ruleTable.getValueAt(i, 6)).trim(),
+                    EingabenUeberpruefung.musterPortAuchLeer))
+                cellPort.resetColor(i, 6);
+            else
+                cellPort.setColor(i, 6, EingabenUeberpruefung.farbeFalsch);
+        }
+    }
+
+    public void updateRuleTable() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateRuleTable()");
+
+        DefaultTableModel model;
+        Vector<FirewallRule> ruleset = firewall.getRuleset();
+
+        model = (DefaultTableModel) this.ruleTable.getModel();
+        model.setRowCount(0);
+        for (int i = 0; i < ruleset.size(); i++) {
+            Main.debug.println("DEBUG Rule #" + (i + 1) + ": " + ruleset.get(i).toString());
+            model.addRow(ruleset.get(i).getVector(i + 1));
+        }
+        // (re-)set colors in cells
+        updateCellColors();
+
+        defaultPolicyCombo.setSelectedItem(policyToString(firewall.getDefaultPolicy()));
+        activateFirewall.setSelected(firewall.isActivated());
+        dropICMP.setSelected(firewall.getDropICMP());
+        onlyFilterSYN.setSelected(firewall.getDropSYNSegmentsOnly());
+    }
+
+    public Firewall getFirewall() {
+        return firewall;
+    }
 }
