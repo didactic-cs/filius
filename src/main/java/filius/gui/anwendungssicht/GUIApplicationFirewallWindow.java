@@ -60,12 +60,8 @@ import filius.software.firewall.FirewallRule;
  * @author Johannes Bade & Thomas Gerding
  * 
  */
+@SuppressWarnings("serial")
 public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     private JTable tTabellePort;
 
@@ -262,11 +258,24 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 
         Vector<FirewallRule> ruleset = ((Firewall) holeAnwendung()).getRuleset();
         for (int i = 0; i < ruleset.size(); i++) {
-            model.addRow(ruleset.get(i).getVectorPFW());
+            model.addRow(ruleToVector(ruleset.get(i)));
         }
 
         cbEinAus.setSelected(((Firewall) holeAnwendung()).isActivated());
         cbIcmp.setSelected(!((Firewall) holeAnwendung()).getDropICMP());
+    }
+
+    private Vector<String> ruleToVector(FirewallRule rule) {
+        Vector<String> resultVec = new Vector<String>();
+        if (rule.port >= 0)
+            resultVec.addElement(Integer.toString(rule.port));
+        else
+            resultVec.addElement("");
+        if (rule.srcIP.equals(FirewallRule.SAME_NETWORK))
+            resultVec.addElement(messages.getString("firewall_msg12"));
+        else
+            resultVec.addElement(messages.getString("firewall_msg4"));
+        return resultVec;
     }
 
     public void update(Observable arg0, Object nachricht) {

@@ -54,37 +54,27 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import filius.Main;
-import filius.gui.anwendungssicht.JFirewallRuleTable;
-import filius.gui.anwendungssicht.JFirewallRuleTable.ColorTableCellRenderer;
-import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
 import filius.software.firewall.FirewallRule;
 
 public class JFirewallDialog extends JDialog implements I18n {
 
+    @SuppressWarnings("serial")
     public class ComboBoxTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-        /**
-         * 
-         */
-        private static final long serialVersionUID = -4372708685136408285L;
         private JComboBox cmbBox;
-        // private String [] values = {"First", "Second", "Third"};
 
+        /** create a new ComboBox with values provided as parameter (array of Strings) */
         public ComboBoxTableCellEditor(String[] values) {
-            // create a new ComboBox with values provided as parameter (array of Strings)
             cmbBox = new JComboBox(values);
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int rowIndex,
                 int colIndex) {
-            if (isSelected) {
-                cmbBox.setSelectedItem(value);
-                TableModel model = table.getModel();
-                model.setValueAt(value, rowIndex, colIndex);
-            }
-
+            cmbBox.setSelectedItem(value);
+            TableModel model = table.getModel();
+            model.setValueAt(value, rowIndex, colIndex);
             return cmbBox;
         }
 
@@ -107,7 +97,7 @@ public class JFirewallDialog extends JDialog implements I18n {
     Box boxFirewall;
     Box boxTabellen;
 
-    private JFirewallRuleTable ruleTable;
+    private GatewayFirewallConfigTable ruleTable;
     private JComboBox defaultPolicyCombo;
 
     private JCheckBox activateFirewall;
@@ -119,10 +109,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JFirewallDialog(" + firewall
                 + "," + dummyFrame + ")");
         this.firewall = firewall;
-
         jfd = this;
-
-        // this.setSize(1000, 200); // no effect due to call of setBounds in JFirewallKonfiguration
         erzeugeFenster();
     }
 
@@ -296,7 +283,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         vBox.add(Box.createVerticalStrut(10));
 
         model = new DefaultTableModel(0, 8);
-        ruleTable = new JFirewallRuleTable(model, true);
+        ruleTable = new GatewayFirewallConfigTable(model, true);
         ruleTable.setParentGUI(this);
         ruleTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ruleTable.setIntercellSpacing(new Dimension(10, 5));
@@ -342,6 +329,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         button = new JButton(messages.getString("jfirewalldialog_msg22"));
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                ruleTable.closeEditor();
                 int rowSel = -1;
                 boolean success = false;
                 try {
@@ -352,8 +340,9 @@ public class JFirewallDialog extends JDialog implements I18n {
                     }
                 } catch (Exception ex) {}
                 updateRuleTable();
-                if (rowSel >= 0 && success)
+                if (rowSel >= 0 && success) {
                     ruleTable.setRowSelectionInterval(rowSel - 1, rowSel - 1);
+                }
             }
         });
         hBox.add(button);
@@ -362,6 +351,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         button = new JButton(messages.getString("jfirewalldialog_msg23"));
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                ruleTable.closeEditor();
                 int rowSel = -1;
                 boolean success = false;
                 try {
@@ -372,8 +362,9 @@ public class JFirewallDialog extends JDialog implements I18n {
                     }
                 } catch (Exception ex) {}
                 updateRuleTable();
-                if (rowSel >= 0 && success)
+                if (rowSel >= 0 && success) {
                     ruleTable.setRowSelectionInterval(rowSel + 1, rowSel + 1);
+                }
             }
         });
         hBox.add(button);
@@ -382,6 +373,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         button = new JButton(messages.getString("jfirewalldialog_msg24"));
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                ruleTable.closeEditor();
                 firewall.addRule();
                 updateRuleTable();
             }
@@ -392,6 +384,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         button = new JButton(messages.getString("jfirewalldialog_msg25"));
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                ruleTable.closeEditor();
                 int rowSel = -1;
                 try {
                     if (ruleTable.getSelectedRowCount() == 1) {
@@ -405,12 +398,14 @@ public class JFirewallDialog extends JDialog implements I18n {
                     ex.printStackTrace();
                 }
                 updateRuleTable();
-                if (rowSel >= 0)
-                    if (rowSel < firewall.getRuleset().size())
+                if (rowSel >= 0) {
+                    if (rowSel < firewall.getRuleset().size()) {
                         ruleTable.setRowSelectionInterval(rowSel, rowSel);
-                    else if (firewall.getRuleset().size() > 0)
+                    } else if (firewall.getRuleset().size() > 0) {
                         ruleTable.setRowSelectionInterval(firewall.getRuleset().size() - 1,
                                 firewall.getRuleset().size() - 1);
+                    }
+                }
             }
         });
         hBox.add(button);
@@ -424,11 +419,6 @@ public class JFirewallDialog extends JDialog implements I18n {
         return vBox;
     }
 
-    /*
-     * change default policy
-     * 
-     * @param langPolicy new default policy; provided as String in the language currently chosen
-     */
     public short stringToPolicy(String langPolicy) {
         if (langPolicy.equals(messages.getString("jfirewalldialog_msg33"))) {
             return FirewallRule.ACCEPT;
@@ -470,50 +460,6 @@ public class JFirewallDialog extends JDialog implements I18n {
         getContentPane().add(hauptPanel);
     }
 
-    private void updateCellColors() {
-        TableColumnModel colModel = ruleTable.getColumnModel();
-        ColorTableCellRenderer cellSrcIP = (ColorTableCellRenderer) colModel.getColumn(1).getCellRenderer();
-        ColorTableCellRenderer cellSrcMask = (ColorTableCellRenderer) colModel.getColumn(2).getCellRenderer();
-        ColorTableCellRenderer cellDestIP = (ColorTableCellRenderer) colModel.getColumn(3).getCellRenderer();
-        ColorTableCellRenderer cellDestMask = (ColorTableCellRenderer) colModel.getColumn(4).getCellRenderer();
-        ColorTableCellRenderer cellPort = (ColorTableCellRenderer) colModel.getColumn(6).getCellRenderer();
-        for (int i = 0; i < ruleTable.getRowCount(); i++) {
-            if (EingabenUeberpruefung.isGueltig((String) ruleTable.getValueAt(i, 1),
-                    EingabenUeberpruefung.musterIpAdresseAuchLeer))
-                cellSrcIP.resetColor(i, 1);
-            else
-                cellSrcIP.setColor(i, 1, EingabenUeberpruefung.farbeFalsch);
-            if (!((String) ruleTable.getValueAt(i, 1)).isEmpty())
-                if (((String) ruleTable.getValueAt(i, 2)).isEmpty())
-                    cellSrcMask.setColor(i, 2, EingabenUeberpruefung.farbeFalsch);
-                else if (!EingabenUeberpruefung.isValidSubnetmask((String) ruleTable.getValueAt(i, 2)))
-                    cellSrcMask.setColor(i, 2, EingabenUeberpruefung.farbeFalsch);
-                else
-                    cellSrcMask.resetColor(i, 2);
-            else
-                cellSrcMask.resetColor(i, 2);
-            if (EingabenUeberpruefung.isGueltig((String) ruleTable.getValueAt(i, 3),
-                    EingabenUeberpruefung.musterIpAdresseAuchLeer))
-                cellDestIP.resetColor(i, 3);
-            else
-                cellDestIP.setColor(i, 3, EingabenUeberpruefung.farbeFalsch);
-            if (!((String) ruleTable.getValueAt(i, 3)).isEmpty())
-                if (((String) ruleTable.getValueAt(i, 4)).isEmpty())
-                    cellDestMask.setColor(i, 4, EingabenUeberpruefung.farbeFalsch);
-                else if (!EingabenUeberpruefung.isValidSubnetmask((String) ruleTable.getValueAt(i, 4)))
-                    cellDestMask.setColor(i, 4, EingabenUeberpruefung.farbeFalsch);
-                else
-                    cellDestMask.resetColor(i, 4);
-            else
-                cellDestMask.resetColor(i, 4);
-            if (EingabenUeberpruefung.isGueltig(((String) ruleTable.getValueAt(i, 6)).trim(),
-                    EingabenUeberpruefung.musterPortAuchLeer))
-                cellPort.resetColor(i, 6);
-            else
-                cellPort.setColor(i, 6, EingabenUeberpruefung.farbeFalsch);
-        }
-    }
-
     public void updateRuleTable() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateRuleTable()");
 
@@ -524,15 +470,40 @@ public class JFirewallDialog extends JDialog implements I18n {
         model.setRowCount(0);
         for (int i = 0; i < ruleset.size(); i++) {
             Main.debug.println("DEBUG Rule #" + (i + 1) + ": " + ruleset.get(i).toString());
-            model.addRow(ruleset.get(i).getVector(i + 1));
+            Vector<String> row = ruleAsVector(i + 1, ruleset.get(i));
+            model.addRow(row);
         }
-        // (re-)set colors in cells
-        updateCellColors();
 
         defaultPolicyCombo.setSelectedItem(policyToString(firewall.getDefaultPolicy()));
         activateFirewall.setSelected(firewall.isActivated());
         dropICMP.setSelected(firewall.getDropICMP());
         onlyFilterSYN.setSelected(firewall.getDropSYNSegmentsOnly());
+    }
+
+    public Vector<String> ruleAsVector(int idx, FirewallRule rule) {
+        Vector<String> resultVec = new Vector<String>();
+        resultVec.addElement(Integer.toString(idx));
+        resultVec.addElement(rule.srcIP);
+        resultVec.addElement(rule.srcMask);
+        resultVec.addElement(rule.destIP);
+        resultVec.addElement(rule.destMask);
+        if (rule.protocol == FirewallRule.TCP)
+            resultVec.addElement("TCP");
+        else if (rule.protocol == FirewallRule.UDP)
+            resultVec.addElement("UDP");
+        else if (rule.protocol == FirewallRule.ICMP)
+            resultVec.addElement("ICMP");
+        else
+            resultVec.addElement("*"); // = alle
+        if (rule.port >= 0)
+            resultVec.addElement(Integer.toString(rule.port));
+        else
+            resultVec.addElement("");
+        if (rule.action == FirewallRule.ACCEPT)
+            resultVec.addElement(messages.getString("jfirewalldialog_msg33"));
+        else
+            resultVec.addElement(messages.getString("jfirewalldialog_msg34"));
+        return resultVec;
     }
 
     public Firewall getFirewall() {

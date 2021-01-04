@@ -62,6 +62,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import filius.Main;
+import filius.gui.JExtendedTable;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.ResourceUtil;
 import filius.software.email.Email;
@@ -127,7 +128,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         Box vorschauBox = Box.createHorizontalBox();
         vorschauBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        posteingangTable = new JFirewallRuleTable(posteingangModell, false);
+        posteingangTable = new JExtendedTable(posteingangModell, false);
         TableColumnModel tcm = posteingangTable.getColumnModel();
         tcm.getColumn(0).setHeaderValue(messages.getString("emailanwendung_msg1"));
         tcm.getColumn(1).setHeaderValue(messages.getString("emailanwendung_msg2"));
@@ -152,7 +153,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         eingangBox.add(eingangScroll);
         eingangPanel.add(eingangBox, BorderLayout.CENTER);
 
-        gesendeteTable = new JFirewallRuleTable(gesendeteModell, false);
+        gesendeteTable = new JExtendedTable(gesendeteModell, false);
         TableColumnModel tcmGesendet = gesendeteTable.getColumnModel();
         tcmGesendet.getColumn(0).setHeaderValue(messages.getString("emailanwendung_msg3"));
         tcmGesendet.getColumn(1).setHeaderValue(messages.getString("emailanwendung_msg2"));

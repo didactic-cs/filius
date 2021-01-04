@@ -231,6 +231,13 @@ public class Firewall extends Anwendung implements I18n {
         ruleset.add(rule);
     }
 
+    public boolean updateRule(int idx, FirewallRule rule) {
+        if (idx >= 0 && idx < ruleset.size()) {
+            ruleset.set(idx, rule);
+        }
+        return true;
+    }
+
     /*
      * Store changed value. Invoked by cell editor from table in JFirewallDialog.
      * 
@@ -262,7 +269,7 @@ public class Firewall extends Anwendung implements I18n {
                 ruleset.get(row).protocol = FirewallRule.ICMP;
             else if (value.equals("*")) {
                 ruleset.get(row).protocol = FirewallRule.ALL_PROTOCOLS;
-                return "";
+                return "*";
             }
         } else if (col == 6) {// port
             try {

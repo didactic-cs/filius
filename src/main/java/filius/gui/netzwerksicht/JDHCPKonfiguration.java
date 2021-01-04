@@ -56,7 +56,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import filius.Main;
-import filius.gui.anwendungssicht.JFirewallRuleTable;
+import filius.gui.JExtendedTable;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.dhcp.DHCPAddressAssignment;
@@ -358,7 +358,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
         vBox.add(Box.createVerticalStrut(5));
 
         tabellenModell = new DefaultTableModel(0, 2);
-        staticAddressTable = new JFirewallRuleTable(tabellenModell, false);
+        staticAddressTable = new JExtendedTable(tabellenModell, false);
         staticAddressTable.setIntercellSpacing(new Dimension(5, 5));
         staticAddressTable.setRowHeight(30);
         staticAddressTable.setShowGrid(false);

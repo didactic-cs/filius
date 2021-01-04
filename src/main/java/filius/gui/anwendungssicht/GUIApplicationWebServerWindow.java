@@ -58,7 +58,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
     private JButton buttonStart;
 
     private JCheckBox showVHosts;
-    private JFirewallRuleTable vHostTable;
+    private VHostConfigTable vHostTable;
     private Box vHostBox = null, logBox = null;
 
     public GUIApplicationWebServerWindow(final GUIDesktopPanel desktop, String appName) {
@@ -109,7 +109,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
         vHostLabel.add(label);
 
         DefaultTableModel tablemodel = new DefaultTableModel(VHOST_NUMBER, 2);
-        vHostTable = new JFirewallRuleTable(tablemodel, true, "WWW");
+        vHostTable = new VHostConfigTable(tablemodel, true);
         vHostTable.setParentGUI(this);
         JScrollPane tableScrollPane = new JScrollPane(vHostTable);
         tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
