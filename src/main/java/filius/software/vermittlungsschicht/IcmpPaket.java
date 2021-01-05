@@ -25,32 +25,38 @@
  */
 package filius.software.vermittlungsschicht;
 
-import java.io.Serializable;
+/** Diese Klasse umfasst die Attribute eines ICMP-Pakets */
+@SuppressWarnings("serial")
+public class IcmpPaket extends IpPaket {
 
-/** Diese Klasse umfasst die Attribute eines ARP-Pakets */
-public class IcmpPaket implements Serializable, Cloneable {
-
-    private static final long serialVersionUID = 1L;
-
-    /** Protokoll-Typ der Vermittlungsschicht */
-    private String protokollTyp;
-    /** IP-Adresse des sendenden Knotens */
-    private String quellIp;
-    private String zielIp;
-    private int ttl; // Time-to-Live
-    private int seqNr; // sequence number of Echo Request packet
-    // ICMP Echo Request: type 8, code 0
-    // ICMP Echo Reply: type 0, code 0
+    public static final int ICMP_PROTOCOL = 1;
+    /**
+     * sequence number of Echo Request packet: The sequence number can be used by the client to associate each echo
+     * request with its reply.
+     */
+    private int seqNr;
+    /**
+     * 0: ICMP Echo Reply (pong) <br />
+     * 3: see {@link #icmpType} <br />
+     * 8: ICMP Echo Request (ping)<br />
+     * 11: ICMP Time Exeeded (poof) <br />
+     * else: ICMP unknown
+     */
     private int icmpType;
+    /**
+     * 0: "ICMP Network Unreachable <br />
+     * 1: ICMP Host Unreachable <br />
+     * other: ICMP Destination Unreachable
+     */
     private int icmpCode;
+
+    public IcmpPaket() {
+        setProtocol(ICMP_PROTOCOL);
+    }
 
     @Override
     public IcmpPaket clone() {
-        IcmpPaket clone = new IcmpPaket();
-        clone.protokollTyp = protokollTyp;
-        clone.quellIp = quellIp;
-        clone.zielIp = zielIp;
-        clone.ttl = ttl;
+        IcmpPaket clone = (IcmpPaket) super.clone();
         clone.seqNr = seqNr;
         clone.icmpType = icmpType;
         clone.icmpCode = icmpCode;
@@ -73,19 +79,10 @@ public class IcmpPaket implements Serializable, Cloneable {
         return icmpCode;
     }
 
-    // manage Time-to-Live header field
-    public int getTtl() {
-        return this.ttl;
-    }
-
-    public void setTtl(int ttl) {
-        this.ttl = ttl;
-    }
-
     public boolean isEchoResponse() {
         return icmpType == ICMP.TYPE_ECHO_REPLY && icmpCode == ICMP.CODE_ECHO;
     }
-    
+
     public boolean isEchoRequest() {
         return icmpType == ICMP.TYPE_ECHO_REQUEST && icmpCode == ICMP.CODE_ECHO;
     }
@@ -99,37 +96,8 @@ public class IcmpPaket implements Serializable, Cloneable {
         this.seqNr = seqNr;
     }
 
-    public String getProtokollTyp() {
-        return protokollTyp;
-    }
-
-    public void setProtokollTyp(String protokollTyp) {
-        this.protokollTyp = protokollTyp;
-    }
-
-    public String getQuellIp() {
-        return quellIp;
-    }
-
-    public void setQuellIp(String quellIp) {
-        this.quellIp = quellIp;
-    }
-
-    public String getZielIp() {
-        return zielIp;
-    }
-
-    public void setZielIp(String zielIp) {
-        this.zielIp = zielIp;
-    }
-
     public String toString() {
-        return "[" + "protokollTyp=" + protokollTyp + "; " + "quellIp=" + quellIp + "; " + "quellMacAdresse="
-                + "zielIp=" + zielIp + "; " + "ttl=" + ttl + "; " + "seqNr=" + seqNr + "; " + "icmpType=" + icmpType
-                + "; " + "icmpCode=" + icmpCode + "]";
-    }
-
-    public void decrementTtl() {
-        ttl--;
+        return "[" + "sender=" + getSender() + "; " + "recipient=" + getEmpfaenger() + "; " + "ttl=" + getTtl() + "; "
+                + "seqNr=" + seqNr + "; " + "icmpType=" + icmpType + "; " + "icmpCode=" + icmpCode + "]";
     }
 }

@@ -89,8 +89,8 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
                 + " (FirewallThread), verarbeiteDatenEinheit(" + frame.toString() + ")");
         if (frame.getDaten() instanceof IcmpPaket && !firewall.acceptICMP()) {
             IcmpPaket icmp = (IcmpPaket) frame.getDaten();
-            firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getQuellIp() + " -> "
-                    + icmp.getZielIp() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
+            firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getSender() + " -> "
+                    + icmp.getEmpfaenger() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
         } else if (!(frame.getDaten() != null && frame.getDaten() instanceof IpPaket
                 && !firewall.acceptIPPacket((IpPaket) frame.getDaten()))) {
             synchronized (ausgangsPuffer) {

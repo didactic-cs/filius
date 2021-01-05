@@ -34,74 +34,55 @@ import filius.Main;
  */
 public class EthernetFrame implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Protokolltypen der Vermittlungsschicht */
-	public static final String IP = "0x800", ARP = "0x806";
+    /** Protokolltypen der Vermittlungsschicht */
+    public static final String IP = "0x800", ARP = "0x806";
 
-	/** Die Ziel-Adresse des Frames */
-	private String zielMacAdresse;
+    /** Die Ziel-Adresse des Frames */
+    private String zielMacAdresse;
 
-	/** Die MAC-Adresse, von dem sendenden Rechner */
-	private String quellMacAdresse;
+    /** Die MAC-Adresse, von dem sendenden Rechner */
+    private String quellMacAdresse;
 
-	/** Typ des uebergeordneten Protokolls (ARP oder IP) */
-	private String typ;
-	private boolean icmpFlag;
+    /** Typ des uebergeordneten Protokolls (ARP oder IP) */
+    private String typ;
 
-	/** die Nutzdaten */
-	private Object daten;
+    /** die Nutzdaten */
+    private Object daten;
 
-	/** Konstruktor zur Initialisierung der Attribute des Frames */
-	public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (EthernetFrame), constr: EthernetFrame(" + daten + "," + quellMacAdresse + "," + zielMacAdresse
-		        + "," + typ + ")");
-		this.zielMacAdresse = zielMacAdresse;
-		this.quellMacAdresse = quellMacAdresse;
-		this.typ = typ;
-		this.daten = daten;
-		this.icmpFlag = false;
-	}
+    /** Konstruktor zur Initialisierung der Attribute des Frames */
+    public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ) {
+        Main.debug
+                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (EthernetFrame), constr: EthernetFrame("
+                        + daten + "," + quellMacAdresse + "," + zielMacAdresse + "," + typ + ")");
+        this.zielMacAdresse = zielMacAdresse;
+        this.quellMacAdresse = quellMacAdresse;
+        this.typ = typ;
+        this.daten = daten;
+    }
 
-	/** Konstruktor zur Initialisierung der Attribute des Frames */
-	public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ, boolean icmp) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (EthernetFrame), constr: EthernetFrame(" + daten + "," + quellMacAdresse + "," + zielMacAdresse
-		        + "," + typ + "," + icmp + ")");
-		this.zielMacAdresse = zielMacAdresse;
-		this.quellMacAdresse = quellMacAdresse;
-		this.typ = typ;
-		this.daten = daten;
-		this.icmpFlag = icmp;
-	}
+    /** Zugriff auf die Daten, die mit dem Frame verschickt werden */
+    public Object getDaten() {
+        return daten;
+    }
 
-	public boolean isICMP() {
-		return (this.typ.equals(IP) && this.icmpFlag);
-	}
+    /** Zugriff auf die Absender-MAC-Adresse */
+    public String getQuellMacAdresse() {
+        return quellMacAdresse;
+    }
 
-	/** Zugriff auf die Daten, die mit dem Frame verschickt werden */
-	public Object getDaten() {
-		return daten;
-	}
+    /** Zugriff auf den Protokolltyp. Zulaessig sind ARP und IP */
+    public String getTyp() {
+        return typ;
+    }
 
-	/** Zugriff auf die Absender-MAC-Adresse */
-	public String getQuellMacAdresse() {
-		return quellMacAdresse;
-	}
+    /** Methode fuer den Zugriff auf die Ziel-MAC-Adresse */
+    public String getZielMacAdresse() {
+        return zielMacAdresse;
+    }
 
-	/** Zugriff auf den Protokolltyp. Zulaessig sind ARP und IP */
-	public String getTyp() {
-		return typ;
-	}
-
-	/** Methode fuer den Zugriff auf die Ziel-MAC-Adresse */
-	public String getZielMacAdresse() {
-		return zielMacAdresse;
-	}
-
-	public String toString() {
-		return "[" + "quellMAC=" + quellMacAdresse + ", " + "zielMAC=" + zielMacAdresse + ", " + "typ=" + typ + ", "
-		        + "icmpFlag=" + icmpFlag + "]";
-	}
+    public String toString() {
+        return "[" + "quellMAC=" + quellMacAdresse + ", " + "zielMAC=" + zielMacAdresse + ", " + "typ=" + typ + "]";
+    }
 }

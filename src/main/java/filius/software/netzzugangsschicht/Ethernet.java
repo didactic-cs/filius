@@ -94,7 +94,7 @@ public class Ethernet extends Protokoll {
         EthernetFrame ethernetFrame;
         boolean gesendet = false;
 
-        ethernetFrame = new EthernetFrame(daten, startMAC, zielMAC, typ, daten instanceof IcmpPaket);
+        ethernetFrame = new EthernetFrame(daten, startMAC, zielMAC, typ);
 
         for (NetzwerkInterface nic : ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces()) {
             if (nic.getMac().equalsIgnoreCase(zielMAC)) {

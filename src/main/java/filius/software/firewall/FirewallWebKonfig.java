@@ -339,8 +339,6 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
                         ruleTable.append("TCP");
                     else if (ruleset.get(i).protocol == FirewallRule.UDP)
                         ruleTable.append("UCP");
-                    else if (ruleset.get(i).protocol == FirewallRule.ICMP)
-                        ruleTable.append("ICMP");
                     ruleTable.append("</td>");
                     ruleTable.append("<td>");
                     if (ruleset.get(i).port >= 0)

@@ -55,8 +55,8 @@ public class ICMPThread extends ProtokollThread<IcmpPaket> {
      * Methode zur Verarbeitung eingehender ICMP-Pakete <br />
      */
     protected void verarbeiteDatenEinheit(IcmpPaket icmpPaket) {
-        if (vermittlung.isLocalAddress(icmpPaket.getZielIp())
-                || vermittlung.isApplicableBroadcast(icmpPaket.getZielIp())) {
+        if (vermittlung.isLocalAddress(icmpPaket.getEmpfaenger())
+                || vermittlung.isApplicableBroadcast(icmpPaket.getEmpfaenger())) {
             if (icmpPaket.isEchoRequest()) {
                 icmpPaket.decrementTtl();
                 vermittlung.sendEchoReply(icmpPaket);

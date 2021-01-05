@@ -862,7 +862,7 @@ public class Terminal extends ClientAnwendung implements I18n {
             }
 
             if (fehler == 0) {
-                benachrichtigeBeobachter(recv.getQuellIp());
+                benachrichtigeBeobachter(recv.getSender());
                 if (recv.getIcmpType() != 11) {
                     break;
                 }
@@ -883,15 +883,15 @@ public class Terminal extends ClientAnwendung implements I18n {
             switch (recv.getIcmpCode()) {
             case 0:
                 benachrichtigeBeobachter(
-                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg8"), recv.getQuellIp()));
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg8"), recv.getSender()));
                 break;
             case 1:
                 benachrichtigeBeobachter(
-                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg9"), recv.getQuellIp()));
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg9"), recv.getSender()));
                 break;
             default:
                 benachrichtigeBeobachter(
-                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg10"), recv.getQuellIp()));
+                        "\n\n" + String.format(messages.getString("sw_terminal_trace_msg10"), recv.getSender()));
                 break;
             }
         } else if (fehler == 0) {

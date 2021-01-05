@@ -66,16 +66,17 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
         }
 
         if (etp.getTyp().equals(EthernetFrame.IP)) {
-            if (etp.isICMP()) {
+            IpPaket ipPacket = (IpPaket) etp.getDaten();
+            if (ipPacket.getProtocol() == IcmpPaket.ICMP_PROTOCOL) {
                 synchronized (ethernet.holeICMPPuffer()) {
-                    ethernet.holeICMPPuffer().add((IcmpPaket) etp.getDaten());
+                    ethernet.holeICMPPuffer().add((IcmpPaket) ipPacket);
                     ethernet.holeICMPPuffer().notifyAll();
                     // 'all' means: Terminal ping command (if any in this instance) and default network packet
                     // processing
                 }
             } else {
                 synchronized (ethernet.holeIPPuffer()) {
-                    ethernet.holeIPPuffer().add((IpPaket) etp.getDaten());
+                    ethernet.holeIPPuffer().add(ipPacket);
                     ethernet.holeIPPuffer().notify();
                 }
             }

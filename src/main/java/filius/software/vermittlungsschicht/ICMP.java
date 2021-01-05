@@ -63,8 +63,8 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      */
     public ICMP(SystemSoftware systemAnwendung) {
         super(systemAnwendung);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ICMP), constr: ICMP("
-                + systemAnwendung + ")");
+        Main.debug.println(
+                "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ICMP), constr: ICMP(" + systemAnwendung + ")");
     }
 
     public void starten() {
@@ -97,7 +97,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
 
     /** Hilfsmethode zum Versenden eines ICMP Echo Reply */
     public void sendEchoReply(IcmpPaket rcvPacket) {
-        sendeICMP(TYPE_ECHO_REPLY, CODE_ECHO, rcvPacket.getSeqNr(), rcvPacket.getZielIp(), rcvPacket.getQuellIp());
+        sendeICMP(TYPE_ECHO_REPLY, CODE_ECHO, rcvPacket.getSeqNr(), rcvPacket.getEmpfaenger(), rcvPacket.getSender());
     }
 
     public void sendeICMP(int typ, int code, String zielIP) {
@@ -110,8 +110,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
 
     private void sendeICMP(int typ, int code, int ttl, int seqNr, String quellIP, String zielIP) {
         IcmpPaket icmpPaket = new IcmpPaket();
-        icmpPaket.setProtokollTyp(EthernetFrame.IP);
-        icmpPaket.setZielIp(zielIP);
+        icmpPaket.setEmpfaenger(zielIP);
         icmpPaket.setIcmpType(typ);
         icmpPaket.setIcmpCode(code);
         icmpPaket.setSeqNr(seqNr);
@@ -121,9 +120,9 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
             InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
             Route route = bs.determineRoute(zielIP);
             if (quellIP == null) {
-                icmpPaket.setQuellIp(route.getInterfaceIpAddress());
+                icmpPaket.setSender(route.getInterfaceIpAddress());
             } else {
-                icmpPaket.setQuellIp(quellIP);
+                icmpPaket.setSender(quellIP);
             }
             dispatch(icmpPaket, zielIP, route);
         } catch (RouteNotFoundException e) {
@@ -152,13 +151,13 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      * @throws VerbindungsException
      */
     private void dispatch(IcmpPaket paket, String zielIp, Route route) throws RouteNotFoundException {
-        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaceByIp(route
-                .getInterfaceIpAddress());
-        
+        NetzwerkInterface nic = ((InternetKnoten) holeSystemSoftware().getKnoten())
+                .getNetzwerkInterfaceByIp(route.getInterfaceIpAddress());
+
         if (isBroadcast(zielIp, route.getInterfaceIpAddress(), nic.getSubnetzMaske())) {
             sendBroadcast(paket, zielIp, nic.getMac());
         } else if (gleichesRechnernetz(zielIp, route.getInterfaceIpAddress(), nic.getSubnetzMaske())) {
-            sendUnicastToNextHop(paket, paket.getZielIp(), nic.getMac());
+            sendUnicastToNextHop(paket, paket.getEmpfaenger(), nic.getMac());
         } else {
             sendUnicastToNextHop(paket, route.getGateway(), nic.getMac());
         }
@@ -190,7 +189,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
             // werden.
             if (paket.isEchoRequest()) {
                 sendeICMP(TYPE_DESTINATION_UNREACHABLE, CODE_DEST_HOST_UNREACHABLE, paket.getSeqNr(), null,
-                        paket.getQuellIp());
+                        paket.getSender());
             }
         }
     }
@@ -219,12 +218,12 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
             // dekrementiert, bevor diese Funktion aufgerufen
             // wird)
             // ICMP Timeout Expired In Transit (11/0) zuruecksenden:
-            sendeICMP(TYPE_TIME_EXCEEDED, CODE_TTL_EXPIRED, icmpPaket.getSeqNr(), null, icmpPaket.getQuellIp());
+            sendeICMP(TYPE_TIME_EXCEEDED, CODE_TTL_EXPIRED, icmpPaket.getSeqNr(), null, icmpPaket.getSender());
         } else {
             // TTL ist nicht abgelaufen.
             // Paket weiterleiten:
             sendeICMP(icmpPaket.getIcmpType(), icmpPaket.getIcmpCode(), icmpPaket.getTtl(), icmpPaket.getSeqNr(),
-                    icmpPaket.getQuellIp(), icmpPaket.getZielIp());
+                    icmpPaket.getSender(), icmpPaket.getEmpfaenger());
         }
     }
 
@@ -239,7 +238,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
         if (response == null) {
             throw new TimeoutException("Destination Host Unreachable");
         } else {
-            if (!(destIp.equals(response.getQuellIp()) && seqNr == response.getSeqNr() && response.isEchoResponse())) {
+            if (!(destIp.equals(response.getSender()) && seqNr == response.getSeqNr() && response.isEchoResponse())) {
                 throw new TimeoutException("Destination Host Unreachable");
             }
             resultTTL = response.getTtl();

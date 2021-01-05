@@ -59,8 +59,6 @@ public class GatewayFirewallConfigTable extends JExtendedTable implements I18n {
                 rule.protocol = FirewallRule.TCP;
             } else if (protocol.equals("UDP")) {
                 rule.protocol = FirewallRule.UDP;
-            } else if (protocol.equals("ICMP")) {
-                rule.protocol = FirewallRule.ICMP;
             } else {
                 rule.protocol = FirewallRule.ALL_PROTOCOLS;
             }

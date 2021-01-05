@@ -491,8 +491,6 @@ public class JFirewallDialog extends JDialog implements I18n {
             resultVec.addElement("TCP");
         else if (rule.protocol == FirewallRule.UDP)
             resultVec.addElement("UDP");
-        else if (rule.protocol == FirewallRule.ICMP)
-            resultVec.addElement("ICMP");
         else
             resultVec.addElement("*"); // = alle
         if (rule.port >= 0)

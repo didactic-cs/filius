@@ -255,7 +255,7 @@ public class Lauscher implements I18n {
 
                     neuerEintrag[1] = timestampStr;
 
-                    if (frame.getTyp().equals(EthernetFrame.IP) && !frame.isICMP()) {
+                    if (frame.getTyp().equals(EthernetFrame.IP) && !(frame.getDaten() instanceof IcmpPaket)) {
                         ipPaket = (IpPaket) frame.getDaten();
                         neuerEintrag[2] = ipPaket.getSender();
                         neuerEintrag[3] = ipPaket.getEmpfaenger();
@@ -349,10 +349,10 @@ public class Lauscher implements I18n {
                                 + arpPaket.getQuellMacAdresse();
 
                         daten.addElement(neuerEintrag);
-                    } else if (frame.getTyp().equals(EthernetFrame.IP) && frame.isICMP()) {
+                    } else if (frame.getTyp().equals(EthernetFrame.IP) && frame.getDaten() instanceof IcmpPaket) {
                         icmpPaket = (IcmpPaket) frame.getDaten();
-                        neuerEintrag[2] = icmpPaket.getQuellIp();
-                        neuerEintrag[3] = icmpPaket.getZielIp();
+                        neuerEintrag[2] = icmpPaket.getSender();
+                        neuerEintrag[3] = icmpPaket.getEmpfaenger();
                         neuerEintrag[4] = ICMP;
                         neuerEintrag[5] = PROTOKOLL_SCHICHTEN[1];
                         switch (icmpPaket.getIcmpType()) {
@@ -383,7 +383,7 @@ public class Lauscher implements I18n {
                                     + icmpPaket.getIcmpCode();
                             break;
                         }
-                        neuerEintrag[6] = neuerEintrag[6] + ", TTL: " + icmpPaket.getTtl() + ", Seq.-Nr.: "
+                        neuerEintrag[6] = neuerEintrag[6] + ", TTL: " + icmpPaket.getTtl() + ", Seq.-No.: "
                                 + icmpPaket.getSeqNr();
 
                         daten.addElement(neuerEintrag);
