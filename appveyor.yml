@@ -20,3 +20,8 @@ artifacts:
   name: Zip Archive
 - path: target\*.deb
   name: Debian Package
+deploy:
+- provider: Webhook
+  url: https://app.signpath.io/API/v1/15baf9fe-557e-4a33-92a1-afc9246f41d2/Integrations/AppVeyor?ProjectSlug=filius&SigningPolicySlug=test-signing
+  authorization:
+     secure: eQKEcW+1eqx1UQf1eDHSwUgEAxy6XOcv/Nwh0UhwSzpt+C1Zpd2GYMovP5t03CGUPQwxt20ysfJVp04zX4Au8A==
