@@ -27,14 +27,12 @@ package filius.gui.netzwerksicht;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,44 +43,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
 import filius.Main;
+import filius.gui.ComboBoxTableCellEditor;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
 import filius.software.firewall.FirewallRule;
 
 public class JFirewallDialog extends JDialog implements I18n {
-
-    @SuppressWarnings("serial")
-    public class ComboBoxTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-        private JComboBox cmbBox;
-
-        /** create a new ComboBox with values provided as parameter (array of Strings) */
-        public ComboBoxTableCellEditor(String[] values) {
-            cmbBox = new JComboBox(values);
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int rowIndex,
-                int colIndex) {
-            cmbBox.setSelectedItem(value);
-            TableModel model = table.getModel();
-            model.setValueAt(value, rowIndex, colIndex);
-            return cmbBox;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return cmbBox.getSelectedItem();
-        }
-    }
 
     private static final long serialVersionUID = 1L;
 
@@ -190,11 +162,11 @@ public class JFirewallDialog extends JDialog implements I18n {
 
         onlyFilterSYN = new JCheckBox(messages.getString("jfirewalldialog_msg42"));
         onlyFilterSYN.setOpaque(false);
-        onlyFilterSYN.setSelected(firewall.getDropSYNSegmentsOnly());
+        onlyFilterSYN.setSelected(firewall.getFilterSYNSegmentsOnly());
         onlyFilterSYN.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                firewall.setDropSYNSegmentsOnly(((JCheckBox) e.getSource()).isSelected());
+                firewall.setFilterSYNSegmentsOnly(((JCheckBox) e.getSource()).isSelected());
             }
         });
 
@@ -477,7 +449,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         defaultPolicyCombo.setSelectedItem(policyToString(firewall.getDefaultPolicy()));
         activateFirewall.setSelected(firewall.isActivated());
         dropICMP.setSelected(firewall.getDropICMP());
-        onlyFilterSYN.setSelected(firewall.getDropSYNSegmentsOnly());
+        onlyFilterSYN.setSelected(firewall.getFilterSYNSegmentsOnly());
     }
 
     public Vector<String> ruleAsVector(int idx, FirewallRule rule) {

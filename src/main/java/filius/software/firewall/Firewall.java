@@ -37,7 +37,7 @@ import filius.software.Anwendung;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.transportschicht.Segment;
 import filius.software.transportschicht.TcpSegment;
-import filius.software.transportschicht.UdpSegment;
+import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.IpPaket;
 import filius.software.vermittlungsschicht.VermittlungsProtokoll;
 
@@ -59,24 +59,15 @@ import filius.software.vermittlungsschicht.VermittlungsProtokoll;
  * </ol>
  */
 public class Firewall extends Anwendung implements I18n {
-
-    public static int PERSONAL = 1, GATEWAY = 2;
-
-    // only for internal use necessary, so language is irrelevant!
-    public static String SOURCE_FILTER = "Quelle", DESTINATION_FILTER = "Ziel";
-
     // firewall ruleset
     private Vector<FirewallRule> ruleset = new Vector<FirewallRule>();
 
     private short defaultPolicy = FirewallRule.DROP;
     private boolean activated = true;
     private boolean dropICMP = false;
-    private boolean dropSYNSegmentsOnly = true;
+    private boolean filterSYNSegmentsOnly = true;
+    private boolean filterUdp = true;
 
-    /**
-     * Das Verhalten der Firewall ist abhaengig davon, ob sie als Personal Firewall oder als Gateway benutzt wird.
-     */
-    private int modus = PERSONAL;
     private LinkedList<FirewallThread> firewallThreads = new LinkedList<FirewallThread>();
 
     /**
@@ -120,77 +111,27 @@ public class Firewall extends Anwendung implements I18n {
         }
     }
 
-    public boolean acceptICMP() {
-        return !activated || !dropICMP;
-    }
-
     /**
-     * Method to check whether IP packet is allowed; other packets (like ICMP) have to be evluated in another place
+     * Method to check whether IP packet is allowed.
      * 
      * @param ipPacket
      * @return whether this IP packet must be forwarded (true: forward IP packet; false: discard the IP packet)
      */
     public boolean acceptIPPacket(IpPaket ipPacket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Firewall), allowedIPpacket(" + ipPacket + ")");
-
         boolean accept = true;
         if (isActivated()) {
-            if (dropSYNSegmentsOnly && ipPacket.getProtocol() == IpPaket.TCP) {
-                // SYN-ACK or ACK only -> accept
-                boolean isSyn = ((TcpSegment) ipPacket.getSegment()).isSyn();
-                boolean isAck = ((TcpSegment) ipPacket.getSegment()).isAck();
-                if (!isSyn || isAck) {
-                    return true;
-                }
+            if (ipPacket.getProtocol() == IcmpPaket.ICMP_PROTOCOL) {
+                accept = checkAcceptIcmp(ipPacket);
+            } else if (ipPacket.getProtocol() == IpPaket.TCP) {
+                accept = checkAcceptTCP(ipPacket);
+            } else if (ipPacket.getProtocol() == IpPaket.UDP) {
+                accept = checkAcceptUDP(ipPacket);
+            } else {
+                benachrichtigeBeobachter(messages.getString("sw_firewall_msg9") + " "
+                        + ((this.defaultPolicy == FirewallRule.ACCEPT) ? messages.getString("jfirewalldialog_msg33")
+                                : messages.getString("jfirewalldialog_msg34")));
+                accept = defaultPolicy == FirewallRule.ACCEPT;
             }
-            if (modus == PERSONAL && ipPacket.getSegment() instanceof UdpSegment) {
-                return true;
-            }
-            for (int i = 0; i < ruleset.size(); i++) {
-                FirewallRule firewallRule = ruleset.get(i);
-                boolean ruleToBeApplied = true;
-                if (!firewallRule.srcIP.isEmpty()) {
-                    if (firewallRule.srcIP.equals(FirewallRule.SAME_NETWORK)) {
-                        boolean foundNIC = false;
-                        for (NetzwerkInterface iface : ((InternetKnoten) getSystemSoftware().getKnoten())
-                                .getNetzwerkInterfaces()) {
-                            if (VermittlungsProtokoll.gleichesRechnernetz(ipPacket.getSender(), iface.getIp(),
-                                    iface.getSubnetzMaske())) {
-                                foundNIC = true;
-                                break;
-                            }
-                        }
-                        ruleToBeApplied = ruleToBeApplied && foundNIC;
-                    } else {
-                        ruleToBeApplied = ruleToBeApplied && VermittlungsProtokoll
-                                .gleichesRechnernetz(ipPacket.getSender(), firewallRule.srcIP, firewallRule.srcMask);
-                    }
-                }
-                ruleToBeApplied = ruleToBeApplied && (firewallRule.destIP.isEmpty() || VermittlungsProtokoll
-                        .gleichesRechnernetz(ipPacket.getEmpfaenger(), firewallRule.destIP, firewallRule.destMask));
-                ruleToBeApplied = ruleToBeApplied && (firewallRule.protocol == FirewallRule.ALL_PROTOCOLS
-                        || (ipPacket.getProtocol() == (int) firewallRule.protocol));
-                ruleToBeApplied = ruleToBeApplied && (firewallRule.port == FirewallRule.ALL_PORTS
-                        || (((Segment) ipPacket.getSegment()).getZielPort() == firewallRule.port
-                                || ((Segment) ipPacket.getSegment()).getQuellPort() == firewallRule.port));
-
-                if (ruleToBeApplied) { // if rule matches to current packet, then
-                    // return true for ACCEPT target, else false
-                    benachrichtigeBeobachter(messages.getString("sw_firewall_msg8") + " #" + (i + 1) + " ("
-                            + firewallRule.toString(getAllNetworkInterfaces()) + ")  -> "
-                            + ((firewallRule.action == FirewallRule.ACCEPT)
-                                    ? messages.getString("jfirewalldialog_msg33")
-                                    : messages.getString("jfirewalldialog_msg34")));
-                    return (firewallRule.action == FirewallRule.ACCEPT);
-                }
-            }
-            // return true for defaultPolicy ACCEPT, false otherwise (i.e. in
-            // case of DROP policy)
-            benachrichtigeBeobachter(messages.getString("sw_firewall_msg9") + " "
-                    + ((this.defaultPolicy == FirewallRule.ACCEPT) ? messages.getString("jfirewalldialog_msg33")
-                            : messages.getString("jfirewalldialog_msg34")));
-            return (this.defaultPolicy == FirewallRule.ACCEPT);
         }
         return accept;
     }
@@ -208,6 +149,120 @@ public class Firewall extends Anwendung implements I18n {
             return true;
         }
         return false;
+    }
+
+    boolean checkAcceptIcmp(IpPaket packet) {
+        boolean accept = !(packet instanceof IcmpPaket && dropICMP);
+        if (!accept) {
+            benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + " " + packet.getSender() + " -> "
+                    + packet.getEmpfaenger() + " (code: " + ((IcmpPaket) packet).getIcmpCode() + ", type: "
+                    + ((IcmpPaket) packet).getIcmpType() + ")");
+        }
+        return accept;
+    }
+
+    boolean checkAcceptTCP(IpPaket packet) {
+        boolean accept = true;
+        if (packet.getProtocol() == IpPaket.TCP && isSegmentApplicable(packet)) {
+            boolean foundRule = false;
+            for (int i = 0; i < ruleset.size() && !foundRule; i++) {
+                FirewallRule firewallRule = ruleset.get(i);
+                boolean ruleToBeApplied = isProtocolApplicable(packet, firewallRule);
+                ruleToBeApplied = ruleToBeApplied && isSourceAddressApplicable(packet, firewallRule);
+                ruleToBeApplied = ruleToBeApplied && isDestAddressApplicable(packet, firewallRule);
+                ruleToBeApplied = ruleToBeApplied && isPortApplicable(packet, firewallRule);
+
+                if (ruleToBeApplied) { // if rule matches to current packet, then
+                    notifyRuleApplication(i, firewallRule);
+                    accept = firewallRule.action == FirewallRule.ACCEPT;
+                    foundRule = true;
+                }
+            }
+            if (!foundRule) {
+                accept = defaultPolicy == FirewallRule.ACCEPT;
+            }
+        }
+        return accept;
+    }
+
+    private void notifyRuleApplication(int i, FirewallRule firewallRule) {
+        benachrichtigeBeobachter(messages.getString("sw_firewall_msg8") + " #" + (i + 1) + " ("
+                + firewallRule.toString(getAllNetworkInterfaces()) + ")  -> "
+                + ((firewallRule.action == FirewallRule.ACCEPT) ? messages.getString("jfirewalldialog_msg33")
+                        : messages.getString("jfirewalldialog_msg34")));
+    }
+
+    private boolean isSegmentApplicable(IpPaket packet) {
+        boolean isApplicable = false;
+        if (packet.getProtocol() == IpPaket.TCP) {
+            TcpSegment segment = (TcpSegment) packet.getSegment();
+            isApplicable = !filterSYNSegmentsOnly || segment.isSyn() && !segment.isAck();
+        } else if (packet.getProtocol() == IpPaket.UDP) {
+            isApplicable = filterUdp;
+        }
+        return isApplicable;
+    }
+
+    boolean checkAcceptUDP(IpPaket packet) {
+        boolean accept = true;
+        if (packet.getProtocol() == IpPaket.UDP && isSegmentApplicable(packet)) {
+            boolean foundRule = false;
+            for (int i = 0; i < ruleset.size(); i++) {
+                FirewallRule firewallRule = ruleset.get(i);
+                boolean ruleToBeApplied = isProtocolApplicable(packet, firewallRule);
+                ruleToBeApplied = ruleToBeApplied && isSourceAddressApplicable(packet, firewallRule);
+                ruleToBeApplied = ruleToBeApplied && isDestAddressApplicable(packet, firewallRule);
+                ruleToBeApplied = ruleToBeApplied && isPortApplicable(packet, firewallRule);
+
+                if (ruleToBeApplied) { // if rule matches to current packet, then
+                    notifyRuleApplication(i, firewallRule);
+                    accept = firewallRule.action == FirewallRule.ACCEPT;
+                    foundRule = true;
+                }
+            }
+            if (!foundRule) {
+                accept = defaultPolicy == FirewallRule.ACCEPT;
+            }
+        }
+        return accept;
+    }
+
+    private boolean isPortApplicable(IpPaket packet, FirewallRule firewallRule) {
+        return firewallRule.port == FirewallRule.ALL_PORTS
+                || (((Segment) packet.getSegment()).getZielPort() == firewallRule.port
+                        || ((Segment) packet.getSegment()).getQuellPort() == firewallRule.port);
+    }
+
+    private boolean isProtocolApplicable(IpPaket packet, FirewallRule firewallRule) {
+        return firewallRule.protocol == FirewallRule.ALL_PROTOCOLS
+                || (packet.getProtocol() == (int) firewallRule.protocol);
+    }
+
+    private boolean isDestAddressApplicable(IpPaket packet, FirewallRule firewallRule) {
+        return firewallRule.destIP.isEmpty() || VermittlungsProtokoll.gleichesRechnernetz(packet.getEmpfaenger(),
+                firewallRule.destIP, firewallRule.destMask);
+    }
+
+    private boolean isSourceAddressApplicable(IpPaket packet, FirewallRule firewallRule) {
+        boolean ruleToBeApplied = false;
+        if (firewallRule.srcIP.isEmpty()) {
+            ruleToBeApplied = true;
+        } else {
+            if (firewallRule.srcIP.equals(FirewallRule.SAME_NETWORK)) {
+                for (NetzwerkInterface iface : ((InternetKnoten) getSystemSoftware().getKnoten())
+                        .getNetzwerkInterfaces()) {
+                    if (VermittlungsProtokoll.gleichesRechnernetz(packet.getSender(), iface.getIp(),
+                            iface.getSubnetzMaske())) {
+                        ruleToBeApplied = true;
+                        break;
+                    }
+                }
+            } else {
+                ruleToBeApplied = VermittlungsProtokoll.gleichesRechnernetz(packet.getSender(), firewallRule.srcIP,
+                        firewallRule.srcMask);
+            }
+        }
+        return ruleToBeApplied;
     }
 
     /**
@@ -269,12 +324,12 @@ public class Firewall extends Anwendung implements I18n {
         this.ruleset = rules;
     }
 
-    public void setModus(int modus) {
-        this.modus = modus;
+    public void setFilterUdp(boolean filterUdp) {
+        this.filterUdp = filterUdp;
     }
 
-    public int getModus() {
-        return modus;
+    public boolean getFilterUdp() {
+        return filterUdp;
     }
 
     private List<NetzwerkInterface> getAllNetworkInterfaces() {
@@ -282,11 +337,6 @@ public class Firewall extends Anwendung implements I18n {
         return host.getNetzwerkInterfaces();
     }
 
-    /*
-     * change default policy
-     * 
-     * @param defPol new default policy; provided as 'short' value as defined in FirewallRule
-     */
     public void setDefaultPolicy(short defPol) {
         defaultPolicy = defPol;
     }
@@ -304,27 +354,20 @@ public class Firewall extends Anwendung implements I18n {
     }
 
     /**
-     * @deprecated use {@link #setDropSYNSegmentsOnly(boolean)} since 1.10.4
+     * @deprecated use {@link #setFilterSYNSegmentsOnly(boolean)}; deprecated since 1.10.5; to ensure downward
+     *             compatibility this method is used to set the new attribute when old project files are loaded.
      */
     @Deprecated
     public void setAllowRelatedPackets(boolean selState) {
-        dropSYNSegmentsOnly = selState;
+        filterSYNSegmentsOnly = selState;
     }
 
-    /**
-     * @deprecated use {@link #getDropSYNSegmentsOnly()} since 1.10.4
-     */
-    @Deprecated
-    public boolean getAllowRelatedPackets() {
-        return dropSYNSegmentsOnly;
+    public void setFilterSYNSegmentsOnly(boolean selState) {
+        filterSYNSegmentsOnly = selState;
     }
 
-    public void setDropSYNSegmentsOnly(boolean selState) {
-        dropSYNSegmentsOnly = selState;
-    }
-
-    public boolean getDropSYNSegmentsOnly() {
-        return dropSYNSegmentsOnly;
+    public boolean getFilterSYNSegmentsOnly() {
+        return filterSYNSegmentsOnly;
     }
 
     public void setActivated(boolean selState) {

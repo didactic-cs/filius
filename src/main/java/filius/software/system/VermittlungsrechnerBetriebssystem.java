@@ -86,7 +86,6 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
         installiereSoftware("filius.software.www.WebServer");
         firewall = this.holeFirewall();
         server = this.holeWebServer();
-        firewall.setModus(Firewall.GATEWAY);
         firewall.setDefaultPolicy(FirewallRule.DROP);
         firewall.setActivated(false);
 
@@ -105,8 +104,8 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
         webkonfig.setPfad("konfig");
         server.setzePlugIn(webkonfig);
 
-        server.erzeugeIndexDatei(ResourceUtil.getResourcePath("tmpl/vermittlung_index_"
-                + Information.getInformation().getLocale() + ".txt"));
+        server.erzeugeIndexDatei(ResourceUtil
+                .getResourcePath("tmpl/vermittlung_index_" + Information.getInformation().getLocale() + ".txt"));
 
         // ------------- RIP ------------------
         riptable = new RIPTable(this);
@@ -126,8 +125,8 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
      * @see filius.software.system.InternetKnotenBetriebssystem.starten()
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (VermittlungsrechnerBetriebssystem), starten()");
+        Main.debug.println(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (VermittlungsrechnerBetriebssystem), starten()");
 
         super.starten();
 

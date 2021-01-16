@@ -28,6 +28,8 @@ package filius.gui.anwendungssicht;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
@@ -51,6 +53,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
+import filius.gui.JExtendedTable;
 import filius.software.firewall.Firewall;
 import filius.software.firewall.FirewallRule;
 
@@ -63,19 +66,26 @@ import filius.software.firewall.FirewallRule;
 @SuppressWarnings("serial")
 public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 
+    private static final String ALL_PROT_STRING = "*";
+
+    private static final String UDP_STRING = "UDP";
+
+    private static final String TCP_STRING = "TCP";
+
     private JTable tTabellePort;
 
     private JTextField tfPort;
 
+    private JComboBox cbProtocol;
     private JComboBox cbAlleAbsender;
 
     private JTextArea log; // Log-Fenster
 
     private JCheckBox cbEinAus = new JCheckBox();
     private JCheckBox cbIcmp = new JCheckBox();
+    private JCheckBox cbUdp = new JCheckBox();
 
     private void initKomponenten() {
-        Box box;
         JEditorPane text;
         JLabel label;
         JButton button;
@@ -88,28 +98,39 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
         boxFirewall = Box.createVerticalBox();
         boxFirewall.add(Box.createVerticalStrut(10));
 
+        JPanel globalBox = new JPanel(new GridBagLayout());
+
         cbEinAus = new JCheckBox(messages.getString("firewall_msg1"));
         cbEinAus.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                ((Firewall) holeAnwendung()).setActivated(cbEinAus.isSelected()); // new
-                                                                                  // format
-                cbIcmp.setEnabled(cbEinAus.isSelected());
+                ((Firewall) holeAnwendung()).setActivated(cbEinAus.isSelected());
                 updateAttribute();
-
             }
         });
-        boxFirewall.add(cbEinAus);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        globalBox.add(cbEinAus, constraints);
 
-        cbIcmp = new JCheckBox(messages.getString("firewall_msg13"));// Bei
+        cbIcmp = new JCheckBox(messages.getString("firewall_msg13"));
         cbIcmp.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                ((Firewall) holeAnwendung()).setDropICMP(!cbIcmp.isSelected()); // old
-                                                                                // format
+                ((Firewall) holeAnwendung()).setDropICMP(!cbIcmp.isSelected());
                 updateAttribute();
-
             }
         });
-        boxFirewall.add(cbIcmp);
+        globalBox.add(cbIcmp, constraints);
+
+        cbUdp = new JCheckBox(messages.getString("firewall_msg14"));
+        cbUdp.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                ((Firewall) holeAnwendung()).setFilterUdp(cbUdp.isSelected());
+                updateAttribute();
+            }
+        });
+        globalBox.add(cbUdp, constraints);
+
+        boxFirewall.add(globalBox);
         boxFirewall.add(Box.createVerticalStrut(10));
 
         text = new JEditorPane();
@@ -117,7 +138,7 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
         text.setText(messages.getString("firewall_msg2"));
         text.setBackground(boxFirewall.getBackground());
 
-        box = Box.createHorizontalBox();
+        Box box = Box.createHorizontalBox();
         box.add(Box.createHorizontalStrut(10));
 
         label = new JLabel(messages.getString("firewall_msg3"));
@@ -127,6 +148,11 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
         tfPort = new JTextField();
         tfPort.setPreferredSize(new Dimension(30, 15));
         box.add(tfPort);
+        box.add(Box.createHorizontalStrut(10));
+
+        String[] protValues = { TCP_STRING, UDP_STRING, ALL_PROT_STRING };
+        cbProtocol = new JComboBox(protValues);
+        box.add(cbProtocol);
         box.add(Box.createHorizontalStrut(10));
 
         cbAlleAbsender = new JComboBox();
@@ -165,8 +191,8 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
         boxFirewall.add(box);
         boxFirewall.add(Box.createVerticalStrut(10));
 
-        DefaultTableModel tabellenModell = new DefaultTableModel(0, 2);
-        tTabellePort = new JTable(tabellenModell);
+        DefaultTableModel tabellenModell = new DefaultTableModel(0, 3);
+        tTabellePort = new JExtendedTable(tabellenModell, false);
         tTabellePort.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tTabellePort.setIntercellSpacing(new Dimension(10, 5));
         tTabellePort.setRowHeight(30);
@@ -176,10 +202,12 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
         tTabellePort.setShowHorizontalLines(true);
 
         columnModel = tTabellePort.getColumnModel();
-        columnModel.getColumn(0).setHeaderValue(messages.getString("firewall_msg8"));
+        columnModel.getColumn(0).setHeaderValue(messages.getString("jfirewalldialog_msg31"));
         columnModel.getColumn(0).setWidth(20);
-        columnModel.getColumn(1).setHeaderValue(messages.getString("firewall_msg9"));
-        columnModel.getColumn(1).setWidth(300);
+        columnModel.getColumn(1).setHeaderValue(messages.getString("firewall_msg8"));
+        columnModel.getColumn(1).setWidth(20);
+        columnModel.getColumn(2).setHeaderValue(messages.getString("firewall_msg9"));
+        columnModel.getColumn(2).setWidth(300);
 
         scrollPane = new JScrollPane(tTabellePort);
         scrollPane.setPreferredSize(new Dimension(90, 250));
@@ -207,22 +235,19 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
     }
 
     private void hinzuRegel() {
-        boolean unterscheideNetzwerk;
-        int port;
-
         try {
-            port = Integer.parseInt(tfPort.getText());
-            unterscheideNetzwerk = (cbAlleAbsender.getSelectedIndex() == 1);
-            // index 0: all sources; index 1: only local network
+            int port = Integer.parseInt(tfPort.getText());
+            boolean unterscheideNetzwerk = (cbAlleAbsender.getSelectedIndex() == 1);
+            short protocol = cbProtocol.getSelectedIndex() == 0 ? FirewallRule.TCP
+                    : cbProtocol.getSelectedIndex() == 1 ? FirewallRule.UDP : FirewallRule.ALL_PROTOCOLS;
 
-            FirewallRule newRule = new FirewallRule("", "", "", "", port, FirewallRule.ALL_PROTOCOLS,
-                    FirewallRule.ACCEPT);
+            FirewallRule newRule = new FirewallRule("", "", "", "", port, protocol, FirewallRule.ACCEPT);
             if (unterscheideNetzwerk) {
                 newRule.srcIP = FirewallRule.SAME_NETWORK;
             }
             ((Firewall) holeAnwendung()).addRule(newRule);
             tfPort.setText("");
-            log.append(messages.getString("sw_firewall_msg5") + port + "\n");
+            log.append(messages.getString("sw_firewall_msg5") + " " + port + "/" + cbProtocol.getSelectedItem() + "\n");
         } catch (Exception e) {}
         updateAttribute();
     }
@@ -235,21 +260,13 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
         updateAttribute();
     }
 
-    /*
-     * @author Weyer Im Konstruktor werden alle Dinge erzeugt, die in der GUI angezeigt werden muessen
-     */
     public GUIApplicationFirewallWindow(final GUIDesktopPanel desktop, String appName) {
-
         super(desktop, appName);
 
-        // setAnwendungsIcon("gfx/desktop/icon_firewall.png");
         initKomponenten();
         updateAttribute();
     }
 
-    /*
-     * @author Weyer bringt das aktuell angezeigte Fenster immer auf den neuesten Stand mit aktuellen Daten
-     */
     public void updateAttribute() {
         DefaultTableModel model;
 
@@ -263,18 +280,30 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 
         cbEinAus.setSelected(((Firewall) holeAnwendung()).isActivated());
         cbIcmp.setSelected(!((Firewall) holeAnwendung()).getDropICMP());
+        cbIcmp.setEnabled(cbEinAus.isSelected());
+        cbUdp.setSelected(((Firewall) holeAnwendung()).getFilterUdp());
+        cbUdp.setEnabled(cbEinAus.isSelected());
     }
 
     private Vector<String> ruleToVector(FirewallRule rule) {
         Vector<String> resultVec = new Vector<String>();
-        if (rule.port >= 0)
+        if (rule.protocol == FirewallRule.TCP) {
+            resultVec.addElement(TCP_STRING);
+        } else if (rule.protocol == FirewallRule.UDP) {
+            resultVec.addElement(UDP_STRING);
+        } else {
+            resultVec.addElement(ALL_PROT_STRING);
+        }
+        if (rule.port >= 0) {
             resultVec.addElement(Integer.toString(rule.port));
-        else
+        } else {
             resultVec.addElement("");
-        if (rule.srcIP.equals(FirewallRule.SAME_NETWORK))
+        }
+        if (rule.srcIP.equals(FirewallRule.SAME_NETWORK)) {
             resultVec.addElement(messages.getString("firewall_msg12"));
-        else
+        } else {
             resultVec.addElement(messages.getString("firewall_msg4"));
+        }
         return resultVec;
     }
 

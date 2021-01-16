@@ -32,7 +32,6 @@ import filius.hardware.NetzwerkInterface;
 import filius.rahmenprogramm.I18n;
 import filius.software.ProtokollThread;
 import filius.software.netzzugangsschicht.EthernetFrame;
-import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /*
@@ -87,11 +86,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
     protected void verarbeiteDatenEinheit(EthernetFrame frame) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), verarbeiteDatenEinheit(" + frame.toString() + ")");
-        if (frame.getDaten() instanceof IcmpPaket && !firewall.acceptICMP()) {
-            IcmpPaket icmp = (IcmpPaket) frame.getDaten();
-            firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getSender() + " -> "
-                    + icmp.getEmpfaenger() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
-        } else if (!(frame.getDaten() != null && frame.getDaten() instanceof IpPaket
+        if (!(frame.getDaten() != null && frame.getDaten() instanceof IpPaket
                 && !firewall.acceptIPPacket((IpPaket) frame.getDaten()))) {
             synchronized (ausgangsPuffer) {
                 ausgangsPuffer.add(frame);

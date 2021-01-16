@@ -40,16 +40,17 @@ public class IpPaket implements Serializable, Cloneable {
     private String empfaenger;
     /** Time-to-Live */
     private int ttl;
-    private int protocol;
+    final private int protocol;
     private Object data;
 
-    public IpPaket() {}
+    public IpPaket(int protocol) {
+        this.protocol = protocol;
+    }
 
     @Override
     public IpPaket clone() {
-        IpPaket clone = new IpPaket();
+        IpPaket clone = new IpPaket(protocol);
         clone.ttl = ttl;
-        clone.protocol = protocol;
         clone.empfaenger = empfaenger;
         clone.sender = sender;
         clone.data = data;
@@ -74,10 +75,6 @@ public class IpPaket implements Serializable, Cloneable {
 
     public int getProtocol() {
         return protocol;
-    }
-
-    public void setProtocol(int protocol) {
-        this.protocol = protocol;
     }
 
     public int getTtl() {

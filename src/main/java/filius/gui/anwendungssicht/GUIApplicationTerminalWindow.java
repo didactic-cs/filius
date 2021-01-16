@@ -204,6 +204,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                         terminalField.append("\n");
                     }
                     inputField.setText("");
+                    GUIApplicationTerminalWindow.this.tpPane.getVerticalScrollBar()
+                            .setValue(GUIApplicationTerminalWindow.this.tpPane.getVerticalScrollBar().getMaximum());
                 }
                 // [strg] + [c]
                 if (e.getKeyCode() == KeyEvent.VK_C

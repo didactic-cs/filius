@@ -34,64 +34,43 @@ import filius.software.www.WebServerPlugIn;
 
 /**
  * 
- * @author Michell wird verwendet, zu einem fuer das Logfenster des WebServers,
- *         zum anderen fuer die Anzeige ueber /log.html Daher muss die Klasse
- *         eine Referenz auf beide Anwendungen haben
+ * @author Michell wird verwendet, zu einem fuer das Logfenster des WebServers, zum anderen fuer die Anzeige ueber
+ *         /log.html Daher muss die Klasse eine Referenz auf beide Anwendungen haben
  * 
  */
 public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
 
-	private String logDaten = "";
+    private StringBuffer logDaten = new StringBuffer();
 
-	public void setFirewall(Firewall firewall) {
-		firewall.hinzuBeobachter(this);
-	}
+    public void setFirewall(Firewall firewall) {
+        firewall.hinzuBeobachter(this);
+    }
 
-	/**
-	 * Diese Methode muss die HTML-Seite mit den Log-Informationen zurück
-	 * liefern
-	 */
-	public String holeHtmlSeite(String postDaten) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), holehtmlSeite("
-		        + postDaten + ")");
-		StringBuffer logSeite = new StringBuffer();
+    /**
+     * Diese Methode muss die HTML-Seite mit den Log-Informationen zurück liefern
+     */
+    public String holeHtmlSeite(String postDaten) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), holehtmlSeite("
+                + postDaten + ")");
+        StringBuffer logSeite = new StringBuffer();
 
-		logSeite.append(messages.getString("sw_firewallweblog_msg1"));
-		logSeite.append(messages.getString("sw_firewallweblog_msg2"));
-		logSeite.append("\n\n" + logDaten + "\n\n");
-		logSeite.append("\t</body>\n</html>");
+        logSeite.append(messages.getString("sw_firewallweblog_msg1"));
+        logSeite.append(messages.getString("sw_firewallweblog_msg2"));
+        logSeite.append("\n\n" + logDaten + "\n\n");
+        logSeite.append("\t</body>\n</html>");
 
-		return logSeite.toString();
-	}
+        return logSeite.toString();
+    }
 
-	/**
-	 * @param nachricht
-	 *            . fuegt eine Lognachricht hinzu wird vom Interface
-	 *            FirewallBeobachter angesprochen
-	 */
-	/*
-	 * public void setzeNachricht(String nachricht){ logDaten = logDaten +
-	 * "<br /> \n" + nachricht; }
-	 */
+    public void update(Observable arg0, Object arg1) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), update(" + arg0 + ","
+                + arg1 + ")");
+        if (arg1 instanceof Object[]) {
+            logDaten.append("<br /> \n").append(((Object[]) arg1)[0]);
+        } else {
+            logDaten.append("<br /> \n").append(arg1);
+        }
 
-	/**
-	 * 
-	 * @return liefert den Daten-String mit allen Lognachrichten
-	 */
-	public String holeLogNachrichten() {
-
-		return logDaten;
-	}
-
-	public void update(Observable arg0, Object arg1) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), update(" + arg0
-		        + "," + arg1 + ")");
-		if (arg1 instanceof Object[]) {
-			logDaten += "<br /> \n" + ((Object[]) arg1)[0];
-		} else {
-			logDaten += "<br /> \n" + arg1;
-		}
-
-	}
+    }
 
 }

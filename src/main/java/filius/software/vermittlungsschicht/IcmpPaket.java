@@ -51,7 +51,7 @@ public class IcmpPaket extends IpPaket {
     private int icmpCode;
 
     public IcmpPaket() {
-        setProtocol(ICMP_PROTOCOL);
+        super(ICMP_PROTOCOL);
     }
 
     @Override

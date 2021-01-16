@@ -227,9 +227,8 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @throws VerbindungsException
      */
     public void senden(String zielIp, String quellIp, int protokoll, int ttl, Object segment) {
-        IpPaket paket = new IpPaket();
+        IpPaket paket = new IpPaket(protokoll);
         paket.setEmpfaenger(zielIp);
-        paket.setProtocol(protokoll);
         paket.setTtl(ttl);
         paket.setSegment(segment);
 

@@ -245,7 +245,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
             if (doSaveState) {
                 firewall.setActivated(cbActive);
                 firewall.setDropICMP(cbDropIcmp);
-                firewall.setDropSYNSegmentsOnly(cbOnlySyn);
+                firewall.setFilterSYNSegmentsOnly(cbOnlySyn);
             } else if (doSaveDefPol) {
                 firewall.setDefaultPolicy(defaultPolicy);
             } else if (doMoveUp) {
@@ -306,7 +306,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
                 StringBuffer cbOnlySyn = new StringBuffer();
                 cbOnlySyn.append("\t\t<input name=\"onlySYN\" type=\"checkbox\"");
                 cbOnlySyn.append(" value=\"1\" size=\"30\" maxlength=\"40\"");
-                if (firewall.getDropICMP()) {
+                if (firewall.getFilterSYNSegmentsOnly()) {
                     cbOnlySyn.append(" checked=\"checked\"");
                 }
                 cbOnlySyn.append(" />");
@@ -338,7 +338,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
                     if (ruleset.get(i).protocol == FirewallRule.TCP)
                         ruleTable.append("TCP");
                     else if (ruleset.get(i).protocol == FirewallRule.UDP)
-                        ruleTable.append("UCP");
+                        ruleTable.append("UDP");
                     ruleTable.append("</td>");
                     ruleTable.append("<td>");
                     if (ruleset.get(i).port >= 0)
