@@ -1,5 +1,21 @@
 # Changelog Filius
 
+## [1.11.0] - 2021-01-23
+### Added
+ * The personal firewall supports now filtering of UDP traffic.
+ * Build and Code Signing with AppVeyor and SignPath.
+ 
+### Changed
+ * The default behavior of the firewall is activated UDP traffic filtering, i.e., UDP packets (e.g. DNS) will be discarded.
+ * Windows/dialogs are mostly resizable, e.g. application windows on the virtual desktops.
+ * Added readme file to be shown at Gitlab.
+ 
+### Fixed
+ * When Filius was opened on a secondary monitor that is not available any more, the Filius window will be located onto a visible monitor when starting next time.
+ * Within the terminal application the cd command could be used with a file. Now it is only available for directories.
+ * Use URI encode and decode for URLs.
+ * Do not allow domain names that start with digits.
+
 ## [1.10.4] - 2020-11-29
 ### Fixed
 * There was an incompatibility within Report generation on Java 8.
