@@ -144,7 +144,6 @@ public class Main implements I18n {
         splashScreen.setVisible(true);
         splashScreen.setAlwaysOnTop(true);
 
-        GUIContainer.getGUIContainer().initialisieren();
         long splashTime = System.currentTimeMillis();
 
         if (szenarioDatei != null) {

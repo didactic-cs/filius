@@ -71,7 +71,7 @@ public class GUIMainMenu implements Serializable, I18n {
 
     private JLabel geschwindigkeit;
 
-    private int aktuellerModus = MODUS_ENTWURF;
+    private int aktuellerModus;
 
     private JButton btAktionsmodus, btEntwurfsmodus, btDokumodus, btOeffnen, btSpeichern, btNeu, btWizard, btHilfe,
             btInfo;

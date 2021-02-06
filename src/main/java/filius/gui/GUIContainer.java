@@ -220,7 +220,7 @@ public class GUIContainer implements Serializable, I18n {
      * 
      * @author Johannes Bade & Thomas Gerding
      */
-    public void initialisieren() {
+    private void initialisieren() {
         Container contentPane = JMainFrame.getJMainFrame().getContentPane();
         layeredPane.setSize(width, height);
         layeredPane.setMinimumSize(new Dimension(width, height));
@@ -451,7 +451,7 @@ public class GUIContainer implements Serializable, I18n {
         });
 
         JMainFrame.getJMainFrame().setVisible(true);
-        setActiveSite(GUIMainMenu.MODUS_ENTWURF);
+        menu.selectMode(GUIMainMenu.MODUS_ENTWURF);
     }
 
     public void exportAsImage() {
@@ -657,8 +657,10 @@ public class GUIContainer implements Serializable, I18n {
     public static GUIContainer getGUIContainer(int width, int height) {
         if (ref == null) {
             ref = new GUIContainer(width, height);
-            if (ref == null)
+            if (ref == null) {
                 Main.debug.println("ERROR (static) getGUIContainer(): Fehler!!! ref==null");
+            }
+            ref.initialisieren();
         }
         return ref;
     }
