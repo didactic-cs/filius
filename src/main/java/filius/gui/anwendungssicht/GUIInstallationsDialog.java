@@ -54,28 +54,28 @@ import javax.swing.JScrollPane;
 import filius.Main;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
-import filius.software.Anwendung;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.Application;
+import filius.software.system.InternetNodeOS;
 
+@SuppressWarnings("serial")
 public class GUIInstallationsDialog extends JInternalFrame implements I18n {
-
-	private static final long serialVersionUID = 1L;
 
 	private Container c;
 
-	private JList softwareInstalliert;
-	private JList softwareVerfuegbar;
+	private JList<String> installedSoftware;
+	private JList<String> availableSoftware;
 
 	private JButton removeButton, addButton, confirmButton;
 
 	private JLabel titleInstalled, titleAvailable;
-
-	private DefaultListModel lmVerfuegbar;
-	private DefaultListModel lmInstalliert;
+	
+	private DefaultListModel<String> lmInstalled;
+	private DefaultListModel<String> lmAvailable;
 
 	private GUIDesktopPanel dp;
 
-	private List<Map<String, String>> programme = null;
+	private List<HashMap<String, String>> programme = null;
+	
 
 	public GUIInstallationsDialog(GUIDesktopPanel dp) {
 		super();
@@ -107,7 +107,7 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		Box listenBox = Box.createHorizontalBox();
 		listenBox.add(Box.createHorizontalStrut(10));
 
-		JScrollPane scrollAnwendungInstallieren = new JScrollPane(softwareInstalliert);
+		JScrollPane scrollAnwendungInstallieren = new JScrollPane(installedSoftware);
 		scrollAnwendungInstallieren.setPreferredSize(new Dimension(170, 200));
 		wrapperInstBox.add(scrollAnwendungInstallieren);
 
@@ -124,7 +124,7 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		wrapperAvailBox.add(titleAvailable);
 		wrapperAvailBox.add(Box.createVerticalStrut(10));
 
-		JScrollPane scrollAnwendungVerfuegbar = new JScrollPane(softwareVerfuegbar);
+		JScrollPane scrollAnwendungVerfuegbar = new JScrollPane(availableSoftware);
 		scrollAnwendungVerfuegbar.setPreferredSize(new Dimension(170, 200));
 		wrapperAvailBox.add(scrollAnwendungVerfuegbar);
 		listenBox.add(wrapperAvailBox);
@@ -159,65 +159,65 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 
 	private void hinzufuegen() {
 		Vector<String> vLoeschen = new Vector<String>();
-		int[] selektiertIndices = softwareVerfuegbar.getSelectedIndices();
+		int[] selektiertIndices = availableSoftware.getSelectedIndices();
 
 		for (int i : selektiertIndices) {
-			lmInstalliert.addElement(lmVerfuegbar.get(i));
-			vLoeschen.add((String)lmVerfuegbar.get(i));
+			lmInstalled.addElement(lmAvailable.get(i));
+			vLoeschen.add((String)lmAvailable.get(i));
 		}
 
 		// umständlich, aber wegen der Möglichkeit von Mehrfachselektion lassen
 		// sich nicht einzelne Anwendungen sofort entfernen
 		for (Enumeration<String> e = vLoeschen.elements(); e.hasMoreElements();) {
 			String oZuLoeschen = e.nextElement();
-			lmVerfuegbar.removeElement(oZuLoeschen);
+			lmAvailable.removeElement(oZuLoeschen);
 		}
 	}
 
 	private void entfernen() {
-		int[] selektiertIndices = softwareInstalliert.getSelectedIndices();
+		int[] selektiertIndices = installedSoftware.getSelectedIndices();
 		Vector<String> hinzu = new Vector<String>();
 
 		for (int i : selektiertIndices) {
-			lmVerfuegbar.addElement(lmInstalliert.getElementAt(i));
-			hinzu.add((String)lmInstalliert.getElementAt(i));
+			lmAvailable.addElement(lmInstalled.getElementAt(i));
+			hinzu.add((String)lmInstalled.getElementAt(i));
 		}
 
 		// umständlich, aber wegen der Möglichkeit von Mehrfachselektion lassen
 		// sich nicht einzelne Anwendungen sofort entfernen
 		for (Enumeration<String> e = hinzu.elements(); e.hasMoreElements();) {
 			String hinzuObjekt = e.nextElement();
-			lmInstalliert.removeElement(hinzuObjekt);
+			lmInstalled.removeElement(hinzuObjekt);
 		}
 	}
 
 	private void aenderungenSpeichern() {
-		InternetKnotenBetriebssystem bs = getDesktopPanel().getBetriebssystem();
-		Anwendung anwendung;
+		InternetNodeOS bs = getDesktopPanel().getOS();
+		Application anwendung;
 
 		for (Map<String, String> appInfo : programme) {
-			for (int i = 0; i < lmInstalliert.getSize(); i++) {
-				if (lmInstalliert.getElementAt(i).equals(appInfo.get("Anwendung"))
-				        && bs.holeSoftware(appInfo.get("Klasse").toString()) == null) {
-					bs.installiereSoftware(appInfo.get("Klasse").toString());
-
-					anwendung = bs.holeSoftware(appInfo.get("Klasse").toString());
-					anwendung.starten();
+			for (int i = 0; i < lmInstalled.getSize(); i++) {
+				if (lmInstalled.getElementAt(i).equals(appInfo.get("Anwendung"))
+				        && bs.getSoftware(appInfo.get("Klasse").toString()) == null) {
+					bs.installSoftware(appInfo.get("Klasse").toString());
+					          
+					anwendung = bs.getSoftware(appInfo.get("Klasse").toString());
+					if (anwendung != null) anwendung.startThread();  									             
 				}
 			}
 
-			for (int i = 0; i < lmVerfuegbar.getSize(); i++) {
-				if (lmVerfuegbar.getElementAt(i).equals(appInfo.get("Anwendung"))) {
-					anwendung = bs.holeSoftware(appInfo.get("Klasse").toString());
+			for (int i = 0; i < lmAvailable.getSize(); i++) {
+				if (lmAvailable.getElementAt(i).equals(appInfo.get("Anwendung"))) {
+					anwendung = bs.getSoftware(appInfo.get("Klasse").toString());
 					if (anwendung != null) {
-						anwendung.beenden();
-						bs.entferneSoftware(appInfo.get("Klasse").toString());
+						anwendung.stopThread();
+						bs.removeSoftware(appInfo.get("Klasse").toString());
 					}
 				}
 			}
 		}
 
-		dp.updateAnwendungen();
+		dp.updateApplications();
 	}
 
 	private void initButtons() {
@@ -253,21 +253,21 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 	}
 
 	private void initListen() {
-		Anwendung[] anwendungen;
+		Application[] anwendungen;
 		String awKlasse;
-		InternetKnotenBetriebssystem bs;
+		InternetNodeOS bs;
 
-		lmInstalliert = new DefaultListModel();
-		lmVerfuegbar = new DefaultListModel();
+		lmInstalled = new DefaultListModel<String>();
+		lmAvailable = new DefaultListModel<String>();
 
-		bs = dp.getBetriebssystem();
+		bs = dp.getOS();
 
 		/* Installierte Anwendung auslesen */
-		anwendungen = bs.holeArrayInstallierteSoftware();
+		anwendungen = bs.getInstalledSoftwares();
 
 		for (int i = 0; i < anwendungen.length; i++) {
 			if (anwendungen[i] != null) {
-				lmInstalliert.addElement(anwendungen[i].holeAnwendungsName());
+				lmInstalled.addElement(anwendungen[i].getAppName());
 			}
 		}
 
@@ -275,16 +275,16 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 			for (Map<String, String> programmInfo : programme) {
 				awKlasse = (String) programmInfo.get("Klasse");
 
-				if (dp.getBetriebssystem().holeSoftware(awKlasse) == null) {
-					lmVerfuegbar.addElement(programmInfo.get("Anwendung"));
+				if (dp.getOS().getSoftware(awKlasse) == null) {
+					lmAvailable.addElement(programmInfo.get("Anwendung"));
 				}
 			}
 		}
 
 		/* Listen */
-		softwareInstalliert = new JList();
-		softwareInstalliert.setModel(lmInstalliert);
-		softwareInstalliert.addMouseListener(new MouseListener() {
+		installedSoftware = new JList<String>();
+		installedSoftware.setModel(lmInstalled);
+		installedSoftware.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -309,9 +309,9 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 				}
 			}
 		});
-		softwareVerfuegbar = new JList();
-		softwareVerfuegbar.setModel(lmVerfuegbar);
-		softwareVerfuegbar.addMouseListener(new MouseListener() {
+		availableSoftware = new JList<String>();
+		availableSoftware.setModel(lmAvailable);
+		availableSoftware.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {

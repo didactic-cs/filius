@@ -25,9 +25,9 @@
  */
 package filius.software.system;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
-import java.util.ArrayList;
-
 import filius.rahmenprogramm.Base64;
 import filius.software.system.FiliusFileListener.ChangeType;
 
@@ -41,9 +41,8 @@ import filius.software.system.FiliusFileListener.ChangeType;
  * 
  * @author Nadja & Thomas Gerding
  */
+@SuppressWarnings("serial")
 public class FiliusFile implements Serializable {
-
-	private static final long serialVersionUID = 1L;
 	
 	// File's name (also used by the toString() method)
 	private String name;
@@ -56,9 +55,6 @@ public class FiliusFile implements Serializable {
 
 	// Real size of the file without having enforced Base64 encoding
 	private transient long decodedSize = -1;
-	
-	// List of event listeners
-	private ArrayList<FiliusFileListener> listenerList = new ArrayList<FiliusFileListener>();
 
 	/**
 	 * <b>FiliusFile</b> models a file in the Filius file system.
@@ -66,8 +62,7 @@ public class FiliusFile implements Serializable {
 	 * the associated content along with the TreeNode it is attached to.
 	 * It is important to keep this constructor without parameter for the serialization.
 	 */
-	public FiliusFile() {
-		
+	public FiliusFile() {		
 	}
 
 	/**
@@ -102,7 +97,7 @@ public class FiliusFile implements Serializable {
 	 */
 	public void setName(String name) {
 		this.name = name;
-		callFileListeners(ChangeType.NAME);
+		fireFilenameChange();
 	}
 	
 	/**
@@ -122,7 +117,7 @@ public class FiliusFile implements Serializable {
 	 */
 	public void setType(String type) {
 		this.type = type;
-		callFileListeners(ChangeType.TYPE);
+		fireFiletypeChange();
 	}
 
 	/**
@@ -152,7 +147,7 @@ public class FiliusFile implements Serializable {
 	 */
 	public void setContent(String content) {
 		this.content = content;
-		callFileListeners(ChangeType.CONTENT);
+		fireFilecontentChange();
 	}
 	
 	/**
@@ -192,41 +187,44 @@ public class FiliusFile implements Serializable {
 		this.decodedSize = size;
 	}
 	
-	//***************************************************************************************
-	// Handling event listeners
-	//***************************************************************************************
-	
-    /**
-     * <b>addFileListener<b> adds a file listener to the list.
-     * 
-     * @param l the listener to be added
-     */
-    public void addFileListener(FiliusFileListener l) {
-    	
-        listenerList.add(l);
-    }
+    //------------------------------------------------------------------------------------------------
+    // Listeners management
+    //------------------------------------------------------------------------------------------------ 
 
-    /**
-     * <b>removeFileListener<b> removes a file listener from the list.
-     *
-     * @param l the listener to be removed
-     */
-    public void removeFileListener(FiliusFileListener l) {
-    	
-        listenerList.remove(l);
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);     
+    
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(propertyName, listener);
     }
     
-    /**
-     * <b>callFileListeners<b> calls every file listener in the list.
-     *
-     * @param l the listener to be removed
-     */
-    private void callFileListeners(ChangeType ct) {
-    	
-        for (FiliusFileListener l : listenerList) {
-        	l.onChange(ct);
-        }
+    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        pcs.removePropertyChangeListener(propertyName, listener);
     }
+    
+    // Notify the listeners that the filename has changed
+    // Fired by: FiliusFile
+    // Listened to by: 
+    protected void fireFilenameChange() {
+        pcs.firePropertyChange("filechange", null, ChangeType.NAME);
+        pcs.firePropertyChange("filename", null, null);
+    }
+    
+    // Notify the listeners that the filetype has changed
+    // Fired by: FiliusFile
+    // Listened to by: 
+    protected void fireFiletypeChange() {
+    	pcs.firePropertyChange("filechange", null, ChangeType.TYPE);
+        pcs.firePropertyChange("filetype", null, null);
+    }
+    
+    // Notify the listeners that the file's content has changed
+    // Fired by: FiliusFile
+    // Listened to by: GUIApplicationTextEditorWindow
+    protected void fireFilecontentChange() {
+    	pcs.firePropertyChange("filechange", null, ChangeType.CONTENT);
+        pcs.firePropertyChange("filecontent", null, null);
+    }	
+	
 
 	// Never used methods
 //	/**

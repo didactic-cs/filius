@@ -25,14 +25,11 @@
  */
 package filius.software.system;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
-import java.util.Observable;
-
-import filius.Main;
 import filius.hardware.knoten.Node;
+import filius.software.system.ModemFirmware.ModemStatus;
 
 /**
  * Die Klasse SystemSoftware umfasst die grundlegenden Funktionen einer Systemsoftware, die auf allen Stationen
@@ -40,10 +37,10 @@ import filius.hardware.knoten.Node;
  * Die Klasse ist abstrakt und wird fuer die verschiedenen Stationen unterschiedlich implementiert.
  */
 @SuppressWarnings("serial")
-public abstract class SystemSoftware extends Observable implements Serializable {
+public abstract class SystemSoftware implements Serializable {
 
     /** Die Hardware, auf der diese Systemsoftware laeuft. */
-    private Node hardware;
+    private Node node;
 
     private boolean started;
 
@@ -53,7 +50,7 @@ public abstract class SystemSoftware extends Observable implements Serializable 
      * In den implementierenden Unterklassen sollen an dieser Stelle alle Threads zur Simulation des virtuellen
      * Netzwerks gestartet werden.
      */
-    public void starten() {
+    public void start() {
         started = true;
     }
 
@@ -63,51 +60,58 @@ public abstract class SystemSoftware extends Observable implements Serializable 
      * In den implementierenden Unterklassen sollen an dieser Stelle alle Threads zur Simulation des virtuellen
      * Netzwerks angehalten werden.
      */
-    public void beenden() {
+    public void stop() {
         started = false;
     }
 
     public boolean isStarted() {
         return started;
     }
-
-    /**
-     * The {@link PropertyChangeSupport} is the new approach for implementing the observable pattern because
-     * {@link Observable} is deprecated since Java 9. Do not use both mechanisms!
-     */
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        this.pcs.addPropertyChangeListener(listener);
+    
+    public Node getNode() {
+        return node;
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        this.pcs.removePropertyChangeListener(listener);
-    }
+    public void setNode(Node node) {
+        this.node = node;
+        //Main.debug.println("DEBUG: SystemSoftware ("+this.hashCode()+") is now connected to Node ("+node.hashCode()+")");
+    }    
+     
+    //------------------------------------------------------------------------------------------------
+    // Listeners management
+    //------------------------------------------------------------------------------------------------ 
 
-    protected void firePropertyChanged(PropertyChangeEvent event) {
-        this.pcs.firePropertyChange(event);
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);     
+    
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(propertyName, listener);
     }
-
-    public Node getKnoten() {
-        return hardware;
+    
+    // Notify the listeners that the IP address changed
+    // Fired by: InternetNodeOS
+    // Listened to by: JNodeLabel, GUIDesktopPanel
+    protected void fireIPChange(String name) {
+        pcs.firePropertyChange("ipaddress", null, name);
     }
-
-    public void setKnoten(Node hardware) {
-        this.hardware = hardware;
-        // Main.debug.println("DEBUG: SystemSoftware ("+this.hashCode()+") now is connected to Knoten
-        // ("+hardware.hashCode()+")");
+    
+    // Notify the listeners that the DNS address changed
+    // Fired by: InternetNodeOS
+    // Listened to by: JNodeLabel
+    protected void fireDNSChange(String name) {
+        pcs.firePropertyChange("dnsaddress", null, name);
     }
-
-    /**
-     * Statusnachrichten werden damit an die Beobachter weitergeleitet.
-     * 
-     * @deprecated Use firePropertyChanged based on the {@link PropertyChangeSupport} mechanism instead.
-     */
-    public void benachrichtigeBeobacher(Object o) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (SystemSoftware), benachrichtigeBeobachter(" + o + ")");
-        setChanged();
-        notifyObservers(o);
+    
+    // Notify the listeners that the color dot needs to be updated
+    // Fired by: ModemFirmware
+    // Listened to by: JNodeLabel
+    protected void fireModemStatusChange(ModemStatus modemStatus) {
+        pcs.firePropertyChange("modemstatus", null, modemStatus);
     }
+    
+    // Notify the listeners that a message must be displayed
+    // Fired by: ModemFirmware, IP
+    // Listened to by: JNodeLabel
+    public void fireDisplayMessage(String message) {
+    	pcs.firePropertyChange("message", null, message);    	
+    }  
 }

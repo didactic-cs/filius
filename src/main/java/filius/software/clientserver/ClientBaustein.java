@@ -71,7 +71,7 @@ import filius.software.transportschicht.TCPSocket;
  * ausfuehren(String, Object[])</code>) muss als <code>public</code> deklariert sein!
  * </p>
  */
-public class ClientBaustein extends ClientAnwendung implements I18n {
+public class ClientBaustein extends ClientApplication implements I18n {
 
     /** Port-Nummer des Servers, an dem Verbindungsanfragen angenommen werden */
     private int zielPort = 55555;
@@ -96,7 +96,8 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
         args[0] = zielIPAdresse;
         args[1] = Integer.valueOf(zielPort);
 
-        ausfuehren("initialisiereSocket", args);
+        execute("initialisiereSocket", args);
+        execute("empfangeNachricht", null);  
     }
 
     /**
@@ -110,11 +111,11 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
                 socket.verbinden();
 
-                benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg2"));
+                notifyObservers(messages.getString("sw_clientbaustein_msg2"));
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
                 socket = null;
-                benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg1") + e.getMessage());
+                notifyObservers(messages.getString("sw_clientbaustein_msg1") + e.getMessage());
             }
         }
     }
@@ -130,7 +131,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
         if (socket != null) {
             socket.schliessen();
             socket = null;
-            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3"));
+            notifyObservers(messages.getString("sw_clientbaustein_msg3"));
         }
     }
 
@@ -144,14 +145,14 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
         if (socket != null && socket.istVerbunden()) {
             try {
                 socket.senden(nachricht);
-                benachrichtigeBeobachter("<<" + nachricht);
-                ausfuehren("empfangeNachricht", null);
+                notifyObservers("<<" + nachricht);
+                execute("empfangeNachricht", null);
             } catch (Exception e) {
-                benachrichtigeBeobachter(e.getMessage());
+                notifyObservers(e.getMessage());
                 e.printStackTrace(Main.debug);
             }
         } else {
-            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
+            notifyObservers(messages.getString("sw_clientbaustein_msg4"));
         }
     }
 
@@ -165,23 +166,21 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 + " (ClientBaustein), empfangeNachricht()");
         String nachricht;
 
-        if (socket != null && socket.istVerbunden()) {
+        while (socket != null && socket.istVerbunden()) {
             try {
                 nachricht = socket.empfangen();
                 if (nachricht != null) {
-                    benachrichtigeBeobachter(">>" + nachricht);
+                    notifyObservers(">>" + nachricht);
                 } else {
                     socket.schliessen();
-                    benachrichtigeBeobachter(
+                    notifyObservers(
                             messages.getString("sw_clientbaustein_msg5") + " " + socket.holeZielIPAdresse() + ":"
                                     + socket.holeZielPort() + " " + messages.getString("sw_clientbaustein_msg6"));
                 }
             } catch (Exception e) {
-                benachrichtigeBeobachter(e.getMessage());
+                notifyObservers(e.getMessage());
                 e.printStackTrace(Main.debug);
             }
-        } else {
-            benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
         }
     }
 

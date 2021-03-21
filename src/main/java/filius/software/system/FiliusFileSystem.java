@@ -43,9 +43,8 @@ import filius.Main;
  * @see filius.software.system.FiliusFile
  * @see filius.software.system.FiliusFileNode
  */
+@SuppressWarnings("serial")
 public class FiliusFileSystem implements Serializable {
-
-    private static final long serialVersionUID = 1L;
     
     // Error codes 
     public static enum errorCode {
@@ -86,8 +85,8 @@ public class FiliusFileSystem implements Serializable {
 	}
 
     // Character used as separator in a path
-    public static final String FILE_SEPARATOR = "/";
-
+    public final String FILE_SEPARATOR = "/";
+    
     // Root node, similar to the "/" mount point used in some operating system
     private FiliusFileNode root;
 
@@ -105,10 +104,9 @@ public class FiliusFileSystem implements Serializable {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
         		           " (FiliusFileSystem), constr: FiliusFileSystem()");
         
-        root = new FiliusFileNode("root");
+        root = new FiliusFileNode(this, "root");
         workingDirectory = root;        
     }
-    
     
     //******************************************************************************************
     //  Getters and setters
@@ -226,7 +224,7 @@ public class FiliusFileSystem implements Serializable {
      * 
      * @see #toNode
      */
-    public static String toPath(String path1, String path2) {
+    public String toPath(String path1, String path2) {
     	
     	String path; 
     	
@@ -323,7 +321,7 @@ public class FiliusFileSystem implements Serializable {
      * @param path String containing a path
      * @return A String containing the evaluated path.
      */
-    public static String evaluatePath(String path) {
+    public String evaluatePath(String path) {
         
         // Split the path in subtrings
         StringTokenizer tk = new StringTokenizer(path, FILE_SEPARATOR);
@@ -378,7 +376,7 @@ public class FiliusFileSystem implements Serializable {
      * @param path String containing the name to be checked.
      * @return true if the path is absolute.
      */
-    public static boolean isAbsolute(String path) {    	    	
+    public boolean isAbsolute(String path) {    	    	
     	
     	if (path == null || path.isEmpty()) return false;
     	
@@ -393,10 +391,10 @@ public class FiliusFileSystem implements Serializable {
      * The last separator is not included in the returned value.<br>
      * If path contains no separator, an empty string is returned.
      */
-    public static String getPathDirectory(String path) {
+    public String getPathDirectory(String path) {
     	        
-        if (path.lastIndexOf(FiliusFileSystem.FILE_SEPARATOR) >= 0) {
-            return path.substring(0, path.lastIndexOf(FiliusFileSystem.FILE_SEPARATOR));
+        if (path.lastIndexOf(FILE_SEPARATOR) >= 0) {
+            return path.substring(0, path.lastIndexOf(FILE_SEPARATOR));
         } else {
             return "";
         }
@@ -409,10 +407,10 @@ public class FiliusFileSystem implements Serializable {
      * @return A String containing the substring of path consisting of all characters after the last separator.
      * If path contains no separator, path is returned as is.
      */
-    public static String getPathFilename(String path) {
+    public String getPathFilename(String path) {
     	        
-        if (path.lastIndexOf(FiliusFileSystem.FILE_SEPARATOR) >= 0) {
-            return path.substring(path.lastIndexOf(FiliusFileSystem.FILE_SEPARATOR) + 1);
+        if (path.lastIndexOf(FILE_SEPARATOR) >= 0) {
+            return path.substring(path.lastIndexOf(FILE_SEPARATOR) + 1);
         } else {
             return path;
         }
@@ -427,7 +425,7 @@ public class FiliusFileSystem implements Serializable {
 	 * @return A String containing the extension of the path or filename including
 	 * the initial dot, or an empty string if there is no extension.
 	 */
-	public static String getPathExtension(String path) {
+	public String getPathExtension(String path) {
 		
 		int index = path.lastIndexOf(".");
 	    if (index >= 0) {
@@ -444,7 +442,7 @@ public class FiliusFileSystem implements Serializable {
      * @param filePath String containing a filepath or filename.
      * @return A String containing the filepath or filename without its extension, if any.
      */
-    public static String getPathWithoutExtension(String filePath) {
+    public String getPathWithoutExtension(String filePath) {
     	
     	int index = filePath.lastIndexOf(".");
         if (index >= 0) {
@@ -464,7 +462,7 @@ public class FiliusFileSystem implements Serializable {
 	 *             String containing the name of the file the type of which is to be determined.
 	 * @return A String containing the file's type 
 	 */
-	public static String getTypeFromExtension(String fileName) { 
+	public String getTypeFromExtension(String fileName) { 
 						
 		String type = "binary"; 
 		String fileExt = getPathExtension(fileName).toLowerCase();

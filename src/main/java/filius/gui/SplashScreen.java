@@ -40,19 +40,15 @@ import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 
 /* Basiert auf SplashScreen von Tony Colston, JavaWorld.com, 11/17/00 */
+@SuppressWarnings("serial")
 public class SplashScreen extends JWindow implements I18n {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public SplashScreen(String filename, Frame f) {
 		super(f);
 		JLabel l = new JLabel(new ImageIcon(getClass().getResource("/" + filename)));
 		getContentPane().add(l, BorderLayout.CENTER);
 
-		JLabel info = new JLabel(" Version " + Information.getVersion() + ", "
-		        + messages.getString("splashscreen_msg1"));
+		JLabel info = new JLabel(" Version " + Information.getVersion() + ", " + messages.getString("splashscreen_msg1"));
 		info.setForeground(Color.BLACK);
 		info.setFont(new Font("Dialog", Font.PLAIN, 10));
 		getContentPane().add(info, BorderLayout.SOUTH);
@@ -61,6 +57,5 @@ public class SplashScreen extends JWindow implements I18n {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension labelSize = l.getPreferredSize();
 		setLocation(screenSize.width / 2 - (labelSize.width / 2), screenSize.height / 2 - (labelSize.height / 2));
-
 	}
 }

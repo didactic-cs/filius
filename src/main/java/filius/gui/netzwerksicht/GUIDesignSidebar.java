@@ -35,11 +35,12 @@ import javax.swing.event.MouseInputAdapter;
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
 import filius.hardware.Cable;
+import filius.hardware.knoten.Computer;
 import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Notebook;
-import filius.hardware.knoten.Rechner;
+import filius.hardware.knoten.Router;
 import filius.hardware.knoten.Switch;
-import filius.hardware.knoten.Vermittlungsrechner;
+import filius.rahmenprogramm.I18n;
 
 /**
  * Klasse für das linke Panel in der Entwurfsansicht. Darin werden alle
@@ -48,81 +49,63 @@ import filius.hardware.knoten.Vermittlungsrechner;
  * 
  * @author Johannes Bade & Thomas Gerding
  */
-public class GUIDesignSidebar extends GUISidebar {
+public class GUIDesignSidebar extends GUISidebar implements I18n {
 
 	public static final String KABEL = "gfx/hardware/kabel.png";
 	public static final String RECHNER = "gfx/hardware/server.png";
 	public static final String SWITCH = "gfx/hardware/switch.png";
 	public static final String SWITCH_CLOUD = "gfx/hardware/cloud.png";
-	public static final String VERMITTLUNGSRECHNER = "gfx/hardware/router.png";
+	public static final String ROUTER = "gfx/hardware/router.png";
 	public static final String NOTEBOOK = "gfx/hardware/laptop.png";
 	public static final String MODEM = "gfx/hardware/vermittlungsrechner-out.png";
+	
+	private static final String[] ICON_FILES = {KABEL, RECHNER, NOTEBOOK, SWITCH, ROUTER, MODEM};
+	private static final String[] TYPES = {Cable.TYPE, Computer.TYPE, Notebook.TYPE, Switch.TYPE, Router.TYPE, Modem.TYPE};
 
-	private JLabel newCableCursor;
-
-	private static GUIDesignSidebar sidebar;
+	private static GUIDesignSidebar designSidebar;
+	
 
 	public static GUIDesignSidebar getGUIDesignSidebar() {
-		if (sidebar == null) {
-			sidebar = new GUIDesignSidebar();
+		if (designSidebar == null) {
+			designSidebar = new GUIDesignSidebar();
 		}
-		return sidebar;
+		return designSidebar;
 	}
+	
+	public static String iconFilesByHardware(String hardwareType) {
+		
+		for (int i = 0; i < ICON_FILES.length; i++) {
+			if (hardwareType == TYPES[i]) return ICON_FILES[i];
+		}
+		return null;
+	}
+	
+	@Override
+	protected void addItems() {
+		
+		// Add the cable tool
+		JLabel cableTool = new JLabel(new ImageIcon(getClass().getResource("/" + KABEL)));
+		cableTool.setText(Cable.TYPE);
+		cableTool.setVerticalTextPosition(SwingConstants.BOTTOM);
+		cableTool.setHorizontalTextPosition(SwingConstants.CENTER);
+		cableTool.setAlignmentX(0.5f);
+		cableTool.setToolTipText(messages.getString("guidesignsidebar_msg1"));		           
 
-	private void addCableItemToSidebar() {
-		newCableCursor = new JLabel(new ImageIcon(getClass().getResource("/" + KABEL)));
-		newCableCursor.setText(Cable.TYPE);
-		newCableCursor.setVerticalTextPosition(SwingConstants.BOTTOM);
-		newCableCursor.setHorizontalTextPosition(SwingConstants.CENTER);
-		newCableCursor.setAlignmentX(0.5f);
-
-		newCableCursor.setVerticalTextPosition(SwingConstants.BOTTOM);
-		newCableCursor.setHorizontalTextPosition(SwingConstants.CENTER);
-
-		newCableCursor.setToolTipText("<Alt>+1");
-
-		leistenpanel.add(newCableCursor);
-
-		newCableCursor.addMouseListener(new MouseInputAdapter() {
+		cableTool.addMouseListener(new MouseInputAdapter() {
+			
 			public void mousePressed(MouseEvent e) {
-				GUIEvents.getGUIEvents().resetAndShowCablePreview(
-				        e.getX() - GUIContainer.getInstance().getSidebarScrollpane().getWidth(), e.getY());
+				GUIEvents.getInstance().resetAndShowCablePreview(e.getX() - GUIContainer.getInstance().getSidebarScrollpane().getWidth(), e.getY());
 			}
 		});
-	}
+		
+		addItem(cableTool);		
+		
+		// Add the node buttons
+		for (int i = 1; i < ICON_FILES.length; i++) {
+			ImageIcon icon = new ImageIcon(getClass().getResource("/" + ICON_FILES[i]));
+			JNodeLabel nodeLabel = new JNodeLabel(TYPES[i], TYPES[i], icon, false);
 
-	@Override
-	protected void addItemsToSidebar() {
-		addCableItemToSidebar();
-		addComponentItemsToSidebar();
-	}
-
-	private void addComponentItemsToSidebar() {
-		String[] bildDateien;
-		String[] hardwareTypen;
-		JNodeLabel newLabel;
-		ImageIcon icon;
-
-		bildDateien = new String[5];
-		hardwareTypen = new String[5];
-		bildDateien[0] = RECHNER;
-		hardwareTypen[0] = Rechner.TYPE;
-		bildDateien[1] = NOTEBOOK;
-		hardwareTypen[1] = Notebook.TYPE;
-		bildDateien[2] = SWITCH;
-		hardwareTypen[2] = Switch.TYPE;
-		bildDateien[3] = VERMITTLUNGSRECHNER;
-		hardwareTypen[3] = Vermittlungsrechner.TYPE;
-		bildDateien[4] = MODEM;
-		hardwareTypen[4] = Modem.TYPE;
-
-		for (int i = 0; i < bildDateien.length && i < hardwareTypen.length; i++) {
-			icon = new ImageIcon(getClass().getResource("/" + bildDateien[i]));
-			newLabel = new JNodeLabel(hardwareTypen[i], icon, hardwareTypen[i]);
-
-			/* Label wird liste und Leiste hinzugefuegt */
-			buttonList.add(newLabel);
-			leistenpanel.add(newLabel);
+			addItem(nodeLabel);
 		}
 	}
 }

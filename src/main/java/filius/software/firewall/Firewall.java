@@ -28,16 +28,15 @@ package filius.software.firewall;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.I18n;
-import filius.software.Anwendung;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.Application;
+import filius.software.system.InternetNodeOS;
 import filius.software.transportschicht.Segment;
 import filius.software.transportschicht.TcpSegment;
 import filius.software.transportschicht.UdpSegment;
@@ -61,7 +60,7 @@ import filius.software.vermittlungsschicht.VermittlungsProtokoll;
  * <li>ACK(=0)+SYN(=1)-Bit der TCP-Segmente (indiziert Initialisierung des Verbindungsaufbaus)</li>
  * </ol>
  */
-public class Firewall extends Anwendung implements I18n {
+public class Firewall extends Application implements I18n {
 
     public static int PERSONAL = 1, GATEWAY = 2;
 
@@ -71,7 +70,7 @@ public class Firewall extends Anwendung implements I18n {
     // firewall ruleset
     private Vector<FirewallRule> ruleset;
 
-    private short defaultPolicy = FirewallRule.DROP;
+    private short defaultAction = FirewallRule.DROP;
     private boolean verbindungsaufbauAblehnen = false;
     private boolean activated = true;
     private boolean doDropICMP = false;
@@ -94,18 +93,18 @@ public class Firewall extends Anwendung implements I18n {
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Firewall), constr: Firewall()");
 
-        defaultPolicy = FirewallRule.DROP;
+        //defaultAction = FirewallRule.DROP;
         ruleset = new Vector<FirewallRule>();
     }
 
     /**
      * startet die Anwendung Firewall.
      */
-    public void starten() {
+    public void startThread() {
         if (this.holeNetzwerkInterfaces() != null) {
             Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                     + " (Firewall), starten()");
-            super.starten();
+            super.startThread();
 
             for (NetworkInterface nic : this.holeNetzwerkInterfaces()) {
                 this.starteFirewallThread(nic);
@@ -115,17 +114,17 @@ public class Firewall extends Anwendung implements I18n {
 
     private void starteFirewallThread(NetworkInterface nic) {
         FirewallThread thread = new FirewallThread(this, nic);
-        thread.starten();
+        thread.startThread();
         this.threads.add(thread);
     }
 
     /**
      * ruft die Methoden zum ordnungsgemäßen Stoppen aller existierenden Threads auf
      */
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Firewall), beenden()");
-        super.beenden();
+        super.stopThread();
 
         this.beendeFirewallThread(null);
     }
@@ -133,9 +132,9 @@ public class Firewall extends Anwendung implements I18n {
     private void beendeFirewallThread(NetworkInterface nic) {
         for (FirewallThread thread : this.threads) {
             if (nic == null) {
-                thread.beenden();
+                thread.stopThread();
             } else if (nic == thread.getNetzwerkInterface()) {
-                thread.beenden();
+                thread.stopThread();
                 break;
             }
         }
@@ -167,8 +166,8 @@ public class Firewall extends Anwendung implements I18n {
                 ruleMatch = true;
                 if (!ruleset.get(i).srcIP.isEmpty()) {
                     if (ruleset.get(i).srcIP.equals(FirewallRule.SAME_NETWORK)) {
-                        ListIterator<NetworkInterface> it = ((InternetNode) getSystemSoftware().getKnoten())
-                                .getNIlist().listIterator();
+                        ListIterator<NetworkInterface> it = ((InternetNode) getSystemSoftware().getNode())
+                                .getNICList().listIterator();
                         boolean foundNIC = false;
                         while (it.hasNext() && !foundNIC) {
                             NetworkInterface iface = it.next();
@@ -200,7 +199,7 @@ public class Firewall extends Anwendung implements I18n {
 
                 if (ruleMatch) { // if rule matches to current packet, then
                                  // return true for ACCEPT target, else false
-                    benachrichtigeBeobachter(messages.getString("sw_firewall_msg8")
+                    notifyObservers(messages.getString("sw_firewall_msg8")
                             + " #"
                             + (i + 1)
                             + " ("
@@ -213,11 +212,10 @@ public class Firewall extends Anwendung implements I18n {
             }
             // return true for defaultPolicy ACCEPT, false otherwise (i.e. in
             // case of DROP policy)
-            benachrichtigeBeobachter(messages.getString("sw_firewall_msg9")
-                    + " "
-                    + ((this.defaultPolicy == FirewallRule.ACCEPT) ? messages.getString("jfirewalldialog_msg33")
-                            : messages.getString("jfirewalldialog_msg34")));
-            return (this.defaultPolicy == FirewallRule.ACCEPT);
+            notifyObservers(messages.getString("sw_firewall_msg9") + " " +
+                            ((this.defaultAction == FirewallRule.ACCEPT) ? messages.getString("jfirewalldialog_msg33") 
+                            		                                     : messages.getString("jfirewalldialog_msg34")));
+            return (this.defaultAction == FirewallRule.ACCEPT);
         } else {
             return true;
         }
@@ -256,6 +254,10 @@ public class Firewall extends Anwendung implements I18n {
     public void delRule(int id) {
         if (id >= 0 && id <= ruleset.size())
             ruleset.remove(id - 1);
+    }
+    
+    public void clearRules() {
+    	ruleset.clear();
     }
 
     /*
@@ -311,8 +313,8 @@ public class Firewall extends Anwendung implements I18n {
     public void eintragHinzufuegen(String von, String bis, String typ) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Firewall), eintragHinzufuegen(" + von + "," + bis + "," + typ + ")");
-        if (!EingabenUeberpruefung.isGueltig(von, EingabenUeberpruefung.musterIpAdresse)
-                || !EingabenUeberpruefung.isGueltig(bis, EingabenUeberpruefung.musterIpAdresseAuchLeer)) {
+        if (!EntryValidator.isValid(von, EntryValidator.musterIpAdresse)
+                || !EntryValidator.isValid(bis, EntryValidator.musterIpAdresseAuchLeer)) {
             return;
         }
 
@@ -334,7 +336,7 @@ public class Firewall extends Anwendung implements I18n {
             ruleset.add(newRule);
             // ---------
             // Main.debug.println("Erfolgreich hinzugefügt: "+tmp );
-            benachrichtigeBeobachter(messages.getString("sw_firewall_msg4") + von + " - " + bis);
+            notifyObservers(messages.getString("sw_firewall_msg4") + von + " - " + bis);
         } else if (typ.equals(EMPFAENGER_FILTER)) {
             // ---------
             // write rule equivalent/similar to former effects
@@ -348,7 +350,7 @@ public class Firewall extends Anwendung implements I18n {
             ruleset.add(newRule);
             // ---------
             // Main.debug.println("Erfolgreich hinzugefügt: "+tmp );
-            benachrichtigeBeobachter(messages.getString("sw_firewall_msg4") + von + " - " + bis);
+            notifyObservers(messages.getString("sw_firewall_msg4") + von + " - " + bis);
         }
     }
 
@@ -382,7 +384,7 @@ public class Firewall extends Anwendung implements I18n {
             } catch (Exception e) {}
             // ---------
 
-            benachrichtigeBeobachter(messages.getString("sw_firewall_msg5") + port);
+            notifyObservers(messages.getString("sw_firewall_msg5") + port);
         }
     }
 
@@ -408,64 +410,64 @@ public class Firewall extends Anwendung implements I18n {
      * @return wandelt zunächst die Adressen in Zahlen um. Dann wird geprueft, ob der pruefWert inmitten der oberen und
      *         unteren Grenze liegt
      */
-    private boolean inPruefbereich(String untereGrenze, String obereGrenze, String pruefWert) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Firewall), inPruefbereich(" + untereGrenze + "," + obereGrenze + "," + pruefWert + ")");
-
-        boolean pruef = false;
-
-        StringTokenizer untereTokens = new StringTokenizer(untereGrenze, ".");
-        double ersteZahl = Integer.parseInt(untereTokens.nextToken());
-        ersteZahl = ersteZahl * 16777216; // entspricht 2^24
-        double zweiteZahl = Integer.parseInt(untereTokens.nextToken());
-        zweiteZahl = zweiteZahl * 65536; // entspricht 2^16
-        double dritteZahl = Integer.parseInt(untereTokens.nextToken());
-        dritteZahl = dritteZahl * 256;
-        double vierteZahl = Integer.parseInt(untereTokens.nextToken());
-
-        double untereSumme = ersteZahl + zweiteZahl + dritteZahl + vierteZahl;
-        // Main.debug.println("Firewall: untereSumme = "+untereSumme);
-
-        // String obereGrenze in eine Zahl umrechnen:
-        StringTokenizer obereTokens = new StringTokenizer(obereGrenze, ".");
-        double ersteObereZahl = Integer.parseInt(obereTokens.nextToken());
-        ersteObereZahl = ersteObereZahl * 16777216; // entspricht 2^24
-        double zweiteObereZahl = Integer.parseInt(obereTokens.nextToken());
-        zweiteObereZahl = zweiteObereZahl * 65536; // entspricht 2^16
-        double dritteObereZahl = Integer.parseInt(obereTokens.nextToken());
-        dritteObereZahl = dritteObereZahl * 256; // entspricht 2^8
-        double vierteObereZahl = Integer.parseInt(obereTokens.nextToken());
-
-        double obereSumme = ersteObereZahl + zweiteObereZahl + dritteObereZahl + vierteObereZahl;
-        // Main.debug.println("Firewall: obereSumme = "+obereSumme);
-
-        // String pruefWert in eine Zahl umrechnen:
-        StringTokenizer pruefTokens = new StringTokenizer(pruefWert, ".");
-        double erstePruefZahl = Integer.parseInt(pruefTokens.nextToken());
-        erstePruefZahl = erstePruefZahl * 16777216; // entspricht 2^24
-        double zweitePruefZahl = Integer.parseInt(pruefTokens.nextToken());
-        zweitePruefZahl = zweitePruefZahl * 65536; // entspricht 2^16
-        double drittePruefZahl = Integer.parseInt(pruefTokens.nextToken());
-        drittePruefZahl = drittePruefZahl * 256; // entspricht 2^8
-        double viertePruefZahl = Integer.parseInt(pruefTokens.nextToken());
-
-        double pruefZahlSumme = erstePruefZahl + zweitePruefZahl + drittePruefZahl + viertePruefZahl;
-        // Main.debug.println("Firewall: pruefZahlSumme = "+pruefZahlSumme);
-
-        // pruefen ob der pruefWert zwischen Obersumme und Untersumme liegt
-        if (pruefZahlSumme >= untereSumme && pruefZahlSumme <= obereSumme) {
-            pruef = true;
-        }
-
-        return pruef;
-    }
+//    private boolean inPruefbereich(String untereGrenze, String obereGrenze, String pruefWert) {
+//        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+//                + " (Firewall), inPruefbereich(" + untereGrenze + "," + obereGrenze + "," + pruefWert + ")");
+//
+//        boolean pruef = false;
+//
+//        StringTokenizer untereTokens = new StringTokenizer(untereGrenze, ".");
+//        double ersteZahl = Integer.parseInt(untereTokens.nextToken());
+//        ersteZahl = ersteZahl * 16777216; // entspricht 2^24
+//        double zweiteZahl = Integer.parseInt(untereTokens.nextToken());
+//        zweiteZahl = zweiteZahl * 65536; // entspricht 2^16
+//        double dritteZahl = Integer.parseInt(untereTokens.nextToken());
+//        dritteZahl = dritteZahl * 256;
+//        double vierteZahl = Integer.parseInt(untereTokens.nextToken());
+//
+//        double untereSumme = ersteZahl + zweiteZahl + dritteZahl + vierteZahl;
+//        // Main.debug.println("Firewall: untereSumme = "+untereSumme);
+//
+//        // String obereGrenze in eine Zahl umrechnen:
+//        StringTokenizer obereTokens = new StringTokenizer(obereGrenze, ".");
+//        double ersteObereZahl = Integer.parseInt(obereTokens.nextToken());
+//        ersteObereZahl = ersteObereZahl * 16777216; // entspricht 2^24
+//        double zweiteObereZahl = Integer.parseInt(obereTokens.nextToken());
+//        zweiteObereZahl = zweiteObereZahl * 65536; // entspricht 2^16
+//        double dritteObereZahl = Integer.parseInt(obereTokens.nextToken());
+//        dritteObereZahl = dritteObereZahl * 256; // entspricht 2^8
+//        double vierteObereZahl = Integer.parseInt(obereTokens.nextToken());
+//
+//        double obereSumme = ersteObereZahl + zweiteObereZahl + dritteObereZahl + vierteObereZahl;
+//        // Main.debug.println("Firewall: obereSumme = "+obereSumme);
+//
+//        // String pruefWert in eine Zahl umrechnen:
+//        StringTokenizer pruefTokens = new StringTokenizer(pruefWert, ".");
+//        double erstePruefZahl = Integer.parseInt(pruefTokens.nextToken());
+//        erstePruefZahl = erstePruefZahl * 16777216; // entspricht 2^24
+//        double zweitePruefZahl = Integer.parseInt(pruefTokens.nextToken());
+//        zweitePruefZahl = zweitePruefZahl * 65536; // entspricht 2^16
+//        double drittePruefZahl = Integer.parseInt(pruefTokens.nextToken());
+//        drittePruefZahl = drittePruefZahl * 256; // entspricht 2^8
+//        double viertePruefZahl = Integer.parseInt(pruefTokens.nextToken());
+//
+//        double pruefZahlSumme = erstePruefZahl + zweitePruefZahl + drittePruefZahl + viertePruefZahl;
+//        // Main.debug.println("Firewall: pruefZahlSumme = "+pruefZahlSumme);
+//
+//        // pruefen ob der pruefWert zwischen Obersumme und Untersumme liegt
+//        if (pruefZahlSumme >= untereSumme && pruefZahlSumme <= obereSumme) {
+//            pruef = true;
+//        }
+//
+//        return pruef;
+//    }
 
     /**
      * Methode fuer den Zugriff auf das Betriebssystem, auf dem diese Anwendung laeuft.
      * 
      * @param bs
      */
-    public void setSystemSoftware(InternetKnotenBetriebssystem bs) {
+    public void setSystemSoftware(InternetNodeOS bs) {
         super.setSystemSoftware(bs);
     }
 
@@ -500,7 +502,7 @@ public class Firewall extends Anwendung implements I18n {
         this.inactiveNics.removeAllElements();
         for (NetworkInterface nic : allNics) {
             if (netzwerkInterfaces.indexOf(nic) == -1) {
-                this.inactiveNics.add(new Integer(allNics.indexOf(nic)));
+                this.inactiveNics.add(Integer.valueOf(allNics.indexOf(nic)));
             }
         }
     }
@@ -511,7 +513,7 @@ public class Firewall extends Anwendung implements I18n {
 
         for (NetworkInterface nic : allNics) {
             try {
-                if (!this.inactiveNics.contains(new Integer(allNics.indexOf(nic)))) {
+                if (!this.inactiveNics.contains(Integer.valueOf(allNics.indexOf(nic)))) {
                     result.add(nic);
                 }
             } catch (IndexOutOfBoundsException e) {}
@@ -520,15 +522,15 @@ public class Firewall extends Anwendung implements I18n {
     }
 
     private List<NetworkInterface> getAllNetworkInterfaces() {
-        InternetNode host = (InternetNode) this.getSystemSoftware().getKnoten();
+        InternetNode host = (InternetNode) this.getSystemSoftware().getNode();
 
-        return host.getNIlist();
+        return host.getNICList();
     }
 
     public boolean hinzuNetzwerkInterface(NetworkInterface nic) {
         int idx = this.getAllNetworkInterfaces().indexOf(nic);
-        if (this.inactiveNics.contains(new Integer(idx))) {
-            this.inactiveNics.remove(new Integer(idx));
+        if (this.inactiveNics.contains(Integer.valueOf(idx))) {
+            this.inactiveNics.remove(Integer.valueOf(idx));
 
             if (this.running) {
                 this.starteFirewallThread(nic);
@@ -541,8 +543,8 @@ public class Firewall extends Anwendung implements I18n {
 
     public boolean entferneNetzwerkInterface(NetworkInterface nic) {
         int idx = this.getAllNetworkInterfaces().indexOf(nic);
-        if (!this.inactiveNics.contains(new Integer(idx))) {
-            this.inactiveNics.add(new Integer(idx));
+        if (!this.inactiveNics.contains(Integer.valueOf(idx))) {
+            this.inactiveNics.add(Integer.valueOf(idx));
 
             if (this.running) {
                 this.beendeFirewallThread(nic);
@@ -560,41 +562,36 @@ public class Firewall extends Anwendung implements I18n {
     public void setInactiveNics(Vector<Integer> inactiveNics) {
         this.inactiveNics = inactiveNics;
     }
+    
+    /*
+     * change default action
+     * 
+     * @param defPol new default action; provided as 'short' value as defined in FirewallRule
+     */
+    public void setDefaultAction(short defPol) {
+        defaultAction = defPol;
+    }
+
+    public short getDefaultAction() {
+        return defaultAction;
+    }
 
     /*
-     * change default policy
+     * change default action
      * 
-     * @param langPolicy new default policy; provided as String in the language currently chosen
+     * @param langPolicy new default action; provided as String in the language currently chosen
      */
-    public void setDefaultPolicyString(String langPolicy) {
-        if (langPolicy.equals(messages.getString("jfirewalldialog_msg33")))
-            defaultPolicy = FirewallRule.ACCEPT;
-        else
-            defaultPolicy = FirewallRule.DROP;
+    public void setDefaultActionAsString(String langPolicy) {
+        if (langPolicy.equals(messages.getString("jfirewalldialog_msg33")))  defaultAction = FirewallRule.ACCEPT;
+        else                                                                 defaultAction = FirewallRule.DROP;
     }
-
-    /*
-     * change default policy
-     * 
-     * @param defPol new default policy; provided as 'short' value as defined in FirewallRule
-     */
-    public void setDefaultPolicy(short defPol) {
-        defaultPolicy = defPol;
+    
+    public String getDefaultActionAsString() {
+        if (defaultAction == FirewallRule.ACCEPT)     return messages.getString("jfirewalldialog_msg33");
+        else if (defaultAction == FirewallRule.DROP)  return messages.getString("jfirewalldialog_msg34");
+        else                                          return "";
     }
-
-    public short getDefaultPolicy() {
-        return defaultPolicy;
-    }
-
-    public String getDefaultPolicyString() {
-        if (defaultPolicy == FirewallRule.ACCEPT)
-            return messages.getString("jfirewalldialog_msg33");
-        else if (defaultPolicy == FirewallRule.DROP)
-            return messages.getString("jfirewalldialog_msg34");
-        else
-            return "";
-    }
-
+    
     public void setDropICMP(boolean selState) {
         doDropICMP = selState;
     }

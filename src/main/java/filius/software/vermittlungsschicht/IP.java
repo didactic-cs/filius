@@ -37,7 +37,7 @@ import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.software.netzzugangsschicht.EthernetFrame;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.transportschicht.TcpSegment;
 import filius.software.transportschicht.UdpSegment;
 
@@ -68,7 +68,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * 
      * @param systemsoftware
      */
-    public IP(InternetKnotenBetriebssystem systemsoftware) {
+    public IP(InternetNodeOS systemsoftware) {
         super(systemsoftware);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware
                 + ")");
@@ -130,8 +130,8 @@ public class IP extends VermittlungsProtokoll implements I18n {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), sendeBroadcast("
                 + ipPaket.toString() + ")");
 
-        InternetNode knoten = (InternetNode) holeSystemSoftware().getKnoten();
-        for (NetworkInterface nic : knoten.getNIlist()) {
+        InternetNode knoten = (InternetNode) getSystemSoftware().getNode();
+        for (NetworkInterface nic : knoten.getNICList()) {
             // Broadcast-Nachrichten werden nur im lokalen Rechnernetz
             // verschickt
             sendBroadcastOverNic(nic, ipPaket);
@@ -144,10 +144,10 @@ public class IP extends VermittlungsProtokoll implements I18n {
         // wird es von keinem Knoten weitergeschickt
         ipPaket.setTtl(1);
 
-        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
+        InternetNodeOS bs = (InternetNodeOS) getSystemSoftware();
         if (CURRENT_NETWORK.equals(ipPaket.getSender())
                 || gleichesRechnernetz(ipPaket.getSender(), nic.getIp(), nic.getSubnetMask())) {
-            bs.holeEthernet().senden(ipPaket, nic.getMac(), ETHERNET_BROADCAST, EthernetFrame.IP);
+            bs.getEthernet().senden(ipPaket, nic.getMac(), ETHERNET_BROADCAST, EthernetFrame.IP);
         }
     }
 
@@ -182,7 +182,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @throws RouteNotFoundException
      */
     private void sendeUnicast(IpPaket paket, Route route) throws RouteNotFoundException {
-        NetworkInterface nic = ((InternetNode) holeSystemSoftware().getKnoten()).getNIbyIP(route
+        NetworkInterface nic = ((InternetNode) getSystemSoftware().getNode()).getNICbyIP(route
                 .getInterfaceIpAddress());
         String netzmaske = nic.getSubnetMask();
 
@@ -196,17 +196,17 @@ public class IP extends VermittlungsProtokoll implements I18n {
     }
 
     private void sendeUnicastLokal(IpPaket paket, String ziel, NetworkInterface nic) {
-        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
-        String zielMacAdresse = bs.holeARP().holeARPTabellenEintrag(ziel);
+        InternetNodeOS bs = (InternetNodeOS) getSystemSoftware();
+        String zielMacAdresse = bs.getARP().holeARPTabellenEintrag(ziel);
 
         if (zielMacAdresse != null) {
             // MAC-Adresse konnte bestimmt werden
-            bs.holeEthernet().senden(paket, nic.getMac(), zielMacAdresse, EthernetFrame.IP);
+            bs.getEthernet().senden(paket, nic.getMac(), zielMacAdresse, EthernetFrame.IP);
         } else {
             // Es konnte keine MAC-Adresse bestimmt werden.
             // Es muss ein ICMP Destination Unreachable: Host Unreachable
             // (3/1) zurueckgesendet werden:
-            bs.holeICMP().sendeICMP(ICMP.TYPE_DESTINATION_UNREACHABLE, ICMP.CODE_DEST_HOST_UNREACHABLE,
+            bs.getICMP().sendeICMP(ICMP.TYPE_DESTINATION_UNREACHABLE, ICMP.CODE_DEST_HOST_UNREACHABLE,
                     paket.getSender());
         }
     }
@@ -239,13 +239,13 @@ public class IP extends VermittlungsProtokoll implements I18n {
             benachrichtigeTransportschicht(paket);
         } else if (zielIp.equals("255.255.255.255")) {
             if (quellIp == null) {
-                quellIp = ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeIPAdresse();
+                quellIp = ((InternetNodeOS) getSystemSoftware()).getIPAddress();
             }
             paket.setSender(quellIp);
             sendeBroadcast(paket);
         } else {
             try {
-                InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
+                InternetNodeOS bs = (InternetNodeOS) getSystemSoftware();
                 Route route = bs.determineRoute(paket.getEmpfaenger());
                 paket.setSender(route.getInterfaceIpAddress());
                 sendeUnicast(paket, route);
@@ -262,20 +262,20 @@ public class IP extends VermittlungsProtokoll implements I18n {
      *            das zu versendende IP-Paket
      */
     public void weiterleitenPaket(IpPaket paket) {
-        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
+        InternetNodeOS os = (InternetNodeOS) getSystemSoftware();
 
         if (paket.getTtl() <= 0) {
-            bs.holeICMP().sendeICMP(ICMP.TYPE_TIME_EXCEEDED, ICMP.CODE_TTL_EXPIRED, paket.getSender());
+            os.getICMP().sendeICMP(ICMP.TYPE_TIME_EXCEEDED, ICMP.CODE_TTL_EXPIRED, paket.getSender());
         } else {
             try {
-                Route route = bs.determineRoute(paket.getEmpfaenger());
+                Route route = os.determineRoute(paket.getEmpfaenger());
                 sendeUnicast(paket, route);
             } catch (RouteNotFoundException e) {
-                bs.holeICMP().sendeICMP(ICMP.TYPE_DESTINATION_UNREACHABLE, ICMP.CODE_DEST_NETWORK_UNREACHABLE,
-                        paket.getSender());
-                bs.benachrichtigeBeobacher(messages.getString("sw_ip_msg4") + " \"" + bs.getKnoten().getName()
-                        + "\"!\n" + messages.getString("sw_ip_msg5") + " " + paket.getEmpfaenger() + " "
-                        + messages.getString("sw_ip_msg6"));
+                os.getICMP().sendeICMP(ICMP.TYPE_DESTINATION_UNREACHABLE, ICMP.CODE_DEST_NETWORK_UNREACHABLE, paket.getSender());
+                
+                // Display an error message
+                os.fireDisplayMessage(messages.getString("sw_ip_msg4") + " \"" + os.getNode().getName() + "\"!\n" + 
+                                     messages.getString("sw_ip_msg5") + " " + paket.getEmpfaenger() + " " +  messages.getString("sw_ip_msg6"));
             }
         }
     }
@@ -301,17 +301,17 @@ public class IP extends VermittlungsProtokoll implements I18n {
     /**
      * Hier wird der Thread zur Ueberwachung des Puffers fuer eingehende IP-Pakete der Netzzugangsschicht
      */
-    public void starten() {
+    public void start() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), starten()");
 
         thread = new IPThread(this);
-        thread.starten();
+        thread.startThread();
     }
 
     /** Der Thread zur Ueberwachung des IP-Pakete-Puffers */
-    public void beenden() {
+    public void stop() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), beenden()");
-        thread.beenden();
+        thread.stopThread();
     }
 
     public IPThread getIPThread() {

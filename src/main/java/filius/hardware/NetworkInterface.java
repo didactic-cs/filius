@@ -44,7 +44,7 @@ public class NetworkInterface implements Serializable {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (NetworkInterface), constr: NetworkInterface()");
         
-        setMac(Information.getInstance().holeFreieMACAdresse());
+        setMac(Information.getInstance().getFreeMAC());
         // set initial IP address to the same value for all new devices
         // QUESTION: Is this actually wanted for educational reasons?
         // Or is it rather annoying to be enforced to change this address for
@@ -123,7 +123,7 @@ public class NetworkInterface implements Serializable {
 
     public void setMac(String mac) {
         if (mac != null) {
-            Information.getInstance().macHinzufuegen(mac);
+            Information.getInstance().addMAC(mac);
             this.mac = mac;
         }
     }

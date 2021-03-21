@@ -34,7 +34,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import filius.software.system.FiliusFile;
 
+@SuppressWarnings("serial")
 class GUITreeRenderer extends DefaultTreeCellRenderer {
+	
 	private Icon dateiIcon, ordnerIcon;
 	private boolean dateienAnzeigen;
 

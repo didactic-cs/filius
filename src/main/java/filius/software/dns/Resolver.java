@@ -31,7 +31,7 @@ import java.util.concurrent.TimeoutException;
 import filius.Main;
 import filius.exception.ConnectionException;
 import filius.hardware.Cable;
-import filius.software.clientserver.ClientAnwendung;
+import filius.software.clientserver.ClientApplication;
 import filius.software.transportschicht.UDPSocket;
 import filius.software.vermittlungsschicht.IP;
 
@@ -69,7 +69,7 @@ import filius.software.vermittlungsschicht.IP;
  * </ol>
  */
 
-public class Resolver extends ClientAnwendung {
+public class Resolver extends ClientApplication {
 
     /**
      * Methode zum Abruf eines Resource Record. Das Rueckgabeformat ist NAME TYPE CLASS TTL RDATA (Bsp. web.de. A IN
@@ -79,7 +79,7 @@ public class Resolver extends ClientAnwendung {
      * @param domainname
      * @return einen Resource Record oder 'null', wenn ein Fehler bei der Verbindung auftritt
      */
-    private DNSNachricht holeResourceRecord(String typ, String domainname, String dnsServer)
+    private DNSNachricht getResourceRecord(String typ, String domainname, String dnsServer)
             throws java.util.concurrent.TimeoutException {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeResourceRecord(" + typ + "," + domainname + ")");
@@ -125,8 +125,8 @@ public class Resolver extends ClientAnwendung {
         return antwort;
     }
 
-    public String holeIPAdresse(String domainname) throws TimeoutException {
-        return holeIPAdresse(domainname, getSystemSoftware().getDNSServer());
+    public String getIPAdresse(String domainname) throws TimeoutException {
+        return getIPAdresse(domainname, getSystemSoftware().getDNSServer());
     }
 
     /**
@@ -135,7 +135,7 @@ public class Resolver extends ClientAnwendung {
      * @param domainname
      * @return
      */
-    public String holeIPAdresse(String domainname, String dnsServer) throws TimeoutException {
+    public String getIPAdresse(String domainname, String dnsServer) throws TimeoutException {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeIPAdresse(" + domainname + ")");
         DNSNachricht antwort;
@@ -156,7 +156,7 @@ public class Resolver extends ClientAnwendung {
         }
 
         while (dnsServer != null) {
-            antwort = holeResourceRecord(ResourceRecord.ADDRESS, domainname, dnsServer);
+            antwort = getResourceRecord(ResourceRecord.ADDRESS, domainname, dnsServer);
             if (antwort == null) {
                 return null;
             }
@@ -185,7 +185,7 @@ public class Resolver extends ClientAnwendung {
         return null;
     }
 
-    public String holeIPAdresseMailServer(String domainname) throws TimeoutException {
+    public String getIPAdresseMailServer(String domainname) throws TimeoutException {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeIPAdressMailServer(" + domainname + ")");
         DNSNachricht antwort = null;
@@ -197,7 +197,7 @@ public class Resolver extends ClientAnwendung {
         }
 
         while (dnsServer != null && mailserver == null) {
-            antwort = holeResourceRecord(ResourceRecord.MAIL_EXCHANGE, domainname, dnsServer);
+            antwort = getResourceRecord(ResourceRecord.MAIL_EXCHANGE, domainname, dnsServer);
             if (antwort == null) {
                 return null;
             }
@@ -231,7 +231,7 @@ public class Resolver extends ClientAnwendung {
         if (adresse != null)
             return adresse;
 
-        return holeIPAdresse(mailserver);
+        return getIPAdresse(mailserver);
     }
 
     private String durchsucheRecordListe(String typ, LinkedList<ResourceRecord> liste) {

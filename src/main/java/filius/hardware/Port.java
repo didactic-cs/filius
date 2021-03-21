@@ -40,7 +40,12 @@ public class Port implements Serializable {
     private Cable cable = null;
     private NetworkInterface nic = null;
     private Node owner = null;
+    
+    // portStatus is used with switches for the spanning tree
+    public static enum PortStatus {empty, used, blocked};
+    private PortStatus portStatus = PortStatus.empty;       
 
+    
     // constructor without parameters (for switches)
     public Port() {}
     
@@ -53,6 +58,31 @@ public class Port implements Serializable {
     public boolean isConnected() {   
     	
         return (cable != null);
+    }
+    
+    public void setEmpty() {
+    	
+    	portStatus = PortStatus.empty;
+    } 
+    
+    public void setUsed() {
+    	
+    	portStatus = PortStatus.used;
+    } 
+    
+    public void setBlocked() {
+    	
+    	portStatus = PortStatus.blocked;
+    }   
+    
+    public boolean isBlocked() {   
+    	
+        return (portStatus == PortStatus.blocked);
+    }    
+    
+    public boolean isUsed() {   
+    	
+        return (portStatus == PortStatus.used);
     }
 
     public NetworkInterface getNIC() {

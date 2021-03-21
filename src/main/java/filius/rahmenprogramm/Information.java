@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -57,13 +56,14 @@ import filius.hardware.Cable;
  * In dieser Klasse werden die Verwaltungs-Informationen des Rahmenprogramms verwaltet, die unabhaengig von einem
  * bestimmten Projekt sind.
  */
+@SuppressWarnings("serial")
 public class Information implements Serializable {
+	
     public enum FeatureMode {
         FORCE_DISABLE, FORCE_ENABLE, AUTO
     }
 
-    private static final long serialVersionUID = 1L;
-
+    
     /** Zur Implementierung des Singleton */
     private static Information information = null;
 
@@ -128,7 +128,7 @@ public class Information implements Serializable {
     private Locale locale;
     private String lastOpenedDirectory;
 
-    private boolean oldExchangeDialog = true;
+    private boolean oldPacketsAnalyzerDialog = true;
 
     private FeatureMode softwareWizardMode = FeatureMode.FORCE_ENABLE;
 
@@ -138,8 +138,8 @@ public class Information implements Serializable {
         return softwareWizardMode;
     }
 
-    public boolean isOldExchangeDialog() {
-        return oldExchangeDialog;
+    public boolean isOldPacketsAnalyzerDialog() {
+        return oldPacketsAnalyzerDialog;
     }
 
     // ////////////////////////////
@@ -289,7 +289,7 @@ public class Information implements Serializable {
     public void reset() {
         macAdressen.clear();
 
-        GUIContainer.getInstance().getExchangeDialog().reset();
+        GUIContainer.getInstance().getPacketsAnalyzerDialog().reset();
         init();
     }
 
@@ -302,7 +302,7 @@ public class Information implements Serializable {
             e.printStackTrace(Main.debug);
         }
 
-        SzenarioVerwaltung.loescheVerzeichnisInhalt(getTempPfad());
+        ProjectManager.deleteDirectoryContent(getTempPath());
     }
 
     /**
@@ -325,35 +325,35 @@ public class Information implements Serializable {
                 Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
-        pfad = getTempPfad();
+        pfad = getTempPath();
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
                 Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
-        pfad = getAnwendungenPfad();
+        pfad = getApplicationsPath();
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
                 Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
-        pfad = getAnwendungenPfad() + "filius" + System.getProperty("file.separator") + "software"
+        pfad = getApplicationsPath() + "filius" + System.getProperty("file.separator") + "software"
                 + System.getProperty("file.separator") + "clientserver" + System.getProperty("file.separator");
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
                 Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
-        pfad = getAnwendungenPfad() + "filius" + System.getProperty("file.separator") + "gui"
+        pfad = getApplicationsPath() + "filius" + System.getProperty("file.separator") + "gui"
                 + System.getProperty("file.separator") + "anwendungssicht" + System.getProperty("file.separator");
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
                 Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
-        pfad = getAnwendungenPfad() + "EigeneAnwendungen.txt";
+        pfad = getApplicationsPath() + "EigeneAnwendungen.txt";
         if (!(new java.io.File(pfad)).exists())
-            (new java.io.File(getAnwendungenPfad() + "EigeneAnwendungen.txt")).createNewFile();
+            (new java.io.File(getApplicationsPath() + "EigeneAnwendungen.txt")).createNewFile();
     }
 
     /**
@@ -362,8 +362,8 @@ public class Information implements Serializable {
      * @return
      * @throws IOException
      */
-    public List<Map<String, String>> ladeProgrammListe() throws IOException {
-        List<Map<String, String>> tmpList = new LinkedList<Map<String, String>>();
+    public List<HashMap<String, String>> ladeProgrammListe() throws IOException {                           // < Replaced Map by HashMap
+        List<HashMap<String, String>> tmpList = new LinkedList<HashMap<String, String>>();                  // < Replaced Map by HashMap
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(holeAnwendungenDateipfad()), Charset.forName("UTF-8")))) {
             for (String line; (line = reader.readLine()) != null;) {
@@ -393,7 +393,7 @@ public class Information implements Serializable {
         tmpList = new LinkedList<HashMap<String, String>>();
         try {
             desktopFile = new RandomAccessFile(
-                    Information.getInstance().getAnwendungenPfad() + "EigeneAnwendungen.txt", "r");
+                    Information.getInstance().getApplicationsPath() + "EigeneAnwendungen.txt", "r");
             for (String line; (line = desktopFile.readLine()) != null;) {
                 HashMap<String, String> tmpMap = new HashMap<String, String>();
                 if (!line.trim().equals("")) {
@@ -429,7 +429,7 @@ public class Information implements Serializable {
      * <br />
      * der Pfad schliesst mit dem Pfad-Trennzeichen (unter UNIX "/")
      */
-    public String getProgrammPfad() {
+    public String getProgramPath() {
         if (programmPfad != null) {
             return programmPfad;
         } else {
@@ -453,7 +453,7 @@ public class Information implements Serializable {
 
     public String getRelativePathToProgramDir() {
         String workPath = System.getProperty("user.dir") + File.separator;
-        String progPath = getProgrammPfad();
+        String progPath = getProgramPath();
 
         // Windows system (with drive letters!):
         if (File.separator.equals("\\")) {
@@ -543,7 +543,7 @@ public class Information implements Serializable {
     /**
      * Temp: Verzeichnis, in dem zur Laufzeit temporaere Dateien gespeichert werden
      */
-    public String getTempPfad() {
+    public String getTempPath() {
         return getArbeitsbereichPfad() + "temp" + System.getProperty("file.separator");
     }
 
@@ -551,14 +551,14 @@ public class Information implements Serializable {
      * Anwendungen: Verzeichnis, in dem die eigenen Anwendungen gespeichert werden mit den Unterordnern
      * software/clientserver/ und gui/anwendungssicht/
      */
-    public String getAnwendungenPfad() {
+    public String getApplicationsPath() {
         return getArbeitsbereichPfad() + "anwendungen" + System.getProperty("file.separator");
     }
 
     /**
      * Automatische Erzeugung einer MAC-Adresse, funktioniert mit Hexadezimal-Zahlen
      */
-    public String holeFreieMACAdresse() {
+    public String getFreeMAC() {
         Random r = new Random();
         String[] mac;
         String neueMac;
@@ -571,20 +571,20 @@ public class Information implements Serializable {
         }
         neueMac = mac[0] + ":" + mac[1] + ":" + mac[2] + ":" + mac[3] + ":" + mac[4] + ":" + mac[5];
 
-        if (macPruefen(neueMac)) {
+        if (checkMAC(neueMac)) {
             return neueMac;
         } else {
-            return holeFreieMACAdresse();
+            return getFreeMAC();
         }
     }
 
     /** Eintragen einer verwendeten MAC-Adresse */
-    public void macHinzufuegen(String mac) {
+    public void addMAC(String mac) {
         macAdressen.addElement(mac);
     }
 
     /** Pruefen, ob es sich um eine verfuegbare, gueltige MAC-Adresse handelt. */
-    private boolean macPruefen(String mac) {
+    private boolean checkMAC(String mac) {
         boolean macOK = true;
 
         for (int i = 0; i < macAdressen.size(); i++) {
@@ -645,9 +645,9 @@ public class Information implements Serializable {
                                             .getMode(Integer.parseInt(configValue.trim()));
                                 } else if (configKey.equalsIgnoreCase("old-exchange-dialog")) {
                                     if (configValue.trim().equals("1")) {
-                                        this.oldExchangeDialog = true;
+                                        this.oldPacketsAnalyzerDialog = true;
                                     } else if (configValue.trim().equals("0")) {
-                                        this.oldExchangeDialog = false;
+                                        this.oldPacketsAnalyzerDialog = false;
                                     }
                                 } else if (configKey.equalsIgnoreCase("software-wizard")) {
                                     if (configValue.trim().equals("1")) {

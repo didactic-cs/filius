@@ -66,10 +66,10 @@ public class ServerBausteinMitarbeiter extends ServerMitarbeiter {
 		        + " (ServerBausteinMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
 		try {
 			socket.senden(nachricht);
-			server.benachrichtigeBeobachter("<<" + nachricht);
+			server.notifyObservers("<<" + nachricht);
 		} catch (Exception e) {
 			e.printStackTrace(Main.debug);
-			server.benachrichtigeBeobachter(e.getMessage());
+			server.notifyObservers(e.getMessage());
 		}
 	}
 }

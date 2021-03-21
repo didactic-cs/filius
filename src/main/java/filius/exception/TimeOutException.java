@@ -25,6 +25,7 @@
  */
 package filius.exception;
 
+@SuppressWarnings("serial")
 public class TimeOutException extends HauptException {
 
 	public TimeOutException() {

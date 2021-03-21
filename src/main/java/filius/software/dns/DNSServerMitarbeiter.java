@@ -29,7 +29,7 @@ import java.util.concurrent.TimeoutException;
 
 import filius.Main;
 import filius.software.clientserver.ServerMitarbeiter;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.UDPSocket;
 
@@ -50,7 +50,7 @@ public class DNSServerMitarbeiter extends ServerMitarbeiter {
         antwort.setId(nachricht.getId());
 
         for (Query query : nachricht.holeQueries()) {
-            server.benachrichtigeBeobachter(messages.getString("sw_dnsservermitarbeiter_msg1") + query);
+            server.notifyObservers(messages.getString("sw_dnsservermitarbeiter_msg1") + query);
 
             record = ((DNSServer) server).holeRecord(query.holeDomainname(), query.holeTyp());
             if (record == null) {
@@ -62,11 +62,11 @@ public class DNSServerMitarbeiter extends ServerMitarbeiter {
                     antwort.hinzuAntwortResourceRecord(record.toString());
                 } else if (record.getType().equals(ResourceRecord.NAME_SERVER)) {
                     if (((DNSServer) server).isRecursiveResolutionEnabled()) {
-                        Resolver resolver = ((InternetKnotenBetriebssystem) server.getSystemSoftware()).holeDNSClient();
+                        Resolver resolver = ((InternetNodeOS) server.getSystemSoftware()).getDNSClient();
                         record = ((DNSServer) server).holeRecord(record.getRdata(), ResourceRecord.ADDRESS);
                         if (record != null) {
                             try {
-                                String ipAdresse = resolver.holeIPAdresse(query.holeDomainname(), record.getRdata());
+                                String ipAdresse = resolver.getIPAdresse(query.holeDomainname(), record.getRdata());
                                 record = new ResourceRecord(query.holeDomainname(), ResourceRecord.ADDRESS, ipAdresse);
                                 antwort.hinzuAntwortResourceRecord(record.toString());
                             } catch (TimeoutException e) {
@@ -97,7 +97,7 @@ public class DNSServerMitarbeiter extends ServerMitarbeiter {
         if (socket != null) {
             ((UDPSocket) socket).senden(antwort.toString());
 
-            server.benachrichtigeBeobachter(messages.getString("sw_dnsservermitarbeiter_msg2") + "\n>>>>\n"
+            server.notifyObservers(messages.getString("sw_dnsservermitarbeiter_msg2") + "\n>>>>\n"
                     + antwort.toString() + "<<<<");
         }
 

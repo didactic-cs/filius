@@ -41,24 +41,24 @@ import filius.software.www.WebServerPlugIn;
  */
 public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
 
-	private String logDaten = "";
+	private String logData = "";
 
 	public void setFirewall(Firewall firewall) {
-		firewall.hinzuBeobachter(this);
+		firewall.addObserver(this);
 	}
 
 	/**
 	 * Diese Methode muss die HTML-Seite mit den Log-Informationen zurück
 	 * liefern
 	 */
-	public String holeHtmlSeite(String postDaten) {
+	public String getHtmlPage(String postDaten) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), holehtmlSeite("
 		        + postDaten + ")");
 		StringBuffer logSeite = new StringBuffer();
 
 		logSeite.append(messages.getString("sw_firewallweblog_msg1"));
 		logSeite.append(messages.getString("sw_firewallweblog_msg2"));
-		logSeite.append("\n\n" + logDaten + "\n\n");
+		logSeite.append("\n\n" + logData + "\n\n");
 		logSeite.append("\t</body>\n</html>");
 
 		return logSeite.toString();
@@ -78,18 +78,18 @@ public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
 	 * 
 	 * @return liefert den Daten-String mit allen Lognachrichten
 	 */
-	public String holeLogNachrichten() {
+	public String getLogInfo() {
 
-		return logDaten;
+		return logData;
 	}
 
 	public void update(Observable arg0, Object arg1) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), update(" + arg0
 		        + "," + arg1 + ")");
 		if (arg1 instanceof Object[]) {
-			logDaten += "<br /> \n" + ((Object[]) arg1)[0];
+			logData += "<br /> \n" + ((Object[]) arg1)[0];
 		} else {
-			logDaten += "<br /> \n" + arg1;
+			logData += "<br /> \n" + arg1;
 		}
 
 	}

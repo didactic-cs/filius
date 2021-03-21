@@ -33,13 +33,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.LinkedList;
-
+import java.util.ListIterator;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 public class CloseableBrowserTabbedPaneUI extends BasicTabbedPaneUI {
 
-	private final int button_breite = 24;
-	private LinkedList<Rectangle> button_positionen = new LinkedList<Rectangle>();
+	private final int buttonWidth = 24;
+	private LinkedList<Rectangle> buttonPositions = new LinkedList<Rectangle>();
+	
 
 	public CloseableBrowserTabbedPaneUI() {
 		super();
@@ -47,45 +48,61 @@ public class CloseableBrowserTabbedPaneUI extends BasicTabbedPaneUI {
 
 	protected int calculateTabWidth(int tabPlacement, int tabIndex, FontMetrics metrics) {
 
-		return super.calculateTabWidth(tabPlacement, tabIndex, metrics) + button_breite;
+		return super.calculateTabWidth(tabPlacement, tabIndex, metrics) + buttonWidth;
 	}
 
 	protected int calculateTabHeight(int tabPlacement, int tabIndex, int fontHeight) {
 		return super.calculateTabHeight(tabPlacement, tabIndex, fontHeight) + 2;
 	}
 
-	protected void paintTab(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect,
-	        Rectangle textRect) {
+	protected void paintTab(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect, Rectangle textRect) {
+		
 		super.paintTab(g, tabPlacement, rects, tabIndex, iconRect, textRect);
 
-		button_positionen = new LinkedList<Rectangle>();
+		buttonPositions = new LinkedList<Rectangle>();
 
-		int posX = rects[tabIndex].x + rects[tabIndex].width - button_breite + 5;
+		int posX = rects[tabIndex].x + rects[tabIndex].width - buttonWidth + 5;
 		int posY = rects[tabIndex].y + 5;
-		int breite = 12;
-		int hoehe = 12;
-		Rectangle rechteck = new Rectangle(posX, posY, breite, hoehe);
-		button_positionen.add(rechteck);
+		int width = 12;
+		int hight = 12;
+		buttonPositions.add(new Rectangle(posX, posY, width, hight));
 
 		Graphics2D g2 = (Graphics2D) g;
 
 		g2.setColor(new Color(255, 0, 0));
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
-		g2.fillRoundRect(posX, posY, breite, hoehe, 3, 3);
+		g2.fillRoundRect(posX, posY, width, hight, 3, 3);
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 		g2.setColor(new Color(255, 255, 255));
 
 		g2.setStroke(new BasicStroke(2));
-		g2.drawLine(posX + 3, posY + 3, posX + breite - 3, posY + hoehe - 3);
-		g2.drawLine(posX + breite - 3, posY + 3, posX + 3, posY + hoehe - 3);
+		g2.drawLine(posX + 3, posY + 3, posX + width - 3, posY + hight - 3);
+		g2.drawLine(posX + width - 3, posY + 3, posX + 3, posY + hight - 3);
 	}
 
-	public LinkedList getButton_positionen() {
-		return button_positionen;
+	public LinkedList<Rectangle> getButtonPositions() {
+		return buttonPositions;
 	}
-
-	public void setButton_positionen(LinkedList button_positionen) {
-		this.button_positionen = button_positionen;
+	
+    public int getClickedCrossIndex(int X, int Y) {
+		
+		int index = 0;
+		ListIterator<Rectangle> it = buttonPositions.listIterator();
+		while (it.hasNext()) {
+			Rectangle rect = (Rectangle) it.next();
+			if (rect.intersects(new Rectangle(X, Y, 1, 1))) {
+				return index;
+			}
+			index++;
+		}
+	    return -1;
 	}
-
+    
+    public void removeTab(int index) {
+		
+		if (index < 0 || index >= buttonPositions.size()) return;
+		
+		buttonPositions.remove(index);
+		tabPane.remove(index);
+	}	
 }

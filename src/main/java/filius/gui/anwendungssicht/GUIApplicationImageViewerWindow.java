@@ -39,15 +39,15 @@ import javax.swing.JPanel;
 import filius.Main;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.Information;
-import filius.software.system.Betriebssystem;
+import filius.software.system.HostOS;
 import filius.software.system.FiliusFile;
 
+@SuppressWarnings("serial")
 public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 1L;
 	private JPanel backPanel;
 
 	public GUIApplicationImageViewerWindow(final GUIDesktopPanel desktop, String appName) {
@@ -84,17 +84,17 @@ public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 		String path;
 		ImageIcon image;
 
-		fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
+		fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
 		rueckgabe = fc.openDialog();
 
 		if (rueckgabe == DMTNFileChooser.OK) {
 			aktuelleDatei = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());
 			if (aktuelleDatei != null) {
 				this.setTitle(aktuelleDatei.getName());
-				Base64.decodeToFile(aktuelleDatei.getContent(), Information.getInstance().getTempPfad()
+				Base64.decodeToFile(aktuelleDatei.getContent(), Information.getInstance().getTempPath()
 				        + aktuelleDatei.getName());
 
-				path = Information.getInstance().getTempPfad() + aktuelleDatei.getName();
+				path = Information.getInstance().getTempPath() + aktuelleDatei.getName();
 				image = new ImageIcon(path);
 				JLabel titelgrafik = new JLabel(image);
 				backPanel.add(titelgrafik, BorderLayout.CENTER);

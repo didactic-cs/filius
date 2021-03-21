@@ -25,6 +25,7 @@
  */
 package filius.exception;
 
+@SuppressWarnings("serial")
 public class ConnectionException extends SilentException {
 
 	public ConnectionException() {

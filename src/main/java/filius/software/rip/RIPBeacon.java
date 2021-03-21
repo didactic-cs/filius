@@ -30,8 +30,8 @@ import java.util.Random;
 import filius.exception.ConnectionException;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
-import filius.software.clientserver.ClientAnwendung;
-import filius.software.system.VermittlungsrechnerBetriebssystem;
+import filius.software.clientserver.ClientApplication;
+import filius.software.system.RouterOS;
 import filius.software.transportschicht.UDPSocket;
 
 /**
@@ -39,19 +39,19 @@ import filius.software.transportschicht.UDPSocket;
  * @author pyropeter
  * @author stefanf
  */
-public class RIPBeacon extends ClientAnwendung {
+public class RIPBeacon extends ClientApplication {
 	private Random rand;
 
-	public void starten() {
-		super.starten();
+	public void startThread() {
+		super.startThread();
 
 		rand = new Random();
 
-		ausfuehren("announce", null);
+		execute("announce", null);
 	}
 
 	public void announce() {
-		VermittlungsrechnerBetriebssystem bs = (VermittlungsrechnerBetriebssystem) getSystemSoftware();
+		RouterOS bs = (RouterOS) getSystemSoftware();
 		RIPTable table = bs.getRIPTable();
 
 		UDPSocket sock;
@@ -81,13 +81,13 @@ public class RIPBeacon extends ClientAnwendung {
 		sock.beenden();
 	}
 
-	public void broadcast(UDPSocket sock, VermittlungsrechnerBetriebssystem bs, RIPTable table) {
-		InternetNode knoten = (InternetNode) bs.getKnoten();
+	public void broadcast(UDPSocket sock, RouterOS bs, RIPTable table) {
+		InternetNode knoten = (InternetNode) bs.getNode();
 
 		RIPMessage msg;
 
-		for (NetworkInterface nic : knoten.getNIlist()) {
-			msg = new RIPMessage(nic.getIp(), bs.holeIPAdresse(), RIPTable.INFINITY, RIPTable.TIMEOUT);
+		for (NetworkInterface nic : knoten.getNICList()) {
+			msg = new RIPMessage(nic.getIp(), bs.getIPAddress(), RIPTable.INFINITY, RIPTable.TIMEOUT);
 			for (RIPRoute route : table.routes) {
 				// split horizon:
 				if (nic.getIp().equals(route.getInterfaceIpAddress())) {

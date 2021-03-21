@@ -25,8 +25,12 @@
  */
 package filius.hardware.knoten;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.beans.Transient;
 import java.util.LinkedList;
 import filius.Main;
+import filius.gui.netzwerksicht.GUINodeItem;
 import filius.hardware.Hardware;
 import filius.hardware.Port;
 import filius.software.system.SystemSoftware;
@@ -35,7 +39,9 @@ import filius.software.system.SystemSoftware;
 public abstract class Node extends Hardware {
 
     private String name;
-    private SystemSoftware systemSoftware;    
+    protected SystemSoftware systemSoftware;    
+    private GUINodeItem nodeItem = null;
+    
     
     /**
      * <b>getPortList</b> returns the list of all the ports of the node, connected or not.
@@ -66,7 +72,17 @@ public abstract class Node extends Hardware {
      * 
      * @return A Port that is not connected or null.
      */
-    public abstract Port getFreePort();    
+    public abstract Port getFreePort();
+    
+    /**
+     * <b>hasFreePort</b> returns true if the node has at least one port not connected.
+     * Returns false otherwise.
+     * 
+     * @return A boolean value.
+     */
+    public boolean hasFreePort() {
+    	return (getFreePort() != null);
+    }
     
     /**
      * <b>ownsPort</b> checks whether the given port is one of the node's ports.
@@ -79,16 +95,6 @@ public abstract class Node extends Hardware {
     	if (port == null) return false;
     	return (getPortIndex(port) > -1);
     };
-    
-//    /**
-//     * <b>fixPortsOwner</b> is only used when loading projects saved in older XML formats.<br>
-//     * Should not be called otherwise.
-//     */
-//    public void fixPortsOwner() {
-//
-//    	LinkedList<Port> ports = getPortList();
-//    	for (Port port : ports) port.setOwner(this);
-//    }
     
     /**
      * <b>isConnectedTo</b> checks whether the given node is connected to the current node.
@@ -116,11 +122,24 @@ public abstract class Node extends Hardware {
 
     public void setName(String name) {
         this.name = name;
+        fireNodeNameChange();
         
         if (systemSoftware != null) {
-            Main.debug.println(
-                    "DEBUG: node with SystemSoftware (" + systemSoftware.hashCode() + ") now has name '" + name + "'");
+            Main.debug.println("DEBUG: node with SystemSoftware (" + 
+                               systemSoftware.hashCode() + ") now has name '" + name + "'");
         }
+    }
+    
+    @Transient
+    public GUINodeItem getNodeItem() {
+
+    	return nodeItem;
+    }
+    
+    @Transient
+    public void setNodeItem(GUINodeItem nodeItem) {
+
+    	this.nodeItem = nodeItem;
     }
 
     public SystemSoftware getSystemSoftware() {
@@ -130,4 +149,21 @@ public abstract class Node extends Hardware {
     public void setSystemSoftware(SystemSoftware systemSoftware) {
         this.systemSoftware = systemSoftware;
     }
+    
+    //------------------------------------------------------------------------------------------------
+    // Listeners management
+    //------------------------------------------------------------------------------------------------ 
+
+    protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);     
+    
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(propertyName, listener);
+    }    
+    
+    // Notify the listeners that the display name of the host has changed 
+    // Fired by: Node
+    // Listened to by: JNodeLabel, SatViewer, GUIDesktopWindow
+    public void fireNodeNameChange() {
+    	pcs.firePropertyChange("nodename", null, getDisplayName());
+    }   
 }

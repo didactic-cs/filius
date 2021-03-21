@@ -31,23 +31,23 @@ import java.util.List;
 import filius.Main;
 import filius.exception.TimeOutException;
 import filius.exception.ConnectionException;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.I18n;
-import filius.software.Anwendung;
-import filius.software.clientserver.ClientAnwendung;
+import filius.software.Application;
+import filius.software.clientserver.ClientApplication;
 import filius.software.transportschicht.TCPSocket;
 
-public class SMTPClient extends ClientAnwendung implements I18n {
+public class SMTPClient extends ClientApplication implements I18n {
 
     /**
      * Die Anwendung, die diesen SMTP-Client verwendet (das kann eine EmailAnwendung zum Versand einer erstellten
      * Nachricht oder ein EMailServer zur Weiterleitung einer empfangenen Nachricht sein)
      */
-    private Anwendung anwendung = null;
+    private Application anwendung = null;
 
     // Konstruktoren
 
-    public SMTPClient(Anwendung anwendung) {
+    public SMTPClient(Application anwendung) {
         super();
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), constr: SMTPClient(" + anwendung + ")");
@@ -105,16 +105,16 @@ public class SMTPClient extends ClientAnwendung implements I18n {
                 Object[] args;
                 args = new Object[2];
                 args[0] = serverAdresse;
-                args[1] = new Integer(25);
-                ausfuehren("initialisiereSocket", args);
+                args[1] = Integer.valueOf(25); 
+                execute("initialisiereSocket", args);
 
                 args = new Object[3];
                 args[0] = email;
                 args[1] = absender;
                 args[2] = empfaengerAdresse;
-                ausfuehren("versenden", args);
+                execute("versenden", args);
 
-                ausfuehren("schliesseSocket", null);
+                execute("schliesseSocket", null);
             }
         }
         if (!unknownRecipients.isEmpty() && anwendung instanceof EmailServer) {
@@ -126,20 +126,20 @@ public class SMTPClient extends ClientAnwendung implements I18n {
     public void initialisiereSocket(String zielAdresse, Integer port) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), initialisiereSocket(" + zielAdresse + "," + port + ")");
-        anwendung.benachrichtigeBeobachter(EmailServer.LINE_SEPARATOR);
+        anwendung.notifyObservers(EmailServer.LINE_SEPARATOR);
         try {
             socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
             socket.verbinden();
 
             if (socket.istVerbunden()) {
-                anwendung.benachrichtigeBeobachter(
+                anwendung.notifyObservers(
                         messages.getString("sw_smtpclient_msg1") + " " + socket.holeZielIPAdresse() + ":"
                                 + socket.holeZielPort() + " " + messages.getString("sw_smtpclient_msg2"));
             }
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
             socket = null;
-            anwendung.benachrichtigeBeobachter(e);
+            anwendung.notifyObservers(e);
         }
     }
 
@@ -151,7 +151,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
                 + " (SMTPClient), schliesseSocket()");
         if (socket != null) {
             socket.schliessen();
-            anwendung.benachrichtigeBeobachter(
+            anwendung.notifyObservers(
                     messages.getString("sw_smtpclient_msg1") + " " + socket.holeZielIPAdresse() + ":"
                             + socket.holeZielPort() + " " + messages.getString("sw_smtpclient_msg3"));
             socket = null;
@@ -165,7 +165,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
 
         empfang = socket.empfangen();
         if (empfang.startsWith("220")) {
-            socket.senden("HELO " + this.getSystemSoftware().holeIPAdresse());
+            socket.senden("HELO " + this.getSystemSoftware().getIPAddress());
             empfang = socket.empfangen();
             if (empfang.startsWith("250")) {
                 return true;
@@ -214,11 +214,11 @@ public class SMTPClient extends ClientAnwendung implements I18n {
                     ((EmailAnwendung) anwendung).addGesendeteNachricht(email);
                 }
 
-                anwendung.benachrichtigeBeobachter(messages.getString("sw_smtpclient_msg4") + " " + rcpts);
-                anwendung.benachrichtigeBeobachter();
+                anwendung.notifyObservers(messages.getString("sw_smtpclient_msg4") + " " + rcpts);
+                anwendung.notifyObservers();
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
-                anwendung.benachrichtigeBeobachter(e);
+                anwendung.notifyObservers(e);
 
                 erfolg = false;
             }
@@ -239,7 +239,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
                 + " (SMTPClient), loeseURLauf(" + url + ")");
         String[] teileDerEmail = url.split("@");
         try {
-            return getSystemSoftware().holeDNSClient().holeIPAdresseMailServer(teileDerEmail[1]);
+            return getSystemSoftware().getDNSClient().getIPAdresseMailServer(teileDerEmail[1]);
         } catch (java.util.concurrent.TimeoutException e) {
             e.printStackTrace(Main.debug);
         }
@@ -259,8 +259,8 @@ public class SMTPClient extends ClientAnwendung implements I18n {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeMailFrom(" + absender + ")");
         AddressEntry senderAddress = new AddressEntry(absender);
-        if (senderAddress.getMailAddress().length() == 0 || EingabenUeberpruefung
-                .isGueltig(senderAddress.getMailAddress(), EingabenUeberpruefung.musterEmailAdresse)) {
+        if (senderAddress.getMailAddress().length() == 0 || EntryValidator
+                .isValid(senderAddress.getMailAddress(), EntryValidator.musterEmailAdresse)) {
 
             socket.senden("MAIL FROM: <" + senderAddress.getMailAddress() + ">");
             String empfangen = socket.empfangen();
@@ -289,7 +289,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
         String[] empfaenger = rcpts.split(",");
 
         for (int i = 0; i < empfaenger.length; i++) {
-            if (EingabenUeberpruefung.isGueltig(empfaenger[i], EingabenUeberpruefung.musterEmailAdresse)) {
+            if (EntryValidator.isValid(empfaenger[i], EntryValidator.musterEmailAdresse)) {
                 socket.senden("RCPT TO:<" + empfaenger[i] + ">");
                 String empfangen2 = socket.empfangen();
 

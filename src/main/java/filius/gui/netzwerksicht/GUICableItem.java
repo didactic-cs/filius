@@ -45,7 +45,7 @@ public class GUICableItem implements Serializable {
 	private JCablePanel cablePanel;	
 
 	public GUICableItem() {
-		cablePanel = new JCablePanel();
+		cablePanel = new JCablePanel();		
 	}
 
 	public Cable getCable() {
@@ -54,7 +54,8 @@ public class GUICableItem implements Serializable {
 
 	public void setCable(Cable cable) {
 		this.cable = cable;
-		cable.addListener(cablePanel);
+		cable.setCableItem(this);
+		cablePanel.registerListeners(cable);
 	}
 
 	public JCablePanel getCablePanel() {
@@ -62,7 +63,7 @@ public class GUICableItem implements Serializable {
 	}
 
 	public void setCablePanel(JCablePanel panel) {
-		this.cablePanel = panel;
+		this.cablePanel = panel;		
 	}	
 
 	public String toString() {
@@ -73,18 +74,18 @@ public class GUICableItem implements Serializable {
 			result += "cable=<null>, ";
 		if (cablePanel != null) {
 			result += "kabelpanel (id)=" + cablePanel.hashCode() + ", ";
-			if (cablePanel.getZiel1() != null) {
-				result += "kabelpanel.ziel1 (id)" + cablePanel.getZiel1().hashCode() + ", ";
-				if (cablePanel.getZiel1().getNode() != null)
-					result += "kabelpanel.ziel1.knoten (name)" + cablePanel.getZiel1().getNode().getDisplayName() + ", ";
+			if (cablePanel.getNodeItem1() != null) {
+				result += "kabelpanel.ziel1 (id)" + cablePanel.getNodeItem1().hashCode() + ", ";
+				if (cablePanel.getNodeItem1().getNode() != null)
+					result += "kabelpanel.ziel1.knoten (name)" + cablePanel.getNodeItem1().getNode().getDisplayName() + ", ";
 				else
 					result += "kabelpanel.ziel1.knoten=<null>, ";
 			} else
 				result += "kabelpanel.ziel1=<null>, ";
-			if (cablePanel.getZiel2() != null) {
-				result += "kabelpanel.ziel2 (id)" + cablePanel.getZiel2().hashCode() + ", ";
-				if (cablePanel.getZiel2().getNode() != null)
-					result += "kabelpanel.ziel2.knoten (name)" + cablePanel.getZiel2().getNode().getDisplayName() + ", ";
+			if (cablePanel.getNodeItem2() != null) {
+				result += "kabelpanel.ziel2 (id)" + cablePanel.getNodeItem2().hashCode() + ", ";
+				if (cablePanel.getNodeItem2().getNode() != null)
+					result += "kabelpanel.ziel2.knoten (name)" + cablePanel.getNodeItem2().getNode().getDisplayName() + ", ";
 				else
 					result += "kabelpanel.ziel2.knoten=<null>, ";
 			}

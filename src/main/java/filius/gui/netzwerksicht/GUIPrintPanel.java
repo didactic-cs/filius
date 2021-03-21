@@ -32,12 +32,15 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 
+import filius.gui.dokusicht.GUIDocItem;
+import filius.gui.dokusicht.GUIDocPanel;
+
 @SuppressWarnings("serial")
 public class GUIPrintPanel extends JPanel {
     private static final int EMPTY_BORDER = 10;
 
-    private GUINetworkPanel networkPanel;
-    private GUIDocumentationPanel docuPanel;
+    private GUIDesignPanel networkPanel;
+    private GUIDocPanel docuPanel;
     private GUIFooterPanel footer;
 
     public GUIPrintPanel(int width, int height, String footerText) {
@@ -45,18 +48,18 @@ public class GUIPrintPanel extends JPanel {
         footer = new GUIFooterPanel(width, height + 100, StringUtils.isBlank(footerText) ? "Filius" : footerText);
         add(footer);
 
-        networkPanel = new GUINetworkPanel(width, height);
+        networkPanel = new GUIDesignPanel(width, height);
         networkPanel.setBounds(EMPTY_BORDER, EMPTY_BORDER, width, height);
         add(networkPanel);
 
-        docuPanel = new GUIDocumentationPanel(width, height);
+        docuPanel = new GUIDocPanel(width, height);
         docuPanel.setBounds(EMPTY_BORDER, EMPTY_BORDER, width, height);
         add(docuPanel);
 
         setSize(footer.getWidth() + 2 * EMPTY_BORDER, footer.getHeight() + 2 * EMPTY_BORDER);
     }
 
-    public void updateViewport(List<GUINodeItem> knoten, List<GUICableItem> kabel, List<GUIDocuItem> docuItems) {
+    public void updateViewport(List<GUINodeItem> knoten, List<GUICableItem> kabel, List<GUIDocItem> docuItems) {
         networkPanel.updateViewport(knoten, kabel);
         docuPanel.updateViewport(docuItems, false);
 

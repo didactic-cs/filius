@@ -33,11 +33,6 @@ public class Notebook extends Host implements I18n {
 
 	public static final String TYPE = messages.getString("hw_notebook_msg1");
 
-	@Override
-	public String getHardwareType() {
-		return TYPE;
-	}
-
 	/**
 	 * Konstruktor wird nur zu Hilfszwecken in verschiedenen Klassen benutzt
 	 */
@@ -47,5 +42,9 @@ public class Notebook extends Host implements I18n {
 
 		this.setName(messages.getString("hw_notebook_msg2"));
 	}
-
+	
+	@Override
+	public String getHardwareType() {
+		return TYPE;
+	}
 }

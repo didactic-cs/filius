@@ -34,6 +34,7 @@ import javax.swing.JLabel;
 
 import filius.Main;
 
+@SuppressWarnings("serial")
 public class GUIDesktopIcon extends JLabel implements MouseListener {
 
 	private String anwendungsName;
@@ -41,8 +42,6 @@ public class GUIDesktopIcon extends JLabel implements MouseListener {
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 1L;
-
 	public GUIDesktopIcon() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -115,7 +114,7 @@ public class GUIDesktopIcon extends JLabel implements MouseListener {
 
 		// Main.debug.println("GUIDesktopIcon: "+getAnwendungsName()+" soll gestartet werden.");
 
-		GUIApplicationWindow tempWindow = dp.starteAnwendung(this.getInvokeName());
+		GUIApplicationWindow tempWindow = dp.startApplication(this.getInvokeName());
 		if (tempWindow != null) {
 			try {
 				tempWindow.setSelected(true);

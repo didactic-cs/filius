@@ -52,9 +52,8 @@ import filius.software.clientserver.ClientBaustein;
  * Benachrichtigung der Beobachter angenommen und verarbeitet.
  * </p>
  */
+@SuppressWarnings("serial")
 public class GUIApplicationClientBausteinWindow extends GUIApplicationWindow {
-
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Textfeld fuer die Ausgabe gesendeter und empfangener Nachrichten sowie
@@ -134,11 +133,11 @@ public class GUIApplicationClientBausteinWindow extends GUIApplicationWindow {
 		btVerbinden.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("verbinden")) {
-					((ClientBaustein) holeAnwendung()).setZielIPAdresse(tfServerAdresse.getText());
-					((ClientBaustein) holeAnwendung()).setZielPort(Integer.parseInt(tfServerPort.getText()));
-					((ClientBaustein) holeAnwendung()).verbinden();
+					((ClientBaustein) getApplication()).setZielIPAdresse(tfServerAdresse.getText());
+					((ClientBaustein) getApplication()).setZielPort(Integer.parseInt(tfServerPort.getText()));
+					((ClientBaustein) getApplication()).verbinden();
 				} else {
-					((ClientBaustein) holeAnwendung()).trennen();
+					((ClientBaustein) getApplication()).trennen();
 				}
 				aktualisieren();
 			}
@@ -158,7 +157,7 @@ public class GUIApplicationClientBausteinWindow extends GUIApplicationWindow {
 		btSenden = new JButton(messages.getString("clientbaustein_msg5"));
 		btSenden.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				((ClientBaustein) holeAnwendung()).senden(taSenden.getText());
+				((ClientBaustein) getApplication()).senden(taSenden.getText());
 				taSenden.setText("");
 			}
 		});
@@ -187,7 +186,7 @@ public class GUIApplicationClientBausteinWindow extends GUIApplicationWindow {
 	private void aktualisieren() {
 		ClientBaustein client;
 
-		client = (ClientBaustein) holeAnwendung();
+		client = (ClientBaustein) getApplication();
 
 		tfServerAdresse.setText(client.getZielIPAdresse());
 		tfServerPort.setText("" + client.getZielPort());

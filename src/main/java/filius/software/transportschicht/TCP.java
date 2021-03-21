@@ -26,7 +26,7 @@
 package filius.software.transportschicht;
 
 import filius.Main;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /**
@@ -40,7 +40,7 @@ public class TCP extends TransportProtokoll {
 	 * @author carsten
 	 * @param betriebssystem
 	 */
-	public TCP(InternetKnotenBetriebssystem betriebssystem) {
+	public TCP(InternetNodeOS betriebssystem) {
 		super(betriebssystem, IpPaket.TCP);
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCP), constr: TCP("
 		        + betriebssystem + ")");

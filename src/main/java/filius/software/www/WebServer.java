@@ -40,7 +40,7 @@ import filius.software.clientserver.TCPServerAnwendung;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
 
@@ -69,17 +69,17 @@ public class WebServer extends TCPServerAnwendung {
             vHostArray[i][0] = "";
             vHostArray[i][1] = "";
         }
-        this.benachrichtigeBeobachter();
+        this.notifyObservers();
     }
 
     /**
      * nachdem ein WebServer erzeugt wurde, muss ueber die Vaterklasse Anwendung ein Betriebssystem zugewiesen werden
      */
-    public void setSystemSoftware(InternetKnotenBetriebssystem betriebssystem) {
+    public void setSystemSoftware(InternetNodeOS betriebssystem) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
-        FFS = betriebssystem.getDateisystem();
+        FFS = betriebssystem.getFileSystem();
 
         erzeugeStandardVerzeichnis();
     }
@@ -258,10 +258,10 @@ public class WebServer extends TCPServerAnwendung {
 
     }
 
-    public void starten() {
+    public void startThread() {
         Main.debug.println(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
-        super.starten();
+        super.startThread();
 
 //        if (!FFS.fileExists("www.conf", "vhosts")) {
 //        	FFS.getRoot().addDirectory("www.conf");
@@ -270,10 +270,10 @@ public class WebServer extends TCPServerAnwendung {
         initialisiereVHosts();
     }
 
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), beenden()");
-        super.beenden();
+        super.stopThread();
     }
 
     private void saveVHosts() {

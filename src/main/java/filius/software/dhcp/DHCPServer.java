@@ -37,7 +37,7 @@ import filius.Main;
 import filius.exception.AddressRequestNotAcceptedException;
 import filius.exception.NoAvailableAddressException;
 import filius.hardware.Cable;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.software.clientserver.UDPServerAnwendung;
 import filius.software.transportschicht.Socket;
 
@@ -55,26 +55,26 @@ public class DHCPServer extends UDPServerAnwendung {
     private static final int DHCP_SERVER_PORT = 67;
 
     /** niedrigste IP-Adresse, die durch diesen DHCP-Server vergeben wird */
-    private String untergrenze = DEFAULT_IP_ADDRESS;
+    private String lowerLimit = "192.168.0.200";
     /** hoechste IP-Adresse, die durch diesen DHCP-Server vergeben wird */
-    private String obergrenze = DEFAULT_IP_ADDRESS;
+    private String upperLimit = "192.168.0.254";
     /** setting of DHCP server for the router/gateway (not necessarily equal to operating system settings) */
     private String dhcpGateway = DEFAULT_IP_ADDRESS;
     /** setting of DHCP server for the DNS server (not necessarily equal to operating system settings) */
     private String dhcpDNS = DEFAULT_IP_ADDRESS;
     /** whether to use the operating system or the dhcp settings for the attributes router/gateway and DND server */
-    private boolean useDhcpSettings = false;
+    private boolean useOwnGWAndDNSSettings = false;
 
     /** Die zuletzt vergebene IP-Adresse */
     String lastOfferedAddress = null;
     /** Liste mit dynamisch vergebenen IP-Adressen mit zugehoeriger MAC-Adresse */
-    List<DHCPAddressAssignment> dynamicAssignedAddresses = new ArrayList<DHCPAddressAssignment>();
+    List<DHCPAddressItem> dynamicAssignedAddresses = new ArrayList<DHCPAddressItem>();
     /** Liste mit statisch vergebenen IP-Adressen mit zugehoeriger MAC-Adresse */
-    List<DHCPAddressAssignment> staticAssignedAddresses = new ArrayList<DHCPAddressAssignment>();
+    List<DHCPAddressItem> reservedAddresses = new ArrayList<DHCPAddressItem>();
     /** Liste mit angebotenen IP-Adressen mit zugehoeriger MAC-Adresse */
-    List<DHCPAddressAssignment> offeredAddresses = new ArrayList<DHCPAddressAssignment>();
+    List<DHCPAddressItem> offeredAddresses = new ArrayList<DHCPAddressItem>();
     /** Liste mit IP-Adressen, die von anderen Servern angeboten wurden. */
-    List<DHCPAddressAssignment> blacklist = new ArrayList<DHCPAddressAssignment>();
+    List<DHCPAddressItem> blacklist = new ArrayList<DHCPAddressItem>();
 
     /** Konstruktor, in dem der UDP-Port 67 gesetzt wird. */
     public DHCPServer() {
@@ -85,14 +85,14 @@ public class DHCPServer extends UDPServerAnwendung {
     String nextAddress() {
         String nextAddress;
         if (StringUtils.isBlank(lastOfferedAddress)) {
-            nextAddress = untergrenze;
+            nextAddress = lowerLimit;
         } else {
             long address = ipToLong(lastOfferedAddress) + 1;
-            long upperLimit = ipToLong(obergrenze);
-            if (address <= upperLimit) {
+            long maxIP = ipToLong(upperLimit);
+            if (address <= maxIP) {
                 nextAddress = longToIp(address);
             } else {
-                nextAddress = untergrenze;
+                nextAddress = lowerLimit;
             }
         }
         lastOfferedAddress = nextAddress;
@@ -118,15 +118,15 @@ public class DHCPServer extends UDPServerAnwendung {
             }
         }
         long leaseTime = System.currentTimeMillis() + 4 * Cable.getRTT();
-        offeredAddresses.add(new DHCPAddressAssignment(mac, addressToOffer, leaseTime));
+        offeredAddresses.add(new DHCPAddressItem(mac, addressToOffer, leaseTime));
         return addressToOffer;
     }
 
     private String findStaticOffer(String mac) {
         String addressToOffer = null;
-        for (DHCPAddressAssignment entry : staticAssignedAddresses) {
+        for (DHCPAddressItem entry : reservedAddresses) {
             if (StringUtils.equalsIgnoreCase(mac, entry.getMAC())) {
-                addressToOffer = entry.getIp();
+                addressToOffer = entry.getIP();
                 break;
             }
         }
@@ -135,25 +135,25 @@ public class DHCPServer extends UDPServerAnwendung {
 
     public synchronized void blacklistAddress(String ip) {
         long leaseTime = System.currentTimeMillis() + 4 * Cable.getRTT();
-        blacklist.add(new DHCPAddressAssignment("", ip, leaseTime));
+        blacklist.add(new DHCPAddressItem("", ip, leaseTime));
     }
 
-    public synchronized DHCPAddressAssignment requestAddress(String mac, String ip)
+    public synchronized DHCPAddressItem requestAddress(String mac, String ip)
             throws AddressRequestNotAcceptedException {
         if (assignmentListContains(blacklist, ip)) {
             throw new AddressRequestNotAcceptedException();
         }
-        DHCPAddressAssignment assignment = requestStaticAssignment(mac, ip);
+        DHCPAddressItem assignment = requestStaticAssignment(mac, ip);
         if (assignment == null) {
             assignment = requestDynamicAssignment(mac, ip);
         }
         return assignment;
     }
 
-    private DHCPAddressAssignment requestStaticAssignment(String mac, String ip) {
-        DHCPAddressAssignment assignment = null;
-        for (DHCPAddressAssignment entry : staticAssignedAddresses) {
-            if (StringUtils.equalsIgnoreCase(mac, entry.getMAC()) && StringUtils.equalsIgnoreCase(ip, entry.getIp())) {
+    private DHCPAddressItem requestStaticAssignment(String mac, String ip) {
+        DHCPAddressItem assignment = null;
+        for (DHCPAddressItem entry : reservedAddresses) {
+            if (StringUtils.equalsIgnoreCase(mac, entry.getMAC()) && StringUtils.equalsIgnoreCase(ip, entry.getIP())) {
                 assignment = entry;
                 break;
             }
@@ -161,11 +161,11 @@ public class DHCPServer extends UDPServerAnwendung {
         return assignment;
     }
 
-    private DHCPAddressAssignment requestDynamicAssignment(String mac, String ip)
+    private DHCPAddressItem requestDynamicAssignment(String mac, String ip)
             throws AddressRequestNotAcceptedException {
         boolean success = false;
-        for (DHCPAddressAssignment assignment : offeredAddresses) {
-            if (StringUtils.equalsIgnoreCase(ip, assignment.getIp())) {
+        for (DHCPAddressItem assignment : offeredAddresses) {
+            if (StringUtils.equalsIgnoreCase(ip, assignment.getIP())) {
                 if (StringUtils.equalsIgnoreCase(mac, assignment.getMAC())) {
                     success = true;
                     offeredAddresses.remove(assignment);
@@ -179,9 +179,9 @@ public class DHCPServer extends UDPServerAnwendung {
         if (!success && checkAddressAvailable(ip)) {
             success = true;
         }
-        DHCPAddressAssignment assignment;
+        DHCPAddressItem assignment;
         if (success) {
-            assignment = new DHCPAddressAssignment(mac, ip, System.currentTimeMillis() + DEFAULT_LEASE_TIME_MILLIS);
+            assignment = new DHCPAddressItem(mac, ip, System.currentTimeMillis() + DEFAULT_LEASE_TIME_MILLIS);
             dynamicAssignedAddresses.add(assignment);
         } else {
             throw new AddressRequestNotAcceptedException();
@@ -189,8 +189,8 @@ public class DHCPServer extends UDPServerAnwendung {
         return assignment;
     }
 
-    public String holeServerIpAddress() {
-        return getSystemSoftware().holeIPAdresse();
+    public String getServerIpAddress() {
+        return getSystemSoftware().getIPAddress();
     }
 
     /**
@@ -203,7 +203,7 @@ public class DHCPServer extends UDPServerAnwendung {
         boolean available = true;
         if (assignmentListContains(dynamicAssignedAddresses, ip)) {
             available = false;
-        } else if (assignmentListContains(staticAssignedAddresses, ip)) {
+        } else if (assignmentListContains(reservedAddresses, ip)) {
             available = false;
         } else if (assignmentListContains(offeredAddresses, ip)) {
             available = false;
@@ -214,10 +214,10 @@ public class DHCPServer extends UDPServerAnwendung {
         return available;
     }
 
-    private boolean assignmentListContains(List<DHCPAddressAssignment> assignmentList, String ip) {
+    private boolean assignmentListContains(List<DHCPAddressItem> assignmentList, String ip) {
         boolean contains = false;
-        for (DHCPAddressAssignment assignment : assignmentList) {
-            if (assignment.getIp().equalsIgnoreCase(ip)) {
+        for (DHCPAddressItem assignment : assignmentList) {
+            if (assignment.getIP().equalsIgnoreCase(ip)) {
                 contains = true;
                 break;
             }
@@ -225,8 +225,12 @@ public class DHCPServer extends UDPServerAnwendung {
         return contains;
     }
 
-    public void setOwnSettings(boolean val) {
-        this.useDhcpSettings = val;
+    public void setUseOwnGWAndDNSSettings(boolean val) {
+        this.useOwnGWAndDNSSettings = val;
+    }
+    
+    public boolean getUseOwnGWAndDNSSettings() {
+        return useOwnGWAndDNSSettings;
     }
 
     /**
@@ -235,29 +239,29 @@ public class DHCPServer extends UDPServerAnwendung {
      */
     synchronized void cleanUpAssignments() {
         cleanUpAssignmentList(dynamicAssignedAddresses);
-        cleanUpAssignmentList(staticAssignedAddresses);
+        cleanUpAssignmentList(reservedAddresses);
         cleanUpAssignmentList(offeredAddresses);
         cleanUpAssignmentList(blacklist);
     }
 
-    private void cleanUpAssignmentList(List<DHCPAddressAssignment> assignments) {
-        List<DHCPAddressAssignment> expiredAssignments = new LinkedList<>();
-        for (DHCPAddressAssignment assignment : assignments) {
+    private void cleanUpAssignmentList(List<DHCPAddressItem> assignments) {
+        List<DHCPAddressItem> expiredAssignments = new LinkedList<>();
+        for (DHCPAddressItem assignment : assignments) {
             if (assignment.isExpired()) {
                 expiredAssignments.add(assignment);
             }
         }
-        for (DHCPAddressAssignment expired : expiredAssignments) {
+        for (DHCPAddressItem expired : expiredAssignments) {
             assignments.remove(expired);
         }
     }
 
-    public void starten() {
+    public void startThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DHCPServer), starten()");
         dynamicAssignedAddresses.clear();
         lastOfferedAddress = null;
-        super.starten();
+        super.startThread();
     }
 
     /**
@@ -274,19 +278,15 @@ public class DHCPServer extends UDPServerAnwendung {
         mitarbeiter.add(dhcpMitarbeiter);
     }
 
-    public boolean isOwnSettings() {
-        return useDhcpSettings;
-    }
-
     boolean inRange(String ipAddress) {
-        long lowerLimit = ipToLong(untergrenze);
-        long upperLimit = ipToLong(obergrenze);
+        long minIP = ipToLong(lowerLimit);
+        long maxIP = ipToLong(upperLimit);
         long ip = ipToLong(ipAddress);
-        return ip <= upperLimit && ip >= lowerLimit;
+        return (ip <= maxIP) && (ip >= minIP);
     }
 
     static int[] ipToIntArray(String ipAddress) {
-        if (!EingabenUeberpruefung.isGueltig(ipAddress, EingabenUeberpruefung.musterIpAdresse)) {
+        if (!EntryValidator.isValid(ipAddress, EntryValidator.musterIpAdresse)) {
             throw new NumberFormatException("Not a valid IP address");
         }
         int[] ipAsArray = new int[4];
@@ -314,25 +314,25 @@ public class DHCPServer extends UDPServerAnwendung {
         return String.format("%d.%d.%d.%d", firstByte, secondByte, thirdByte, fourthByte);
     }
 
-    public String getObergrenze() {
-        return obergrenze;
+    public String getUpperLimit() {
+        return upperLimit;
     }
 
-    public void setObergrenze(String obergrenze) {
-        this.obergrenze = obergrenze;
+    public void setUpperLimit(String upperLimit) {
+        this.upperLimit = upperLimit;
     }
 
-    public String getUntergrenze() {
-        return untergrenze;
+    public String getLowerLimit() {
+        return lowerLimit;
     }
 
-    public void setUntergrenze(String untergrenze) {
-        this.untergrenze = untergrenze;
+    public void setLowerLimit(String lowerLimit) {
+        this.lowerLimit = lowerLimit;
     }
 
-    public String getDnsserverip() {
+    public String getDNSServerIP() {
         String dns;
-        if (useDhcpSettings) {
+        if (useOwnGWAndDNSSettings) {
             dns = dhcpDNS;
         } else {
             dns = getSystemSoftware().getDNSServer();
@@ -343,13 +343,13 @@ public class DHCPServer extends UDPServerAnwendung {
         return dns;
     }
 
-    public void setDnsserverip(String ip) {
+    public void setDNSServerIP(String ip) {
         this.dhcpDNS = ip;
     }
 
-    public String getGatewayip() {
+    public String getGatewayIP() {
         String gateway;
-        if (useDhcpSettings) {
+        if (useOwnGWAndDNSSettings) {
             gateway = dhcpGateway;
         } else {
             gateway = getSystemSoftware().getStandardGateway();
@@ -360,49 +360,49 @@ public class DHCPServer extends UDPServerAnwendung {
         return gateway;
     }
 
-    public void setGatewayip(String ip) {
+    public void setGatewayIP(String ip) {
         this.dhcpGateway = ip;
     }
 
-    public String getSubnetzmaske() {
-        return getSystemSoftware().holeNetzmaske();
+    public String getSubnetMask() {
+        return getSystemSoftware().getSubnetMask();
     }
 
-    public List<DHCPAddressAssignment> holeStaticAssignedAddresses() {
-        return Collections.unmodifiableList(staticAssignedAddresses);
+    public List<DHCPAddressItem> getReservedAddresses() {
+        return Collections.unmodifiableList(reservedAddresses);
     }
 
     public List<String> getStaticAssignedAddresses() {
         List<String> entries = new ArrayList<>();
-        for (DHCPAddressAssignment entry : staticAssignedAddresses) {
-            entries.add(String.format("%s %s", entry.getMAC(), entry.getIp()));
+        for (DHCPAddressItem entry : reservedAddresses) {
+            entries.add(String.format("%s %s", entry.getMAC(), entry.getIP()));
         }
         return entries;
     }
 
     public void setStaticAssignedAddresses(List<String> assignedAddresses) {
-        staticAssignedAddresses.clear();
+        reservedAddresses.clear();
         for (String entry : assignedAddresses) {
             String[] pair = StringUtils.split(entry);
-            staticAssignedAddresses.add(new DHCPAddressAssignment(pair[0], pair[1], 0));
+            reservedAddresses.add(new DHCPAddressItem(pair[0], pair[1], 0));
         }
     }
 
-    public void addStaticAssignment(String mac, String ip) {
+    public void addReservedAddress(String mac, String ip) {
         boolean alreadyExisting = false;
-        for (DHCPAddressAssignment entry : staticAssignedAddresses) {
+        for (DHCPAddressItem entry : reservedAddresses) {
             if (StringUtils.equalsIgnoreCase(entry.getMAC(), mac)) {
                 alreadyExisting = true;
                 break;
             }
         }
-        if (!alreadyExisting && EingabenUeberpruefung.isGueltig(mac, EingabenUeberpruefung.musterMacAddress)
-                && EingabenUeberpruefung.isGueltig(ip, EingabenUeberpruefung.musterIpAdresse)) {
-            staticAssignedAddresses.add(new DHCPAddressAssignment(mac, ip, 0));
+        if (!alreadyExisting && EntryValidator.isValid(mac, EntryValidator.musterMacAddress)
+                && EntryValidator.isValid(ip, EntryValidator.musterIpAdresse)) {
+            reservedAddresses.add(new DHCPAddressItem(mac, ip, 0));
         }
     }
 
-    public void clearStaticAssignments() {
-        staticAssignedAddresses.clear();
+    public void clearReservedAddresses() {
+        reservedAddresses.clear();
     }
 }

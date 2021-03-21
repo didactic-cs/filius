@@ -32,26 +32,28 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.QuadCurve2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.Transient;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JPanel;
 
 import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.GUIMainMenu;
-import filius.hardware.CableActiveListener;
+import filius.hardware.Cable;
+import filius.rahmenprogramm.I18n;
 
 /**
- * 
  * @author Johannes Bade
  */
 @SuppressWarnings("serial")
-public class JCablePanel extends JPanel implements CableActiveListener {
+public class JCablePanel extends JPanel implements I18n, PropertyChangeListener {
 	    
-    private GUINodeItem ziel1, ziel2;
-    private int xZiel1, yZiel1, xZiel2, yZiel2;
+    private GUINodeItem nodeItem1 = null;
+    private GUINodeItem nodeItem2 = null;
+    private int nodeItem1X, nodeItem1Y;
+    private int nodeItem2X, nodeItem2Y;
     private boolean flip;
     
     // selected is only used in Design mode 
@@ -59,28 +61,32 @@ public class JCablePanel extends JPanel implements CableActiveListener {
     
     // active is used in Simulation mode  
     // and also in Design mode when the configuration of a router is shown and 
-    private boolean active = false;  
+    private boolean active = false;
     
-    private final Color standardColor = new Color(64, 64, 64);   // darkgray    
-    private final Color selectedColor = new Color(0, 128, 255);  // blue
-    private final Color activeColor   = new Color(0, 255, 64);   // green
+    // blocked is only used in Simulation mode  
+    private boolean blocked = false; 
+    
+    private final Color standardColor = new Color(64, 64, 64);    // darkgray    
+    private final Color selectedColor = new Color(0, 128, 255);   // blue
+    private final Color activeColor   = new Color(0, 255, 64);    // green
+    private final Color blockedColor  = new Color(180, 0, 0);     // darkred        
     
     private Color color = standardColor; 
     
 
     public JCablePanel() {
         super();
-        this.setOpaque(false);
+        this.setOpaque(false);  
     }
 
     public void updateBounds() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");        
 
         // Theoretisch korrekte Positionen        
-        int x1 = (int) (ziel1.getNodeLabel().getX() + (0.5 * ziel1.getNodeLabel().getWidth()));
-        int y1 = (int) (ziel1.getNodeLabel().getY() + (0.5 * ziel1.getNodeLabel().getHeight()));
-        int x2 = (int) (ziel2.getNodeLabel().getX() + (0.5 * ziel2.getNodeLabel().getWidth()));
-        int y2 = (int) (ziel2.getNodeLabel().getY() + (0.5 * ziel2.getNodeLabel().getHeight()));
+        int x1 = (int) (nodeItem1.getNodeLabel().getX() + (0.5 * nodeItem1.getNodeLabel().getWidth()));
+        int y1 = (int) (nodeItem1.getNodeLabel().getY() + (0.5 * nodeItem1.getNodeLabel().getHeight()));
+        int x2 = (int) (nodeItem2.getNodeLabel().getX() + (0.5 * nodeItem2.getNodeLabel().getWidth()));
+        int y2 = (int) (nodeItem2.getNodeLabel().getY() + (0.5 * nodeItem2.getNodeLabel().getHeight()));
 
         // Absolut korrekte Positionen (also Sidebar und Menu rausgerechnet)
         int t1;
@@ -100,10 +106,10 @@ public class JCablePanel extends JPanel implements CableActiveListener {
         setBounds(x1 - 2, y1 - 2, x2 - x1 + 4, y2 - y1 + 4);
         
         // Keep coordinates
-        xZiel1 = (int) (ziel1.getNodeLabel().getX() + (0.5 * ziel1.getNodeLabel().getWidth()));
-        yZiel1 = (int) (ziel1.getNodeLabel().getY() + (0.5 * ziel1.getNodeLabel().getHeight()));
-        xZiel2 = (int) (ziel2.getNodeLabel().getX() + (0.5 * ziel2.getNodeLabel().getWidth()));
-        yZiel2 = (int) (ziel2.getNodeLabel().getY() + (0.5 * ziel2.getNodeLabel().getHeight()));   
+        nodeItem1X = (int) (nodeItem1.getNodeLabel().getX() + (0.5 * nodeItem1.getNodeLabel().getWidth()));
+        nodeItem1Y = (int) (nodeItem1.getNodeLabel().getY() + (0.5 * nodeItem1.getNodeLabel().getHeight()));
+        nodeItem2X = (int) (nodeItem2.getNodeLabel().getX() + (0.5 * nodeItem2.getNodeLabel().getWidth()));
+        nodeItem2Y = (int) (nodeItem2.getNodeLabel().getY() + (0.5 * nodeItem2.getNodeLabel().getHeight()));   
         
         Main.debug.println("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2 +
                                          "  (W:" + (x2 - x1) + ", H:" + (y2 - y1) + ")");
@@ -113,10 +119,10 @@ public class JCablePanel extends JPanel implements CableActiveListener {
         super.paintComponent(g);
 
         // Coordinates of the extremities of the curve relative to the panel         
-        int x1 = xZiel1 - this.getX();
-        int y1 = yZiel1 - this.getY();
-        int x2 = xZiel2 - this.getX();
-        int y2 = yZiel2 - this.getY();  
+        int x1 = nodeItem1X - this.getX();
+        int y1 = nodeItem1Y - this.getY();
+        int x2 = nodeItem2X - this.getX();
+        int y2 = nodeItem2Y - this.getY();  
         
         // Coordinates of the control point
         int xCP = (x1 + x2) / 4;
@@ -139,7 +145,7 @@ public class JCablePanel extends JPanel implements CableActiveListener {
     }
 
     /*
-     * Method to examine whether the mouse was clicked close to a curve representing a cable
+     * Method to examine whether the mouse was clicked close to the curve representing a cable
      * 
      */
     public boolean clicked(int x, int y) {
@@ -178,20 +184,20 @@ public class JCablePanel extends JPanel implements CableActiveListener {
         return false;
     }
 
-    public GUINodeItem getZiel1() {
-        return ziel1;
+    public GUINodeItem getNodeItem1() {
+        return nodeItem1;
     }
 
-    public void setZiel1(GUINodeItem ziel1) {
-        this.ziel1 = ziel1;
+    public void setNodeItem1(GUINodeItem nodeItem) {
+        this.nodeItem1 = nodeItem;
     }
 
-    public GUINodeItem getZiel2() {
-        return ziel2;
+    public GUINodeItem getNodeItem2() {
+        return nodeItem2;
     }
 
-    public void setZiel2(GUINodeItem ziel2) {
-        this.ziel2 = ziel2;
+    public void setNodeItem2(GUINodeItem nodeItem) {
+        this.nodeItem2 = nodeItem;
         updateBounds();
     }
     
@@ -202,23 +208,24 @@ public class JCablePanel extends JPanel implements CableActiveListener {
      */
     public void updateColor() {
     	
-    	switch (GUIContainer.getInstance().getActiveSite()) {
+    	switch (GUIContainer.getInstance().getCurrentMode()) {
     	
-    		case (GUIMainMenu.MODUS_ENTWURF): {
+    		case (GUIMainMenu.DESIGN_MODE): {
     			
     			if (selected || active) color = selectedColor; 
     			else color = standardColor;  
     			break;
     		} 
     		
-    		case (GUIMainMenu.MODUS_AKTION): {
+    		case (GUIMainMenu.ACTION_MODE): {
     			
-    			if (active) color = activeColor; 
+    			if (blocked) color = blockedColor; 
+    			else if (active) color = activeColor; 
     			else color = standardColor;  
     			break;
     		} 
     		
-    		case (GUIMainMenu.MODUS_DOKUMENTATION): {
+    		case (GUIMainMenu.DOC_MODE): {
 
     			color = standardColor;  
     		} 
@@ -242,12 +249,43 @@ public class JCablePanel extends JPanel implements CableActiveListener {
         updateColor();
     }
     
-    /** 
-     * {@inheritDoc}
-     */
-    public void onActiveChange(boolean active) {
+    public void setBlocked(boolean blocked) {
     	
-    	this.active = active;  
-        updateColor();	
+    	if (this.blocked == blocked) return;
+    	
+        this.blocked = blocked;  
+        updateColor();
     }
+    
+    // Work in progress... 
+    // (need to trigger the tooltip only when the mouse is over the cable, not over the containing panel) 
+//    void updateTooltip(InternetNode node) {
+//    	
+//    	String tooltip = "<html><pre>";
+//    	tooltip += "cable";
+//    	tooltip += " </pre></html>";
+//    	
+//    	setToolTipText(tooltip);
+//    }
+    
+    public void registerListeners(Cable cable) { 
+    	
+    	cable.addPropertyChangeListener("cableactivity", this);
+    }
+    
+    
+	/**
+     * <b>propertyChange</b> whenever a change in the host must be reflected by the user interface. 
+     *     
+     */
+	public void propertyChange(PropertyChangeEvent evt) {
+		
+		String pn = evt.getPropertyName();
+		
+		if (pn == "cableactivity") {           
+			// Update the cable color to reflect the trafic activity
+			this.active = (Boolean) evt.getNewValue();
+			updateColor();
+		} 		
+	};
 }

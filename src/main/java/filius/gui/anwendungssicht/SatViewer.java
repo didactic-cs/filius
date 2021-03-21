@@ -32,58 +32,104 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
-
+import filius.gui.JExtendedTable;
 import filius.gui.JFrameList;
+import filius.gui.JMainFrame;
+import filius.gui.Palette;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.SwitchFirmware;
 
 @SuppressWarnings("serial")
 public class SatViewer extends JFrame implements I18n, PropertyChangeListener {
-
+	
     private Switch sw;
-    private DefaultTableModel dtm;
+    private JExtendedTable table;
+    
 
     public SatViewer(Switch sw) {
-        super(messages.getString("guievents_msg8") + " " + sw.getDisplayName());
-        JFrameList.gI().add(this);
-        this.sw = sw;
+    	JFrameList.getInstance().add(this);   
+    	this.sw = sw;
+        updateTitle();             
         init();
         updateSat();
-    }
+        
+        sw.addPropertyChangeListener("nodeName", this);
+        ((SwitchFirmware)sw.getSystemSoftware()).addPropertyChangeListener("satEntry", this);     }
 
     private void init() {
-        setBounds(100, 100, 320, 240);
+        setBounds(0, 0, 240, 300);
+        setResizable(false);
+        centerViewer();
 
         ImageIcon icon = new ImageIcon(getClass().getResource("/gfx/hardware/switch.png"));
         setIconImage(icon.getImage());
 
-        dtm = new DefaultTableModel(0, 2);
-        JTable tableSATNachrichten = new JTable(dtm);
-        tableSATNachrichten.getTableHeader().setReorderingAllowed(false);
-        DefaultTableColumnModel dtcm = (DefaultTableColumnModel) tableSATNachrichten.getColumnModel();
-        dtcm.getColumn(0).setHeaderValue(messages.getString("guievents_msg9"));
-        dtcm.getColumn(1).setHeaderValue(messages.getString("guievents_msg10"));
-        JScrollPane spSAT = new JScrollPane(tableSATNachrichten);
+        table = new JExtendedTable(2);
+        table.setHeaderResizable(false);   
+        table.setSorted(true);         
+        table.setBackground(Palette.SAT_TABLE_EVEN_ROW_BG);
+        table.setRowColors(Palette.SAT_TABLE_EVEN_ROW_BG, Palette.SAT_TABLE_ODD_ROW_BG);
+    	
+    	// MAC        
+        table.setHeader(0, messages.getString("guievents_msg9"));
+        table.setColumnWidth(0, 130);
+        
+        // Port
+        table.setHeader(1, messages.getString("guievents_msg10"));
+                
+        JScrollPane spSAT = new JScrollPane(table);
         getContentPane().add(spSAT);
+    }
+    
+    private void centerViewer() {
+    	JMainFrame MF = JMainFrame.getInstance();
+    	setLocation(MF.getX() + (MF.getWidth() - getWidth())/2, MF.getY() + (MF.getHeight() - getHeight())/2);
     }
 
     public Switch getSwitch() {
         return sw;
     }
 
-    private void updateSat() {
-        dtm.setRowCount(0);
-        for (Vector<String> zeile : ((SwitchFirmware) sw.getSystemSoftware()).holeSAT()) {
-            dtm.addRow(zeile);
-        }
-    }
+    private void updateSat() {  	    	
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        updateSat();
+    	Vector<Vector<String>> satEntries = ((SwitchFirmware) sw.getSystemSoftware()).getSAT();    	
+    	int satSize = satEntries.size();
+    	
+    	// When sat is empty, just flush the table
+    	if (satSize == 0) {
+    		table.clear();
+    		return;
+    	}
+    	
+    	// Since no single entry can be removed from the sat, we only add the new values     
+    	for (Vector<String> row : satEntries) { 
+    		table.addRowIfNotPresent(row);
+    	}        
     }
+    
+    private void updateTitle() {
+    	
+    	setTitle(messages.getString("guievents_msg8") + " " + sw.getDisplayName());
+	}       
+    
+    /**
+     * <b>propertyChange</b> whenever a change in the host must be reflected by the user interface. 
+     * 
+     */
+	public void propertyChange(PropertyChangeEvent evt) {
+		
+		String pn = evt.getPropertyName();
+		
+		if (pn == "satentry") {    			
+			// Update the SAT table
+			// From SwitchFirmware
+			updateSat();
+			
+		} else if (pn == "nodename") {     			
+			// Update the title of the desktop window
+			// From Node
+			updateTitle();
+		} 
+	};
 }

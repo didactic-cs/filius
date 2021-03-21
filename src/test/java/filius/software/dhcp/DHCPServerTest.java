@@ -15,40 +15,40 @@ public class DHCPServerTest {
     @Test
     public void testInRange() throws Exception {
         DHCPServer server = new DHCPServer();
-        server.setUntergrenze("1.1.1.1");
-        server.setObergrenze("1.1.1.1");
+        server.setLowerLimit("1.1.1.1");
+        server.setUpperLimit("1.1.1.1");
         assertTrue(server.inRange("1.1.1.1"));
     }
 
     @Test
     public void testInRange_ComplexRange() throws Exception {
         DHCPServer server = new DHCPServer();
-        server.setUntergrenze("1.10.100.200");
-        server.setObergrenze("200.100.10.1");
+        server.setLowerLimit("1.10.100.200");
+        server.setUpperLimit("200.100.10.1");
         assertTrue(server.inRange("50.5.20.7"));
     }
 
     @Test
     public void testInRange_OverUpperLimit() throws Exception {
         DHCPServer server = new DHCPServer();
-        server.setUntergrenze("1.1.1.1");
-        server.setObergrenze("1.1.1.2");
+        server.setLowerLimit("1.1.1.1");
+        server.setUpperLimit("1.1.1.2");
         assertFalse(server.inRange("1.1.1.3"));
     }
 
     @Test
     public void testInRange_BelowLowerLimit() throws Exception {
         DHCPServer server = new DHCPServer();
-        server.setUntergrenze("1.1.1.10");
-        server.setObergrenze("1.1.1.12");
+        server.setLowerLimit("1.1.1.10");
+        server.setUpperLimit("1.1.1.12");
         assertFalse(server.inRange("1.1.1.9"));
     }
 
     @Test
     public void testInRange_BelowLowerLimitInFirstPart() throws Exception {
         DHCPServer server = new DHCPServer();
-        server.setUntergrenze("2.1.1.10");
-        server.setObergrenze("3.1.1.12");
+        server.setLowerLimit("2.1.1.10");
+        server.setUpperLimit("3.1.1.12");
         assertFalse(server.inRange("1.1.1.11"));
     }
 
@@ -91,14 +91,14 @@ public class DHCPServerTest {
     @Test
     public void testCleanUpAssignments_doNotRemoveNeverExpiringEntries() throws Exception {
         DHCPServer server = new DHCPServer();
-        server.dynamicAssignedAddresses.add(new DHCPAddressAssignment("dyn-mac", "dyn-ip", 0));
-        server.staticAssignedAddresses.add(new DHCPAddressAssignment("stat-mac", "stat-ip", 0));
-        server.offeredAddresses.add(new DHCPAddressAssignment("offered-mac", "offered-ip", 0));
+        server.dynamicAssignedAddresses.add(new DHCPAddressItem("dyn-mac", "dyn-ip", 0));
+        server.reservedAddresses.add(new DHCPAddressItem("stat-mac", "stat-ip", 0));
+        server.offeredAddresses.add(new DHCPAddressItem("offered-mac", "offered-ip", 0));
 
         server.cleanUpAssignments();
 
         assertThat(server.dynamicAssignedAddresses.size(), is(1));
-        assertThat(server.staticAssignedAddresses.size(), is(1));
+        assertThat(server.reservedAddresses.size(), is(1));
         assertThat(server.offeredAddresses.size(), is(1));
     }
 
@@ -106,14 +106,14 @@ public class DHCPServerTest {
     public void testCleanUpAssignments_RemoveExpiredEntries() throws Exception {
         DHCPServer server = new DHCPServer();
         long timestamp = System.currentTimeMillis() - 100;
-        server.dynamicAssignedAddresses.add(new DHCPAddressAssignment("dyn-mac", "dyn-ip", timestamp));
-        server.staticAssignedAddresses.add(new DHCPAddressAssignment("stat-mac", "stat-ip", timestamp));
-        server.offeredAddresses.add(new DHCPAddressAssignment("offered-mac", "offered-ip", timestamp));
+        server.dynamicAssignedAddresses.add(new DHCPAddressItem("dyn-mac", "dyn-ip", timestamp));
+        server.reservedAddresses.add(new DHCPAddressItem("stat-mac", "stat-ip", timestamp));
+        server.offeredAddresses.add(new DHCPAddressItem("offered-mac", "offered-ip", timestamp));
 
         server.cleanUpAssignments();
 
         assertThat(server.dynamicAssignedAddresses.size(), is(0));
-        assertThat(server.staticAssignedAddresses.size(), is(0));
+        assertThat(server.reservedAddresses.size(), is(0));
         assertThat(server.offeredAddresses.size(), is(0));
     }
 
@@ -121,14 +121,14 @@ public class DHCPServerTest {
     public void testCleanUpAssignments_DoNotRemoveStillValidEntries() throws Exception {
         DHCPServer server = new DHCPServer();
         long timestamp = System.currentTimeMillis() + 1000;
-        server.dynamicAssignedAddresses.add(new DHCPAddressAssignment("dyn-mac", "dyn-ip", timestamp));
-        server.staticAssignedAddresses.add(new DHCPAddressAssignment("stat-mac", "stat-ip", timestamp));
-        server.offeredAddresses.add(new DHCPAddressAssignment("offered-mac", "offered-ip", timestamp));
+        server.dynamicAssignedAddresses.add(new DHCPAddressItem("dyn-mac", "dyn-ip", timestamp));
+        server.reservedAddresses.add(new DHCPAddressItem("stat-mac", "stat-ip", timestamp));
+        server.offeredAddresses.add(new DHCPAddressItem("offered-mac", "offered-ip", timestamp));
 
         server.cleanUpAssignments();
 
         assertThat(server.dynamicAssignedAddresses.size(), is(1));
-        assertThat(server.staticAssignedAddresses.size(), is(1));
+        assertThat(server.reservedAddresses.size(), is(1));
         assertThat(server.offeredAddresses.size(), is(1));
     }
 
@@ -167,7 +167,7 @@ public class DHCPServerTest {
     public void testAddressAvailable_AlreadyDynamicallyAssigned() throws Exception {
         String ipAddress = "10.0.0.100";
         DHCPServer server = prepareDhcpServer(ipAddress, "10.0.0.101");
-        server.dynamicAssignedAddresses.add(new DHCPAddressAssignment("mac", ipAddress, 0));
+        server.dynamicAssignedAddresses.add(new DHCPAddressItem("mac", ipAddress, 0));
 
         boolean available = server.checkAddressAvailable(ipAddress);
 
@@ -178,7 +178,7 @@ public class DHCPServerTest {
     public void testAddressAvailable_AlreadyStaticallyAssigned() throws Exception {
         String ipAddress = "10.0.0.100";
         DHCPServer server = prepareDhcpServer(ipAddress, "10.0.0.101");
-        server.staticAssignedAddresses.add(new DHCPAddressAssignment("mac", ipAddress, 0));
+        server.reservedAddresses.add(new DHCPAddressItem("mac", ipAddress, 0));
 
         boolean available = server.checkAddressAvailable(ipAddress);
 
@@ -189,7 +189,7 @@ public class DHCPServerTest {
     public void testAddressAvailable_AlreadyOffered() throws Exception {
         String ipAddress = "10.0.0.100";
         DHCPServer server = prepareDhcpServer(ipAddress, "10.0.0.101");
-        server.offeredAddresses.add(new DHCPAddressAssignment("mac", ipAddress, 0));
+        server.offeredAddresses.add(new DHCPAddressItem("mac", ipAddress, 0));
 
         boolean available = server.checkAddressAvailable(ipAddress);
 
@@ -199,9 +199,9 @@ public class DHCPServerTest {
     @Test
     public void testAddressAvailable_NoApplicableAssignment() throws Exception {
         DHCPServer server = prepareDhcpServer("10.0.0.100", "10.0.0.104");
-        server.dynamicAssignedAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.100", 0));
-        server.staticAssignedAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.101", 0));
-        server.offeredAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.102", 0));
+        server.dynamicAssignedAddresses.add(new DHCPAddressItem("mac", "10.0.0.100", 0));
+        server.reservedAddresses.add(new DHCPAddressItem("mac", "10.0.0.101", 0));
+        server.offeredAddresses.add(new DHCPAddressItem("mac", "10.0.0.102", 0));
 
         boolean available = server.checkAddressAvailable("10.0.0.103");
 
@@ -211,9 +211,9 @@ public class DHCPServerTest {
     @Test
     public void testOfferAddress_SkipAssigned() throws Exception {
         DHCPServer server = prepareDhcpServer("10.0.0.100", "10.0.0.104");
-        server.dynamicAssignedAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.100", 0));
-        server.staticAssignedAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.101", 0));
-        server.offeredAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.102", 0));
+        server.dynamicAssignedAddresses.add(new DHCPAddressItem("mac", "10.0.0.100", 0));
+        server.reservedAddresses.add(new DHCPAddressItem("mac", "10.0.0.101", 0));
+        server.offeredAddresses.add(new DHCPAddressItem("mac", "10.0.0.102", 0));
 
         String offeredAddress = server.offerAddress("01:02:03:04:05:06");
 
@@ -223,9 +223,9 @@ public class DHCPServerTest {
     @Test(expected = NoAvailableAddressException.class)
     public void testOfferAddress_NoAddressAvailable() throws Exception {
         DHCPServer server = prepareDhcpServer("10.0.0.100", "10.0.0.102");
-        server.dynamicAssignedAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.100", 0));
-        server.staticAssignedAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.101", 0));
-        server.offeredAddresses.add(new DHCPAddressAssignment("mac", "10.0.0.102", 0));
+        server.dynamicAssignedAddresses.add(new DHCPAddressItem("mac", "10.0.0.100", 0));
+        server.reservedAddresses.add(new DHCPAddressItem("mac", "10.0.0.101", 0));
+        server.offeredAddresses.add(new DHCPAddressItem("mac", "10.0.0.102", 0));
 
         server.offerAddress("01:02:03:04:05:06");
     }
@@ -246,20 +246,20 @@ public class DHCPServerTest {
         String mac = "01:02:03:04:05:06";
         String offeredAddress = server.offerAddress(mac);
 
-        DHCPAddressAssignment assignment = server.requestAddress(mac, offeredAddress);
+        DHCPAddressItem assignment = server.requestAddress(mac, offeredAddress);
 
         verifyAssignment(server, mac, offeredAddress, assignment);
     }
 
-    private void verifyAssignment(DHCPServer server, String mac, String ip, DHCPAddressAssignment result) {
-        assertThat(result.getIp(), is(ip));
+    private void verifyAssignment(DHCPServer server, String mac, String ip, DHCPAddressItem result) {
+        assertThat(result.getIP(), is(ip));
         assertThat(result.getMAC(), is(mac));
-        for (DHCPAddressAssignment entry : server.offeredAddresses) {
+        for (DHCPAddressItem entry : server.offeredAddresses) {
             assertFalse(entry.getMAC().equalsIgnoreCase(mac));
         }
         boolean assigned = false;
-        for (DHCPAddressAssignment entry : server.dynamicAssignedAddresses) {
-            if (entry.getMAC().equalsIgnoreCase(mac) && entry.getIp().equalsIgnoreCase(ip)) {
+        for (DHCPAddressItem entry : server.dynamicAssignedAddresses) {
+            if (entry.getMAC().equalsIgnoreCase(mac) && entry.getIP().equalsIgnoreCase(ip)) {
                 assigned = true;
                 break;
             }
@@ -281,15 +281,15 @@ public class DHCPServerTest {
         String ip = "10.0.0.101";
         String mac = "01:02:03:04:05:06";
 
-        DHCPAddressAssignment assignment = server.requestAddress(mac, ip);
+        DHCPAddressItem assignment = server.requestAddress(mac, ip);
 
         verifyAssignment(server, mac, ip, assignment);
     }
 
     private DHCPServer prepareDhcpServer(String lowerLimit, String upperLimit) {
         DHCPServer server = new DHCPServer();
-        server.setUntergrenze(lowerLimit);
-        server.setObergrenze(upperLimit);
+        server.setLowerLimit(lowerLimit);
+        server.setUpperLimit(upperLimit);
         return server;
     }
 }

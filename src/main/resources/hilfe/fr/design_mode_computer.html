@@ -1,0 +1,110 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css">
+    html { background-color: rgb(250, 248, 246); padding-left: 8px; padding-right: 8px; padding-bottom: 20px; }
+    body { font-family: Helvetica,Arial,sans-serif; font-size: 12pt; }  
+    h1 { color: rgb(0, 100, 200); font-size: 20pt; border-bottom: 1px solid rgb(0, 100, 200); }
+    h2 { color: rgb(0, 100, 200); font-size: 18pt; margin-top: 0px; margin-bottom: 10px; }
+    h3 { color: rgb(0, 100, 200); font-size: 15pt; margin-top: 10px; margin-bottom: 6px; }
+    h4 { font-weight: bold; margin-top: 0px; margin-bottom: 4px; }
+    p { margin-top: 0px; margin-bottom: 8px; }
+    a { color: rgb(0, 100, 200); text-decoration: none; }
+    div.menu span { font-size: 11pt; color: rgb(0, 100, 200); white-space: nowrap; text-decoration: none; }
+    div.menu span.selected { font-weight: bold; }
+    div.center { text-align: center; margin-top: 0px; margin-bottom: 8px; }
+    ol { margin-left: 15px; margin-top: 0px; }
+    ul { margin-left: 15px; margin-top: 0px; }
+    li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Projet</a></span>&nbsp;&nbsp;
+    <span class="selected">Ordinateur et portable</span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Table de routage</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_firewall.html">Pare-feu</a></span>
+  </div>
+
+  <h1>Mode conception</h1>
+
+  <h2>Ordinateur et portable</h2>
+  
+  <div class="center"><img src="hilfe/gfx/computer.png">&nbsp;&nbsp;&nbsp;<img src="hilfe/gfx/laptop.png"></div> 
+
+  <p>Dans FILIUS, les composants Ordinateur et Portable ont des fonctionnalités identiques.
+     Seule leur icône change. Ordinateurs et portables seront désignés par le terme générique
+     de poste</p>
+
+  <p>Chaque poste possède un système d'exploitation, un bureau et des applications 
+     qui sont accessibles en mode simulation.</p>
+
+  <h3>Configuration</h3>
+  
+  <h4>Nom</h4>
+  
+  <p>Le nom d'un poste peut être choisi arbitrairement et il n'a aucune influence
+     sur le fonctionnement de la simulation.</p>
+  
+  <h4>Afficher l'adresse IP à la place du nom</h4>
+  
+  <p>Cette option permet d'afficher l'adresse IP du poste sous son icône à la
+     place du nom.</p>
+  
+  <h4>Adresse MAC</h4>
+  
+  <p>Ce champ indique l'adresse MAC du poste. Les adresses MAC sont générées aléatoirement 
+     par FILIUS lors de la création des composants.</p>
+  
+  <h4>Service DHCP</h4>
+  
+  <p>Le poste peut faire office de serveur DHCP. Pour des raisons pratiques,
+     ce service se configure en mode conception.</p>
+     
+  <p>Le service DHCP attribue à tout poste (autre que celui sur lequel il est installé)
+     une adresse IP et un masque de sous-réseau. Il peut éventuellement également 
+     fournir l'adresse IP d'une passerelle et l'adresse IP d'un serveur DNS.</p>   
+     
+  <p>L'état courant du service DHCP est affiché et le bouton Configurer permet
+     d'accéder aux paramètres de ce service.</p>   
+     
+  <div class="center"><a href="design_mode_dhcp.html">Paramètres du service DHCP</a></div>
+  
+  <h4>Adressage automatique par serveur DHCP</h4>
+  
+  <p>Les paramètres réseau peuvent être obtenus de façon automatique à partir 
+     d'un serveur DHCP.</p>
+     
+  <p>En cas d'adressage automatique, le poste ne peut pas faire fonction de 
+     serveur DHCP.</p>
+  
+  <h4>Adresse IP</h4>
+  
+  <p>Champ permettant la saisie de l'adresse IP du poste. Ce champ est obligatoire 
+     pour que le poste puisse accéder au réseau.</p>
+  
+  <h4>Masque</h4>
+  
+  <p>Champ permettant la saisie du masque de sous-réseau du poste. Ce champ est obligatoire 
+     pour que le poste puisse accéder au réseau.</p>
+  
+  <h4>Passerelle</h4>
+  
+  <p>Champ permettant la saisie de l'adresse IP du routeur permettant de sortir du 
+     réseau local. Ce champ n'est nécessaire que si le poste a besoin d'accéder à des 
+     composants situés en dehors de son réseau local.</p>
+  
+  <h4>Serveur DNS</h4>  
+  
+  <p>Champ permettant la saisie de l'adresse IP d'un serveur DNS. Ce champ n'est 
+     nécessaire que si certaines applications du poste utilisent des noms de domaines.
+     (un navigateur web ou un client de messagerie, par exemple).</p>  
+
+</body>
+</html>

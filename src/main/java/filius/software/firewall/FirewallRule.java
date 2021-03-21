@@ -25,7 +25,6 @@
  */
 package filius.software.firewall;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -45,7 +44,7 @@ public class FirewallRule implements I18n {
 	public static final short UDP = 17;
 	
 	// ports; see /etc/services
-	public static final int ALL_PORTS = -1; 
+	public static final int   ALL_PORTS = -1; 
 	
 	// action, if rules matches
 	public static final short DROP = 0;
@@ -61,7 +60,7 @@ public class FirewallRule implements I18n {
 	public short action = FirewallRule.DROP;
 
 	// constructor
-	public FirewallRule(String srcIP, String srcMask, String destIP, String destMask, int port, short protocol,short action) {
+	public FirewallRule(String srcIP, String srcMask, String destIP, String destMask, int port, short protocol, short action) {
 		this.srcIP = srcIP;
 		this.srcMask = srcMask;
 		this.destIP = destIP;
@@ -69,9 +68,43 @@ public class FirewallRule implements I18n {
 		this.port = port;
 		this.protocol = protocol;
 		this.action = action;
-	}
+	}	
 	
 	public FirewallRule() {		
+	}
+	
+	public FirewallRule(String srcIP, String srcMask, String destIP, String destMask, String protocol, String port, String action) {
+		this.srcIP = srcIP;
+		this.srcMask = srcMask;
+		this.destIP = destIP;
+		this.destMask = destMask;		
+		if (protocol.equals("ICMP"))     this.protocol = ICMP;
+		else if (protocol.equals("TCP")) this.protocol = TCP;
+		else if (protocol.equals("UDP")) this.protocol = UDP;
+		else                             this.protocol = ALL_PROTOCOLS;
+		if (port.isEmpty()) this.port = ALL_PORTS;  
+		else                this.port = Integer.parseInt(port);
+		if (action.equals(messages.getString("jfirewalldialog_msg33"))) this.action = ACCEPT;
+		else                                                            this.action = DROP;
+	}	
+	
+	public String getProtocolAsString() {
+		switch (protocol) {
+			case ICMP: return "ICMP";
+			case TCP:  return "TCP";
+			case UDP:  return "UDP";
+			default:   return "*";
+		}
+	}
+	
+	public String getPortAsString() {
+		if (port == ALL_PORTS) return "";
+		else                   return String.valueOf(port);
+	}
+	
+	public String getActionAsString() {
+		if (action == ACCEPT) return messages.getString("jfirewalldialog_msg33"); // Accept
+		else                  return messages.getString("jfirewalldialog_msg34"); // Drop
 	}
 	
 	/*

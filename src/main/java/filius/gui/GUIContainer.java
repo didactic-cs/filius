@@ -30,261 +30,266 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
-
-import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.batik.svggen.SVGGeneratorContext;
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-
 import filius.Main;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
-import filius.gui.anwendungssicht.SatViewer;
-import filius.gui.nachrichtensicht.AggregatedExchangeDialog;
-import filius.gui.nachrichtensicht.ExchangeDialog;
-import filius.gui.nachrichtensicht.LayeredExchangeDialog;
+import filius.gui.dokusicht.GUIDocItem;
+import filius.gui.dokusicht.GUIDocPanel;
+import filius.gui.dokusicht.GUIDocSidebar;
+import filius.gui.dokusicht.JDocElement;
+import filius.gui.nachrichtensicht.AbstractPacketsAnalyzerDialog;
+import filius.gui.nachrichtensicht.OldPacketsAnalyzerDialog;
+import filius.gui.nachrichtensicht.PacketsAnalyzerDialog;
 import filius.gui.netzwerksicht.GUIDesignSidebar;
-import filius.gui.netzwerksicht.GUIDocuItem;
-import filius.gui.netzwerksicht.GUIDocumentationPanel;
-import filius.gui.netzwerksicht.GUIDocumentationSidebar;
 import filius.gui.netzwerksicht.GUICableItem;
 import filius.gui.netzwerksicht.GUINodeItem;
-import filius.gui.netzwerksicht.GUINetworkPanel;
+import filius.gui.netzwerksicht.GUIDesignPanel;
 import filius.gui.netzwerksicht.GUIPrintPanel;
 import filius.gui.netzwerksicht.JCablePanel;
-import filius.gui.netzwerksicht.JDocuElement;
-import filius.gui.netzwerksicht.JKonfiguration;
 import filius.gui.netzwerksicht.JNodeLabel;
-import filius.hardware.Cable;
+import filius.gui.netzwerksicht.config.JConfigPanel;
 import filius.hardware.NetworkInterface;
+import filius.hardware.Port;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetNode;
 import filius.hardware.knoten.Node;
-import filius.hardware.knoten.Modem;
-import filius.hardware.knoten.Notebook;
-import filius.hardware.knoten.Rechner;
+import filius.hardware.knoten.Router;
 import filius.hardware.knoten.Switch;
-import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
-import filius.rahmenprogramm.SzenarioVerwaltung;
-import filius.rahmenprogramm.nachrichten.Lauscher;
-import filius.software.system.Betriebssystem;
-import filius.software.system.SystemSoftware;
+import filius.rahmenprogramm.ProjectManager;
+import filius.rahmenprogramm.nachrichten.PacketAnalyzer;
+import filius.software.system.HostOS;
 
+@SuppressWarnings("serial")
 public class GUIContainer implements Serializable, I18n {
 
-    private enum FileType {
-        PNG, SVG
-    }
-
     private static final int MIN_DESKTOP_SPACING = 10;
-    private static final Integer ACTIVE_LISTENER_LAYER = Integer.valueOf(1);
-    private static final Integer INACTIVE_LISTENER_LAYER = Integer.valueOf(-2);
-    private static final Integer BACKGROUND_LAYER = Integer.valueOf(-10);
-    public static final int NONE = 0;
-    public static final int MOVE = 1;
-    public static final int LEFT_SIZING = 2;
-    public static final int RIGHT_SIZING = 4;
-    public static final int UPPER_SIZING = 8;
-    public static final int LOWER_SIZING = 16;
-    private static final long serialVersionUID = 1L;
+    private static final Integer ACTIVE_LISTENER_LAYER = 1; 
+    private static final Integer INACTIVE_LISTENER_LAYER = -2;
+    private static final Integer BACKGROUND_LAYER = -10; 
+    public  static final int WORKAREA_WIDTH = 2000;
+    public  static final int WORKAREA_HEIGHT = 1500;  
+    
+    private int workareaWidth;
+    private int workareaHeight;
 
-    public static final int FLAECHE_BREITE = 2000;
-    public static final int FLAECHE_HOEHE = 1500;
+    private static GUIContainer guiContainer;
+    private JMainFrame mainFrame;
+    
+    // The current diplay mode
+    private int currentMode = GUIMainMenu.DESIGN_MODE;
 
-    private static GUIContainer ref;
+    private GUIMainMenu mainMenu;    
 
-    private GUIMainMenu menu;
-
-    private int width = FLAECHE_BREITE;
-    private int height = FLAECHE_HOEHE;
-
-    private GUINetworkPanel networkPanel;
-    private JPanel designListenerPanel = new JPanel();
-    private JLayeredPane layeredPane = new JLayeredPane();
-
-    private GUIDocumentationSidebar docuSidebar;
-    private GUIDocumentationPanel docuPanel;
-    private JScrollPane docuSidebarScrollpane;
-    private JPanel docuDragPanel = new JPanel();
-    private JDocuElement activeDocuElement;
+    // Doc mode elements    
+    private GUIDocPanel docPanel;
+    private GUIDocSidebar docSidebar;
+    private JScrollPane docSidebarScrollpane;
+    private JPanel docDragPanel;
+    
+    /** A JDocElement used to add a doc element by drag and drop */
+    private JDocElement dragDocElement;
+    
+    //Design mode elements
+    private JLayeredPane designLayeredPane; 
+    private JScrollPane designView; 
+    
+    private GUIDesignPanel designPanel;
+    private JPanel designListenerPanel;    
     
     private GUIDesignSidebar designSidebar;
-    private JBackgroundPanel designBackgroundPanel = new JBackgroundPanel();
-    private JKonfiguration designItemConfig = JKonfiguration.getInstance();
-    private JScrollPane designView;
     private JScrollPane designSidebarScrollpane;
-    private JNodeLabel designDragPreview, designCablePreview;
-    private JNodeLabel ziel2Label;
-    private JCablePanel kabelPanelVorschau;
-    private JMarkerPanel designSelection;
-    private JMarkerPanel designSelectionArea;
+    private JBackgroundPanel designBackgroundPanel;
+    private JConfigPanel designConfigPanel;
+       
+    /** A JNodeLabel used to add a Node by drag and drop */
+    private JNodeLabel dragNode;   
+    
+    /** A JNodeLabel displaying a red connector numbered 1 or 2 */    
+    private JNodeLabel connectingTool;    
+    
+    /** Invisible temporary node used while drawing a cable */
+    private GUINodeItem handleEndNodeItem;
+    private JNodeLabel handleEndNode;    
+    
+    /** Cable used to dynamically bind two nodes */
+    private JCablePanel designCable;             
+    
+    /** Marquee while still being constructed */
+    private JMarqueePanel designTempMarquee;    
+    /** Marquee once constructed */
+    private JMarqueePanel designMarquee;        
 
-    private JBackgroundPanel simulationBackgroundPanel = new JBackgroundPanel();
-    private JScrollPane simulationView;
-    private List<GUIDesktopWindow> desktopWindowList = new LinkedList<GUIDesktopWindow>();
-
-    /** enthält einen Integerwert dafür welche Ansicht gerade aktiv ist */
-    private int activeSite = GUIMainMenu.MODUS_ENTWURF;
-
+    // Action mode elements
+    private JScrollPane actionPane;
+    private JBackgroundPanel actionBackgroundPanel;    
+    private List<GUIDesktopWindow> desktopWindowList = new LinkedList<GUIDesktopWindow>();   
+    private AbstractPacketsAnalyzerDialog packetsAnalyzerDialog = null;
+    
+    // Common items
     private List<GUINodeItem> nodeItems = new LinkedList<GUINodeItem>();
     private List<GUICableItem> cableItems = new LinkedList<GUICableItem>();
-    private List<GUIDocuItem> docuItems = new ArrayList<GUIDocuItem>();
-//    private Set<SystemSoftware> visibleSystems = new HashSet<>();
+    private List<GUIDocItem> docItems = new ArrayList<GUIDocItem>();
 
+    
     private GUIContainer(int width, int height) {
-        this.width = width;
-        this.height = height;
+    	
+        workareaWidth = width;
+        workareaHeight = height;
 
-        Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/gfx/hardware/kabel.png"));
-        JMainFrame.getJMainFrame().setIconImage(image);
-
-        docuPanel = new GUIDocumentationPanel(width, height);
-        networkPanel = new GUINetworkPanel(width, height);
+        mainFrame = JMainFrame.getInstance();
+        
+        Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/gfx/hardware/kabel.png"));        
+        mainFrame.setIconImage(image);         
     }
 
-    public List<GUINodeItem> getKnotenItems() {
-        return nodeItems;
+    public static GUIContainer getInstance() {
+    	
+        return getInstance(WORKAREA_WIDTH, WORKAREA_HEIGHT);
     }
 
-    public void removeNodeItem(GUINodeItem item) {
-        nodeItems.remove(item);
-        Node node = item.getNode();
-        if (node instanceof InternetNode) {
-            for (NetworkInterface nic : ((InternetNode) node).getNIlist()) {
-                Lauscher.getLauscher().removeIdentifier(nic.getMac());
+    /* Singleton class */
+    public static GUIContainer getInstance(int width, int height) {
+    	
+        if (guiContainer == null) {
+            guiContainer = new GUIContainer(width, height);
+            if (guiContainer == null) {
+            	Main.debug.println("ERROR (static) getInstance(): Fehler!!! ref==null");
+            	return null;
             }
+            // guiContainer.init();  // <<< does not work! Why?
         }
+        return guiContainer;
     }
-
-    public JNodeLabel getZiel2Label() {
-        return ziel2Label;
+    
+    // Initialization must be called just after creation (in Main.start())
+    // (but can't be called from the instantiator!)
+    public void init() { 
+    	
+    	initPanels();
+    	initDocListeners();
+    	initDesignListeners();
+    	initActionListeners();
     }
-
-    public void setZiel2Label(JNodeLabel ziel2Label) {
-        this.ziel2Label = ziel2Label;
-    }
-
-    // Seems never to be used
-//    public void nachrichtenDialogAnzeigen() {
-//    	((JFrame) getExchangeDialog()).setVisible(true);
-//    }
-
-    public ExchangeDialog getExchangeDialog() {
-        ExchangeDialog exchangeDialog;
-        if (Information.getInstance().isOldExchangeDialog()) {
-            exchangeDialog = LayeredExchangeDialog.getInstance(JMainFrame.getJMainFrame());
-        } else {
-            exchangeDialog = AggregatedExchangeDialog.getInstance(JMainFrame.getJMainFrame());
-        }
-        return exchangeDialog;
-    }
+    
+    
+    //-----------------------------------------------------------------------------------------
+    //  GUI creation
+    //-----------------------------------------------------------------------------------------
 
     /**
-     * Die Prozedur wird erst aufgerufen wenn der Container c zugewiesen wurde. Sie Initialisiert die einzelnen Panels
-     * und weist die ActionListener zu.
+     * Die Prozedur wird erst aufgerufen wenn der Container zugewiesen wurde. Sie Initialisiert die einzelnen Panels.
      * 
      * @author Johannes Bade & Thomas Gerding
      */
-    public void initialisieren() {
-        Container contentPane = JMainFrame.getJMainFrame().getContentPane();
-        layeredPane.setSize(width, height);
-        layeredPane.setMinimumSize(new Dimension(width, height));
-        layeredPane.setPreferredSize(new Dimension(width, height));
-
-        designListenerPanel.setSize(width, height);
-        designListenerPanel.setMinimumSize(new Dimension(width, height));
-        designListenerPanel.setPreferredSize(new Dimension(width, height));
-        designListenerPanel.setOpaque(false);
-        layeredPane.add(designListenerPanel, ACTIVE_LISTENER_LAYER);
-
-        /*
-         * auswahl: area covered during mouse pressed, i.e., area with components to be selected
-         */
-        designSelection = new JMarkerPanel();
-        designSelection.setBounds(0, 0, 0, 0);
-        designSelection.setBackgroundImage("gfx/allgemein/auswahl.png");
-        designSelection.setOpaque(false);
-        designSelection.setVisible(true);
-        layeredPane.add(designSelection, JLayeredPane.DRAG_LAYER);
-
-        /*
-         * Kabelvorschau wird erstellt und dem Container hinzugefuegt. Wird Anfangs auf Invisible gestellt, und nur bei
-         * Verwendung sichtbar gemacht.
-         */
-        designCablePreview = new JNodeLabel("", new ImageIcon(getClass().getResource("/gfx/allgemein/ziel1.png")),
-                null);
-        designCablePreview.setVisible(false);
-        layeredPane.add(designCablePreview, JLayeredPane.DRAG_LAYER);
-
-        /*
-         * Die Vorschau für das drag&drop, die das aktuelle Element anzeigt wird initialisiert und dem layeredpane
-         * hinzugefügt. Die Visibility wird jedoch auf false gestellt, da ja Anfangs kein drag&drop vorliegt.
-         */
-        designDragPreview = new JNodeLabel("", null, null);
-        designDragPreview.setVisible(false);
-        layeredPane.add(designDragPreview, JLayeredPane.DRAG_LAYER);
-
-        /*
-         * Hauptmenü wird erstellt und dem Container hinzugefügt
-         */
-        menu = new GUIMainMenu();
+    public void initPanels() {    	
+    	
+    	// Retrieve the main window
+        Container contentPane = mainFrame.getContentPane();
         contentPane.setLayout(new BorderLayout(0, 0));
-        contentPane.add(menu.getMenupanel(), BorderLayout.NORTH);
+        
+        // Add the main menu on top
+        mainMenu = new GUIMainMenu();        
+        contentPane.add(mainMenu.getMenupanel(), BorderLayout.NORTH);
+        
+        // Add the configuration panel at the bottom
+        designConfigPanel = JConfigPanel.selectEmptyPanel();
+        
+        // Build the work area
+        designLayeredPane = new JLayeredPane();
+        designLayeredPane.setSize(workareaWidth, workareaHeight);
+        Dimension D = new Dimension(workareaWidth, workareaHeight);
+        designLayeredPane.setMinimumSize(D);
+        designLayeredPane.setPreferredSize(D);
 
-        setProperty(null);
+        designListenerPanel = new JPanel();
+        designListenerPanel.setSize(workareaWidth, workareaHeight);
+        designListenerPanel.setMinimumSize(D);
+        designListenerPanel.setPreferredSize(D);
+        designListenerPanel.setOpaque(false);
+        designLayeredPane.add(designListenerPanel, ACTIVE_LISTENER_LAYER);
 
-        /* sidebar wird erstellt und anschliessend dem Container c zugefüt */
-        designSidebar = GUIDesignSidebar.getGUIDesignSidebar();
-        docuSidebar = GUIDocumentationSidebar.getGUIDocumentationSidebar();
+        /* tempDesignMarquee: area covered during mouse pressed, i.e., area with components to be selected */
+        designTempMarquee = new JMarqueePanel();
+        designTempMarquee.setBounds(0, 0, 0, 0);
+        designTempMarquee.setBackgroundImage("gfx/allgemein/auswahl.png");
+        designTempMarquee.setOpaque(false);
+        designTempMarquee.setVisible(true);
+        designLayeredPane.add(designTempMarquee, JLayeredPane.DRAG_LAYER);
+        
+        /* designMarquee: actual area covering selected objects */
+        designMarquee = new JMarqueePanel();
+        designMarquee.setBounds(0, 0, 0, 0);
+        designMarquee.setBackgroundImage("gfx/allgemein/markierung.png");
+        designMarquee.setOpaque(false);
+        designMarquee.setVisible(false);
+        designMarquee.setCursor(new Cursor(Cursor.MOVE_CURSOR));
+        designLayeredPane.add(designMarquee, JLayeredPane.DRAG_LAYER);
 
-        /* markierung: actual area covering selected objects */
-        designSelectionArea = new JMarkerPanel();
-        designSelectionArea.setBounds(0, 0, 0, 0);
-        designSelectionArea.setBackgroundImage("gfx/allgemein/markierung.png");
-        designSelectionArea.setOpaque(false);
-        designSelectionArea.setVisible(false);
-        designSelectionArea.setCursor(new Cursor(Cursor.MOVE_CURSOR));
-        layeredPane.add(designSelectionArea, JLayeredPane.DRAG_LAYER);
+        /* Connector labeled 1 or 2 used to draw cables between nodes */
+        connectingTool = new JNodeLabel(false);
+        connectingTool.setVisible(false);              
+        designLayeredPane.add(connectingTool, JLayeredPane.DRAG_LAYER);
+        
+        /* Invisible node used to handle the 2nd extremity of a cable being drawn */
+        handleEndNode = new JNodeLabel(false);
+        handleEndNodeItem = new GUINodeItem();
+        handleEndNodeItem.setNodeLabel(handleEndNode);        
+        handleEndNode.setBounds(0, 0, 8, 8);  
 
-        /* scrollpane für das Linke Panel (sidebar) */
-        designSidebarScrollpane = new JScrollPane(designSidebar.getLeistenpanel());
+        /* Item dragged from the designSidebar onto the work area */
+        dragNode = new JNodeLabel();                                   
+        dragNode.setVisible(false);
+        designLayeredPane.add(dragNode, JLayeredPane.DRAG_LAYER);            
+
+        /* scrollpane für das Mittlere Panel */
+        designPanel = new GUIDesignPanel(workareaWidth, workareaHeight);   
+        designLayeredPane.add(designPanel, JLayeredPane.DEFAULT_LAYER);
+
+        designBackgroundPanel = new JBackgroundPanel();
+        designBackgroundPanel.setBackgroundImage("gfx/allgemein/entwurfshg.png");
+        designBackgroundPanel.setBounds(0, 0, workareaWidth, workareaHeight);
+
+        docDragPanel = new JPanel();
+        docDragPanel.setBounds(0, 0, workareaWidth, workareaHeight);
+        docDragPanel.setOpaque(false);
+        designLayeredPane.add(docDragPanel, JLayeredPane.DRAG_LAYER);
+
+        docPanel = new GUIDocPanel(workareaWidth, workareaHeight);  
+        designLayeredPane.add(docPanel, INACTIVE_LISTENER_LAYER);
+
+        designView = new JScrollPane(designLayeredPane);
+        designView.getVerticalScrollBar().setUnitIncrement(10);
+
+        // Action related
+        actionBackgroundPanel = new JBackgroundPanel();   
+        actionBackgroundPanel.setBackgroundImage("gfx/allgemein/simulationshg.png");
+        actionBackgroundPanel.setBounds(0, 0, workareaWidth, workareaHeight);
+        
+        actionPane = new JScrollPane();
+        actionPane.getVerticalScrollBar().setUnitIncrement(10);
+        
+        /* The design sidebar is enclosed in scrollbars */
+        designSidebar = GUIDesignSidebar.getGUIDesignSidebar();  
+        designSidebarScrollpane = new JScrollPane(designSidebar.getButtonPanel());        
         designSidebarScrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         if (Information.isLowResolution()) {
             designSidebarScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -293,28 +298,71 @@ public class GUIContainer implements Serializable, I18n {
             designSidebarScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         }
 
-        docuSidebarScrollpane = new JScrollPane(docuSidebar.getLeistenpanel());
-        docuSidebarScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        /* The documentation sidebar is enclosed in scrollbars */
+        docSidebar = GUIDocSidebar.getInstance();
+        docSidebarScrollpane = new JScrollPane(docSidebar.getButtonPanel());
+        docSidebarScrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        
+        /* Create the packets analyzer dialog window */
+        initPacketsAnalyzerDialog();
+        
+        /* Start in design mode */
+        mainFrame.setVisible(true);
+        setCurrentMode(GUIMainMenu.DESIGN_MODE);
+    }
+    
+    
+    //-----------------------------------------------------------------------------------------
+    //  Event listeners
+    //-----------------------------------------------------------------------------------------    
+    
+    public void initDocListeners() {       
 
-        /* scrollpane für das Mittlere Panel */
-        layeredPane.add(networkPanel, JLayeredPane.DEFAULT_LAYER);
+        docSidebarScrollpane.addMouseListener(new MouseInputAdapter() {
+        	
+            public void mousePressed(MouseEvent e) {
+                JNodeLabel button = docSidebar.findButtonAt(e.getX(), e.getY());
+                if (button != null) {
+                    if (GUIDocSidebar.TYPE_RECTANGLE.equals(button.getType())) {
+                        dragDocElement = new JDocElement(false, true);
+                    } else if (GUIDocSidebar.TYPE_TEXTFIELD.equals(button.getType())) {
+                        dragDocElement = new JDocElement(true, true);
+                    }              
+                    dragDocElement.setLocation(e.getX() - designSidebarScrollpane.getWidth() + getXOffset(),
+                                                 e.getY() + getYOffset());
+                    docDragPanel.add(dragDocElement);
+                }
+            }
 
-        designBackgroundPanel.setBackgroundImage("gfx/allgemein/entwurfshg.png");
-        designBackgroundPanel.setBounds(0, 0, width, height);
+            public void mouseReleased(MouseEvent e) {
+                if (e.getX() > docSidebarScrollpane.getWidth() && dragDocElement != null) {
+                    docItems.add(getTopDocPanelIndex(), GUIDocItem.createDocItem(dragDocElement));
+                    ProjectManager.getInstance().setModified();
+                    docDragPanel.remove(dragDocElement);
+                    docPanel.add(dragDocElement);                   
+                    dragDocElement.requestFocusInWindow();
+                    updateViewport();
+                } else if (dragDocElement != null) {
+                    docDragPanel.remove(dragDocElement);
+                    docDragPanel.updateUI();
+                }
+                dragDocElement = null;
+            }
+        });
 
-        docuDragPanel.setBounds(0, 0, width, height);
-        docuDragPanel.setOpaque(false);
-        layeredPane.add(docuDragPanel, JLayeredPane.DRAG_LAYER);
-
-        layeredPane.add(docuPanel, INACTIVE_LISTENER_LAYER);
-
-        designView = new JScrollPane(layeredPane);
-        designView.getVerticalScrollBar().setUnitIncrement(10);
-
-        simulationBackgroundPanel.setBackgroundImage("gfx/allgemein/simulationshg.png");
-        simulationBackgroundPanel.setBounds(0, 0, width, height);
-        simulationView = new JScrollPane();
-        simulationView.getVerticalScrollBar().setUnitIncrement(10);
+        docSidebarScrollpane.addMouseMotionListener(new MouseInputAdapter() {
+        	
+            public void mouseDragged(MouseEvent e) {
+                if (dragDocElement != null) {
+                    dragDocElement.setLocation(
+                    		e.getX() + getXOffset() - dragDocElement.getWidth()/2 - designSidebarScrollpane.getWidth(),
+                            e.getY() + getYOffset() - dragDocElement.getHeight()/2);
+                }
+            }
+        });     
+    }
+    
+    public void initDesignListeners() {    
 
         /*
          * Wird auf ein Item der Sidebar geklickt, so wird ein neues Vorschau-Label mit dem entsprechenden Icon
@@ -324,30 +372,30 @@ public class GUIContainer implements Serializable, I18n {
          * Komponente erstellt.
          */
         designSidebarScrollpane.addMouseListener(new MouseInputAdapter() {
+        	
             public void mousePressed(MouseEvent e) {
 
-                JNodeLabel button = designSidebar.findButtonAt(e.getX(),
-                        e.getY() + designSidebarScrollpane.getVerticalScrollBar().getValue());
+                JNodeLabel button = designSidebar.findButtonAt(e.getX(), e.getY() + designSidebarScrollpane.getVerticalScrollBar().getValue());
                 if (button != null) {
-                    neueVorschau(button.getType(),
-                        	e.getX() + GUIContainer.getInstance().getXOffset() - designSidebarScrollpane.getWidth(),
-                        	e.getY() + GUIContainer.getInstance().getYOffset());
-                    // The exact location depends on the size of the designDragPreview which is determined
-                    // only in method neueVorschau. Hence the call below. 
-                    designDragPreview.setLocation(designDragPreview.getX() - designDragPreview.getWidth()/2,
-                        		                  designDragPreview.getY() - designDragPreview.getHeight()/2); 
-                    GUIEvents.getGUIEvents().resetAndHideCablePreview();                    
+                    updateDragNode(button.getType(), e.getX() + getXOffset() - designSidebarScrollpane.getWidth(), e.getY() + getYOffset());
+                    // The exact location depends on the size of the dragDropNode which is only 
+                    // determined in method updateDragDropNode. Hence the call below. 
+                    dragNode.setLocation(dragNode.getX() - dragNode.getWidth()/2, dragNode.getY() - dragNode.getHeight()/2); 
+                    GUIEvents.getInstance().resetAndHideCablePreview();                    
                 }
             }
 
             public void mouseReleased(MouseEvent e) {
-            	int xPosMainArea = e.getX() - designDragPreview.getWidth()/2 - designSidebarScrollpane.getWidth();
-                int yPosMainArea = e.getY() - (designDragPreview.getHeight())/2;        
-                if (designDragPreview.isVisible() && xPosMainArea >= 0 && xPosMainArea <= designView.getWidth()
-                        && yPosMainArea >= 0 && yPosMainArea <= designView.getHeight()) {
-                    neuerKnoten(xPosMainArea, yPosMainArea, designDragPreview);
+            	
+            	int xPosMainArea = e.getX() - dragNode.getWidth()/2 - designSidebarScrollpane.getWidth();
+                int yPosMainArea = e.getY() - (dragNode.getHeight())/2;  
+                
+                if (dragNode.isVisible() && xPosMainArea >= 0 && xPosMainArea <= designView.getWidth() &&
+                                            yPosMainArea >= 0 && yPosMainArea <= designView.getHeight()) {
+                	// Create a new node
+                    addNode(dragNode.getType(), xPosMainArea, yPosMainArea);
                 }
-                designDragPreview.setVisible(false);
+                dragNode.setVisible(false);
             }
         });
 
@@ -356,365 +404,390 @@ public class GUIContainer implements Serializable, I18n {
          * Mausposition verschoben.
          */
         designSidebarScrollpane.addMouseMotionListener(new MouseInputAdapter() {
+        	
             public void mouseDragged(MouseEvent e) {
-                if (designDragPreview.isVisible()) {
-                    designDragPreview.setLocation(
-                    		e.getX() + GUIContainer.getInstance().getXOffset() - designDragPreview.getWidth()/2 - designSidebarScrollpane.getWidth(),
-                            e.getY() + GUIContainer.getInstance().getYOffset() - designDragPreview.getHeight()/2); 
+                if (dragNode.isVisible()) {
+                    dragNode.setLocation(e.getX() + getXOffset() - dragNode.getWidth()/2 - designSidebarScrollpane.getWidth(),
+                                         e.getY() + getYOffset() - dragNode.getHeight()/2); 
                 }
             }
-        });
-
-        docuSidebarScrollpane.addMouseListener(new MouseInputAdapter() {
-            public void mousePressed(MouseEvent e) {
-                JNodeLabel button = docuSidebar.findButtonAt(e.getX(), e.getY());
-                if (button != null) {
-                    if (GUIDocumentationSidebar.TYPE_RECTANGLE.equals(button.getType())) {
-                        activeDocuElement = new JDocuElement(false, true);
-                    } else if (GUIDocumentationSidebar.TYPE_TEXTFIELD.equals(button.getType())) {
-                        activeDocuElement = new JDocuElement(true, true);
-                    }
-                    activeDocuElement.setSelected(true);
-                    // The following lines seem useless
-//                    activeDocuElement.setLocation(
-//                            e.getX() - designSidebarScrollpane.getWidth() + GUIContainer.getGUIContainer().getXOffset(),
-//                            e.getY() + GUIContainer.getGUIContainer().getYOffset());
-                    docuDragPanel.add(activeDocuElement);
-                }
-            }
-
-            public void mouseReleased(MouseEvent e) {
-                if (e.getX() > docuSidebarScrollpane.getWidth() && activeDocuElement != null) {
-                    docuItems.add(GUIDocuItem.createDocuItem(activeDocuElement));
-                    SzenarioVerwaltung.getInstance().setzeGeaendert();
-                    activeDocuElement.setSelected(false);
-                    docuDragPanel.remove(activeDocuElement);
-                    docuPanel.add(activeDocuElement);
-                    activeDocuElement.requestFocusInWindow();
-                    GUIContainer.this.updateViewport();
-                } else if (activeDocuElement != null) {
-                    docuDragPanel.remove(activeDocuElement);
-                    docuDragPanel.updateUI();
-                }
-                activeDocuElement = null;
-            }
-        });
-
-        docuSidebarScrollpane.addMouseMotionListener(new MouseInputAdapter() {
-            public void mouseDragged(MouseEvent e) {
-                if (activeDocuElement != null) {
-                    activeDocuElement.setLocation(
-                    		e.getX() + GUIContainer.getInstance().getXOffset() - activeDocuElement.getWidth()/2 - designSidebarScrollpane.getWidth(),
-                            e.getY() + GUIContainer.getInstance().getYOffset() - activeDocuElement.getHeight()/2);
-                }
-            }
-        });
-
+        });        
+        
         /*
          * Erzeugen und transformieren des Auswahlrahmens, und der sich darin befindenden Objekte.
          */
-        designListenerPanel.addMouseMotionListener(new MouseInputAdapter() {
-            public void mouseDragged(MouseEvent e) {
-                if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
-                    GUIEvents.getGUIEvents().mausDragged(e);
-                }
-            }
-        });
-
+        
         designListenerPanel.addMouseListener(new MouseInputAdapter() {
+        	
             public void mouseReleased(MouseEvent e) {
-                if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
-                    GUIEvents.getGUIEvents().mausReleased();
+                if (currentMode == GUIMainMenu.DESIGN_MODE) {
+                    GUIEvents.getInstance().mouseReleased();
                 }
             }
 
             public void mousePressed(MouseEvent e) {
-                if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
-                    GUIEvents.getGUIEvents().mausPressedDesignMode(e);
+                if (currentMode == GUIMainMenu.DESIGN_MODE) {
+                    GUIEvents.getInstance().mousePressed(e);
                 }
             }
         });
-
+              
         designListenerPanel.addMouseMotionListener(new MouseInputAdapter() {
-            public void mouseMoved(MouseEvent e) {
-                if (designCablePreview.isVisible()) {
-                    designCablePreview.setBounds(e.getX(), e.getY(), designCablePreview.getWidth(),
-                            designCablePreview.getHeight());
-                    if (ziel2Label != null) {
-                        ziel2Label.setLocation(e.getX(), e.getY());
-                    }
-                    if (kabelPanelVorschau != null) {
-                        kabelPanelVorschau.updateBounds();
-                    }
-
+        	
+            public void mouseDragged(MouseEvent e) {
+            	
+                if (currentMode == GUIMainMenu.DESIGN_MODE) {
+                    GUIEvents.getInstance().mouseDragged(e);
                 }
+            }
+            
+            public void mouseMoved(MouseEvent e) {
+            	
+                if (connectingTool.isVisible()) updateConnectingTool(e.getX(), e.getY());               
             }
         });
+    }
+
+    public void initActionListeners() { 
+    	
+    	// Should have been simulationBackgroundPanel.addMouseListener()
+    	// but docPanel transparently covers simulationBackgroundPanel
+    	docPanel.addMouseListener(new MouseInputAdapter() {
+
+    		public void mouseClicked(MouseEvent e) {
+    			if (currentMode != GUIMainMenu.ACTION_MODE) return;
+    				
+    			if (e.getClickCount() == 2) {
+    				JFrameList.getInstance().putMasterInTheBackground();
+    			}    		
+    		}
+    		
+    		public void mouseReleased(MouseEvent e) {
+    			if (currentMode != GUIMainMenu.ACTION_MODE) return;
+
+    			if (e.getButton() == MouseEvent.BUTTON3) {
+    				GUIEvents.getInstance().actionModeContextMenu(e.getX(), e.getY());     
+    			}   
+            }
+    	});      
+    }
+    
+    
+    //-----------------------------------------------------------------------------------------
+    //  Filius working mode
+    //-----------------------------------------------------------------------------------------
         
-        // Should have been simulationBackgroundPanel.addMouseListener()
-        // but docupanel transparently covers simulationBackgroundPanel
-        docuPanel.addMouseListener(new MouseInputAdapter() {
-        	public void mouseClicked(MouseEvent e) {
-              if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            	  if (e.getClickCount() == 2) {
-            		  JFrameList.gI().putMasterInTheBackground();
-                  }
-              }
-          }
-        });        
-
-        JMainFrame.getJMainFrame().setVisible(true);
-        setActiveSite(GUIMainMenu.MODUS_ENTWURF);
+    public int getCurrentMode() {
+        return currentMode;
     }
 
-    public void exportAsImage() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter pngFileFilter = new FileNameExtensionFilter("Portable Network Graphics", "png");
-        FileNameExtensionFilter svgFileFilter = new FileNameExtensionFilter("Scalable Vector Graphics", "svg");
-        fileChooser.addChoosableFileFilter(pngFileFilter);
-        fileChooser.addChoosableFileFilter(svgFileFilter);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        String path = SzenarioVerwaltung.getInstance().holePfad();
-        if (path != null) {
-            String szenarioFile = new File(path).getAbsolutePath();
-            File preselectedFile = new File(szenarioFile.substring(0, szenarioFile.lastIndexOf(".")));
-            fileChooser.setSelectedFile(preselectedFile);
+    public void setCurrentMode(int currentMode) {
+        this.currentMode = currentMode;
+
+        for (Component background : designLayeredPane.getComponentsInLayer(BACKGROUND_LAYER)) {
+            designLayeredPane.remove(background);
         }
+        if (currentMode == GUIMainMenu.DESIGN_MODE) {
+        	JFrameList.getInstance().hideAll(); 
+            designView.getVerticalScrollBar().setValue(actionPane.getVerticalScrollBar().getValue());
+            designView.getHorizontalScrollBar().setValue(actionPane.getHorizontalScrollBar().getValue());
+            mainFrame.removeFromContentPane(docSidebarScrollpane);
+            mainFrame.addToContentPane(designSidebarScrollpane, BorderLayout.WEST);
+            mainFrame.removeFromContentPane(actionPane);
+            designLayeredPane.setLayer(docPanel, INACTIVE_LISTENER_LAYER);
+            designLayeredPane.setLayer(designListenerPanel, ACTIVE_LISTENER_LAYER);
+            designLayeredPane.add(designBackgroundPanel, BACKGROUND_LAYER);
+            designView.setViewportView(designLayeredPane);
+            mainFrame.addToContentPane(designView, BorderLayout.CENTER);
+            mainFrame.addToContentPane(designConfigPanel, BorderLayout.SOUTH);
+            docDragPanel.setVisible(false);
+            designSidebarScrollpane.updateUI();
+            designView.updateUI();
+            designConfigPanel.updateUI();
+            
+        } else if (currentMode == GUIMainMenu.DOC_MODE) {
+        	JFrameList.getInstance().hideAll(); 
+            designView.getVerticalScrollBar().setValue(actionPane.getVerticalScrollBar().getValue());
+            designView.getHorizontalScrollBar().setValue(actionPane.getHorizontalScrollBar().getValue());
+            mainFrame.removeFromContentPane(designSidebarScrollpane);
+            mainFrame.addToContentPane(docSidebarScrollpane, BorderLayout.WEST);
+            mainFrame.removeFromContentPane(actionPane);
+            designLayeredPane.add(designBackgroundPanel, BACKGROUND_LAYER);
+            designLayeredPane.setLayer(docPanel, ACTIVE_LISTENER_LAYER);
+            designLayeredPane.setLayer(designListenerPanel, INACTIVE_LISTENER_LAYER);
+            designView.setViewportView(designLayeredPane);
+            designTempMarquee.setVisible(false);
+            designMarquee.setVisible(false);
+            docDragPanel.setVisible(true);
+            mainFrame.addToContentPane(designView, BorderLayout.CENTER);
+            mainFrame.removeFromContentPane(designConfigPanel);
+            docSidebarScrollpane.updateUI();
+            designView.updateUI();
+            
+        } else if (currentMode == GUIMainMenu.ACTION_MODE) {
+        	JFrameList.getInstance().restoreAll();  
+            actionPane.getVerticalScrollBar().setValue(designView.getVerticalScrollBar().getValue());
+            actionPane.getHorizontalScrollBar().setValue(designView.getHorizontalScrollBar().getValue());
+            designLayeredPane.setLayer(docPanel, INACTIVE_LISTENER_LAYER);
+            designLayeredPane.setLayer(designListenerPanel, INACTIVE_LISTENER_LAYER);
+            designLayeredPane.add(actionBackgroundPanel, BACKGROUND_LAYER);
+            actionPane.setViewportView(designLayeredPane);
+            mainFrame.removeFromContentPane(docSidebarScrollpane);
+            mainFrame.removeFromContentPane(designSidebarScrollpane);
+            designTempMarquee.setVisible(false);
+            designMarquee.setVisible(false);
+            docDragPanel.setVisible(false);
+            mainFrame.removeFromContentPane(designView);
+            mainFrame.addToContentPane(actionPane, BorderLayout.CENTER);
+            mainFrame.removeFromContentPane(designConfigPanel);
+            actionPane.updateUI();
+        }
+        GUIEvents.getInstance().resetAndHideCablePreview();
+        mainFrame.invalidate();
+        mainFrame.validate();
+        updateViewport();
+    }
+    
+    
+    //-----------------------------------------------------------------------------------------
+    //  Packets analyzer dialog 
+    //-----------------------------------------------------------------------------------------      
 
-        if (fileChooser.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
-            FileFilter selectedFileFilter = fileChooser.getFileFilter();
-            FileType type = (svgFileFilter.equals(selectedFileFilter)) ? FileType.SVG : FileType.PNG;
+    private void initPacketsAnalyzerDialog() {
+    
+    	if (Information.getInstance().isOldPacketsAnalyzerDialog()) {
+    		packetsAnalyzerDialog = OldPacketsAnalyzerDialog.getInstance(mainFrame);    		
+    	} else {
+    		packetsAnalyzerDialog = PacketsAnalyzerDialog.getInstance(mainFrame);
+    	}
+    	packetsAnalyzerDialog.setVisible(false);
+    }
+    
+    public AbstractPacketsAnalyzerDialog getPacketsAnalyzerDialog() {
+     
+        return packetsAnalyzerDialog;
+    }
+    
+    public void displayInPacketsAnalyzerDialog(GUINodeItem nodeItem, String macAddress) {    	  
+        
+        if (nodeItem.getNode() instanceof InternetNode) {
+            packetsAnalyzerDialog.addTable(((InternetNode) nodeItem.getNode()).getOS(), macAddress);
+            packetsAnalyzerDialog.setVisible(true);
+        }
+    }
+    
+    
+    //-----------------------------------------------------------------------------------------
+    //  Getters
+    //-----------------------------------------------------------------------------------------    
+    
+    public int getWidth() {
+        return workareaWidth;
+    }
 
-            String imagePath = fileChooser.getSelectedFile().getAbsolutePath();
-            if (FileType.SVG == type) {
-                imagePath = imagePath.endsWith(".svg") ? imagePath : imagePath + ".svg";
-            } else {
-                imagePath = imagePath.endsWith(".png") ? imagePath : imagePath + ".png";
+    public int getHeight() {
+        return workareaHeight;
+    }
+    
+    public int getXOffset() {
+        if (currentMode == GUIMainMenu.ACTION_MODE) {
+            return actionPane.getHorizontalScrollBar().getValue();
+        }
+        return designView.getHorizontalScrollBar().getValue();
+    }
+
+    public int getYOffset() {
+        if (currentMode == GUIMainMenu.ACTION_MODE) {
+            return actionPane.getVerticalScrollBar().getValue();
+        }
+        return designView.getVerticalScrollBar().getValue();
+    }
+    
+    public JNodeLabel getDragNode() {
+    	
+        return dragNode;
+    }
+    
+    public JScrollPane getScrollPane() {
+        return designView;
+    }
+
+    public JScrollPane getSidebarScrollpane() {
+        if (currentMode == GUIMainMenu.DESIGN_MODE) {
+            return designSidebarScrollpane;
+        }
+        return docSidebarScrollpane;
+    }
+
+    public GUIDesignPanel getDesignPanel() {
+        return designPanel;
+    }
+
+    public JComponent getActionPane() {
+        return actionPane;
+    }
+
+    public GUIDesignSidebar getDesignSidebar() {
+        return designSidebar;
+    }
+
+    public GUIMainMenu getMainMenu() {
+        return mainMenu;
+    }
+    
+    
+    //-----------------------------------------------------------------------------------------
+    //  Node, cable, and marquee manipulation
+    //-----------------------------------------------------------------------------------------    
+    
+    public List<GUINodeItem> getNodeItems() {
+    	
+        return nodeItems;
+    }
+
+    public void removeNodeItem(GUINodeItem item) {
+    	
+        nodeItems.remove(item);
+        Node node = item.getNode();
+        if (node instanceof InternetNode) {
+            for (NetworkInterface nic : ((InternetNode) node).getNICList()) {
+                PacketAnalyzer.getInstance().removeID(nic.getMac());
             }
-
-            int entscheidung = JOptionPane.YES_OPTION;
-            if (imagePath != null && new File(imagePath).exists()) {
-                entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                        messages.getString("guimainmemu_msg17"), messages.getString("guimainmemu_msg10"),
-                        JOptionPane.YES_NO_OPTION);
-            }
-            if (entscheidung == JOptionPane.YES_OPTION) {
-                try {
-                    if (FileType.SVG == type) {
-                        exportAsSVG(imagePath);
-                    } else {
-                        exportAsPNG(imagePath);
-                    }
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), messages.getString("guimainmemu_msg11"));
-                }
-            }
-            Main.debug.println("export to file: " + imagePath);
-            updateViewport();
         }
     }
+    
+    public void unselectNodes() {
 
-    private void exportAsPNG(String imagePath) throws IOException {
-        BufferedImage printArea = createNetworkImage();
-        try (ImageOutputStream outputStream = new FileImageOutputStream(new File(imagePath))) {
-            ImageIO.write(printArea, "png", outputStream);
-        }
+    	GUINodeItem nodeItem;
+    	
+    	ListIterator<GUINodeItem> it = nodeItems.listIterator();
+    	while (it.hasNext()) {
+    		nodeItem = (GUINodeItem) it.next();
+    		nodeItem.getNodeLabel().setSelected(false);
+    	}
     }
-
-    public BufferedImage createNetworkImage() {
-        GUIPrintPanel printPanel = prepareExportPanel();
-        BufferedImage bi = new BufferedImage(printPanel.getWidth(), printPanel.getHeight(),
-                BufferedImage.TYPE_INT_ARGB);
-        Graphics g = bi.createGraphics();
-        printPanel.paint(g);
-        g.dispose();
-        BufferedImage printArea = bi.getSubimage(printPanel.getClipX(), printPanel.getClipY(),
-                printPanel.getClipWidth(), printPanel.getClipHeight());
-        return printArea;
-    }
-
-    private void exportAsSVG(String imagePath) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-        // Get a DOMImplementation.
-        DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
-
-        // Create an instance of org.w3c.dom.Document.
-        String svgNS = "http://www.w3.org/2000/svg";
-        Document document = domImpl.createDocument(svgNS, "svg", null);
-
-        SVGGeneratorContext ctx = SVGGeneratorContext.createDefault(document);
-        ctx.setComment("Generated by Filius");
-        ctx.setEmbeddedFontsOn(true);
-        SVGGraphics2D svgGenerator = new SVGGraphics2D(ctx, false);
-
-        GUIPrintPanel printPanel = prepareExportPanel();
-        printPanel.paint(svgGenerator);
-        svgGenerator.dispose();
-
-        try (Writer out = new OutputStreamWriter(new FileOutputStream(new File(imagePath)), "UTF-8");) {
-            svgGenerator.stream(out, true);
-        }
-    }
-
-    private GUIPrintPanel prepareExportPanel() {
-        GUIPrintPanel printPanel = new GUIPrintPanel(width, height, SzenarioVerwaltung.getInstance().holePfad());
-        printPanel.updateViewport(nodeItems, cableItems, docuItems);
-        return printPanel;
-    }
-
+    
     /**
-     * Erstellt ein neues Item. Der Dateiname des Icons wird über den String "komponente" angegeben, die Position über x
-     * und y. Das Item wird anschließend dem Entwurfspanel hinzugefügt, und das Entwurfspanel wird aktualisiert.
+     * <b>addNode</b> creates a new node and adds it to the designPanel.   
      * 
-     * @author Johannes Bade & Thomas Gerding
-     * 
-     * @param komponente
+     * @author Johannes Bade & Thomas Gerding   
+     *            
+     * @param nodeType
      * @param x
      * @param y
      * @return boolean
      */
-    private boolean neuerKnoten(int x, int y, JNodeLabel label) {
-        Node neuerKnoten = null;
-        GUINodeItem item;
-        JNodeLabel templabel;
-        ImageIcon tempIcon = null;
+    private boolean addNode(String nodeType, int x, int y) {
+    	           
+        ProjectManager.getInstance().setModified();
 
-        SzenarioVerwaltung.getInstance().setzeGeaendert();
+        // Unselect the nodes and hide the marquee
+        unselectNodes();
+        designMarquee.setVisible(false);
 
-        ListIterator<GUINodeItem> it = nodeItems.listIterator();
-        while (it.hasNext()) {
-            item = (GUINodeItem) it.next();
-            item.getNodeLabel().setSelected(false);
+        // Create the GUINodeItem, its Node and JNodeLabel based on the type
+        
+        GUINodeItem nodeItem = new GUINodeItem(nodeType, x + designView.getHorizontalScrollBar().getValue(),
+                                                         y + designView.getVerticalScrollBar().getValue());
+        if (nodeItem.getNode() == null) return false;
+        
+        // Latest added component is on top 
+        nodeItems.add(0, nodeItem);   
+        designPanel.add(nodeItem.getNodeLabel(), 0);        
+     
+        //javax.swing.JOptionPane.showMessageDialog(null,ord); 
+        
+        updateViewport();
+        
+        return true;
+    }
+    
+    /**
+     * <b>getRouterPortCount</b> displays a dialog box asking for 
+     * the number of interfaces required for the router.<br>
+     * 
+     * @return An integer between 2 and 8. Default value is 2 when the dialog is escaped.
+     */
+    public int getRouterPortCount() {
+    	
+    	Object[] possibleValues = { "2", "3", "4", "5", "6", "7", "8" };
+        Object selectedValue = JOptionPane.showInputDialog(JMainFrame.getInstance(),
+                messages.getString("guicontainer_msg1"), messages.getString("guicontainer_msg2"),
+                JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
+        
+        if (selectedValue != null) return Integer.parseInt((String) selectedValue);
+        else                       return 2;
+    }
+    
+    /**
+     * Remove the given nodeItem
+     */
+    public void removeItem(GUINodeItem nodeItem) {
+    	
+    	if (nodeItem == null) return;
+    	
+    	// Hide the configuration panel
+        setConfigPanel(null);
+        
+        // Remove the cables connected to the node
+        removeCablesConnectedTo(nodeItem);
+        
+        // Remove the simulation mode's elements related to the item
+        if (nodeItem.getNode() instanceof Host) {
+        	// Remove the desktop's JFrame
+        	removeDesktopWindow(nodeItem);
+        	
+        	// Remove the table in ExchangeDialog        	
+        	String mac = ((Host)nodeItem.getNode()).getMac();
+        	getPacketsAnalyzerDialog().removeTable(mac, null);
+        	
+        } else if (nodeItem.getNode() instanceof Switch) {
+        	// Remove the SAT table's JFrame
+        	SatViewerControl.getInstance().removeViewer((Switch)nodeItem.getNode());
+        	
+        } else if (nodeItem.getNode() instanceof Router) {
+        	// Remove the tables in ExchangeDialog
+        	List<String> macs = ((Router)nodeItem.getNode()).getMACList();
+        	for (String mac: macs) getPacketsAnalyzerDialog().removeTable(mac, null);
         }
         
-        // Auswahlrahmen löschen
-        GUIEvents.getGUIEvents().cancelMultipleSelection();
-
-        if (label.getType().equals(Switch.TYPE)) {
-            neuerKnoten = new Switch();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH));
-        } else if (label.getType().equals(Rechner.TYPE)) {
-            neuerKnoten = new Rechner();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.RECHNER));
-        } else if (label.getType().equals(Notebook.TYPE)) {
-            neuerKnoten = new Notebook();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK));
-        } else if (label.getType().equals(Vermittlungsrechner.TYPE)) {
-            neuerKnoten = new Vermittlungsrechner();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.VERMITTLUNGSRECHNER));
-
-            Object[] possibleValues = { "2", "3", "4", "5", "6", "7", "8" };
-            Object selectedValue = JOptionPane.showInputDialog(JMainFrame.getJMainFrame(),
-                    messages.getString("guicontainer_msg1"), messages.getString("guicontainer_msg2"),
-                    JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
-            if (selectedValue != null) {
-                ((Vermittlungsrechner) neuerKnoten).createNIlist(Integer.parseInt((String) selectedValue));
-            } else {
-            	((Vermittlungsrechner) neuerKnoten).createNIlist(2); // If the dialog is cancelled by the user, the default value is 1, which is useless.
-            }
-        } else if (label.getType().equals(Modem.TYPE)) {
-            neuerKnoten = new Modem();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM));
-        } else {
-            Main.debug.println("ERROR (" + this.hashCode() + "): " + "unbekannter Hardwaretyp " + label.getType()
-                    + " konnte nicht erzeugt werden.");
-        }
-
-        if (tempIcon != null && neuerKnoten != null) {
-            templabel = new JNodeLabel("", tempIcon, neuerKnoten.getHardwareType());
-            templabel.setBounds(x + designView.getHorizontalScrollBar().getValue(),
-                    y + designView.getVerticalScrollBar().getValue(), templabel.getWidth(), templabel.getHeight());
-            // The text must be assigned after construction. 
-            // This is required for the icon not to move when the text is longer than the width of the icon
-            templabel.initTextAndUpdateLocation(neuerKnoten.getDisplayName());             
-
-            item = new GUINodeItem();
-            item.setNode(neuerKnoten);
-            item.setNodeLabel(templabel);
-
-            setProperty(item);
-            item.getNodeLabel().setSelected(true);
-            nodeItems.add(item);
-
-            networkPanel.add(templabel, 0);    // Latest added component is on top 
-            networkPanel.repaint();
-
-            GUIEvents.getGUIEvents().setNewItemActive(item);
-
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
+        getDesignPanel().remove(nodeItem.getNodeLabel());
+        removeNodeItem(nodeItem);
+        getDesignPanel().updateUI();
+        updateViewport();
+    }   
+    
     /**
+     * <b>removeCableItem</b> remove a cableitem and the attached Cable and JCablePanel
      * 
-     * Entwurfsmuster: Singleton
-     * 
-     * Da die GUI nur einmal erstellt werden darf, und aus verschiedenen Klassen auf sie zugegriffen wird, ist diese als
-     * Singleton realisiert.
-     * 
-     * getGUIContainer() ruft den private Konstruktor auf, falls dies noch nicht geschehen ist, ansonsten wird die
-     * Referenz auf die Klasse zurückgegeben.
-     * 
-     * @author Johannes Bade & Thomas Gerding
-     * 
-     * @return ref
+     * @param cableItem GUICableItem which must be removed
      */
-    public static GUIContainer getInstance() {
-        return getInstance(FLAECHE_BREITE, FLAECHE_HOEHE);
+    public void removeCableItem(GUICableItem cableItem) {
+    	
+    	if (cableItem == null) return;
+    	
+    	cableItem.getCable().disconnect();        
+    	designPanel.remove(cableItem.getCablePanel());
+        cableItems.remove(cableItem);
+        updateViewport();
     }
-
-    public static GUIContainer getInstance(int width, int height) {
-        if (ref == null) {
-            ref = new GUIContainer(width, height);
-            if (ref == null)
-                Main.debug.println("ERROR (static) getInstance(): Fehler!!! ref==null");
-        }
-        return ref;
-    }
-
-    private void neueVorschau(String hardwareTyp, int x, int y) {
-        String tmp;
-
-        Main.debug.println("GUIContainer: die Komponenten-Vorschau wird erstellt.");
-        if (hardwareTyp.equals(Cable.TYPE)) {
-            tmp = GUIDesignSidebar.KABEL;
-        } else if (hardwareTyp.equals(Switch.TYPE)) {
-            tmp = GUIDesignSidebar.SWITCH;
-        } else if (hardwareTyp.equals(Rechner.TYPE)) {
-            tmp = GUIDesignSidebar.RECHNER;
-        } else if (hardwareTyp.equals(Notebook.TYPE)) {
-            tmp = GUIDesignSidebar.NOTEBOOK;
-        } else if (hardwareTyp.equals(Vermittlungsrechner.TYPE)) {
-            tmp = GUIDesignSidebar.VERMITTLUNGSRECHNER;
-        } else if (hardwareTyp.equals(Modem.TYPE)) {
-            tmp = GUIDesignSidebar.MODEM;
-        } else {
-            tmp = null;
-            Main.debug.println("GUIContainer: ausgewaehlte Hardware-Komponente unbekannt!");
-        }
-
-        designDragPreview.setType(hardwareTyp);
-        designDragPreview.setIcon(new ImageIcon(getClass().getResource("/" + tmp)));
-        designDragPreview.setBounds(x, y, designDragPreview.getWidth(), designDragPreview.getHeight());
-        designDragPreview.setVisible(true);
-    }
-
+    
     /**
-     * Prüft ob ein Punkt (definiert durch die Parameter x & y) auf einem Objekt (definiert durch den Parameter komp)
-     * befindet.
+     * <b>removeCablesConnectedTo</b> remove all the cableItems connected to the given nodeItem
      * 
-     * @author Johannes Bade
+     * @param nodeItem GUINodeItem from which the cables must be removed
      */
-    public boolean aufObjekt(Component komp, int x, int y) {
-        if (x > komp.getX() && x < komp.getX() + komp.getWidth() && y > komp.getY()
-                && y < komp.getY() + komp.getHeight()) {
-            return true;
-        }
-        return false;
-    }
+    public void removeCablesConnectedTo(GUINodeItem nodeItem) {          
 
+        // Remove the cables connected to the node
+        LinkedList<Port> ports = nodeItem.getNode().getPortList();
+        for (Port port: ports) {
+        	if (port.isConnected()) {
+        		removeCableItem(port.getCable().getCableItem());
+        	}
+        }          
+    }
+    
     /**
      * Löscht alle Elemente der Item- und Kabelliste und frischt den Viewport auf. Dies dient dem Reset vor dem Laden
      * oder beim Erstellen eines neuen Projekts.
@@ -722,207 +795,288 @@ public class GUIContainer implements Serializable, I18n {
      * @author Johannes Bade & Thomas Gerding
      */
     public void clearAllItems() {
+    	
         nodeItems.clear();
         cableItems.clear();
-        docuItems.clear();
-        Lauscher.getLauscher().reset();
+        docItems.clear();
+        PacketAnalyzer.getInstance().reset();
         updateViewport();
     }
 
+    private void updateDragNode(String hardwareType, int x, int y) { 	
+        Main.debug.println("GUIContainer: die Komponenten-Vorschau wird erstellt.");       
+
+        dragNode.setType(hardwareType);
+        String iconFile = "/" + GUIDesignSidebar.iconFilesByHardware(hardwareType);
+        dragNode.setIcon(new ImageIcon(getClass().getResource(iconFile)));
+        dragNode.setBounds(x, y, dragNode.getWidth(), dragNode.getHeight());
+        dragNode.setVisible(true);
+    }
+    
     public void updateViewport() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateViewport()");
-        networkPanel.updateViewport(nodeItems, cableItems);
-        networkPanel.updateUI();
-        if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            docuPanel.updateViewport(docuItems, false);
-        } else {
-            docuPanel.updateViewport(docuItems, activeSite == GUIMainMenu.MODUS_DOKUMENTATION);
-        }
-        docuPanel.updateUI();
+        Main.debug.println("INVOKED (" + hashCode() + ") " + getClass() + " (GUIContainer), updateViewport()");
+        
+        designPanel.updateViewport(nodeItems, cableItems);
+        designPanel.updateUI();
+        
+        docPanel.updateViewport(docItems, currentMode == GUIMainMenu.DOC_MODE);
+        docPanel.updateUI();
     }
 
     /**
-     * 
      * Geht die Liste der Kabel durch und ruft bei diesen updateBounds() auf. So werden die Kabel neu gezeichnet.
      * 
      * @author Thomas Gerding & Johannes Bade
-     * 
      */
     public void updateCables() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateCables()");
+        Main.debug.println("INVOKED (" + hashCode() + ") " + getClass() + " (GUIContainer), updateCables()");
         ListIterator<GUICableItem> it = cableItems.listIterator();
         while (it.hasNext()) {
             GUICableItem tempCable = (GUICableItem) it.next();
             tempCable.getCablePanel().updateBounds();
         }
+    }   
+
+    public JNodeLabel getConnectingTool() {
+        return connectingTool;
+    }    
+    
+    public void setConnectingToolIcon1() {
+    	connectingTool.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel1.png")));
+    }  
+    
+    public void setConnectingToolIcon2() {
+    	connectingTool.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel2.png")));
+    }    
+    
+    public GUINodeItem getHandleEndNodeItem() {
+        return handleEndNodeItem;
+    } 
+    
+    public void setCurrentDesignCable(JCablePanel designCable, int x, int y) {
+    	
+        this.designCable = designCable;
+        
+        if (designCable != null) {
+    		
+    		// Move the invisible handle node 
+    		handleEndNode.setLocation(x, y);   
+    		
+    		// Let the cable follow its handle
+    		designCable.updateBounds();
+    	}
     }
+    
+    // Called on mouse move in design mode while a cable is being drawn
+    private void updateConnectingTool(int x, int y) {   
+    	
+    	// Let the connecting tool follow the mouse pointer
+    	connectingTool.setLocation(x, y);   
+    	
+    	if (designCable != null) {
+    		
+    		// Move the invisible handle node 
+    		handleEndNode.setLocation(x, y);   
+    		
+    		// Let the cable follow its handle
+    		designCable.updateBounds();
+    	}
+    }    
 
-    public JNodeLabel getKabelvorschau() {
-        return designCablePreview;
-    }
-
-    public int getActiveSite() {
-        return activeSite;
-    }
-
-    public void setActiveSite(int activeSite) {
-        this.activeSite = activeSite;
-
-        for (Component background : layeredPane.getComponentsInLayer(BACKGROUND_LAYER)) {
-            layeredPane.remove(background);
-        }
-        if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
-        	JFrameList.gI().hideAll(); 
-            designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
-            designView.getHorizontalScrollBar().setValue(simulationView.getHorizontalScrollBar().getValue());
-            JMainFrame.getJMainFrame().removeFromContentPane(this.docuSidebarScrollpane);
-            JMainFrame.getJMainFrame().addToContentPane(this.designSidebarScrollpane, BorderLayout.WEST);
-            JMainFrame.getJMainFrame().removeFromContentPane(this.simulationView);
-            layeredPane.setLayer(docuPanel, INACTIVE_LISTENER_LAYER);
-            layeredPane.setLayer(designListenerPanel, ACTIVE_LISTENER_LAYER);
-            layeredPane.add(designBackgroundPanel, BACKGROUND_LAYER);
-            designView.setViewportView(layeredPane);
-            JMainFrame.getJMainFrame().addToContentPane(this.designView, BorderLayout.CENTER);
-            JMainFrame.getJMainFrame().addToContentPane(designItemConfig, BorderLayout.SOUTH);
-            docuDragPanel.setVisible(false);
-            designSidebarScrollpane.updateUI();
-            designView.updateUI();
-            designItemConfig.updateUI();
-        } else if (activeSite == GUIMainMenu.MODUS_DOKUMENTATION) {
-        	JFrameList.gI().hideAll(); 
-            designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
-            designView.getHorizontalScrollBar().setValue(simulationView.getHorizontalScrollBar().getValue());
-            JMainFrame.getJMainFrame().removeFromContentPane(this.designSidebarScrollpane);
-            JMainFrame.getJMainFrame().addToContentPane(this.docuSidebarScrollpane, BorderLayout.WEST);
-            JMainFrame.getJMainFrame().removeFromContentPane(this.simulationView);
-            layeredPane.add(designBackgroundPanel, BACKGROUND_LAYER);
-            layeredPane.setLayer(docuPanel, ACTIVE_LISTENER_LAYER);
-            layeredPane.setLayer(designListenerPanel, INACTIVE_LISTENER_LAYER);
-            designView.setViewportView(layeredPane);
-            designSelection.setVisible(false);
-            designSelectionArea.setVisible(false);
-            docuDragPanel.setVisible(true);
-            JMainFrame.getJMainFrame().addToContentPane(this.designView, BorderLayout.CENTER);
-            JMainFrame.getJMainFrame().removeFromContentPane(designItemConfig);
-            docuSidebarScrollpane.updateUI();
-            designView.updateUI();
-        } else if (activeSite == GUIMainMenu.MODUS_AKTION) {
-        	JFrameList.gI().restoreAll();  
-            simulationView.getVerticalScrollBar().setValue(designView.getVerticalScrollBar().getValue());
-            simulationView.getHorizontalScrollBar().setValue(designView.getHorizontalScrollBar().getValue());
-            layeredPane.setLayer(docuPanel, INACTIVE_LISTENER_LAYER);
-            layeredPane.setLayer(designListenerPanel, INACTIVE_LISTENER_LAYER);
-            layeredPane.add(simulationBackgroundPanel, BACKGROUND_LAYER);
-            simulationView.setViewportView(layeredPane);
-            JMainFrame.getJMainFrame().removeFromContentPane(this.docuSidebarScrollpane);
-            JMainFrame.getJMainFrame().removeFromContentPane(this.designSidebarScrollpane);
-            designSelection.setVisible(false);
-            designSelectionArea.setVisible(false);
-            docuDragPanel.setVisible(false);
-            JMainFrame.getJMainFrame().removeFromContentPane(this.designView);
-            JMainFrame.getJMainFrame().addToContentPane(this.simulationView, BorderLayout.CENTER);
-            JMainFrame.getJMainFrame().removeFromContentPane(designItemConfig);
-            simulationView.updateUI();
-        }
-        GUIEvents.getGUIEvents().resetAndHideCablePreview();
-        JMainFrame.getJMainFrame().invalidate();
-        JMainFrame.getJMainFrame().validate();
-        updateViewport();
-    }
-
-    public List<GUICableItem> getCableItems() {
+    public List<GUICableItem> getCableList() {
         return cableItems;
     }
 
-    public void setCablelist(List<GUICableItem> cablelist) {
+    public void setCableList(List<GUICableItem> cablelist) {
         this.cableItems = cablelist;
     }
+    
+    //-----------------------------------------------------------------------------------------
+    //  Marquee methods
+    //-----------------------------------------------------------------------------------------
 
-    public int getAbstandLinks() {
-        int abstand = 0;
-        abstand = GUIContainer.getInstance().getSidebar().getLeistenpanel().getWidth();
-        return abstand;
+    public JMarqueePanel getTempMarquee() {
+    	
+        return designTempMarquee;
+    }    
+                                
+    public JMarqueePanel getMarquee() {
+    	
+        return designMarquee;
     }
 
-    public int getAbstandOben() {
-        int abstand = 0;
-        abstand = GUIContainer.getInstance().getMenu().getMenupanel().getHeight();
-        return abstand;
+    public boolean isMarqueeVisible() {
+    	
+        return designMarquee.isVisible();
     }
 
-    //@Deprecated  // <-  why ?
-    public JMarkerPanel getMarkierung() {
-        return designSelectionArea;
-    }
-
-    public boolean isMarkerVisible() {
-        return designSelectionArea.isVisible();
-    }
-
-    public void moveMarker(int incX, int incY, List<GUINodeItem> markedlist) {
-        int newMarkerX = designSelectionArea.getX() + incX;
-        if (newMarkerX + designSelectionArea.getWidth() >= width || newMarkerX < 0) {
+    public void moveMarquee(int incX, int incY, List<GUINodeItem> markedlist) {
+    	
+    	// Make sure that the marquee remains within the work area
+        int newX = designMarquee.getX() + incX;
+        if (newX + designMarquee.getWidth() >= workareaWidth || newX < 0) {
             incX = 0;
         }
-        int newMarkerY = designSelectionArea.getY() + incY;
-        if (newMarkerY + designSelectionArea.getHeight() >= height || newMarkerY < 0) {
+        int newY = designMarquee.getY() + incY;
+        if (newY + designMarquee.getHeight() >= workareaHeight || newY < 0) {
             incY = 0;
         }
-        designSelectionArea.setBounds(designSelectionArea.getX() + incX, designSelectionArea.getY() + incY,
-                designSelectionArea.getWidth(), designSelectionArea.getHeight());
+        
+        // Move the marquee
+        designMarquee.setLocation(designMarquee.getX() + incX, designMarquee.getY() + incY);
 
-        for (GUINodeItem knotenItem : markedlist) {
-            JNodeLabel templbl = knotenItem.getNodeLabel();
-            templbl.setLocation(templbl.getX() + incX, templbl.getY() + incY);
+        // Move the nodes
+        for (GUINodeItem nodeItem : markedlist) {
+            JNodeLabel nodeLabel = nodeItem.getNodeLabel();
+            nodeLabel.setLocation(nodeLabel.getX() + incX, nodeLabel.getY() + incY);
         }
+        
+        // Redraw the cables
         updateCables();
     }
-
-    public JMarkerPanel getAuswahl() {
-        return designSelection;
+   
+    
+    //-----------------------------------------------------------------------------------------
+    //  Documentation items
+    //-----------------------------------------------------------------------------------------
+   
+    public List<GUIDocItem> getDocItems() {
+    	
+    	docPanel.removeElementsFocus();  // Necessary for the size of the selected textArea (if any) to be correctly saved
+        return docItems;
+    }   
+    
+    private GUIDocItem getDocItem(JDocElement elem) {
+    	
+    	for (GUIDocItem item : docItems) {
+            if (item.asDocElement().equals(elem)) return item;
+        }
+        return null;
     }
-
-    public JNodeLabel getDragVorschau() {
-        return designDragPreview;
+    
+    private int getTopDocPanelIndex() {
+    	
+    	for (int i=0; i<docPanel.getComponentCount(); i++) {
+    		JDocElement elem = (JDocElement) docPanel.getComponent(i);
+            if (!elem.getIsText()) return i;
+        }
+        return 0;
     }
-
-    public JKonfiguration getProperty() {
-        return designItemConfig;
+    
+    private JDocElement getSelectedDocElement() {
+    	
+    	for (int i=0; i<docPanel.getComponentCount(); i++) {
+    		JDocElement elem = (JDocElement) docPanel.getComponent(i);
+            if (elem.getLocalFocus()) return elem;
+        }
+        return null;
     }
+    
+    public void duplicateDocElement(JDocElement elem) {
+    	
+    	if (elem == null) elem = getSelectedDocElement();
+    	if (elem == null) return;
+    
+    	boolean isText = elem.getIsText();
+    	
+    	JDocElement newElem = new JDocElement(isText, true);  
+    	int elemIndex = docItems.indexOf(getDocItem(elem));
+    	docItems.add(elemIndex, GUIDocItem.createDocItem(newElem));
+    	docPanel.add(newElem);
+    	
+    	
+    	Rectangle r = elem.getRealBounds();
+    	r.x += 20;
+    	r.y += 20;
+    	newElem.initBounds(r);
+    	
+    	newElem.setColor(elem.getColor());
+    	if (isText) {
+    		newElem.setText(elem.getText());
+    		newElem.setFont(elem.getFont());
+    	}       	
+    	
+    	newElem.setLocalFocus(true);  
+    	    
+    	updateViewport();
+    	
+    	ProjectManager.getInstance().setModified(); 
+    }   
+
+    public void removeDocElement(JDocElement elem) {
+    	
+        for (GUIDocItem item : docItems) {
+            if (item.asDocElement().equals(elem)) {
+                docItems.remove(item);
+                
+                ProjectManager.getInstance().setModified(); 
+                break;
+            }
+        }
+    }    
+
+    public void setDocItemOnTop(JDocElement elem) {
+    	for (GUIDocItem item : docItems) {
+            if (item.asDocElement().equals(elem)) {
+                docItems.remove(item);
+                docItems.add(0, item);
+                
+                ProjectManager.getInstance().setModified(); 
+                break;
+            }
+        }
+    }
+    
+    public void setDocItemAtBottom(JDocElement elem) {
+    	for (GUIDocItem item : docItems) {
+            if (item.asDocElement().equals(elem)) {
+                docItems.remove(item);
+                docItems.add(item);
+                
+                ProjectManager.getInstance().setModified(); 
+                break;
+            }
+        }
+    }
+    
+    
+    //-----------------------------------------------------------------------------------------
+    //  Desktops methods
+    //-----------------------------------------------------------------------------------------
 
     public void showDesktop(GUINodeItem hardwareItem) {
-        ListIterator<GUIDesktopWindow> it;
-        Betriebssystem bs;
-        GUIDesktopWindow tmpDesktop = null;
+
+        if (hardwareItem == null) return;
+        if (!(hardwareItem.getNode() instanceof Host)) return;
+        	
+        GUIDesktopWindow desktop = null;
         boolean fertig = false;
 
-        if (hardwareItem != null && hardwareItem.getNode() instanceof Host) {
-            bs = (Betriebssystem) ((Host) hardwareItem.getNode()).getSystemSoftware();
+        HostOS nodeOS = ((Host) hardwareItem.getNode()).getOS();
 
-            it = desktopWindowList.listIterator();
-            while (!fertig && it.hasNext()) {
-                tmpDesktop = it.next();
-                if (bs == tmpDesktop.getBetriebssystem()) {
-                    tmpDesktop.setVisible(true);
-                    fertig = true;
-                }
-            }
-
-            if (!fertig) {
-                tmpDesktop = new GUIDesktopWindow(bs);
-                setDesktopPos(tmpDesktop);
-                tmpDesktop.setVisible(true);
-                tmpDesktop.toFront();
-
-                fertig = true;
-            }
-
-            if (tmpDesktop != null)
-                this.desktopWindowList.add(tmpDesktop);
+        ListIterator<GUIDesktopWindow> it = desktopWindowList.listIterator();
+        while (!fertig && it.hasNext()) {
+        	desktop = it.next();
+        	if (nodeOS == desktop.getOS()) {
+        		desktop.setVisible(true);
+        		fertig = true;
+        	}
         }
+
+        if (!fertig) {
+        	desktop = new GUIDesktopWindow(nodeOS);
+        	setDesktopPos(desktop);
+        	desktop.setVisible(true);
+        	desktop.toFront();
+
+        	fertig = true;
+        }
+
+        if (desktop != null)  desktopWindowList.add(desktop);
     }
 
     private void setDesktopPos(GUIDesktopWindow tmpDesktop) {
+    	
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension desktopSize = tmpDesktop.getSize();
         int numberOfDesktopsPerRow = (int) (screenSize.getWidth() / desktopSize.getWidth());
@@ -960,23 +1114,22 @@ public class GUIContainer implements Serializable, I18n {
     }
 
     public void addDesktopWindow(GUINodeItem hardwareItem) {
-        GUIDesktopWindow tmpDesktop = null;
-        Betriebssystem bs;
-
-        if (hardwareItem != null && hardwareItem.getNode() instanceof Host) {
-            bs = (Betriebssystem) ((Host) hardwareItem.getNode()).getSystemSoftware();
-            tmpDesktop = new GUIDesktopWindow(bs);
-            desktopWindowList.add(tmpDesktop);
-        }
+    	
+    	if (hardwareItem == null || !(hardwareItem.getNode() instanceof Host)) return;
+        
+        HostOS bs = (HostOS) ((Host) hardwareItem.getNode()).getSystemSoftware();
+        GUIDesktopWindow tmpDesktop = new GUIDesktopWindow(bs);
+        desktopWindowList.add(tmpDesktop);      
     }
     
-    public void removeDesktopWindow(GUINodeItem item) {
-    	if (!(item.getNode() instanceof Host)) return;
+    public void removeDesktopWindow(GUINodeItem hardwareItem) {
     	
-    	Betriebssystem bs = (Betriebssystem)((Host) item.getNode()).getSystemSoftware();
+    	if (hardwareItem == null || !(hardwareItem.getNode() instanceof Host)) return;
+    	
+    	HostOS bs = (HostOS)((Host) hardwareItem.getNode()).getSystemSoftware();
     	
     	for (GUIDesktopWindow desktop: desktopWindowList) {
-    		if (desktop.getBetriebssystem() == bs) {
+    		if (desktop.getOS() == bs) {
     			desktop.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     	        desktop.dispatchEvent(new WindowEvent(desktop, WindowEvent.WINDOW_CLOSING));
     	        desktopWindowList.remove(desktop);
@@ -985,137 +1138,66 @@ public class GUIContainer implements Serializable, I18n {
     	}
     }
 
-    public void setProperty(Object item) {
-        boolean maximieren = false;
 
-        if (designItemConfig != null) {
-            // do actions required prior to getting unselected (i.e.,
-            // postprocessing)
-            designItemConfig.doUnselectAction();
-            maximieren = designItemConfig.isMaximiert();
-            JMainFrame.getJMainFrame().removeFromContentPane(designItemConfig);
+    //-----------------------------------------------------------------------------------------
+    //  Configuration panel
+    //-----------------------------------------------------------------------------------------    
+
+    public JConfigPanel getConfigPanel() {
+
+    	return designConfigPanel;
+    }
+
+    public void setConfigPanel(Object item) {
+    	
+        boolean maximized = false;
+
+        if (designConfigPanel != null) {
+            // do actions required prior to getting unselected (i.e. postprocessing)
+            designConfigPanel.doUnselectAction();
+            maximized = designConfigPanel.isMaximized();
+            JMainFrame.getInstance().removeFromContentPane(designConfigPanel);
         }
 
         if (item == null) {
-            designItemConfig = JKonfiguration.getInstance();
+            designConfigPanel = JConfigPanel.selectEmptyPanel();
         } else {
         	if (item instanceof GUINodeItem) {
-        		designItemConfig = JKonfiguration.getInstance(((GUINodeItem)item).getNode());
+        		designConfigPanel = JConfigPanel.select(((GUINodeItem)item).getNode());
         	} else if (item instanceof GUICableItem) {
-        		designItemConfig = JKonfiguration.getInstance(((GUICableItem)item).getCable());
-//        		designItemConfig = JKonfiguration.getInstance(((GUIKabelItem)item).getCablePanel().getZiel1().getKnoten(),
-//        				                                      ((GUIKabelItem)item).getCablePanel().getZiel2().getKnoten());
+        		designConfigPanel = JConfigPanel.select(((GUICableItem)item).getCable());
         	} 
             
         }
-        JMainFrame.getJMainFrame().addToContentPane(designItemConfig, BorderLayout.SOUTH);
-        designItemConfig.updateAttribute();
-        designItemConfig.updateUI();
-        if (item == null || !maximieren) {
-            designItemConfig.minimieren();
-        } else {
-            designItemConfig.maximieren();
-        }
-    }
-
-    public JScrollPane getScrollPane() {
-        return designView;
-    }
-
-    public int getXOffset() {
-        if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            return simulationView.getHorizontalScrollBar().getValue();
-        }
-        return designView.getHorizontalScrollBar().getValue();
-    }
-
-    public int getYOffset() {
-        if (activeSite == GUIMainMenu.MODUS_AKTION) {
-            return simulationView.getVerticalScrollBar().getValue();
-        }
-        return designView.getVerticalScrollBar().getValue();
-    }
-
-    public JScrollPane getSidebarScrollpane() {
-        if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
-            return designSidebarScrollpane;
-        }
-        return docuSidebarScrollpane;
-    }
-
-    public GUINetworkPanel getDesignpanel() {
-        return networkPanel;
-    }
-
-    public JComponent getSimpanel() {
-        return simulationView;
-    }
-
-    public GUIDesignSidebar getSidebar() {
-        return designSidebar;
-    }
-
-    public GUIMainMenu getMenu() {
-        return menu;
-    }
-
-    public void setKabelPanelVorschau(JCablePanel kabelPanelVorschau) {
-        this.kabelPanelVorschau = kabelPanelVorschau;
-    }
-
-    public JNodeLabel getLabelforKnoten(Node node) {
-        List<GUINodeItem> list = getKnotenItems();
-        for (int i = 0; i < list.size(); i++) {
-            if (((GUINodeItem) list.get(i)).getNode().equals(node)) {
-                return ((GUINodeItem) list.get(i)).getNodeLabel();
-            }
-        }
-        return null;
-    }
-
-    public List<GUIDocuItem> getDocuItems() {
-    	docuPanel.removeElementsFocus();  // Necessary for the size of the selected textArea (if any) to be correctly saved
-        return docuItems;
-    }
-
-    public void removeDocuElement(JDocuElement elem) {
-        for (GUIDocuItem item : docuItems) {
-            if (item.asDocuElement().equals(elem)) {
-                docuItems.remove(item);
-                break;
-            }
-        }
-    }
-
-    public void removeCableItem(GUICableItem cableItem) {
-        cableItems.remove(cableItem);
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setDocuItemOnTop(JDocuElement elem) {
-    	for (GUIDocuItem item : docuItems) {
-            if (item.asDocuElement().equals(elem)) {
-                docuItems.remove(item);
-                docuItems.add(0, item);
-                break;
-            }
-        }
+        JMainFrame.getInstance().addToContentPane(designConfigPanel, BorderLayout.SOUTH);
+        designConfigPanel.updateDisplayedValues();
+        designConfigPanel.updateUI();
+        if (item == null || !maximized)  designConfigPanel.minimize();
+        else                             designConfigPanel.maximize();      
     }
     
-    public void setDocuItemAtBottom(JDocuElement elem) {
-    	for (GUIDocuItem item : docuItems) {
-            if (item.asDocuElement().equals(elem)) {
-                docuItems.remove(item);
-                docuItems.add(item);
-                break;
-            }
-        }
+    //------------------------------------------------------------------------------------------------
+    // Closing
+    //------------------------------------------------------------------------------------------------
+
+    // Called when Filius is about to close
+    public void prepareForClosing() {
+    	
+    	// Last chance to save the last modified parameter in the configuration panel if any   
+    	designConfigPanel.saveChanges();
+    	
+    	// Switch to design mode 
+    	mainMenu.selectMode(GUIMainMenu.DESIGN_MODE);   
+    }
+    
+    //------------------------------------------------------------------------------------------------
+    // Export related method (The main export methods are located in class ProjectExport)
+    //------------------------------------------------------------------------------------------------
+
+    public GUIPrintPanel prepareExportPanel() {
+    	
+        GUIPrintPanel printPanel = new GUIPrintPanel(workareaWidth, workareaHeight, ProjectManager.getInstance().getPath());
+        printPanel.updateViewport(nodeItems, cableItems, docItems);
+        return printPanel;
     }
 }

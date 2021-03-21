@@ -26,13 +26,13 @@
 package filius.software.vermittlungsschicht;
 
 import filius.Main;
-import filius.software.ProtokollThread;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.ProtocolThread;
+import filius.software.system.InternetNodeOS;
 
 /**
  * Thread zur Ueberwachung des IP-Puffers, in den von der Ethernet-Schicht eingehende IP-Pakete geschrieben werden
  */
-public class IPThread extends ProtokollThread {
+public class IPThread extends ProtocolThread {
 
     /** Die IPsschicht */
     private IP vermittlung;
@@ -41,7 +41,7 @@ public class IPThread extends ProtokollThread {
      * Konstruktor zur Initialisierung des zu ueberwachenden Puffers und der IPsschicht.
      */
     public IPThread(IP vermittlung) {
-        super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeIPPuffer());
+        super(((InternetNodeOS) vermittlung.getSystemSoftware()).getEthernet().holeIPPuffer());
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (IPThread), constr: IPThread(" + vermittlung + ")");
 
@@ -53,7 +53,7 @@ public class IPThread extends ProtokollThread {
      * wird es an die Methode weiterleitenPaket() des IP uebergeben. Dort werden Pakete, die fuer diesen Rechner
      * bestimmt sind, an die Transportschicht weiter gegeben und Pakete an andere Rechner weitergeleitet.
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
+    protected void processFrame(Object datenEinheit) {
         IpPaket ipPaket = ((IpPaket) datenEinheit).clone();
 
         if (vermittlung.isLocalAddress(ipPaket.getEmpfaenger()) || ipPaket.getEmpfaenger().equals("255.255.255.255")) {

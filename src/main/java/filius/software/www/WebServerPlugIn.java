@@ -51,7 +51,7 @@ public abstract class WebServerPlugIn {
         this.pfad = pfad;
     }
 
-    public abstract String holeHtmlSeite(String postDaten);
+    public abstract String getHtmlPage(String postDaten);
 
     /**
      * liest eine reale Textdatei vom Format .txt ein. Diese befinden sich im Ordner /config

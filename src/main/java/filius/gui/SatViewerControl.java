@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFrame;
-
 import filius.gui.anwendungssicht.SatViewer;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
@@ -43,15 +42,15 @@ public class SatViewerControl implements I18n {
 
     private Map<SystemSoftware, SatViewer> satViewer = new HashMap<>();
     private Set<SystemSoftware> visibleViewer = new HashSet<>();
-    private static SatViewerControl singleton;
+    private static SatViewerControl satViewerControl;
 
     private SatViewerControl() {}
 
     public static SatViewerControl getInstance() {
-        if (null == singleton) {
-            singleton = new SatViewerControl();
+        if (null == satViewerControl) {
+            satViewerControl = new SatViewerControl();
         }
-        return singleton;
+        return satViewerControl;
     }
 
     public void hideViewer() {
@@ -63,18 +62,11 @@ public class SatViewerControl implements I18n {
             viewer.setVisible(false);
         }
     }
-
-    private void centerViewer(SatViewer viewer) {
-    	JMainFrame MF = JMainFrame.getJMainFrame();
-    	viewer.setLocation(MF.getX() + (MF.getWidth() - viewer.getWidth())/2, MF.getY() + (MF.getHeight() - viewer.getHeight())/2);
-    }
     
-    public void showViewer(Switch sw) {
+    public void addOrShowViewer(Switch sw) {
         if (!satViewer.containsKey(sw.getSystemSoftware())) {
-            SatViewer viewer = new SatViewer(sw);
-            centerViewer(viewer);
-            sw.getSystemSoftware().addPropertyChangeListener(viewer);
-            satViewer.put(sw.getSystemSoftware(), viewer);
+                  
+            satViewer.put(sw.getSystemSoftware(), new SatViewer(sw));
         }
         satViewer.get(sw.getSystemSoftware()).setVisible(true);
     }
@@ -99,5 +91,5 @@ public class SatViewerControl implements I18n {
         for (SystemSoftware sysSoftware : satToRemove) {
             satViewer.remove(sysSoftware);
         }
-    }
+    }    
 }

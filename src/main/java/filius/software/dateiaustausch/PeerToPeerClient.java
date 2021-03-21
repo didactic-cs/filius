@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 import filius.Main;
-import filius.software.Anwendung;
+import filius.software.Application;
 
 /**
  * In dieser Klasse werden Anfragen an andere Teilnehmer im Peer-To-Peer-Netzwerk verschickt bzw. weitergeleitet und
@@ -37,7 +37,7 @@ import filius.software.Anwendung;
  * einem PeerToPeerClientMitarbeiter gestartet.
  * 
  */
-class PeerToPeerClient extends Anwendung {
+class PeerToPeerClient extends Application {
 
     /**
      * Die zugehoerige PeerToPeerAnwendung, die diesen Client zur Verarbeitung von eigenen Anfragen verwendet.
@@ -71,13 +71,13 @@ class PeerToPeerClient extends Anwendung {
     }
 
     /** Zum beenden der Threads, die durch diesen Client gestartet wurden. */
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClient), beenden()");
         ListIterator<?> it;
         PeerToPeerClientMitarbeiter m;
 
-        super.beenden();
+        super.stopThread();
 
         it = mitarbeiterEigeneAnfragen.listIterator();
         while (it.hasNext()) {

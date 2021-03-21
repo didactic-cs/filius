@@ -40,12 +40,13 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
-import filius.gui.netzwerksicht.JFirewallDialog;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.gui.netzwerksicht.config.JConfigRouterFirewallOld;
+import filius.rahmenprogramm.EntryValidator;
 import filius.software.dns.DNSServer;
 import filius.software.firewall.Firewall;
 import filius.software.www.WebServer;
 
+@SuppressWarnings("serial")
 public class JTableEditable extends JTable {
 
 	public class ColorTableCellRenderer implements TableCellRenderer {
@@ -83,7 +84,6 @@ public class JTableEditable extends JTable {
 		}
 	}
 
-	private static final long serialVersionUID = 1L;
 	private boolean editable;
 
 	// optional parameter for identifying the table, e.g., whether storing MX or
@@ -148,40 +148,40 @@ public class JTableEditable extends JTable {
 			if (parentGUI instanceof GUIApplicationDNSServerWindow) {
 				value = value.trim();
 				updateCellValue = false;
-				DNSServer dnsServer = (DNSServer) ((GUIApplicationDNSServerWindow) parentGUI).holeAnwendung();
+				DNSServer dnsServer = (DNSServer) ((GUIApplicationDNSServerWindow) parentGUI).getApplication();
 				boolean validChange;
 				if (typeID != null && typeID.equals("A")) {
 					if (editingColumn == 0) {
-						validChange = EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterDomain);
+						validChange = EntryValidator.isValid(value, EntryValidator.musterDomain);
 						if (validChange) {
 							dnsServer.changeSingleEntry(editingRow, 0, ADDRESS, value);
 						}
 					} else {
-						validChange = EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterIpAdresse);
+						validChange = EntryValidator.isValid(value, EntryValidator.musterIpAdresse);
 						if (validChange) {
 							dnsServer.changeSingleEntry(editingRow, 3, ADDRESS, value);
 						}
 					}
 				} else if (typeID != null && typeID.equals("MX")) {
 					if (editingColumn == 0) {
-						validChange = EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterDomain);
+						validChange = EntryValidator.isValid(value, EntryValidator.musterDomain);
 						if (validChange) {
 							dnsServer.changeSingleEntry(editingRow, 0, MAIL_EXCHANGE, value);
 						}
 					} else {
-						validChange = EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterDomain);
+						validChange = EntryValidator.isValid(value, EntryValidator.musterDomain);
 						if (validChange) {
 							dnsServer.changeSingleEntry(editingRow, 3, MAIL_EXCHANGE, value);
 						}
 					}
 				} else if (typeID != null && typeID.equals("NS")) {
 					if (editingColumn == 0) {
-						validChange = EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterDomain);
+						validChange = EntryValidator.isValid(value, EntryValidator.musterDomain);
 						if (validChange) {
 							dnsServer.changeSingleEntry(editingRow, 0, NAME_SERVER, value);
 						}
 					} else {
-						validChange = EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterDomain);
+						validChange = EntryValidator.isValid(value, EntryValidator.musterDomain);
 						if (validChange) {
 							dnsServer.changeSingleEntry(editingRow, 3, NAME_SERVER, value);
 						}
@@ -190,22 +190,22 @@ public class JTableEditable extends JTable {
 			}
 			if (parentGUI instanceof GUIApplicationWebServerWindow) {
 				if (typeID != null && typeID.equals("WWW")) {
-					((WebServer) ((GUIApplicationWebServerWindow) parentGUI).holeAnwendung()).changeVHostTable(
+					((WebServer) ((GUIApplicationWebServerWindow) parentGUI).getApplication()).changeVHostTable(
 					        editingRow, editingColumn, value);
 				}
 			}
-			if (parentGUI instanceof JFirewallDialog) {
+			if (parentGUI instanceof JConfigRouterFirewallOld) {
 				if (editingColumn == 0)
 					setValueAt(formerValue, editingRow, editingColumn);
 				else {
-					String retValue = ((Firewall) ((JFirewallDialog) parentGUI).getFirewall()).changeSingleEntry(
+					String retValue = ((Firewall) ((JConfigRouterFirewallOld) parentGUI).getFirewall()).changeSingleEntry(
 					        editingRow, editingColumn, value);
 					if (!retValue.equals(value))
 						setValueAt(retValue, editingRow, editingColumn);
 					if (editingColumn == 1 || editingColumn == 3) {
-						if (!EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterIpAdresseAuchLeer)) {
+						if (!EntryValidator.isValid(value, EntryValidator.musterIpAdresseAuchLeer)) {
 							((ColorTableCellRenderer) getCellRenderer(editingRow, editingColumn)).setColor(editingRow,
-							        editingColumn, EingabenUeberpruefung.farbeFalsch);
+							        editingColumn, EntryValidator.wrongTextColor);
 						} else {
 							((ColorTableCellRenderer) getCellRenderer(editingRow, editingColumn)).resetColor(
 							        editingRow, editingColumn);
@@ -214,9 +214,9 @@ public class JTableEditable extends JTable {
 							setValueAt("255.255.255.255", editingRow, editingColumn + 1);
 					}
 					if (editingColumn == 6) {
-						if (!EingabenUeberpruefung.isGueltig(value, EingabenUeberpruefung.musterPortAuchLeer)) {
+						if (!EntryValidator.isValid(value, EntryValidator.musterPortAuchLeer)) {
 							((ColorTableCellRenderer) getCellRenderer(editingRow, editingColumn)).setColor(editingRow,
-							        editingColumn, EingabenUeberpruefung.farbeFalsch);
+							        editingColumn, EntryValidator.wrongTextColor);
 						} else {
 							((ColorTableCellRenderer) getCellRenderer(editingRow, editingColumn)).resetColor(
 							        editingRow, editingColumn);

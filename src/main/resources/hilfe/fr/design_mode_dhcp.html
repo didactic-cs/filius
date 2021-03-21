@@ -1,0 +1,93 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css">
+    html { background-color: rgb(250, 248, 246); padding-left: 8px; padding-right: 8px; padding-bottom: 20px; }
+    body { font-family: Helvetica,Arial,sans-serif; font-size: 12pt; }  
+    h1 { color: rgb(0, 100, 200); font-size: 20pt; border-bottom: 1px solid rgb(0, 100, 200); }
+    h2 { color: rgb(0, 100, 200); font-size: 18pt; margin-top: 0px; margin-bottom: 10px; }
+    h3 { color: rgb(0, 100, 200); font-size: 15pt; margin-top: 10px; margin-bottom: 6px; }
+    h4 { font-weight: bold; margin-top: 0px; margin-bottom: 4px; }
+    p { margin-top: 0px; margin-bottom: 8px; }
+    a { color: rgb(0, 100, 200); text-decoration: none; }
+    div.menu span { font-size: 11pt; color: rgb(0, 100, 200); white-space: nowrap; text-decoration: none; }
+    div.menu span.selected { font-weight: bold; }
+    div.center { text-align: center; margin-top: 0px; margin-bottom: 8px; }
+    ol { margin-left: 15px; }
+    ul { margin-left: 15px; }
+  </style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Projet</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Ordinateur et portable</a></span>&nbsp;&nbsp;
+    <span class="selected">DHCP</span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;  
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Table de routage</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_firewall.html">Pare-feu</a></span>  
+  </div>
+
+  <h1>Mode conception</h1>
+
+  <h2>Service DHCP</h2>  
+
+  <p>Le service DHCP attribue à tout poste qui en fait la demande
+     une adresse IP et un masque de sous-réseau. Il peut éventuellement également 
+     fournir l'adresse IP d'une passerelle et l'adresse IP d'un serveur DNS.</p> 
+     
+  <h3>Configuration</h3>  
+  
+  <h4>Adresse IP de départ / Adresse IP de fin</h4>
+  
+  <p>Ces deux adresses IP délimitent la plage des adresses IP qui seront
+     attribuées aux postes qui en solliciteront. Ces adresses doivent faire
+     partie du même sous-réseau que le serveur.</p>
+
+  <p>Pour les composants du réseau dont les adresses IP ne sont pas attribuées
+     automatiquement par un serveur DHCP, il conviendra de s'assurer que les adresses
+     utilisées ne sont pas dans la plage des adresses distribuées par le serveur.</p>   
+     
+  <h4>Masque</h4>  
+  
+  <p>Ce champ en lecture seule rappelle le masque de sous-réseau du serveur. 
+     C'est également ce masque qui est communiqué aux clients en même temps
+     que l'adresse IP demandée.</p>
+  
+  <h4>Adresses réservées</h4>
+  
+  <p>Ce bouton permet d'accéder à la liste des adresses IP réservées.
+     Il s'agit de couples adresse MAC/adresse IP permettant d'attribuer une
+     adresse IP spécifique à certains composants qui ont besoin de toujours
+     avoir la même adresse IP.</p>
+
+  <p>Dans le tableau, utiliser le menu contextuel (clic droit) sur les lignes
+     pour ajouter, supprimer ou modifier un couple d'adresses réservées.</p>     
+     
+  <p>Les adresses IP réservées ne doivent pas faire partie de la plage des adresses
+     IP distribuées de façon automatique.</p>   
+  
+  <h4>Passerelle / Serveur DNS</h4>
+  
+  <p>Ces deux champs permettent de spécifier l'adresse IP d'une passerelle ainsi
+     que l'adresse IP d'un serveur DNS qui seront communiqués aux postes clients.</p>
+
+  <h4>Identiques aux paramètres du serveur</h4>
+  
+  <p>Lorsque cette case est cochée, le serveur utilise ses propores paramètres de
+     passerelle et de serveur DNS plutôt que ceux définis ci-dessus.</p>
+  
+  <h4>Activer le service DHCP</h4>  
+  
+  <p>En cochant cette case, le service DHCP est rendu actif sur ce poste.</p> 
+  
+  <p>À chaque fois que le mode simulation sera activé, les postes configurés comme
+     clients DHCP solliciteront un serveur DHCP pour obtenir une adresse IP, 
+     un masque de sous-réseau, l'adresse IP d'une passerelle et l'adresse IP 
+     d'un serveur DNS.</p>  
+
+</body>
+</html>

@@ -73,9 +73,9 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
         plugin = ((WebServer) server).holePlugin(dateipfad);
         if (plugin != null) {
             if (anfrage.getMethod().equals(HTTPNachricht.POST)) {
-                tmp = plugin.holeHtmlSeite(anfrage.getDaten());
+                tmp = plugin.getHtmlPage(anfrage.getDaten());
             } else {
-                tmp = plugin.holeHtmlSeite(null);
+                tmp = plugin.getHtmlPage(null);
             }
 
             if (tmp != null) {

@@ -121,9 +121,9 @@ public class DHCPServerMitarbeiter extends ServerMitarbeiter {
         DHCPServer dhcpServer = (DHCPServer) server;
         UDPSocket udpSocket = (UDPSocket) socket;
         try {
-            String serverIpAddress = dhcpServer.holeServerIpAddress();
+            String serverIpAddress = dhcpServer.getServerIpAddress();
             DHCPMessage response = DHCPMessage.createOfferMessage(mac, dhcpServer.offerAddress(mac),
-                    dhcpServer.getSubnetzmaske(), dhcpServer.getGatewayip(), dhcpServer.getDnsserverip(),
+                    dhcpServer.getSubnetMask(), dhcpServer.getGatewayIP(), dhcpServer.getDNSServerIP(),
                     serverIpAddress);
             udpSocket.sendeBroadcast(serverIpAddress, response.toString());
         } catch (NoAvailableAddressException e) {}
@@ -132,11 +132,11 @@ public class DHCPServerMitarbeiter extends ServerMitarbeiter {
     void processRequest(String mac, String ip, String serverIdentifier) {
         DHCPServer dhcpServer = (DHCPServer) server;
         UDPSocket udpSocket = (UDPSocket) socket;
-        String serverIpAddress = dhcpServer.holeServerIpAddress();
+        String serverIpAddress = dhcpServer.getServerIpAddress();
         if (StringUtils.equalsIgnoreCase(serverIdentifier, serverIpAddress)) {
             DHCPMessage response;
             try {
-                response = DHCPMessage.createAckMessage(mac, dhcpServer.requestAddress(mac, ip).getIp(),
+                response = DHCPMessage.createAckMessage(mac, dhcpServer.requestAddress(mac, ip).getIP(),
                         serverIpAddress);
             } catch (AddressRequestNotAcceptedException e) {
                 response = DHCPMessage.createNackMessage(mac, ip, serverIpAddress);

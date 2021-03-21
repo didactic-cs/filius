@@ -30,15 +30,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -47,22 +45,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.event.MouseInputAdapter;
-
 import filius.Main;
 import filius.gui.JBackgroundPanel;
-import filius.hardware.CableActiveListener;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.FiliusClassLoader;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
-import filius.software.system.Betriebssystem;
+import filius.software.system.HostOS;
 
-public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActiveListener, Observer {
+@SuppressWarnings("serial")
+public class GUIDesktopPanel extends JBackgroundPanel implements I18n, PropertyChangeListener {
 
-    private static final long serialVersionUID = 1L;
-
-    private filius.software.system.Betriebssystem betriebssystem;
+    private HostOS hostOS;
 
     private HashMap<String, GUIApplicationWindow> laufendeAnwendung = new HashMap<String, GUIApplicationWindow>();
 
@@ -78,23 +73,23 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
     private GUINetworkWindow gnw;
 
     private String[] parameter = { "", "", "" };
+    
 
-    public GUIDesktopPanel(Betriebssystem betriebssystem) {
+    public GUIDesktopPanel(HostOS hostOS) {
         super();
-        this.setLayout(null);
-        this.setPreferredSize(new Dimension(640, 480));
-        this.setBounds(0, 0, 640, 480);
-        this.setBackgroundImage("gfx/desktop/hintergrundbild.png");
-        this.setVisible(true);
-        this.setLayout(new BorderLayout());
+        setLayout(null);
+        setPreferredSize(new Dimension(640, 480));
+        setBounds(0, 0, 640, 480);
+        setBackgroundImage("gfx/desktop/hintergrundbild.png");
+        setVisible(true);
+        setLayout(new BorderLayout());
 
-        this.betriebssystem = betriebssystem;
-        betriebssystem.addObserver(this);
+        this.hostOS = hostOS;      
 
         desktopPane = new JBackgroundDesktopPane();
         desktopPane.setBackgroundImage("gfx/desktop/hintergrundbild.png");
 
-        this.add(this.desktopPane, BorderLayout.CENTER);
+        add(desktopPane, BorderLayout.CENTER);
 
         iconPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 10));
         iconPanel.setBounds(0, 0, 640, 432);
@@ -130,17 +125,18 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
 
         taskLeiste.add(boxTaskLeiste);
 
-        this.add(taskLeiste, BorderLayout.SOUTH);
+        add(taskLeiste, BorderLayout.SOUTH);
         desktopPane.add(iconPanel);
         desktopPane.validate();
-        this.updateAnwendungen();
+        updateApplications();
     }
 
-    public void updateAnwendungen() {
+    public void updateApplications() {
+    	
         GUIDesktopIcon tmpLabel;
-        List<Map<String, String>> softwareList = null;
+        List<HashMap<String, String>> softwareList = null;
         String softwareKlasse, guiKlassenName;
-        HashMap<?, ?> tmpMap;
+        HashMap<String, String> tmpMap;
         Class<?> cl = null;
         GUIApplicationWindow tempWindow;
 
@@ -162,14 +158,14 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
         tmpLabel.setPreferredSize(new Dimension(120, 96));
         this.iconPanel.add(tmpLabel);
 
-        ListIterator<?> it = ((softwareList != null) ? softwareList.listIterator() : null);
+        ListIterator<HashMap<String, String>> it = ((softwareList != null) ? softwareList.listIterator() : null);
         while (it != null && it.hasNext()) {
 
-            tmpMap = (HashMap<?, ?>) it.next();
-            softwareKlasse = (String) tmpMap.get("Klasse");
-            if ((betriebssystem.holeSoftware(softwareKlasse) != null)) {
-                if (softwareKlasse.equals((String) tmpMap.get("Klasse"))) {
-                    guiKlassenName = (String) tmpMap.get("GUI-Klasse");
+            tmpMap = it.next();
+            softwareKlasse = tmpMap.get("Klasse");
+            if ((hostOS.getSoftware(softwareKlasse) != null)) {
+                if (softwareKlasse.equals(tmpMap.get("Klasse"))) {
+                    guiKlassenName = tmpMap.get("GUI-Klasse");
 
                     try {
                         cl = Class.forName(guiKlassenName, true,
@@ -189,10 +185,10 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
                             addLaufendeAnwendung(softwareKlasse, tempWindow);
 
                             tmpLabel = new GUIDesktopIcon(new ImageIcon(getClass().getResource(
-                                    "/" + ((String) tmpMap.get("gfxFile")))));
+                                    "/" + (tmpMap.get("gfxFile")))));
 
-                            tmpLabel.setAnwendungsName((String) tmpMap.get("Anwendung"));
-                            tmpLabel.setInvokeName((String) tmpMap.get("Klasse"));
+                            tmpLabel.setAnwendungsName(tmpMap.get("Anwendung"));
+                            tmpLabel.setInvokeName(tmpMap.get("Klasse"));
                             tmpLabel.setToolTipText(tmpLabel.getAnwendungsName());
                             tmpLabel.setText(tmpLabel.getAnwendungsName());
                             tmpLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -208,34 +204,28 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
             }
         }
         this.iconPanel.updateUI();
+            
+        // Initialize the IP/mask value in the tooltip
+        updateNetworkIconToolTip();
+        
+        // Listeners for the blinking of the network icon and the change of the IP/mask values     
+        registerListeners();      
 
-        // Network icon
-        NetworkInterface nic = (NetworkInterface) ((InternetNode) betriebssystem.getKnoten()).getNIlist().get(0);
-        if (nic != null) {
-            if (nic.getPort() != null) {
-                if (nic.getPort().getCable() != null) {
-                	// Blinking of the network icon
-                	nic.getPort().getCable().addListener(this);
-//                    nic.getPort().getCable().addObserver(this);
-                    // IP in the tooltip
-                    lbNetzwerk.setToolTipText(nic.getIp()+"/"+nic.getSubnetMask());
-                }
-            }
-        }
+      
         if (this.getParent() != null) {
             taskLeiste.setBounds(0, 424, 640, 32 + this.getParent().getInsets().top);
         }
     }
 
-    public GUIApplicationWindow starteAnwendung(String softwareKlasse, String[] param) {
+    public GUIApplicationWindow startApplication(String softwareClass, String[] param) {
         setParameter(param);
-        return starteAnwendung(softwareKlasse);
+        return startApplication(softwareClass);
     }
 
-    public GUIApplicationWindow starteAnwendung(String softwareKlasse) {
+    public GUIApplicationWindow startApplication(String softwareClass) {
         GUIApplicationWindow tempWindow = null;
 
-        if (softwareKlasse.equals("Software-Installation")) {
+        if (softwareClass.equals("Software-Installation")) {
             this.installationsDialog = new GUIInstallationsDialog(this);
             getDesktopPane().add(this.installationsDialog, 3);
 
@@ -247,11 +237,11 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
             }
         }
 
-        else if (getLaufendeAnwendungByName(softwareKlasse) != null) {
-            tempWindow = getLaufendeAnwendungByName(softwareKlasse);
+        else if (getLaufendeAnwendungByName(softwareClass) != null) {
+            tempWindow = getLaufendeAnwendungByName(softwareClass);
 
             tempWindow.updateUI();
-            tempWindow.starten(parameter);
+            tempWindow.start(parameter);
             tempWindow.show();
 
         }
@@ -270,6 +260,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
      *            Name der Anwendung
      */
     private void addLaufendeAnwendung(String anwendungsName, GUIApplicationWindow fenster) {
+    	
         this.laufendeAnwendung.put(anwendungsName, fenster);
     }
 
@@ -280,6 +271,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
      * @return Das GUIApplicationWindow der angeforderten Anwendung
      */
     private GUIApplicationWindow getLaufendeAnwendungByName(String anwendungsName) {
+    	
         GUIApplicationWindow tmpFenster = null;
 
         tmpFenster = (GUIApplicationWindow) this.laufendeAnwendung.get(anwendungsName);
@@ -291,26 +283,39 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
      * public LinkedList getIconListe() { return iconListe; }
      */
 
-    public filius.software.system.Betriebssystem getBetriebssystem() {
-        return betriebssystem;
+    public filius.software.system.HostOS getOS() {
+        return hostOS;
     }
 
     public JDesktopPane getDesktopPane() {
+    	
         return desktopPane;
     }
 
     public String[] getParameter() {
+    	
         return parameter;
     }
 
     public void setParameter(String[] parameter) {
+    	
         this.parameter = parameter;
     }
     
-    /** 
-     * {@inheritDoc}
+    public void updateNetworkIconToolTip() {
+    	
+    	NetworkInterface nic = (NetworkInterface) ((InternetNode) hostOS.getNode()).getNICList().get(0);   
+        
+        if (nic != null) lbNetzwerk.setToolTipText(nic.getIp()+"/"+nic.getSubnetMask());        	
+        else             lbNetzwerk.setToolTipText("???");        
+    }
+    
+    /**
+     * <b>setNetworkStatusIcon</b> sets the icon to reflect the trafic on the network connection of the host.
+     * 
+     * @param active Boolean which is true when there is some trafic and false otherwise.
      */
-    public void onActiveChange (boolean active) {
+    public void setCableActivity (boolean active) {
 
         if (active) {
             lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_c.png")));
@@ -318,15 +323,47 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, CableActi
             lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_aus.png")));
         }
     }
-
-    public void update(Observable o, Object arg) {
-        if (arg == null) {
-            updateAnwendungen();
+    
+    private void registerListeners() {
+    	
+    	// What is this used for?
+    	//hostOS.addPropertyChangeListener("UI", this);	
+    	
+    	// Blinking of the network icon
+        NetworkInterface nic = (NetworkInterface) ((InternetNode) hostOS.getNode()).getNICList().get(0);   
+        
+        if (nic != null && nic.getPort() != null && nic.getPort().getCable() != null) {
+        	
+        	nic.getPort().getCable().addPropertyChangeListener("cableactivity", this);
         }
-//        } else if (arg.equals(Boolean.TRUE)) {
-//            lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_c.png")));
-//        } else {
-//            lbNetzwerk.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_aus.png")));
-//        }
+        
+        // Change in the IP address
+        hostOS.addPropertyChangeListener("ipaddress", this);
     }
+        
+	/**
+     * <b>propertyChange</b> is called whenever a change in the host must be reflected by the user interface. 
+     *     
+     */
+	public void propertyChange(PropertyChangeEvent evt) {
+		
+		String pn = evt.getPropertyName();
+		
+//		if (pn.equals("UI")) {                         
+//			// Update the applications of the host
+//			// From SystemSoftware (for what reason?)
+//			updateApplications();
+//		} else
+		if (pn.equals("cableactivity")) {           
+			// Update the network icon of the desktop
+			// From Cable
+			setCableActivity ((Boolean) evt.getNewValue());
+		} 
+		else if (pn.equals("ipaddress")) {           
+			// Update the network icon of the desktop
+			// From Node, InternetNodeOS
+			updateNetworkIconToolTip();
+		}
+		
+	};
 }

@@ -32,7 +32,7 @@ import filius.exception.ServerSocketException;
 import filius.exception.TimeOutException;
 import filius.exception.ConnectionException;
 import filius.rahmenprogramm.I18n;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /**
@@ -60,7 +60,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
     private Socket aktuellerSocket;
 
     /** Das Betriebssystem */
-    private InternetKnotenBetriebssystem betriebssystem;
+    private InternetNodeOS betriebssystem;
 
     /** Das Transport Control Protocol (TCP) oder User Datagram Protocol (UDP) */
     private TransportProtokoll protokoll;
@@ -82,7 +82,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * @throws ServerSocketException
      *             - Diese Exception wird geworfen, wenn auf dem angeforderten Port schon eine Anwendung laeuft.
      */
-    public ServerSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll)
+    public ServerSocket(InternetNodeOS betriebssystem, int lokalerPort, int transportProtokoll)
             throws ServerSocketException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), constr: ServerSocket("
                 + betriebssystem + "," + lokalerPort + "," + transportProtokoll + ")");
@@ -90,9 +90,9 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
         this.lokalerPort = lokalerPort;
 
         if (transportProtokoll == IpPaket.TCP) {
-            protokoll = betriebssystem.holeTcp();
+            protokoll = betriebssystem.getTcp();
         } else {
-            protokoll = betriebssystem.holeUdp();
+            protokoll = betriebssystem.getUdp();
         }
 
         // Falls schon eine Anwendung auf dem vorgeschlagenen Port laeuft

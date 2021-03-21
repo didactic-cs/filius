@@ -44,8 +44,8 @@ import javax.swing.JPanel;
  * 
  * @author Johannes Bade
  */
+@SuppressWarnings("serial")
 public class JBackgroundPanel extends JPanel {
-	private static final long serialVersionUID = 1L;
 
 	private ImageIcon backgroundImage;
 

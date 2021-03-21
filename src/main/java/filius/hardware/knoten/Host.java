@@ -27,48 +27,53 @@ package filius.hardware.knoten;
 
 import filius.Main;
 import filius.hardware.NetworkInterface;
-import filius.software.system.Betriebssystem;
+import filius.software.system.HostOS;
 
 @SuppressWarnings("serial")
 public abstract class Host extends InternetNode {
 
 	private boolean useIPAsName = false;
 
-	public boolean isUseIPAsName() {
-		return useIPAsName;
-	}
-
-	public void setUseIPAsName(boolean useIPAsName) {
-		this.useIPAsName = useIPAsName;
-	}
 
 	public Host() {
 		super();
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Host), constr: Host()");
 
-		this.createNIlist(1);
-		this.setSystemSoftware(new Betriebssystem());
-		getSystemSoftware().setKnoten(this);
+		this.createNICList(1);
+		this.setSystemSoftware(new HostOS());
+		getSystemSoftware().setNode(this);
 		Main.debug.println("DEBUG:  Host " + this.hashCode() + " has OS " + getSystemSoftware().hashCode());
 	}
 
 	@Override
 	public String getDisplayName() {
 		if (useIPAsName) {
-			return getNIlist().get(0).getIp();
+			return getNICList().get(0).getIp();
 		} else {
 			return getName();
 		}
 	}
 
-	public void setIpAdresse(String ip) {
+	public void setIPAdresse(String ip) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Host), setIpAdresse(" + ip + ")");
-		NetworkInterface nic = (NetworkInterface) this.getNIlist().get(0);
+		NetworkInterface nic = (NetworkInterface) this.getNICList().get(0);
 		nic.setIp(ip);
 	}
 	
 	public String getMac() {	
-		NetworkInterface nic = (NetworkInterface) this.getNIlist().get(0);
+		NetworkInterface nic = (NetworkInterface) this.getNICList().get(0);
 		return nic.getMac(); 
 	}
+
+    public HostOS getOS() {
+        return (HostOS) systemSoftware;
+    }
+    
+	public boolean getUseIPAsName() {
+		return useIPAsName;
+	}
+
+	public void setUseIPAsName(boolean useIPAsName) {
+		this.useIPAsName = useIPAsName;
+	}  
 }

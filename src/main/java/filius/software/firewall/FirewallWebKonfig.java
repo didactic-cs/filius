@@ -27,13 +27,10 @@ package filius.software.firewall;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.LinkedList;
 import java.util.Vector;
 
 import filius.Main;
-import filius.hardware.NetworkInterface;
-import filius.hardware.knoten.InternetNode;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.software.www.WebServer;
@@ -75,7 +72,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
 	 * DatenString verarbeiten, die Firewall bestuecken, und anschließend eine
 	 * HTML-Seite zurueckliefern
 	 */
-	public String holeHtmlSeite(String postDaten) {
+	public String getHtmlPage(String postDaten) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), holeHtmlSeite("
 		        + postDaten + ")");
 		String seite = "";
@@ -190,16 +187,16 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
 				else if (postContent[i][0].equals("srcIP")) {
 					srcIP = postContent[i][1];
 					if(! srcIP.isEmpty()) {
-						if(! EingabenUeberpruefung.isGueltig(srcIP, EingabenUeberpruefung.musterIpAdresse))
+						if(! EntryValidator.isValid(srcIP, EntryValidator.musterIpAdresse))
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg2") + "</li>";
-						if(srcMask.isEmpty() || ! EingabenUeberpruefung.isValidSubnetmask(srcMask))
+						if(srcMask.isEmpty() || ! EntryValidator.isValidSubnetmask(srcMask))
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg3") + "</li>";
 					}
 				}
 				else if (postContent[i][0].equals("srcMask")) {
 					srcMask = postContent[i][1];
 					if(! srcMask.isEmpty()) {
-						if(! EingabenUeberpruefung.isValidSubnetmask(srcMask))
+						if(! EntryValidator.isValidSubnetmask(srcMask))
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg3") + "</li>";
 						if(srcIP.isEmpty())
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg7") + "</li>";
@@ -208,16 +205,16 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
 				else if (postContent[i][0].equals("destIP")) {
 					destIP = postContent[i][1];
 					if(! destIP.isEmpty()) {
-						if(! EingabenUeberpruefung.isGueltig(destIP, EingabenUeberpruefung.musterIpAdresse))
+						if(! EntryValidator.isValid(destIP, EntryValidator.musterIpAdresse))
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg4") + "</li>";
-						if(destMask.isEmpty() || ! EingabenUeberpruefung.isValidSubnetmask(destMask))
+						if(destMask.isEmpty() || ! EntryValidator.isValidSubnetmask(destMask))
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg5") + "</li>";
 					}
 				}
 				else if (postContent[i][0].equals("destMask")) {
 					destMask = postContent[i][1];
 					if(! destMask.isEmpty()) {
-						if(! EingabenUeberpruefung.isValidSubnetmask(destMask))
+						if(! EntryValidator.isValidSubnetmask(destMask))
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg5") + "</li>";
 						if(destIP.isEmpty())
 							errMsg += "<li>" + messages.getString("firewallwebkonfig_msg7") + "</li>";
@@ -234,7 +231,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
 					try {
 						port = Integer.parseInt(portStr);
 						if(port != FirewallRule.ALL_PORTS)
-							if(! EingabenUeberpruefung.isGueltig(portStr, EingabenUeberpruefung.musterPort))
+							if(! EntryValidator.isValid(portStr, EntryValidator.musterPort))
 								errMsg += "<li>" + messages.getString("firewallwebkonfig_msg6") + "</li>";
 					}
 					catch (Exception e) {
@@ -273,7 +270,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
 				firewall.setAllowRelatedPackets(cbOnlySyn);
 			}
 			else if(doSaveDefPol) {
-				firewall.setDefaultPolicy(defaultPolicy);
+				firewall.setDefaultAction(defaultPolicy);
 			}
 			else if(doMoveUp) {
 				firewall.moveUp(radioRule);
@@ -346,7 +343,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
 				cbOnlySyn.append(" />");
 				html = html.replaceAll(":onlySYN:", cbOnlySyn.toString());
 
-				if(firewall.getDefaultPolicy() == FirewallRule.ACCEPT) {
+				if(firewall.getDefaultAction() == FirewallRule.ACCEPT) {
 					html = html.replaceAll(":defPolDropSelected:", "");
 					html = html.replaceAll(":defPolAcceptSelected:", " selected=\"selected\"");
 				}

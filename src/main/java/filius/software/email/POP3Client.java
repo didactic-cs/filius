@@ -29,12 +29,12 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 import filius.Main;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.I18n;
-import filius.software.clientserver.ClientAnwendung;
+import filius.software.clientserver.ClientApplication;
 import filius.software.transportschicht.TCPSocket;
 
-public class POP3Client extends ClientAnwendung implements I18n {
+public class POP3Client extends ClientApplication implements I18n {
     private EmailAnwendung anwendung;
 
     public POP3Client(EmailAnwendung anwendung) {
@@ -62,15 +62,15 @@ public class POP3Client extends ClientAnwendung implements I18n {
 
         args = new Object[2];
         args[0] = pop3Server;
-        args[1] = new Integer(pop3Port);
-        ausfuehren("initialisiereSocket", args);
+        args[1] = Integer.valueOf(pop3Port); 
+        execute("initialisiereSocket", args);
 
         args = new Object[2];
         args[0] = benName;
         args[1] = pw;
-        ausfuehren("starteVerarbeitung", args);
+        execute("starteVerarbeitung", args);
 
-        ausfuehren("schliesseSocket", null);
+        execute("schliesseSocket", null);
     }
 
     /**
@@ -88,7 +88,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
             socket = null;
-            anwendung.benachrichtigeBeobachter(e);
+            anwendung.notifyObservers(e);
         }
     }
 
@@ -115,10 +115,10 @@ public class POP3Client extends ClientAnwendung implements I18n {
                 sitzungBeenden();
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
-                anwendung.benachrichtigeBeobachter(e);
+                anwendung.notifyObservers(e);
             }
 
-            anwendung.benachrichtigeBeobachter();
+            anwendung.notifyObservers();
         }
     }
 
@@ -154,7 +154,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
          * Aus dem String aus emailsAuflisten wird eine LinkedList der Email-IDs erzeugt. Diese wird iteriert und RETR
          * fr jede Mail aufgerufen. Die Emails werden als String geliefert
          */
-        ListIterator iter = emailIDs.listIterator();
+        ListIterator<Integer> iter = emailIDs.listIterator();
         while (iter.hasNext()) {
             int id = (Integer) iter.next();
 
@@ -175,7 +175,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
         if (socket != null) {
             socket.schliessen();
             socket = null;
-            benachrichtigeBeobachter(messages.getString("sw_pop3client_msg1"));
+            notifyObservers(messages.getString("sw_pop3client_msg1"));
         }
     }
 
@@ -188,7 +188,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
     private boolean eingabeBenutzername(String benutzername) throws Exception {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), eingabeBenutzername(" + benutzername + ")");
-        if (EingabenUeberpruefung.isGueltig(benutzername, EingabenUeberpruefung.musterMindEinZeichen)) {
+        if (EntryValidator.isValid(benutzername, EntryValidator.musterMindEinZeichen)) {
             socket.senden("USER " + benutzername);
             String empfangen = socket.empfangen();
 
@@ -210,7 +210,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
     private boolean eingabePasswort(String passwort) throws Exception {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), eingabePasswort(" + passwort + ")");
-        if (EingabenUeberpruefung.isGueltig(passwort, EingabenUeberpruefung.musterMindEinZeichen)) {
+        if (EntryValidator.isValid(passwort, EntryValidator.musterMindEinZeichen)) {
             socket.senden("PASS " + passwort);
             String z = socket.empfangen();
             if (z.startsWith("+OK"))
@@ -254,19 +254,19 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @param i
      * @throws Exception
      */
-    private boolean emailsAuflisten(int i) throws Exception {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Client), emailsAuflisten(" + i + ")");
-        String ergebnis;
-
-        socket.senden("LIST " + i);
-        ergebnis = socket.empfangen();
-
-        if (ergebnis.startsWith("+OK"))
-            return true;
-        else
-            throw new Exception(ergebnis);
-    }
+//    private boolean emailsAuflisten(int i) throws Exception {
+//        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+//                + " (POP3Client), emailsAuflisten(" + i + ")");
+//        String ergebnis;
+//
+//        socket.senden("LIST " + i);
+//        ergebnis = socket.empfangen();
+//
+//        if (ergebnis.startsWith("+OK"))
+//            return true;
+//        else
+//            throw new Exception(ergebnis);
+//    }
 
     /**
      * In dieser Methode werden alle Emails aufgelistet.
@@ -362,17 +362,17 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * FUNKTIONIERT Diese Methode provoziert lediglich einen response vom Server...
      * 
      */
-    private String noop() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Client), noop()");
-        String ergebnis = "";
-        try {
-            socket.senden("NOOP");
-            ergebnis = socket.empfangen();
-        } catch (Exception e) {
-            e.printStackTrace(Main.debug);
-            ergebnis = "-ERR NOOP failure in Email-Client";
-        }
-        return ergebnis;
-    }
+//    private String noop() {
+//        Main.debug.println(
+//                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Client), noop()");
+//        String ergebnis = "";
+//        try {
+//            socket.senden("NOOP");
+//            ergebnis = socket.empfangen();
+//        } catch (Exception e) {
+//            e.printStackTrace(Main.debug);
+//            ergebnis = "-ERR NOOP failure in Email-Client";
+//        }
+//        return ergebnis;
+//    }
 }

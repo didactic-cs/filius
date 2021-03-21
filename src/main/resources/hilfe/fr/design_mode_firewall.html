@@ -1,0 +1,96 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css">
+    html { background-color: rgb(250, 248, 246); padding-left: 8px; padding-right: 8px; padding-bottom: 20px; }
+    body { font-family: Helvetica,Arial,sans-serif; font-size: 12pt; }  
+    h1 { color: rgb(0, 100, 200); font-size: 20pt; border-bottom: 1px solid rgb(0, 100, 200); }
+    h2 { color: rgb(0, 100, 200); font-size: 18pt; margin-top: 0px; margin-bottom: 10px; }
+    h3 { color: rgb(0, 100, 200); font-size: 15pt; margin-top: 10px; margin-bottom: 6px; }
+    h4 { font-weight: bold; margin-top: 0px; margin-bottom: 4px; }
+    p { margin-top: 0px; margin-bottom: 8px; }
+    a { color: rgb(0, 100, 200); text-decoration: none; }
+    div.menu span { font-size: 11pt; color: rgb(0, 100, 200); white-space: nowrap; text-decoration: none; }
+    div.menu span.selected { font-weight: bold; }
+    div.center { text-align: center; margin-top: 0px; margin-bottom: 8px; }
+    ol { margin-left: 15px; margin-top: 0px; }
+    ul { margin-left: 15px; margin-top: 0px; }
+    li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Projet</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Ordinateur et portable</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Table de routage</a></span>&nbsp;&nbsp;
+    <span class="selected">Pare-feu</span> 
+  </div>
+
+  <h1>Mode conception</h1>
+
+  <h2>Pare-feu</h2>  
+
+  <p>Le pare-feu filtre certains paquets qui transitent par le routeur. En fonction de
+     leur origine, de leur destination et de leur type, certains paquets peuvent 
+     être abandonnés par le routeur qui interrompt leur transmission.</p> 
+
+  <h3>Configuration</h3>  
+
+  <h4>Règles de filtrage</h4>
+
+  <p>Une règle de filtrage est constituée des éléments suivants :</p>
+  
+  <ul>
+  <li>Une <b>adresse IP</b> et un <b>masque source</b> qui déterminent un sous-réseau ou un hôte.
+      La règle ne s'appliquera qu'aux paquets dont la source correspond.<br>
+      En laissant ces deux champs vides ou en saisissant 0.0.0.0 dans les deux,
+      la règle s'appliquera quelle que soit la source.</li>
+  <li>Une <b>adresse IP</b> et un <b>masque destination</b> qui déterminent un sous-réseau ou un hôte.
+      La règle ne s'appliquera qu'aux paquets dont la destination correspond.<br>
+      En laissant ces deux champs vides ou en saisissant 0.0.0.0 dans les deux,
+      la règle s'appliquera quelle que soit la destination.</li>
+  <li>Le <b>Protocole</b> peut être choisi parmi TCP, UDP ou les deux (*). La règle
+      ne s'appliquera qu'aux paquets dont le protocole correspond.</li>
+  <li>Le <b>Port</b> désigne le numéro du port de destination. Ce champ peut être
+      laissé vide pour désigner n'importe quel port. La règle
+      ne s'appliquera qu'aux paquets dont le port de destination correspond.</li>
+  <li>Enfin, le champ <b>Action</b> détermine l'action à entreprendre lorsque la 
+      règle s'applique. Le paquet est soit accepté, auquel cas le routeur procèdera 
+      à son routage, soit rejeté et, dans ce cas, le paquet est détruit.</li>
+  </ul>
+
+  <h4>Ne rejeter que les paquets TCP dont le drapeau SYN est activé</h4>
+
+  <p>Lors de l'établissement d'une connexion TCP entre un client et un serveur,
+     le premier paquet TCP envoyé a un drapeau de synchronisation (SYN) qui 
+     est activé. En interceptant ce type de paquet, le routeur empêche 
+     l'établissement de la connexion TCP.</p>
+
+  <p>En cochant cette case, le pare-feu traite plus rapidement les paquets.
+     En effet, lorsqu'une connexion TCP est établie, les paquets échangés n'ont 
+     pas le drapeau SYN activé. Le routeur n'a donc pas à les traiter.</p> 
+
+  <h4>Rejeter les paquets ICMP</h4>
+
+  <p>Le protocole ICMP est utilisé notamment pour envoyer des messages d'erreurs
+     relatifs au fonctionnement du réseau. Ce protocole est indépendant de TCP 
+     et de UDP. Il peut être filtré en cochant cette case.</p>
+
+  <p>Si les paquets ICMP sont rejetés, l'instruction ping entre deux postes
+     situés de part et d'autre du routeur ne fonctionnera pas. ping utilise
+     en effet le protocole ICMP pour fonctionner.</p>
+
+  <h4>Activer le pare-feu</h4>
+
+  <p>Cocher cette case permet d'activer le pare-feu du routeur. Lorsque le pare-feu
+     est actif, les règles de filtrage sont appliquées à tous les paquets qui 
+     parviennent au routeur. Seuls les paquets acceptés par le pare-feu sont routés.</p> 
+
+</body>
+</html>

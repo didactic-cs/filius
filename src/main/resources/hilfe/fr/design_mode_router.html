@@ -1,0 +1,93 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css">
+    html { background-color: rgb(250, 248, 246); padding-left: 8px; padding-right: 8px; padding-bottom: 20px; }
+    body { font-family: Helvetica,Arial,sans-serif; font-size: 12pt; }  
+    h1 { color: rgb(0, 100, 200); font-size: 20pt; border-bottom: 1px solid rgb(0, 100, 200); }
+    h2 { color: rgb(0, 100, 200); font-size: 18pt; margin-top: 0px; margin-bottom: 10px; }
+    h3 { color: rgb(0, 100, 200); font-size: 15pt; margin-top: 10px; margin-bottom: 6px; }
+    h4 { font-weight: bold; margin-top: 0px; margin-bottom: 4px; }
+    p { margin-top: 0px; margin-bottom: 8px; }
+    a { color: rgb(0, 100, 200); text-decoration: none; }
+    div.menu span { font-size: 11pt; color: rgb(0, 100, 200); white-space: nowrap; text-decoration: none; }
+    div.menu span.selected { font-weight: bold; }
+    div.center { text-align: center; margin-top: 0px; margin-bottom: 8px; }
+    ol { margin-left: 15px; }
+    ul { margin-left: 15px; }
+  </style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Projet</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Ordinateur et portable</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span class="selected">Routeur</span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Table de routage</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_firewall.html">Pare-feu</a></span> 
+  </div>
+  
+  <h1>Mode conception</h1>
+
+  <h2>Routeur</h2>
+  
+  <div class="center"><img src="hilfe/gfx/router.png"></div> 
+
+  <p>Le composant Routeur dispose de deux à huit interfaces réseau. Il permet
+     la circulation des paquets IP entre les différents sous-réseaux. Il dispose 
+     également d'une fonction de pare-feu qui offre la possibilité de filtrer
+     les paquets qui passent par lui.</p>
+     
+  <h3>Configuration</h3>
+  
+  <h4>Nom</h4>
+  
+  <p>Le nom d'un routeur peut être choisi arbitrairement et il n'a aucune influence
+     sur le fonctionnement de la simulation.</p>
+  
+  <h4>Configurer les interfaces</h4>
+  
+  <p>Ce bouton permet d'afficher la liste des interfaces réseau du routeur</p>
+  
+  <p>Utiliser ensuite le menu contextuel (clic droit) sur les lignes du tableau
+     pour ajouter, supprimer ou modifier une interface.</p>
+     
+  <h4>Table de routage</h4>
+  
+  <p>Ce bouton permet d'afficher la table de routage qui contient l'ensemble des règles
+     de routage.</p>
+     
+  <div class="center"><a href="design_mode_routing_table.html">Table de routage</a></div>    
+     
+  <h4>Passerelle</h4>
+  
+  <p>Ce champ permet de saisir l'adresse IP du routeur auquel seront envoyés tous les paquets
+     pour lesquels aucune autre règle de routage ne s'applique. Lorsque ce champ est rempli,
+     une ligne supplémentaire apparait en haut de la table de routage. Il s'agit de la route 
+     par défaut.</p> 
+  <p>Le routeur passerelle doit obligatoirement se trouver dans l'un des réseaux 
+     auxquels le routeur courant a directement accès.</p>
+     
+  <h4>Routage automatique</h4>
+  
+  <p>En cochant cette case, le routeur gère entièrement le routage des paquets IP.
+     La passerelle et la table de routage manuelle sont ignorés.</p>
+  
+  <p>Le routage automatique est réalisé à l'aide du protocole RIP qui permet au routeur
+     de communiquer avec les autres routeurs du réseau.</p>      
+  
+  <h4>Pare-feu</h4>
+  
+  <p>Ce bouton permet de configurer le pare-feu.</p>   
+  
+  <div class="center"><a href="design_mode_firewall.html">Pare-feu</a></div>
+     
+  <p>Il est à noter qu'en mode simulation, le pare-feu peut également être configuré
+     via une interface web.</p>
+
+</body>
+</html>

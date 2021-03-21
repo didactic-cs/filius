@@ -25,57 +25,121 @@
  */
 package filius.gui.netzwerksicht;
 
-import java.awt.event.MouseEvent;
-
-import javax.swing.event.MouseInputAdapter;
-
+import javax.swing.ImageIcon;
+import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
-import filius.gui.GUIMainMenu;
-import filius.gui.SatViewerControl;
+import filius.hardware.knoten.Computer;
+import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Node;
 import filius.hardware.knoten.Notebook;
-import filius.hardware.knoten.Rechner;
+import filius.hardware.knoten.Router;
 import filius.hardware.knoten.Switch;
-import filius.rahmenprogramm.SzenarioVerwaltung;
 
 public class GUINodeItem {
 
-	private Node node; 
-    private JNodeLabel nodeLabel;    
+	private Node node = null; 
+    private JNodeLabel nodeLabel = null;       
+    
+    /**
+     * <b>GUINodeItem</b> creates a new nodeItem<br>
+     * Used when a project is loaded or for the connecting tool
+     * 
+     */
+    public GUINodeItem() {    	
+    }
+    
+    /**
+     * <b>GUINodeItem</b> creates a new nodeItem along with its associated JNodeLabel and Node
+     * 
+     * @param nodeType String
+     * @param x int horizontal position of the associated JNodeLabel
+     * @param y int vertical position of the associated JNodeLabel
+     */
+    public GUINodeItem(String nodeType, int x, int y) {
+    	
+    	String resourceName = "";    	
+    	
+    	// Create the Node
+    	
+    	if (nodeType.equals(Switch.TYPE)) {
 
+    		node = new Switch();
+    		resourceName = GUIDesignSidebar.SWITCH;
+
+    	} else if (nodeType.equals(Computer.TYPE)) {
+
+    		node = new Computer();
+    		resourceName = GUIDesignSidebar.RECHNER;
+
+    	} else if (nodeType.equals(Notebook.TYPE)) {
+
+    		node = new Notebook();
+    		resourceName = GUIDesignSidebar.NOTEBOOK;
+
+    	} else if (nodeType.equals(Router.TYPE)) {
+
+    		node = new Router();
+    		resourceName = GUIDesignSidebar.ROUTER;
+    		int portCount = GUIContainer.getInstance().getRouterPortCount();
+    		((Router) node).createNICList(portCount);    
+
+    	} else if (nodeType.equals(Modem.TYPE)) {
+
+    		node = new Modem();
+    		resourceName = GUIDesignSidebar.MODEM;    		
+
+    	} else {
+    		Main.debug.println("ERROR (" + this.hashCode() + "): " + "unbekannter Hardwaretyp " + nodeType +
+    				           " konnte nicht erzeugt werden.");
+    		return;
+    	}    	
+    	 
+    	ImageIcon icon;
+    	try {
+    		icon = new ImageIcon(getClass().getResource("/" + resourceName));  
+    	} catch (Exception e) {
+    		node = null;
+    		return;
+    	}   	
+    	
+    	setNode(node);
+    	
+    	// Create the JNodeLabel
+    	
+    	nodeLabel = new JNodeLabel(nodeType, "", icon);  
+    	// It is important here that setLocation be called before setText2
+    	// (If not, depending on the length of its display name, the nodeLabel might be shifted to the right) 
+        nodeLabel.setLocation(x, y);    
+        nodeLabel.setText2(node.getDisplayName());        	
+    	          
+    	setNodeLabel(nodeLabel);
+    	
+    	// Select the just created node
+    	nodeLabel.setSelected(true);
+    	GUIEvents.getInstance().setSelectedItem(this);
+    	
+    	// In case that the config panel is open, update its display to this node
+    	GUIContainer.getInstance().setConfigPanel(this);    
+    }    
+    
     public JNodeLabel getNodeLabel() {
         return nodeLabel;
     }
 
-    public void setNodeLabel(JNodeLabel label) {
-        this.nodeLabel = label;
-        label.addMouseListener(new MouseInputAdapter() {
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (GUIContainer.getInstance().getActiveSite() == GUIMainMenu.MODUS_AKTION) {
-                    SzenarioVerwaltung.getInstance().setzeGeaendert();
-                    if (e.getButton() == 3) {
-                        GUIEvents.getGUIEvents().kontextMenueAktionsmodus(GUINodeItem.this, e.getX(), e.getY());
-                    } else if (e.getButton() == 1) {
-                        if (GUINodeItem.this.getNode() instanceof Rechner
-                                || GUINodeItem.this.getNode() instanceof Notebook) {
-                            GUIContainer.getInstance().showDesktop(GUINodeItem.this);
-                        } else if (GUINodeItem.this.getNode() instanceof Switch) {
-                            SatViewerControl.getInstance().showViewer((Switch) GUINodeItem.this.getNode());
-                        }
-                    }
-                }
-            }
-        });
+    public void setNodeLabel(JNodeLabel nodeLabel) {
+    	
+        this.nodeLabel = nodeLabel;    
+        nodeLabel.setNodeItem(this);
     }
 
     public Node getNode() {
         return node;
-    }
-
-    public void setNode(Node node) {
-        this.node = node;
+    }    
+    
+    public void setNode(Node node) {    	
+   	
+    	this.node = node;
+    	node.setNodeItem(this);    	
     }
 }

@@ -30,7 +30,7 @@ import filius.exception.SocketException;
 import filius.exception.TimeOutException;
 import filius.exception.ConnectionException;
 import filius.rahmenprogramm.I18n;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IP;
 import filius.software.vermittlungsschicht.IpPaket;
 
@@ -79,7 +79,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * @param zielPort
      * @throws ConnectionException
      */
-    public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int transportProtokoll)
+    public Socket(InternetNodeOS betriebssystem, String zielAdresse, int zielPort, int transportProtokoll)
             throws ConnectionException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + "," + transportProtokoll + ")");
@@ -87,16 +87,16 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
 
         modus = AKTIV;
         if (transportProtokoll == IpPaket.TCP)
-            protokoll = betriebssystem.holeTcp();
+            protokoll = betriebssystem.getTcp();
         else
-            protokoll = betriebssystem.holeUdp();
+            protokoll = betriebssystem.getUdp();
 
         ip = ipCheck(zielAdresse);
         if (ip != null) {
             this.zielIp = ip;
         } else {
             try {
-                this.zielIp = betriebssystem.holeDNSClient().holeIPAdresse(zielAdresse);
+                this.zielIp = betriebssystem.getDNSClient().getIPAdresse(zielAdresse);
             } catch (java.util.concurrent.TimeoutException e) {
                 e.printStackTrace(Main.debug);
             }
@@ -121,7 +121,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      *            dann verwendet, wenn der Wert groesser 0 ist.
      * @throws ConnectionException
      */
-    public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int transportProtokoll,
+    public Socket(InternetNodeOS betriebssystem, String zielAdresse, int zielPort, int transportProtokoll,
             int lokalerPort) throws ConnectionException {
         this(betriebssystem, zielAdresse, zielPort, transportProtokoll);
         Main.debug.println(
@@ -140,7 +140,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * @param zielPort
      * @throws ConnectionException
      */
-    public Socket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll)
+    public Socket(InternetNodeOS betriebssystem, int lokalerPort, int transportProtokoll)
             throws ConnectionException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket("
                 + betriebssystem + "," + lokalerPort + "," + transportProtokoll + ")");
@@ -148,9 +148,9 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
         modus = PASSIV;
 
         if (transportProtokoll == IpPaket.TCP) {
-            protokoll = betriebssystem.holeTcp();
+            protokoll = betriebssystem.getTcp();
         } else {
-            protokoll = betriebssystem.holeUdp();
+            protokoll = betriebssystem.getUdp();
         }
 
         this.lokalerPort = lokalerPort;

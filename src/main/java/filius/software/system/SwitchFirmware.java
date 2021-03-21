@@ -25,7 +25,8 @@
  */
 package filius.software.system;
 
-import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -34,80 +35,72 @@ import filius.Main;
 import filius.hardware.Port;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
-import filius.software.netzzugangsschicht.EthernetFrame;
-import filius.software.netzzugangsschicht.SwitchPortBeobachter;
+import filius.software.netzzugangsschicht.SwitchPortObserver;
 
 /**
  * Diese Klasse stellt die Funktionalitaet des Switches zur Verfuegung. Wichtiges Element ist die Source Address Table
  * (SAT). Der Switch operiert nur auf der Netzzugangsschicht, auf der MAC-Adressen verwendet werden.
  */
+@SuppressWarnings("serial")
 public class SwitchFirmware extends SystemSoftware implements I18n {
 
-    private static final long serialVersionUID = 1L;
-
     /**
-     * Die Source Address Tabel (SAT), in der die MAC-Adressen den physischen Anschluessen des Switch zugeordnet werden
+     * Die Source Address Table (SAT), in der die MAC-Adressen den physischen Anschluessen des Switch zugeordnet werden
      */
     private HashMap<String, Port> sat = new HashMap<String, Port>();
 
     /**
      * Liste der Anschlussbeobachter. Sie implementieren die Netzzugangsschicht.
      */
-    private LinkedList<SwitchPortBeobachter> switchBeobachter;
+    private LinkedList<SwitchPortObserver> portObservers;
 
-    /**
-     * Hier werden bereits weitergeleitete Frames gespeichert. Wird ein Frame wiederholt verschickt, beispielsweise
-     * wegen einer Verbindung, die zwei Anschluesse kurzschliesst, wird der Frame verworfen.
-     * 
-     * @see filius.software.netzzugangsschicht.SwitchPortBeobachter
-     */
-    private LinkedList<EthernetFrame> durchgelaufeneFrames = new LinkedList<EthernetFrame>();
-
+    
     /**
      * Hier wird die Netzzugangsschicht des Switch initialisiert und gestartet. Ausserdem wird die SAT zurueckgesetzt.
      */
-    public void starten() {
-        super.starten();
+    public void start() {
+        super.start();
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), starten()");
-        SwitchPortBeobachter anschlussBeobachter;
 
         sat = new HashMap<String, Port>();
-        switchBeobachter = new LinkedList<SwitchPortBeobachter>();
+        portObservers = new LinkedList<SwitchPortObserver>();
 
-        for (Port anschluss : ((Switch) getKnoten()).getPortList()) {
-            anschlussBeobachter = new SwitchPortBeobachter(this, anschluss);
-            anschlussBeobachter.starten();
-            switchBeobachter.add(anschlussBeobachter);
+        for (Port port : ((Switch) getNode()).getPortList()) {
+        	SwitchPortObserver portObserver = new SwitchPortObserver(this, port);
+            portObserver.startThread();
+            portObservers.add(portObserver);
         }
-        firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, null));
+        fireSatChange(); 
     }
 
     /** Hier wird die Netzzugangsschicht des Switch gestoppt. */
-    public void beenden() {
-        super.beenden();
+    public void stop() {
+        super.stop();
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), beenden()");
-        for (SwitchPortBeobachter anschlussBeobachter : switchBeobachter) {
-            anschlussBeobachter.beenden();
+        
+        for (SwitchPortObserver portObserver : portObservers) {
+            portObserver.stopThread();
         }
     }
 
     /** Diese Methode wird genutzt, um die SAT abzurufen. */
-    public Vector<Vector<String>> holeSAT() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeSAT()");
-        Vector<Vector<String>> eintraege = new Vector<Vector<String>>();
-        Vector<String> eintrag;
-        String ausgabe;
+    public Vector<Vector<String>> getSAT() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), getSAT()");
+        
+        Vector<Vector<String>> entries = new Vector<Vector<String>>();
+        Vector<String> entry;
+        String portString;
 
         for (String elem : sat.keySet()) {
-            Port anschluss = (Port) sat.get(elem);
-            ausgabe = messages.getString("sw_switchfirmware_msg1") + " " + String.valueOf(anschluss.getIndex()+1);
-            eintrag = new Vector<String>();
-            eintrag.add(elem.toUpperCase());
-            eintrag.add(ausgabe);
-            eintraege.add(eintrag);
+            Port port = (Port) sat.get(elem);
+            portString = messages.getString("sw_switchfirmware_msg1") + " " + String.valueOf(port.getIndex()+1);
+            entry = new Vector<String>();
+            entry.add(elem.toUpperCase());
+            entry.add(portString);
+            entries.add(entry);
         }
 
-        return eintraege;
+        return entries;
     }
 
     /**
@@ -116,14 +109,15 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      * 
      * @param macAdresse
      *            die MAC-Adresse des entfernten Anschlusses
-     * @param anschluss
+     * @param port
      *            der Anschluss des Switch, der mit dem entfernten Anschluss verbunden ist
      */
-    public void hinzuSatEintrag(String macAdresse, Port anschluss) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), hinzuSatEintrag("
-                + macAdresse + "," + anschluss + ")");
-        sat.put(macAdresse, anschluss);
-        firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, anschluss));
+    public void addSATEntry(String macAdresse, Port port) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
+        		           " (SwitchFirmware), addSATEntry(" + macAdresse + "," + port + ")");
+        
+        sat.put(macAdresse, port);
+        fireSatChange(); 
     }
 
     /**
@@ -134,23 +128,31 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      *            die Zieladresse eines Frames nach der in der SAT gesucht werden soll
      * @return der Anschluss zur MAC oder null, wenn kein passender Eintrag existiert
      */
-    public Port holeAnschlussFuerMAC(String macAdresse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (SwitchFirmware), holeAnschlussFuerMAC(" + macAdresse + ")");
+    public Port getPortByMAC(String macAdresse) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
+                           " (SwitchFirmware), getPortByMAC(" + macAdresse + ")");
+        
         if (sat.containsKey(macAdresse)) {
-            return (Port) sat.get(macAdresse);
+            return sat.get(macAdresse);
         } else {
             return null;
         }
     }
+    
+  //------------------------------------------------------------------------------------------------
+    // Listeners management
+    //------------------------------------------------------------------------------------------------ 
 
-    /**
-     * Methode zum Zugriff auf die bereits durchgelaufenen Frames. Diese wird dazu genutzt um Fehler durch Zyklen zu
-     * vermeiden.
-     * 
-     * @return Liste der bereits weitergeleiteten Frames.
-     */
-    public LinkedList<EthernetFrame> holeDurchgelaufeneFrames() {
-        return durchgelaufeneFrames;
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);     
+    
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(propertyName, listener);
+    }
+    
+    // Notify the listeners that the SAT content has changed
+    // Fired by: SwitchFirmware
+    // Listened to by: SatViewer
+    protected void fireSatChange() {
+        pcs.firePropertyChange("satentry", null, null);
     }
 }

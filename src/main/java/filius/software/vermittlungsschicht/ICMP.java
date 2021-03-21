@@ -36,7 +36,7 @@ import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
 import filius.rahmenprogramm.I18n;
 import filius.software.netzzugangsschicht.EthernetFrame;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.system.SystemSoftware;
 
 /**
@@ -67,22 +67,22 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
                 + systemAnwendung + ")");
     }
 
-    public void starten() {
+    public void start() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), starten()");
         thread = new ICMPThread(this);
-        thread.starten();
+        thread.startThread();
     }
 
-    public void beenden() {
+    public void stop() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), beenden()");
         if (thread != null)
-            thread.beenden();
+            thread.stopThread();
     }
 
     private void placeLocalICMPPacket(IcmpPaket icmpPacket) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), placeLocalICMPPacket("
                 + icmpPacket.toString() + ")");
-        LinkedList<IcmpPaket> icmpPakete = ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeEthernet()
+        LinkedList<IcmpPaket> icmpPakete = ((InternetNodeOS) getSystemSoftware()).getEthernet()
                 .holeICMPPuffer();
         synchronized (icmpPakete) {
             icmpPakete.add(icmpPacket);
@@ -118,7 +118,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
         icmpPaket.setTtl(ttl);
 
         try {
-            InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
+            InternetNodeOS bs = (InternetNodeOS) getSystemSoftware();
             Route route = bs.determineRoute(zielIP);
             if (quellIP == null) {
                 icmpPaket.setQuellIp(route.getInterfaceIpAddress());
@@ -152,7 +152,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      * @throws ConnectionException
      */
     private void dispatch(IcmpPaket paket, String zielIp, Route route) throws RouteNotFoundException {
-        NetworkInterface nic = ((InternetNode) holeSystemSoftware().getKnoten()).getNIbyIP(route
+        NetworkInterface nic = ((InternetNode) getSystemSoftware().getNode()).getNICbyIP(route
                 .getInterfaceIpAddress());
         
         if (isBroadcast(zielIp, route.getInterfaceIpAddress(), nic.getSubnetMask())) {
@@ -174,14 +174,14 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      * @param macOfNicToUse
      */
     private void sendUnicastToNextHop(IcmpPaket paket, String ziel, String macOfNicToUse) {
-        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
-        String zielMacAdresse = bs.holeARP().holeARPTabellenEintrag(ziel);
+        InternetNodeOS bs = (InternetNodeOS) getSystemSoftware();
+        String zielMacAdresse = bs.getARP().holeARPTabellenEintrag(ziel);
 
         if (this.isLocalAddress(ziel)) {
             placeLocalICMPPacket(paket);
         } else if (zielMacAdresse != null) {
             // MAC-Adresse konnte bestimmt werden
-            bs.holeEthernet().senden(paket, macOfNicToUse, zielMacAdresse, EthernetFrame.IP);
+            bs.getEthernet().senden(paket, macOfNicToUse, zielMacAdresse, EthernetFrame.IP);
         } else {
             // Es konnte keine MAC-Adresse bestimmt werden.
             // Falls das weiterzuleitende Paket ein ICMP Echo Request ist,
@@ -197,8 +197,8 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
 
     private void sendBroadcast(IcmpPaket paket, String ziel, String macOfNicToUse) {
         paket.setTtl(1);
-        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
-        bs.holeEthernet().senden(paket, macOfNicToUse, ETHERNET_BROADCAST, EthernetFrame.IP);
+        InternetNodeOS bs = (InternetNodeOS) getSystemSoftware();
+        bs.getEthernet().senden(paket, macOfNicToUse, ETHERNET_BROADCAST, EthernetFrame.IP);
     }
 
     /**

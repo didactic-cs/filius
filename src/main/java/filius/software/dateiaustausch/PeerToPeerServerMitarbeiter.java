@@ -29,7 +29,7 @@ import java.util.List;
 
 import filius.Main;
 import filius.software.clientserver.ServerMitarbeiter;
-import filius.software.system.Betriebssystem;
+import filius.software.system.HostOS;
 import filius.software.system.FiliusFile;
 import filius.software.transportschicht.Socket;
 import filius.software.www.HTTPNachricht;
@@ -174,7 +174,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServerMitarbeiter), verarbeiteQuery(" + queryPaket + ")");
         List<FiliusFile> dateien;
-        Betriebssystem bs;
+        HostOS bs;
         QueryHitPaket antwortPaket;
 
         guid = queryPaket.getGuid();
@@ -182,10 +182,10 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
         dateien = peerToPeerAnwendung.verarbeiteAnfrage(socket.holeZielIPAdresse(), queryPaket);
 
         if (dateien != null && dateien.size() > 0) {
-            bs = (Betriebssystem) peerToPeerAnwendung.getSystemSoftware();
+            bs = (HostOS) peerToPeerAnwendung.getSystemSoftware();
 
             for (FiliusFile aktuelleDatei : dateien) {
-                antwortPaket = new QueryHitPaket(dateien.size(), 6346, bs.holeIPAdresse(), "2", "", " ");
+                antwortPaket = new QueryHitPaket(dateien.size(), 6346, bs.getIPAddress(), "2", "", " ");
                 antwortPaket.setGuid(queryPaket.getGuid());
                 antwortPaket.setHops(0);
                 antwortPaket.setTtl(8);

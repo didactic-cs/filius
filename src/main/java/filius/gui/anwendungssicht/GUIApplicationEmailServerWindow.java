@@ -59,7 +59,7 @@ import javax.swing.table.TableColumnModel;
 
 import filius.Main;
 import filius.exception.CreateAccountException;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.software.email.EmailKonto;
 import filius.software.email.EmailServer;
 
@@ -70,13 +70,12 @@ import filius.software.email.EmailServer;
  * @author Thomas Gerding & Johannes Bade
  * 
  */
+@SuppressWarnings("serial")
 public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
 
     /**
 	 *
 	 */
-    private static final long serialVersionUID = 1L;
-
     private JPanel listPanel, formPanel, backPanel, logPanel;
 
     private JScrollPane scrolly, sPane;
@@ -99,7 +98,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
 
     public GUIApplicationEmailServerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-        ((EmailServer) holeAnwendung()).kontenLaden();
+        ((EmailServer) getApplication()).kontenLaden();
 
         initialisiereKomponenten();
     }
@@ -109,10 +108,10 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         startStopButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 if (startStopButton.getText().equals(messages.getString("emailserver_msg1"))) {
-                    ((EmailServer) holeAnwendung()).setAktiv(true);
+                    ((EmailServer) getApplication()).setAktiv(true);
                     updateLog(messages.getString("emailserver_msg2"));
                 } else {
-                    ((EmailServer) holeAnwendung()).setAktiv(false);
+                    ((EmailServer) getApplication()).setAktiv(false);
                     updateLog(messages.getString("emailserver_msg3"));
                 }
                 aktualisiere();
@@ -123,13 +122,13 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         domainField = new JTextField();
         domainField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                ((EmailServer) holeAnwendung()).setMailDomain(domainField.getText());
+                ((EmailServer) getApplication()).setMailDomain(domainField.getText());
                 aktualisiere();
             }
         });
         domainField.addFocusListener(new FocusListener() {
             public void focusLost(FocusEvent arg0) {
-                ((EmailServer) holeAnwendung()).setMailDomain(domainField.getText());
+                ((EmailServer) getApplication()).setMailDomain(domainField.getText());
                 aktualisiere();
             }
 
@@ -157,7 +156,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
             public void mousePressed(MouseEvent e) {
                 {
 
-                    EmailKonto mailAccount = (EmailKonto) ((EmailServer) holeAnwendung()).getListeBenutzerkonten().get(
+                    EmailKonto mailAccount = (EmailKonto) ((EmailServer) getApplication()).getListeBenutzerkonten().get(
                             markierteZeile);
                     int Auswahl = showOptionDialog(messages.getString("emailserver_msg11")
                             + mailAccount.getBenutzername().toString() + messages.getString("emailserver_msg12"),
@@ -165,7 +164,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
                             JOptionPane.QUESTION_MESSAGE, null, null, null);
 
                     if (Auswahl == JOptionPane.YES_OPTION) {
-                        ((EmailServer) holeAnwendung()).kontoLoeschen(mailAccount);
+                        ((EmailServer) getApplication()).kontoLoeschen(mailAccount);
                         updatekontenListenTabelle();
                     }
                 }
@@ -212,7 +211,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         benutzernameField = new JTextField();
         benutzernameField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                gueltigkeitPruefen(benutzernameField, EingabenUeberpruefung.musterEmailBenutzername);
+                gueltigkeitPruefen(benutzernameField, EntryValidator.musterEmailBenutzername);
             }
 
         });
@@ -241,10 +240,10 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
 
                     if (!benutzernameField.getText().equals("")
                             && !(new String(passwortField.getPassword())).equals("")) {
-                        if (EingabenUeberpruefung.isGueltig(benutzernameField.getText(),
-                                EingabenUeberpruefung.musterKeineLeerzeichen)) {
+                        if (EntryValidator.isValid(benutzernameField.getText(),
+                                EntryValidator.musterKeineLeerzeichen)) {
                             try {
-                                ((EmailServer) holeAnwendung()).benutzerHinzufuegen(benutzernameField.getText(),
+                                ((EmailServer) getApplication()).benutzerHinzufuegen(benutzernameField.getText(),
                                         (new String(passwortField.getPassword())),
                                         messages.getString("emailserver_msg20"),
                                         messages.getString("emailserver_msg21"));
@@ -308,7 +307,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
     private void aktualisiere() {
         EmailServer server;
 
-        server = (EmailServer) holeAnwendung();
+        server = (EmailServer) getApplication();
         if (server.isAktiv()) {
             startStopButton.setText(messages.getString("emailserver_msg29"));
             domainField.setEnabled(false);
@@ -332,9 +331,9 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         DefaultTableModel tabellenModell = (DefaultTableModel) kontenListenTabelle.getModel();
         tabellenModell.setRowCount(0);
 
-        for (EmailKonto tmpKonto : ((EmailServer) holeAnwendung()).getListeBenutzerkonten()) {
+        for (EmailKonto tmpKonto : ((EmailServer) getApplication()).getListeBenutzerkonten()) {
             Vector<String> v = new Vector<String>();
-            v.add(tmpKonto.getBenutzername() + "@" + ((EmailServer) holeAnwendung()).getMailDomain());
+            v.add(tmpKonto.getBenutzername() + "@" + ((EmailServer) getApplication()).getMailDomain());
             v.add(Integer.toString(tmpKonto.getNachrichten().size()));
             tabellenModell.addRow(v);
         }
@@ -354,13 +353,13 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
      * @param feld
      */
     private void gueltigkeitPruefen(JTextField feld, Pattern pruefRegel) {
-        if (EingabenUeberpruefung.isGueltig(feld.getText(), pruefRegel)) {
-            feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+        if (EntryValidator.isValid(feld.getText(), pruefRegel)) {
+            feld.setForeground(EntryValidator.rightTextColor);
             JTextField temp = new JTextField();
             feld.setBorder(temp.getBorder());
         } else {
-            feld.setForeground(EingabenUeberpruefung.farbeFalsch);
-            feld.setBorder(BorderFactory.createLineBorder(EingabenUeberpruefung.farbeFalsch, 1));
+            feld.setForeground(EntryValidator.wrongTextColor);
+            feld.setBorder(BorderFactory.createLineBorder(EntryValidator.wrongTextColor, 1));
         }
     }
 

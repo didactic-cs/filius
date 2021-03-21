@@ -25,6 +25,7 @@
  */
 package filius;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
@@ -41,15 +42,13 @@ import java.util.Locale;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import filius.gui.GUIContainer;
-import filius.gui.GUIMainMenu;
 import filius.gui.JMainFrame;
 import filius.gui.SplashScreen;
 import filius.hardware.Cable;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
-import filius.rahmenprogramm.SzenarioVerwaltung;
+import filius.rahmenprogramm.ProjectManager;
 import filius.rahmenprogramm.TeeOutputStream;
 
 /**
@@ -81,8 +80,8 @@ public class Main implements I18n {
      * <li>Ausblenden des Startfensters</li>
      * </ol>
      */
-    public static void starten(String szenarioDatei) {
-        Main.debug.println("INVOKED (static) filius.Main, starten(" + szenarioDatei + ")");
+    public static void start(String projectFile) {
+        Main.debug.println("INVOKED (static) filius.Main, starten(" + projectFile + ")");
         SplashScreen splashScreen;
         XMLDecoder xmldec;
         String konfigPfad;
@@ -100,28 +99,26 @@ public class Main implements I18n {
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
                     JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
             if (selectedValue == null) {
-                Information.getInstance().setLocale(Locale.GERMANY);
+                Information.getInstance().setLocale(Locale.GERMANY);                
             } else if (ENGLISH.equals(selectedValue)) {
                 Information.getInstance().setLocale(Locale.UK);
             } else if (FRANCAIS.equals(selectedValue)) {
                 Information.getInstance().setLocale(Locale.FRANCE);
             } else {
                 Information.getInstance().setLocale(Locale.GERMANY);
-            }
+            }                                                                           
         } else {
             try {
                 xmldec = new XMLDecoder(new BufferedInputStream(new FileInputStream(konfigPfad)));
                 programmKonfig = (Object[]) xmldec.readObject();
                 if (programmKonfig != null) {
                     if (programmKonfig.length >= 4) {
-                        JMainFrame.getJMainFrame().setBounds((Rectangle) programmKonfig[0]);
-                        if (szenarioDatei == null) {
-                            szenarioDatei = (String) programmKonfig[1];
+                        JMainFrame.getInstance().setBounds((Rectangle) programmKonfig[0]);
+                        if (projectFile == null) {
+                            projectFile = (String) programmKonfig[1];
                         }
-                        if (programmKonfig[2] != null && programmKonfig[3] != null
-                                && null == Information.getInstance().getLocale()) {
-                            Information.getInstance()
-                                    .setLocale(new Locale((String) programmKonfig[2], (String) programmKonfig[3]));
+                        if (programmKonfig[2] != null && programmKonfig[3] != null && null == Information.getInstance().getLocale()) {
+                            Information.getInstance().setLocale(new Locale((String) programmKonfig[2], (String) programmKonfig[3]));
                         }
                     }
                     if (programmKonfig.length >= 5) {
@@ -131,36 +128,44 @@ public class Main implements I18n {
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
             }
-        }
-
-        // adapt dialog buttons to current language, since Java does not do this
-        // automatically
-        UIManager.put("OptionPane.cancelButtonText", messages.getString("main_dlg_CANCEL"));
-        UIManager.put("OptionPane.noButtonText", messages.getString("main_dlg_NO"));
-        UIManager.put("OptionPane.okButtonText", messages.getString("main_dlg_OK"));
-        UIManager.put("OptionPane.yesButtonText", messages.getString("main_dlg_YES"));
+        } 
+        
+        // Handy to check the various languages
+        //Information.getInstance().setLocale(Locale.UK);
+        //Information.getInstance().setLocale(Locale.GERMANY);  
+        //Information.getInstance().setLocale(Locale.FRANCE);
+        
+        localizeAccelerators();
+        
+        localizeJavaDialogBoxes();
+        
+        customizeUIColors();
 
         splashScreen = new SplashScreen("gfx/allgemein/splashscreen.png", null);
         splashScreen.setVisible(true);
         splashScreen.setAlwaysOnTop(true);
 
-        GUIContainer.getInstance().initialisieren();
+        GUIContainer container = GUIContainer.getInstance();
+        container.init();
+        
         long splashTime = System.currentTimeMillis();
 
-        if (szenarioDatei != null) {
+        if (projectFile != null) {
             try {
-                SzenarioVerwaltung.getInstance().laden(szenarioDatei, GUIContainer.getInstance().getKnotenItems(),
-                        GUIContainer.getInstance().getCableItems(), GUIContainer.getInstance().getDocuItems());
+                ProjectManager.getInstance().load(projectFile, container.getNodeItems(), container.getCableList(), container.getDocItems());
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
             }
         }
-        GUIContainer.getInstance().setProperty(null);
-        GUIContainer.getInstance().updateViewport();
-        try {
-            Thread.sleep(10);
-        } catch (Exception e) {}
-        GUIContainer.getInstance().updateCables();
+        container.setConfigPanel(null); 
+        container.updateViewport();
+        
+        // Still useful? The reason for the following lines is not clear.
+//        try {
+//            Thread.sleep(10);
+//        } catch (Exception e) {}
+        
+        container.updateCables();
 
         splashTime = System.currentTimeMillis() - splashTime;
         // time difference
@@ -176,7 +181,84 @@ public class Main implements I18n {
         splashScreen.setAlwaysOnTop(false);
         splashScreen.setVisible(false);
     }
+    
+    // >> Does not work yet because it should be called before any toolkit code is executed.
+    // >> To be fixed!
+    private static void localizeAccelerators() {
+        
+        Locale locale = Information.getInstance().getLocale();        
+        if (locale.equals(Locale.UK))           Locale.setDefault(Locale.ENGLISH); 
+        else if (locale.equals(Locale.FRANCE))  Locale.setDefault(Locale.FRENCH); 
+        else                                    Locale.setDefault(Locale.GERMAN); 
+    }
+    
+    /**
+     * <b>localizeJavaDialogBoxes</b> translates the Java dialog boxes
+     */
+    private static void localizeJavaDialogBoxes() {
 
+    	// Standard dialog box        
+        UIManager.put("OptionPane.yesButtonText", messages.getString("main_dlg_YES"));
+        UIManager.put("OptionPane.noButtonText", messages.getString("main_dlg_NO"));
+        UIManager.put("OptionPane.okButtonText", messages.getString("main_dlg_OK"));
+        UIManager.put("OptionPane.cancelButtonText", messages.getString("main_dlg_CANCEL"));
+                
+        // File open/save dialog boxes        
+        UIManager.put("FileChooser.lookInLabelText", messages.getString("main_dlg_LOOKIN"));
+        UIManager.put("FileChooser.saveInLabelText", messages.getString("main_dlg_SAVEIN"));
+        UIManager.put("FileChooser.fileNameLabelText", messages.getString("main_dlg_FILENAME"));
+        UIManager.put("FileChooser.filesOfTypeLabelText", messages.getString("main_dlg_FILETYPE"));
+        
+        UIManager.put("FileChooser.openButtonText", messages.getString("main_dlg_OPEN"));
+        UIManager.put("FileChooser.saveButtonText", messages.getString("main_dlg_SAVE"));
+        UIManager.put("FileChooser.cancelButtonText", messages.getString("main_dlg_CANCEL"));  
+        
+        UIManager.put("FileChooser.upFolderToolTipText", messages.getString("main_dlg_UPFOLDER"));
+        UIManager.put("FileChooser.homeFolderToolTipText", messages.getString("main_dlg_HOMEFOLDER")); 
+        UIManager.put("FileChooser.newFolderToolTipText", messages.getString("main_dlg_NEWFOLDER")); 
+        UIManager.put("FileChooser.listViewButtonToolTipText", messages.getString("main_dlg_LISTVIEW")); 
+        UIManager.put("FileChooser.detailsViewButtonToolTipText", messages.getString("main_dlg_DETAILSVIEW"));
+        UIManager.put("FileChooser.fileNameHeaderText", messages.getString("main_dlg_NAME"));
+        UIManager.put("FileChooser.fileSizeHeaderText", messages.getString("main_dlg_SIZE"));
+        UIManager.put("FileChooser.fileTypeHeaderText", messages.getString("main_dlg_TYPE"));
+        UIManager.put("FileChooser.fileDateHeaderText", messages.getString("main_dlg_DATE"));
+        UIManager.put("FileChooser.fileAttrHeaderText", messages.getString("main_dlg_ATTRIBUTES"));
+        UIManager.put("FileChooser.openButtonToolTipText", messages.getString("main_dlg_OPENTIP"));
+        UIManager.put("FileChooser.saveButtonToolTipText", messages.getString("main_dlg_SAVETIP")); 
+        UIManager.put("FileChooser.cancelButtonToolTipText", messages.getString("main_dlg_CANCELTIP"));      
+  
+        UIManager.put("FileChooser.viewMenuLabelText", messages.getString("main_dlg_VIEW"));
+        UIManager.put("FileChooser.listViewActionLabelText", messages.getString("main_dlg_LISTVIEW")); 
+        UIManager.put("FileChooser.detailsViewActionLabelText", messages.getString("main_dlg_DETAILSVIEW"));
+        UIManager.put("FileChooser.refreshActionLabelText", messages.getString("main_dlg_REFRESH"));
+        UIManager.put("FileChooser.newFolderActionLabelText", messages.getString("main_dlg_NEWFOLDER")); 
+        
+        UIManager.put("FileChooser.acceptAllFileFilterText", messages.getString("main_dlg_ALLFILES")); 
+        
+        UIManager.put("FileChooser.win32.newFolder", messages.getString("main_dlg_WINNEWFOLDER"));
+        UIManager.put("FileChooser.win32.newFolder.subsequent", messages.getString("main_dlg_WINNEWFOLDER")+" ({0})");   
+    }
+
+    
+    /**
+     * <b>customizeUIColors</b> customize a few colors of the UI
+     * 
+     */
+    private static void customizeUIColors() {        	
+    	
+        Color UI_PanelBG = UIManager.getColor ("Panel.background");  // same as Color(238, 238, 238)
+        Color UI_UnselectedPanelBG = new Color(200, 200, 200);
+        
+        // Customize the tabbed colors
+        UIManager.put("TabbedPane.contentAreaColor", UI_PanelBG);
+        UIManager.put("TabbedPane.selected", UI_PanelBG);
+        UIManager.put("TabbedPane.unselectedBackground", UI_UnselectedPanelBG);        
+        
+        // Tables
+        //UIManager.put("Table.alternateRowColor", new Color(245, 245, 255));
+    }
+    
+    
     /**
      * Das Beenden des Programms laeuft folgendermassen ab:
      * <ol>
@@ -193,44 +275,44 @@ public class Main implements I18n {
      * <li>das Verzeichnis fuer temporaere Dateien wird geloescht</li>
      * </ol>
      */
-    public static void beenden() {
+    public static void confirmAndStop() {
         Main.debug.println("INVOKED (static) filius.Main, beenden()");
-        Object[] programmKonfig;
-        int entscheidung;
-        boolean abbruch = false;
+        
+        GUIContainer.getInstance().prepareForClosing();          
 
-        GUIContainer.getInstance().getMenu().selectMode(GUIMainMenu.MODUS_ENTWURF);
-
-        if (SzenarioVerwaltung.getInstance().istGeaendert()) {
-            entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg1"),
-                    messages.getString("main_msg2"), JOptionPane.YES_NO_OPTION);
-            if (entscheidung == JOptionPane.YES_OPTION) {
-                abbruch = false;
-            } else {
-                abbruch = true;
-            }
+        if (ProjectManager.getInstance().isModified()) {
+            int choice = JOptionPane.showConfirmDialog(JMainFrame.getInstance(), messages.getString("main_msg1"),
+                                                       messages.getString("main_msg2"), JOptionPane.YES_NO_CANCEL_OPTION);
+            
+            if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION) return;
+            
+            if (choice == JOptionPane.YES_OPTION) {
+            	// Save the project
+            	GUIContainer.getInstance().getMainMenu().doClick("btSpeichern");
+            	// The user may have canceled the dialog box
+            	if (ProjectManager.getInstance().isModified()) return;
+            };
         }
-        if (!abbruch) {
-            programmKonfig = new Object[5];
-            programmKonfig[0] = JMainFrame.getJMainFrame().getBounds();
-            programmKonfig[1] = SzenarioVerwaltung.getInstance().holePfad();
-            programmKonfig[2] = Information.getInstance().getLocale().getLanguage();
-            programmKonfig[3] = Information.getInstance().getLocale().getCountry();
-            programmKonfig[4] = Information.getInstance().getLastOpenedDirectory();
+        
+        Object[] programmKonfig = new Object[5];
+        programmKonfig[0] = JMainFrame.getInstance().getBounds();
+        programmKonfig[1] = ProjectManager.getInstance().getPath();
+        programmKonfig[2] = Information.getInstance().getLocale().getLanguage();
+        programmKonfig[3] = Information.getInstance().getLocale().getCountry();
+        programmKonfig[4] = Information.getInstance().getLastOpenedDirectory();
 
-            String applicationConfigPath = Information.getInstance().getArbeitsbereichPfad() + "konfig.xml";
-            try (FileOutputStream fos = new FileOutputStream(applicationConfigPath);
-                    XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
-                encoder.writeObject(programmKonfig);
-            } catch (Exception e) {
-                e.printStackTrace(Main.debug);
-            }
-            SzenarioVerwaltung.loescheVerzeichnisInhalt(Information.getInstance().getTempPfad());
-            System.exit(0);
+        String applicationConfigPath = Information.getInstance().getArbeitsbereichPfad() + "konfig.xml";
+        try (FileOutputStream fos = new FileOutputStream(applicationConfigPath);
+        		XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
+        	encoder.writeObject(programmKonfig);
+        } catch (Exception e) {
+        	e.printStackTrace(Main.debug);
         }
+        ProjectManager.deleteDirectoryContent(Information.getInstance().getTempPath());
+        System.exit(0);       
     }
 
-    private static boolean loggen(String logDateiPfad, boolean ausgabeKommandozeile) {
+    private static boolean log(String logDateiPfad, boolean ausgabeKommandozeile) {
         PrintStream kommandozeile = null;
         if (ausgabeKommandozeile) {
             kommandozeile = System.out;
@@ -326,11 +408,9 @@ public class Main implements I18n {
                     }
                 }
             }
-            if (currWD.isEmpty()
-                    || (!currWD.substring(currWD.length() - 1).equals(System.getProperty("file.separator")))) {
-                // check, whether working directory is
-                // usable... else provide dialog for correct
-                // paths
+            if (currWD.isEmpty() || (!currWD.substring(currWD.length() - 1).equals(System.getProperty("file.separator")))) {
+                // check, whether working directory is usable...
+                // else provide dialog for correct paths
                 if (Information.getInformation(currWD + System.getProperty("file.separator")) == null)
                     System.exit(6);
                 else if (Information.getInformation(currWD) == null)
@@ -339,15 +419,15 @@ public class Main implements I18n {
             // if no logging specified on command line or logging to file
             // fails, then set logging to null
             if (log) {
-                log = loggen(Information.getInstance().getArbeitsbereichPfad() + "filius.log", verbose);
+                log = log(Information.getInstance().getArbeitsbereichPfad() + "filius.log", verbose);
             } else {
-                loggen(null, verbose);
+                log(null, verbose);
             }
         } else {
             if (Information.getInformation(currWD) == null) {
                 System.exit(6);
             }
-            loggen(null, false);
+            log(null, false);
         }
 
         showUsageInformation();
@@ -358,9 +438,9 @@ public class Main implements I18n {
         Main.debug.println("\tFILIUS Version: " + Information.getVersion());
         Main.debug.println("\tParameters: '" + argsString.trim() + "'");
         // +"\n\tWD Base: "+newWD
-        Main.debug.println("\tFILIUS Installation: " + Information.getInstance().getProgrammPfad());
+        Main.debug.println("\tFILIUS Installation: " + Information.getInstance().getProgramPath());
         Main.debug.println("\tFILIUS Working Directory: " + Information.getInstance().getArbeitsbereichPfad());
-        Main.debug.println("\tFILIUS Temp Directory: " + Information.getInstance().getTempPfad());
+        Main.debug.println("\tFILIUS Temp Directory: " + Information.getInstance().getTempPath());
         Main.debug.println("------------------------------------------------------\n");
 
         if (nativeLookAndFeel) {
@@ -371,15 +451,15 @@ public class Main implements I18n {
             try {
                 file = new File(args[args.length - 1]);
                 if (file.exists()) {
-                    starten(file.getAbsolutePath());
+                    start(file.getAbsolutePath());
                 } else
-                    starten(null);
+                    start(null);
             } catch (Exception e) {
                 e.printStackTrace();
-                starten(null);
+                start(null);
             }
         } else {
-            starten(null);
+            start(null);
         }
     }
 

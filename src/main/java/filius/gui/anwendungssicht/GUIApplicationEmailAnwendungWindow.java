@@ -62,7 +62,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import filius.Main;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.ResourceUtil;
 import filius.software.email.Email;
 import filius.software.email.EmailAnwendung;
@@ -75,13 +75,12 @@ import filius.software.email.EmailUtils;
  * @author Thomas Gerding & Johannes Bade
  * 
  */
+@SuppressWarnings("serial")
 public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
 
     private enum ListMode {
         INBOX, OUTBOX, UNKNOWN
     };
-
-    private static final long serialVersionUID = 1L;
 
     private JTabbedPane tabbedPane;
     private JPanel gesendetPanel, eingangPanel, backPanel;
@@ -105,7 +104,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     public GUIApplicationEmailAnwendungWindow(GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
 
-        ((EmailAnwendung) holeAnwendung()).holePOP3Client().hinzuBeobachter(this);
+        ((EmailAnwendung) getApplication()).holePOP3Client().addObserver(this);
         initialisiereKomponenten();
     }
 
@@ -139,7 +138,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
                 auswahlfuerloeschen = zeilenNummer;
                 paa = ListMode.INBOX;
                 if (zeilenNummer != -1) {
-                    Email tmpEmail = (Email) ((EmailAnwendung) holeAnwendung()).getEmpfangeneNachrichten()
+                    Email tmpEmail = (Email) ((EmailAnwendung) getApplication()).getEmpfangeneNachrichten()
                             .get(zeilenNummer);
                     emailVorschau.setContentType("text/plain");
                     emailVorschau.setText(tmpEmail.getText());
@@ -163,7 +162,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
                 auswahlfuerloeschen = zeilenNummer;
                 paa = ListMode.OUTBOX;
                 if (zeilenNummer != -1) {
-                    Email tmpEmail = (Email) ((EmailAnwendung) holeAnwendung()).getGesendeteNachrichten()
+                    Email tmpEmail = (Email) ((EmailAnwendung) getApplication()).getGesendeteNachrichten()
                             .get(zeilenNummer);
                     emailVorschau.setContentType("text/plain");
                     emailVorschau.setText(tmpEmail.getText());
@@ -297,14 +296,14 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     public void emailLoeschen(int rowIndex, ListMode list) {
         if (ListMode.INBOX.equals(list)) {
             // dann loeschen aus dem Posteingang
-            ((EmailAnwendung) holeAnwendung()).removeReceivedMail(posteingangTable.getSelectedRow());
+            ((EmailAnwendung) getApplication()).removeReceivedMail(posteingangTable.getSelectedRow());
             zeilenNummer = zeilenNummer - 1;
             posteingangAktualisieren();
             emailVorschau.setText(" ");
             emailVorschau.updateUI();
         } else if (ListMode.OUTBOX.equals(list)) {
             // dann loeschen aus dem Postausgang
-            ((EmailAnwendung) holeAnwendung()).removeSentMail(gesendeteTable.getSelectedRow());
+            ((EmailAnwendung) getApplication()).removeSentMail(gesendeteTable.getSelectedRow());
             zeilenNummer = zeilenNummer - 1;
             gesendeteAktualisieren();
             emailVorschau.setText(" ");
@@ -357,7 +356,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         Box absenderBox = Box.createHorizontalBox();
 
         Vector<String> kontenVector = new Vector<String>();
-        for (EmailKonto konto : ((EmailAnwendung) holeAnwendung()).holeKontoListe().values()) {
+        for (EmailKonto konto : ((EmailAnwendung) getApplication()).holeKontoListe().values()) {
             kontenVector.addElement(konto.getBenutzername());
         }
         final JComboBox cbAbsender = new JComboBox(kontenVector);
@@ -467,7 +466,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
                     GUIApplicationEmailAnwendungWindow.this.showMessageDialog(msgNoAccountAvailable);
                 } else {
                     kontoString = cbAbsender.getSelectedItem().toString();
-                    versendeKonto = (EmailKonto) ((EmailAnwendung) holeAnwendung()).holeKontoListe().get(kontoString);
+                    versendeKonto = (EmailKonto) ((EmailAnwendung) getApplication()).holeKontoListe().get(kontoString);
 
                     mail.setAbsender(versendeKonto.getVorname()
                             + (!versendeKonto.getNachname().isEmpty() ? (" " + versendeKonto.getNachname()) : "") + " <"
@@ -510,7 +509,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
                         middleBox.validate();
 
                         progressBar.setString(messages.getString("emailanwendung_msg22"));
-                        ((EmailAnwendung) holeAnwendung()).versendeEmail(versendeKonto.getSmtpserver(), mail,
+                        ((EmailAnwendung) getApplication()).versendeEmail(versendeKonto.getSmtpserver(), mail,
                                 versendeKonto.getEmailAdresse());
                         tabbedPane.setSelectedIndex(1);
                     }
@@ -523,7 +522,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     }
 
     public void emailsAbholen() {
-        if (!((EmailAnwendung) holeAnwendung()).holeKontoListe().isEmpty()) {
+        if (!((EmailAnwendung) getApplication()).holeKontoListe().isEmpty()) {
             inFrAbholen = new JInternalFrame(messages.getString("emailanwendung_msg23"));
             inFrAbholen.setBounds(100, 50, 384, 64);
             inFrAbholen.setVisible(true);
@@ -545,10 +544,10 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
             inFrAbholen.getContentPane().invalidate();
             inFrAbholen.getContentPane().validate();
 
-            for (EmailKonto aktuellesKonto : ((EmailAnwendung) holeAnwendung()).holeKontoListe().values()) {
+            for (EmailKonto aktuellesKonto : ((EmailAnwendung) getApplication()).holeKontoListe().values()) {
                 progressBar
                         .setString(messages.getString("emailanwendung_msg24") + aktuellesKonto.getEmailAdresse() + ")");
-                ((EmailAnwendung) holeAnwendung()).emailsAbholenEmails(aktuellesKonto.getBenutzername(),
+                ((EmailAnwendung) getApplication()).emailsAbholenEmails(aktuellesKonto.getBenutzername(),
                         aktuellesKonto.getPasswort(), aktuellesKonto.getPop3port(), aktuellesKonto.getPop3server());
                 tabbedPane.setSelectedIndex(0);
             }
@@ -557,7 +556,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
 
     private void posteingangAktualisieren() {
         posteingangModell.setRowCount(0);
-        List<Email> empfangeneNachrichten = ((EmailAnwendung) holeAnwendung()).getEmpfangeneNachrichten();
+        List<Email> empfangeneNachrichten = ((EmailAnwendung) getApplication()).getEmpfangeneNachrichten();
         for (Email neueMail : empfangeneNachrichten) {
             Vector<String> v = new Vector<String>();
             String absender;
@@ -576,7 +575,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
 
     public void gesendeteAktualisieren() {
         gesendeteModell.setRowCount(0);
-        List<Email> gesendeteNachrichten = ((EmailAnwendung) holeAnwendung()).getGesendeteNachrichten();
+        List<Email> gesendeteNachrichten = ((EmailAnwendung) getApplication()).getGesendeteNachrichten();
         for (Email neueMail : gesendeteNachrichten) {
             Vector<String> v = new Vector<String>();
             v.add(neueMail.holeEmpfaengerListe());
@@ -586,7 +585,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     }
 
     private void kontoAktualisieren() {
-        Map<String, EmailKonto> kontoListe = ((EmailAnwendung) holeAnwendung()).holeKontoListe();
+        Map<String, EmailKonto> kontoListe = ((EmailAnwendung) getApplication()).holeKontoListe();
         for (EmailKonto konto : kontoListe.values()) {
             tfName.setText(konto.getVorname() + " " + konto.getNachname());
             tfEmailAdresse.setText(konto.getEmailAdresse());
@@ -636,7 +635,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         tfEmailAdresse.setPreferredSize(new Dimension(150, 25));
         tfEmailAdresse.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                gueltigkeitPruefen(tfEmailAdresse, EingabenUeberpruefung.musterEmailAdresse);
+                gueltigkeitPruefen(tfEmailAdresse, EntryValidator.musterEmailAdresse);
             }
         });
 
@@ -668,7 +667,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         tfPOP3Port.setText("110");
         tfPOP3Port.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                gueltigkeitPruefen(tfPOP3Port, EingabenUeberpruefung.musterPort);
+                gueltigkeitPruefen(tfPOP3Port, EntryValidator.musterPort);
             }
         });
 
@@ -700,7 +699,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         tfSMTPPort.setText("25");
         tfSMTPPort.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                gueltigkeitPruefen(tfSMTPPort, EingabenUeberpruefung.musterPort);
+                gueltigkeitPruefen(tfSMTPPort, EntryValidator.musterPort);
             }
         });
 
@@ -718,7 +717,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         tfBenutzername.setPreferredSize(new Dimension(150, 25));
         tfBenutzername.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                gueltigkeitPruefen(tfBenutzername, EingabenUeberpruefung.musterEmailBenutzername);
+                gueltigkeitPruefen(tfBenutzername, EntryValidator.musterEmailBenutzername);
             }
         });
 
@@ -788,10 +787,10 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     private boolean kontoSpeichern() {
         String[] teilStrings;
 
-        if (EingabenUeberpruefung.isGueltig(tfPOP3Port.getText(), EingabenUeberpruefung.musterPort)
-                && EingabenUeberpruefung.isGueltig(tfSMTPPort.getText(), EingabenUeberpruefung.musterPort)
-                && EingabenUeberpruefung.isGueltig(tfBenutzername.getText(),
-                        EingabenUeberpruefung.musterEmailBenutzername)) {
+        if (EntryValidator.isValid(tfPOP3Port.getText(), EntryValidator.musterPort)
+                && EntryValidator.isValid(tfSMTPPort.getText(), EntryValidator.musterPort)
+                && EntryValidator.isValid(tfBenutzername.getText(),
+                        EntryValidator.musterEmailBenutzername)) {
 
             EmailKonto konto = new EmailKonto();
             if (tfName.getText().trim().equals("")) {
@@ -817,7 +816,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
             konto.setSmtpserver(tfSMTPServer.getText());
             konto.setEmailAdresse(tfEmailAdresse.getText());
 
-            ((EmailAnwendung) holeAnwendung()).setzeKonto(konto);
+            ((EmailAnwendung) getApplication()).setzeKonto(konto);
 
             speichern();
             return true;
@@ -827,11 +826,11 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     }
 
     private void speichern() {
-        ((EmailAnwendung) holeAnwendung()).speichern();
+        ((EmailAnwendung) getApplication()).speichern();
     }
 
     private void laden() {
-        ((EmailAnwendung) holeAnwendung()).laden();
+        ((EmailAnwendung) getApplication()).laden();
     }
 
     /**
@@ -842,14 +841,14 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
      * @param feld
      */
     public void gueltigkeitPruefen(JTextField feld, Pattern pruefRegel) {
-        if (EingabenUeberpruefung.isGueltig(feld.getText(), pruefRegel)) {
-            feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+        if (EntryValidator.isValid(feld.getText(), pruefRegel)) {
+            feld.setForeground(EntryValidator.rightTextColor);
             JTextField temp = new JTextField();
             feld.setBorder(temp.getBorder());
 
         } else {
-            feld.setForeground(EingabenUeberpruefung.farbeFalsch);
-            feld.setBorder(BorderFactory.createLineBorder(EingabenUeberpruefung.farbeFalsch, 1));
+            feld.setForeground(EntryValidator.wrongTextColor);
+            feld.setBorder(BorderFactory.createLineBorder(EntryValidator.wrongTextColor, 1));
 
         }
 
@@ -870,18 +869,18 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
             adressen = feld.getText().split(",");
 
             for (int i = 0; i < adressen.length; i++) {
-                if (!EingabenUeberpruefung.isGueltig(adressen[i].trim(), EingabenUeberpruefung.musterEmailAdresse)) {
+                if (!EntryValidator.isValid(adressen[i].trim(), EntryValidator.musterEmailAdresse)) {
                     fehler = true;
                 }
             }
         }
 
         if (!fehler) {
-            feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+            feld.setForeground(EntryValidator.rightTextColor);
             feld.setBorder(null);
         } else {
-            feld.setForeground(EingabenUeberpruefung.farbeFalsch);
-            feld.setBorder(BorderFactory.createLineBorder(EingabenUeberpruefung.farbeFalsch, 1));
+            feld.setForeground(EntryValidator.wrongTextColor);
+            feld.setBorder(BorderFactory.createLineBorder(EntryValidator.wrongTextColor, 1));
         }
 
         return !fehler;

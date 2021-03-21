@@ -36,10 +36,10 @@ public class DHCPServerMitarbeiterTest {
         String router = "10.0.0.33";
         String subnetMask = "255.255.0.0";
         when(serverMock.offerAddress(mac)).thenReturn(ip);
-        when(serverMock.holeServerIpAddress()).thenReturn(serverIdentifier);
-        when(serverMock.getDnsserverip()).thenReturn(dnsServer);
-        when(serverMock.getGatewayip()).thenReturn(router);
-        when(serverMock.getSubnetzmaske()).thenReturn(subnetMask);
+        when(serverMock.getServerIpAddress()).thenReturn(serverIdentifier);
+        when(serverMock.getDNSServerIP()).thenReturn(dnsServer);
+        when(serverMock.getGatewayIP()).thenReturn(router);
+        when(serverMock.getSubnetMask()).thenReturn(subnetMask);
 
         mitarbeiter.processDiscover(mac);
 
@@ -57,10 +57,10 @@ public class DHCPServerMitarbeiterTest {
         String router = "10.0.0.33";
         String subnetMask = "255.255.0.0";
         when(serverMock.offerAddress(mac)).thenThrow(new NoAvailableAddressException());
-        when(serverMock.holeServerIpAddress()).thenReturn(serverIdentifier);
-        when(serverMock.getDnsserverip()).thenReturn(dnsServer);
-        when(serverMock.getGatewayip()).thenReturn(router);
-        when(serverMock.getSubnetzmaske()).thenReturn(subnetMask);
+        when(serverMock.getServerIpAddress()).thenReturn(serverIdentifier);
+        when(serverMock.getDNSServerIP()).thenReturn(dnsServer);
+        when(serverMock.getGatewayIP()).thenReturn(router);
+        when(serverMock.getSubnetMask()).thenReturn(subnetMask);
 
         mitarbeiter.processDiscover(mac);
 
@@ -76,12 +76,12 @@ public class DHCPServerMitarbeiterTest {
         String dnsServer = "10.0.0.22";
         String router = "10.0.0.33";
         String subnetMask = "255.255.0.0";
-        when(serverMock.holeServerIpAddress()).thenReturn(serverIdentifier);
-        when(serverMock.getDnsserverip()).thenReturn(dnsServer);
-        when(serverMock.getGatewayip()).thenReturn(router);
-        when(serverMock.getSubnetzmaske()).thenReturn(subnetMask);
+        when(serverMock.getServerIpAddress()).thenReturn(serverIdentifier);
+        when(serverMock.getDNSServerIP()).thenReturn(dnsServer);
+        when(serverMock.getGatewayIP()).thenReturn(router);
+        when(serverMock.getSubnetMask()).thenReturn(subnetMask);
         when(serverMock.requestAddress(mac, ip)).thenReturn(
-                new DHCPAddressAssignment(mac, ip, System.currentTimeMillis() + 1000));
+                new DHCPAddressItem(mac, ip, System.currentTimeMillis() + 1000));
 
         mitarbeiter.processRequest(mac, ip, serverIdentifier);
 
@@ -98,10 +98,10 @@ public class DHCPServerMitarbeiterTest {
         String dnsServer = "10.0.0.22";
         String router = "10.0.0.33";
         String subnetMask = "255.255.0.0";
-        when(serverMock.holeServerIpAddress()).thenReturn(serverIdentifier);
-        when(serverMock.getDnsserverip()).thenReturn(dnsServer);
-        when(serverMock.getGatewayip()).thenReturn(router);
-        when(serverMock.getSubnetzmaske()).thenReturn(subnetMask);
+        when(serverMock.getServerIpAddress()).thenReturn(serverIdentifier);
+        when(serverMock.getDNSServerIP()).thenReturn(dnsServer);
+        when(serverMock.getGatewayIP()).thenReturn(router);
+        when(serverMock.getSubnetMask()).thenReturn(subnetMask);
         when(serverMock.requestAddress(mac, ip)).thenThrow(new AddressRequestNotAcceptedException());
 
         mitarbeiter.processRequest(mac, ip, serverIdentifier);
@@ -119,10 +119,10 @@ public class DHCPServerMitarbeiterTest {
         String dnsServer = "10.0.0.22";
         String router = "10.0.0.33";
         String subnetMask = "255.255.0.0";
-        when(serverMock.holeServerIpAddress()).thenReturn(serverIdentifier);
-        when(serverMock.getDnsserverip()).thenReturn(dnsServer);
-        when(serverMock.getGatewayip()).thenReturn(router);
-        when(serverMock.getSubnetzmaske()).thenReturn(subnetMask);
+        when(serverMock.getServerIpAddress()).thenReturn(serverIdentifier);
+        when(serverMock.getDNSServerIP()).thenReturn(dnsServer);
+        when(serverMock.getGatewayIP()).thenReturn(router);
+        when(serverMock.getSubnetMask()).thenReturn(subnetMask);
         when(serverMock.requestAddress(mac, ip)).thenThrow(new AddressRequestNotAcceptedException());
 
         mitarbeiter.processRequest(mac, ip, "10.0.0.42");

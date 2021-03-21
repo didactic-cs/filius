@@ -42,7 +42,7 @@ import javax.swing.JScrollPane;
 
 import filius.gui.JMainFrame;
 import filius.rahmenprogramm.I18n;
-import filius.rahmenprogramm.SzenarioVerwaltung;
+import filius.rahmenprogramm.ProjectManager;
 
 public class FrameSoftwareWizard extends JDialog implements I18n {
 
@@ -67,7 +67,7 @@ public class FrameSoftwareWizard extends JDialog implements I18n {
 	private String[] quelltextDateien;
 
 	public FrameSoftwareWizard() {
-		super(JMainFrame.getJMainFrame(), messages.getString("framesoftwarewizard_msg1"), true);
+		super(JMainFrame.getInstance(), messages.getString("framesoftwarewizard_msg1"), true);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setSize(720, 600);
@@ -75,7 +75,7 @@ public class FrameSoftwareWizard extends JDialog implements I18n {
 
 		initKomponenten();
 
-		SzenarioVerwaltung.getInstance().setzeGeaendert();
+		ProjectManager.getInstance().setModified();
 
 		setzeVerwaltung();
 	}

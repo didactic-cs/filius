@@ -1,0 +1,93 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css">
+    html { background-color: rgb(250, 248, 246); padding-left: 8px; padding-right: 8px; padding-bottom: 20px; }
+    body { font-family: Helvetica,Arial,sans-serif; font-size: 12pt; }  
+    h1 { color: rgb(0, 100, 200); font-size: 20pt; border-bottom: 1px solid rgb(0, 100, 200); }
+    h2 { color: rgb(0, 100, 200); font-size: 18pt; margin-top: 0px; margin-bottom: 10px; }
+    h3 { color: rgb(0, 100, 200); font-size: 15pt; margin-top: 10px; margin-bottom: 6px; }
+    h4 { font-weight: bold; margin-top: 0px; margin-bottom: 4px; }
+    p { margin-top: 0px; margin-bottom: 8px; }
+    a { color: rgb(0, 100, 200); text-decoration: none; }
+    div.menu span { font-size: 11pt; color: rgb(0, 100, 200); white-space: nowrap; text-decoration: none; }
+    div.menu span.selected { font-weight: bold; }
+    div.center { text-align: center; margin-top: 0px; margin-bottom: 8px; }
+    ol { margin-left: 15px; margin-top: 0px; }
+    ul { margin-left: 15px; margin-top: 0px; }
+    li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Mode simulation</h1>
+
+  <p>Ce mode permet de simuler le fonctionnement du réseau virtuel de FILIUS.</p>
+
+  <h3>1. Installer et utiliser des logiciels</h3>
+	
+  <p>Chaque ordinateur et portable possède un bureau à partir duquel peuvent être
+     installées puis lancées des applications. Un clic sur l’icône d’un ordinateur ou
+     d’un portable fait apparaitre son bureau dans une fenêtre indépendante.
+     Pour installer des logiciels, cliquer sur l’icône suivante :</p>
+
+  <div class="center"><img src="hilfe/gfx/softwareinstallation.png"></div> 
+
+  <p>Les icônes des applications installées apparaissent alors sur le bureau. Un simple
+     clic sur une icône permet de lancer l’application correspondante. Chaque application
+     s’ouvre dans une fenêtre du bureau. Fermer la fenêtre d’une application, ou fermer
+     la fenêtre du bureau ne ferme pas les applications. Pour fermer une application,
+     il faut la désinstaller.</p>
+
+  <h3>2. Afficher l’état du réseau</h3>
+
+  <p>Lorsque le bureau d’un ordinateur ou d’un portable est affiché, en plaçant la
+     souris au dessus de l’icône réseau située en bas à droite,
+     l’adresse IP du poste apparait dans une infobulle.</p>
+
+  <div class="center"><img src="hilfe/gfx/networkicon.png"></div> 
+
+  <p>Pour obtenir le paramétrage IP détaillé du poste, cliquer sur l’icône.</p>
+
+  <h3>3. Suivre les échanges de données</h3>
+
+  <p>Un journal conserve une trace de tous les paquets de données envoyés ou reçus par un
+     poste. Pour visualiser ce journal, cliquer droit sur l’icône du poste et choisir
+     Suivre les échanges de données.</p>
+  
+  <p>Le journal est présenté sous la forme d’un tableau dont chaque ligne correspond
+     à un échange de données. Les échanges sont basés sur une architecture
+     en quatre couches matérialisées par des couleurs différentes.
+     Un clic sur une ligne permet d’afficher dans la partie inférieure de
+     la fenêtre le détail du paquet de données échangé.</p>
+
+  <p>Il est possible de ralentir la vitesse des échanges de données en déplaçant vers
+     la gauche le curseur situé au centre de la partie supérieure de la fenêtre
+     principale.</p> 
+     
+  <p>Les câbles deviennent verts lorsqu’ils sont parcourus par des données.</p>
+
+  <h3>4. Configurer le parefeu d'un routeur</h3>
+
+  <p>En mode simulation, le parefeu d’un routeur peut être configuré via son interface
+     web. Il suffit pour cela dans le navigateur web d’un poste de saisir comme url
+     l’adresse IP du routeur à configurer.</p>
+
+  <p>Outre la configuration, le formulaire web permet d’activer et de désactiver
+     le parefeu, ainsi que de consulter son journal d’activité.</p>
+
+  <h3>5. Afficher la table d'un commutateur</h3>
+
+  <p>Un commutateur (ou switch) enregistre les adresses MAC des paquets entrants
+     avec le port d’arrivée. Ces deux informations sont stockées dans la table des
+     adresses sources (SAT). Pour afficher cette table, double-cliquer sur le 
+     commutateur.</p>
+	      
+  <h3>6. Changer de mode</h3>
+
+  <p>Pour changer de mode, cliquer sur le bouton correspondant de la barre supérieure : </p>
+
+  <div class="center"><img src="hilfe/gfx/design_mode.png">&nbsp;&nbsp;&nbsp;<img src="hilfe/gfx/doc_mode.png"></div>
+
+</body>
+</html>

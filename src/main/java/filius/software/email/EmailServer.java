@@ -30,22 +30,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
-
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import filius.Main;
 import filius.exception.CreateAccountException;
 import filius.exception.DeleteAccountException;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.I18n;
-import filius.rahmenprogramm.Information;
-import filius.software.Anwendung;
+import filius.software.Application;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 
 /**
  * 
@@ -54,7 +50,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  *         Der emailServer muss wohl neu aufgerollt werden, da ich hier überhaupt kein Thread brauche. Dies wird durch
  *         POP3- und SMTPServer realisiert. Daher wird der nun überarbeitet. 13.12.2006
  */
-public class EmailServer extends Anwendung implements I18n {
+public class EmailServer extends Application implements I18n {
     public static final String LINE_SEPARATOR = "----";
 
     private List<EmailKonto> listeBenutzerkonten = new LinkedList<EmailKonto>();
@@ -89,9 +85,9 @@ public class EmailServer extends Anwendung implements I18n {
         this.aktiv = aktiv;
 
         if (pop3 != null)
-            pop3.setAktiv(aktiv);
+            pop3.setActive(aktiv);
         if (smtp != null)
-            smtp.setAktiv(aktiv);
+            smtp.setActive(aktiv);
     }
 
     // Methoden
@@ -100,17 +96,17 @@ public class EmailServer extends Anwendung implements I18n {
      * Hier wird die ueberladene Methode der Oberklasse aufgerufen, die Benutzerkonten gespeichert und POP3Server und
      * SMTPServer beendet.
      */
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), beenden()");
-        super.beenden();
+        super.stopThread();
 
         kontenSpeichern();
 
         if (pop3 != null)
-            pop3.beenden();
+            pop3.stopThread();
         if (smtp != null)
-            smtp.beenden();
+            smtp.stopThread();
     }
 
     /**
@@ -120,10 +116,10 @@ public class EmailServer extends Anwendung implements I18n {
      * starten()-Methode aufgerufen wird und das Attribut 'aktiv' gesetzt wird, das angibt, ob ein Server auf eingehende
      * Verbindungsanfragen wartet.
      */
-    public void starten() {
+    public void startThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), starten()");
-        super.starten();
+        super.startThread();
 
         FiliusFile konten = verzeichnis.getFiliusFile("konten.txt");
         if (konten == null) {
@@ -134,13 +130,13 @@ public class EmailServer extends Anwendung implements I18n {
 
         pop3 = new POP3Server(110, this);
         pop3.setSystemSoftware(getSystemSoftware());
-        pop3.setAktiv(aktiv);
-        pop3.starten();
+        pop3.setActive(aktiv);
+        pop3.startThread();
 
         smtp = new SMTPServer(25, this);
         smtp.setSystemSoftware(getSystemSoftware());
-        smtp.setAktiv(aktiv);
-        smtp.starten();
+        smtp.setActive(aktiv);
+        smtp.startThread();
     }
 
     /**
@@ -190,7 +186,7 @@ public class EmailServer extends Anwendung implements I18n {
             synchronized (getListeBenutzerkonten()) {
                 getListeBenutzerkonten().add(konto);
             }
-            benachrichtigeBeobachter();
+            notifyObservers();
         } catch (Exception e) {
             throw new CreateAccountException("-ERR This account could not be created. Please try again!");
         }
@@ -234,7 +230,7 @@ public class EmailServer extends Anwendung implements I18n {
             getListeBenutzerkonten().remove(konto);
         }
         kontenSpeichern();
-        benachrichtigeBeobachter();
+        notifyObservers();
         return true;
     }
 
@@ -415,13 +411,13 @@ public class EmailServer extends Anwendung implements I18n {
         }
     }
 
-    public void setSystemSoftware(InternetKnotenBetriebssystem bs) {
+    public void setSystemSoftware(InternetNodeOS bs) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), setSystemSoftware(" + bs + ")");
         
         super.setSystemSoftware(bs);        
 
-        FiliusFileSystem FFS = bs.getDateisystem();
+        FiliusFileSystem FFS = bs.getFileSystem();
         FFS.getRoot().addDirectory("mailserver");
         this.verzeichnis = FFS.toNode("mailserver");
     }
@@ -463,7 +459,7 @@ public class EmailServer extends Anwendung implements I18n {
     }
 
     public void setMailDomain(String mailDomain) {
-        if (mailDomain != null && EingabenUeberpruefung.isGueltig(mailDomain, EingabenUeberpruefung.musterDomain))
+        if (mailDomain != null && EntryValidator.isValid(mailDomain, EntryValidator.musterDomain))
             this.mailDomain = mailDomain;
     }
 
@@ -477,7 +473,7 @@ public class EmailServer extends Anwendung implements I18n {
         args[1] = absender;
         args[2] = rcpt;
 
-        ausfuehren("weiterleiten", args);
+        execute("weiterleiten", args);
     }
 
     /**
@@ -494,7 +490,7 @@ public class EmailServer extends Anwendung implements I18n {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), weiterleiten(" + email + "," + absender + "," + rcpt + ")");
         SMTPClient clientFuerWeiterleitung = new SMTPClient(this);
-        clientFuerWeiterleitung.starten();
+        clientFuerWeiterleitung.startThread();
         clientFuerWeiterleitung.versendeEmail(null, email, absender, rcpt);
     }
 
@@ -512,7 +508,7 @@ public class EmailServer extends Anwendung implements I18n {
                 mailBody.append("\t").append(unknownRecipient).append("\n");
             }
             mailBody.append("\nDate: ").append(DateFormat.getInstance().format(new Date())).append("\n");
-            mailBody.append("Mail-Server: ").append(this.getSystemSoftware().holeIPAdresse()).append("\n");
+            mailBody.append("Mail-Server: ").append(this.getSystemSoftware().getIPAddress()).append("\n");
             mailBody.append("\n______________________________________________________________________\n");
             mailBody.append(email.toString());
             unknownRecipientResponse.setText(mailBody.toString());
@@ -520,7 +516,7 @@ public class EmailServer extends Anwendung implements I18n {
             if (pruefeAufSelbeDomain(senderAddress.getMailAddress())) {
                 EmailKonto empfaengerKonto = sucheKonto(senderAddress.getMailAddress().split("@")[0]);
                 empfaengerKonto.getNachrichten().add(unknownRecipientResponse);
-                benachrichtigeBeobachter(messages.getString("sw_smtpmitarbeiter_msg12") + " "
+                notifyObservers(messages.getString("sw_smtpmitarbeiter_msg12") + " "
                         + empfaengerKonto.getBenutzername() + " " + messages.getString("sw_smtpmitarbeiter_msg13"));
             } else {
                 this.weiterleiten(unknownRecipientResponse, "<>", senderAddress.toString());

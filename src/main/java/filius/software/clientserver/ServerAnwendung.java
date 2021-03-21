@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import filius.Main;
 import filius.exception.ServerSocketException;
 import filius.rahmenprogramm.I18n;
-import filius.software.Anwendung;
+import filius.software.Application;
 import filius.software.transportschicht.ServerSocket;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.SocketSchnittstelle;
@@ -41,7 +41,7 @@ import filius.software.transportschicht.SocketSchnittstelle;
  * Anwendungslogik implementieren bzw. die Verarbeitung eingehender Verbindungsanfragen und Dienstnforderungen
  * uebernehmen.
  */
-public abstract class ServerAnwendung extends Anwendung implements I18n {
+public abstract class ServerAnwendung extends Application implements I18n {
 
     /** Konstante: UDP oder TCP der Klasse TransportProtokoll */
     protected int transportProtokoll;
@@ -55,7 +55,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
     /**
      * Ob der Server aktiv ist, d. h. ob auf eingehende Verbindungsanfragen gewartet wird.
      */
-    protected boolean aktiv = false;
+    protected boolean active = false;
 
     /**
      * Liste von Mitarbeitern, die die Bearbeitung der erstellten Verbindungen vornehmen.
@@ -86,8 +86,8 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
     /**
      * Methode zur Abfrage, ob der Server-Socket auf eingehende Verbindungen wartet.
      */
-    public boolean isAktiv() {
-        return aktiv;
+    public boolean isActive() {
+        return active;
     }
 
     /**
@@ -96,10 +96,10 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * 
      * @param flag
      */
-    public synchronized void setAktiv(boolean flag) {
+    public synchronized void setActive(boolean flag) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), setAktiv(" + flag + ")");
-        aktiv = flag;
+        active = flag;
 
         if (getState().equals(State.WAITING)) {
             notifyAll();
@@ -114,9 +114,9 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
                 }
                 mitarbeiter.clear();
             }
-            benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg1"));
+            notifyObservers(messages.getString("sw_serveranwendung_msg1"));
         } else {
-            benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg2"));
+            notifyObservers(messages.getString("sw_serveranwendung_msg2"));
         }
     }
 
@@ -124,13 +124,13 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * Methode zum Starten des Threads beim Wechsel vom Entwurfs- in den Aktionsmodus. Hier wird die Liste der
      * Mitarbeiter als leere Liste erstellt und die starten()-Methode der Oberklasse zum Starten des Threads aufgerufen.
      */
-    public void starten() {
+    public void startThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), starten()");
-        super.starten();
+        super.startThread();
         mitarbeiter = new LinkedList<ServerMitarbeiter>();
 
-        ausfuehren("annehmenVerbindungen", null);
+        execute("annehmenVerbindungen", null);
     }
 
     // return, whether this application can be used already
@@ -142,10 +142,10 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * Methode zum Anhalten des Threads. Hier wird die beenden()-Methode der Oberklasse aufgerufen und die
      * Mitarbeiter-Threads sowie die Socket-Schnittstelle werden beendet.
      */
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), beenden()");
-        super.beenden();
+        super.stopThread();
 
         if (null != mitarbeiter) {
             for (ServerMitarbeiter thread : mitarbeiter) {
@@ -192,14 +192,14 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
         Socket transportSocket;
 
         while (running) {
-            if (aktiv) {
+            if (active) {
                 if (socket == null) {
                     try {
                         socket = new ServerSocket(getSystemSoftware(), port, transportProtokoll);
                     } catch (ServerSocketException e) {
                         e.printStackTrace(Main.debug);
-                        setAktiv(false);
-                        benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg3"));
+                        setActive(false);
+                        notifyObservers(messages.getString("sw_serveranwendung_msg3"));
                         if (socket != null) {
                             socket.beenden();
                         }
@@ -212,12 +212,12 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
                         transportSocket = ((ServerSocket) socket).oeffnen();
                         if (transportSocket != null && transportSocket.holeZielIPAdresse() != null) {
                             neuerMitarbeiter(transportSocket);
-                            benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg4") + " "
+                            notifyObservers(messages.getString("sw_serveranwendung_msg4") + " "
                                     + transportSocket.holeZielIPAdresse() + ":" + transportSocket.holeZielPort() + " "
                                     + messages.getString("sw_serveranwendung_msg5"));
                         }
                     } catch (Exception e) {
-                        benachrichtigeBeobachter(e.getMessage());
+                        notifyObservers(e.getMessage());
                         e.printStackTrace(Main.debug);
                     }
                 }

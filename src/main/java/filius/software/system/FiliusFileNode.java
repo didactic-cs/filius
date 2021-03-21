@@ -29,27 +29,43 @@ import filius.software.system.FiliusFileSystem.errorCode;
  * @see filius.software.system.FiliusFileSystem
  * @see filius.software.system.FiliusFile
  */
+@SuppressWarnings("serial")
+/**
+ * <b>FiliusFileNode</b> models a TreeNode specific to the Filius File System.<br>
+ * It allows the whole filesystem to be stored in a Filius project file, using
+ * the serialization provided by Java.<br>
+ * 
+ * @see filius.software.system.FiliusFile
+ * @see filius.software.system.FiliusFileSystem
+ */
 public class FiliusFileNode extends DefaultMutableTreeNode {
-
-	private static final long serialVersionUID = 1L;
 	
+	private FiliusFileSystem FFS = null;
 	private transient FiliusFileNode root = null;
 	
+	
 	/**
-     * <b>FiliusFileNode</b> models a TreeNode specific to the Filius filesystem.<br>
-     * It allows the whole filesystem to be stored in a Filius project file, using
-     * the serialization provided by Java. <br>
      * It is important to keep this constructor without parameter for the serialization.
-     * 
-     * @see filius.software.system.FiliusFile
-     * @see filius.software.system.FiliusFileSystem
      */
     public FiliusFileNode() {
-        this(null);
+    	
+        this(null, null);
     }
 
-	public FiliusFileNode(Object userObject) {
+	public FiliusFileNode(FiliusFileSystem FFS, Object userObject) {		
+		
         super(userObject);
+        this.FFS = FFS;
+    }
+	
+    public void setFFS(FiliusFileSystem FFS) {		
+		
+        this.FFS = FFS;
+    }
+	
+    public FiliusFileSystem getFFS() {		
+		
+        return FFS;
     }
 	
 	// Overridden to avoid casting
@@ -72,13 +88,16 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
 	public FiliusFileNode getRoot() {
 		
 		if (root == null) {
-			FiliusFileNode n = this;
-			FiliusFileNode p = n.getParent();
-	    	while (p != null) {
-	    		n = p;
-	    		p = n.getParent();	     		
-	    	}
-	    	root = n;
+//			FiliusFileNode n = this;
+//			FiliusFileNode p = n.getParent();
+//	    	while (p != null) {
+//	    		n = p;
+//	    		p = n.getParent();	     		
+//	    	}
+//	    	root = n;
+			FiliusFileNode p = getParent();
+			if (p == null) root = this;
+			else root = p.getRoot();
 		}
 		
         return root;
@@ -142,7 +161,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
      * this node is updated.<br>
      * If no node matches the name of the FiliusFile's object, a new node is added to the directory.
      *
-     * @param ffile
+     * @param fFile
      *            FiliusFile object to be stored.
      * @return true if the operation succeeded.
      */
@@ -151,7 +170,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
         FiliusFileNode childNode = getChild(fFile.getName());
         
         if (childNode == null) {
-        	addSubNode (new FiliusFileNode(fFile));        	
+        	addSubNode (new FiliusFileNode(FFS, fFile));        	
         } else {
         	FiliusFile dt = (FiliusFile) childNode.getUserObject();
         	dt.setContent(fFile.getContent());
@@ -191,7 +210,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
     	// If the node has a parent, it is repositioned to maintain the alphabetical order
     	FiliusFileNode parent = getParent(); 
     	if (parent != null) {
-//    		parent.remove(this);      // pas nécessaire
+//    		parent.remove(this);      // not necessary
     		parent.addSubNode(this);
     	}
     }  
@@ -315,7 +334,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
     * 
     * @see getChildObjects
     */
-   public List<FiliusFile> getChildFiliusFiles() {
+   public List<FiliusFile> getChildrenFiliusFiles() {
        
        List<FiliusFile> list = new LinkedList<FiliusFile>();
        
@@ -400,7 +419,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
     	insert(node, i);    
     }
     
-//     // Not essential since the subnodes are serialized correctly ordered
+//     // Not essential since the subnodes are serialized in the correct order 
 //     // and deserialization restores this order
 //    public void add(FiliusFileNode node) {
 //    	addSubNode(node);
@@ -418,8 +437,8 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
     	if (! hasChildNamed(name)) return name;
     	
     	String newName;
-    	String pre = FiliusFileSystem.getPathWithoutExtension(name);
-    	String ext = FiliusFileSystem.getPathExtension(name);
+    	String pre = FFS.getPathWithoutExtension(name);
+    	String ext = FFS.getPathExtension(name);
     	int i = 2;
     	do {
     		newName = pre + " (" + String.valueOf(i) + ")" + ext;
@@ -440,7 +459,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
        
     	if (hasChildNamed(name)) return false;
 
-    	addSubNode(new FiliusFileNode(name));
+    	addSubNode(new FiliusFileNode(FFS, name));
     	return true;  
     }
     
@@ -458,7 +477,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
 
     	if (hasChildNamed(name)) return false;
     	
-    	addSubNode(new FiliusFileNode(new FiliusFile(name, type, content)));
+    	addSubNode(new FiliusFileNode(FFS, new FiliusFile(name, type, content)));
     	return true;
     }
     
@@ -488,7 +507,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
 
 		String newName = makeNameUnique(fileName);
 		
-		String type = FiliusFileSystem.getTypeFromExtension(fileName);
+		String type = FFS.getTypeFromExtension(fileName);
 		FiliusFile fFile;
 		
 		if (type != null && type.equals("text")) {
@@ -652,12 +671,12 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
      */
     public String toPath() {
     	
-    	if (getParent() == null) return FiliusFileSystem.FILE_SEPARATOR;
+    	if (getParent() == null) return FFS.FILE_SEPARATOR;
     	
     	String path = "";
     	FiliusFileNode node = this;
     	do {
-    		path = FiliusFileSystem.FILE_SEPARATOR + node.getName() + path;    		
+    		path = FFS.FILE_SEPARATOR + node.getName() + path;    		    	
     		node = node.getParent();    	   
     	} while (node != null && node.getParent() != null);    	// Stop when root is reached
 
@@ -674,11 +693,11 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
      */
     public FiliusFileNode toNode(String relativePath) {
   
-        String absolutePath = FiliusFileSystem.toPath(toPath(), relativePath);
+        String absolutePath = FFS.toPath(toPath(), relativePath);
 
         Enumeration<TreeNode> enumeration = getRoot().preorderEnumeration();
         while (enumeration.hasMoreElements()) {
-        	FiliusFileNode node = (FiliusFileNode) enumeration.nextElement();
+        	FiliusFileNode node = (FiliusFileNode) enumeration.nextElement();        	
             if (absolutePath.equalsIgnoreCase(node.toPath()))  return node;
         }
         return null;

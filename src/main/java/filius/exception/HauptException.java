@@ -25,7 +25,7 @@
  */
 package filius.exception;
 
-
+@SuppressWarnings("serial")
 public abstract class HauptException extends Exception {
 
 	public HauptException() {

@@ -65,7 +65,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
         this.socket = socket;
         this.emailServer = pop3Server.holeEmailServer();
 
-        emailServer.benachrichtigeBeobachter(EmailServer.LINE_SEPARATOR);
+        emailServer.notifyObservers(EmailServer.LINE_SEPARATOR);
         sendeAntwort("+OK POP3 server ready");
     }
 
@@ -74,7 +74,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), verarbeiteNachricht(" + nachricht + ")");
 
-        emailServer.benachrichtigeBeobachter(socket.holeZielIPAdresse() + "< " + nachricht);
+        emailServer.notifyObservers(socket.holeZielIPAdresse() + "< " + nachricht);
         // ist der Befehl fuer den POP3Server (USER, STAT, ...)
         String befehl = "";
         // ist das Array, das die einzelnen Elemente der Clientdaten aufnimmt
@@ -446,7 +446,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
         benutzername = "";
         password = "";
 
-        emailServer.benachrichtigeBeobachter();
+        emailServer.notifyObservers();
         return ergebnis;
     }
 
@@ -668,7 +668,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                 emailServer.kontenSpeichern();
             }
         } catch (Exception e) {}
-        emailServer.benachrichtigeBeobachter(socket.holeZielIPAdresse() + "> " + daten);
+        emailServer.notifyObservers(socket.holeZielIPAdresse() + "> " + daten);
         sendeNachricht(daten);
     }
 

@@ -27,15 +27,15 @@ package filius.software.vermittlungsschicht;
 
 import filius.Main;
 import filius.hardware.NetworkInterface;
-import filius.software.ProtokollThread;
+import filius.software.ProtocolThread;
 import filius.software.netzzugangsschicht.EthernetFrame;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 
 /**
  * Klasse zur Ueberwachung des Puffers fuer eingehende ARP-Pakete
  * 
  */
-public class ARPThread extends ProtokollThread {
+public class ARPThread extends ProtocolThread {
 
     /**
      * die Implementierung des Address Resolution Protocols mit der Verwaltung der ARP-Eintraege
@@ -46,7 +46,7 @@ public class ARPThread extends ProtokollThread {
      * Konstruktor zur Initialisierung des zu ueberwachenden Puffers und der ARP-Implementierung
      */
     public ARPThread(ARP vermittlung) {
-        super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeARPPuffer());
+        super(((InternetNodeOS) vermittlung.getSystemSoftware()).getEthernet().holeARPPuffer());
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ARPThread), constr: ARPThread(" + vermittlung + ")");
         this.vermittlung = vermittlung;
@@ -57,11 +57,11 @@ public class ARPThread extends ProtokollThread {
      * Aus jedem ARP-Paket wird ein neuer Eintrag fuer die ARP-Tabelle erzeugt (unabhaengig davon, ob es eine Anfrage
      * oder eine Antwort ist). Wenn die Anfrage eine eigene IP-Adresse betrifft, wird ein Antwort-Paket verschickt.
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
+    protected void processFrame(Object datenEinheit) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ARPThread), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
         ArpPaket arpPaket, antwortArp;
-        InternetKnotenBetriebssystem bs;
+        InternetNodeOS bs;
         NetworkInterface nic;
 
         arpPaket = (ArpPaket) datenEinheit;
@@ -71,7 +71,7 @@ public class ARPThread extends ProtokollThread {
             vermittlung.hinzuARPTabellenEintrag(arpPaket.getQuellIp(), arpPaket.getQuellMacAdresse());
         }
 
-        bs = (InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware();
+        bs = (InternetNodeOS) vermittlung.getSystemSoftware();
         nic = vermittlung.getBroadcastNic(arpPaket.getQuellIp());
 
         // wenn die Anfrage eine Anfrage fuer eine eigene
@@ -91,7 +91,7 @@ public class ARPThread extends ProtokollThread {
                 antwortArp.setZielMacAdresse(arpPaket.getQuellMacAdresse());
             }
 
-            bs.holeEthernet().senden(antwortArp, nic.getMac(), antwortArp.getZielMacAdresse(), EthernetFrame.ARP);
+            bs.getEthernet().senden(antwortArp, nic.getMac(), antwortArp.getZielMacAdresse(), EthernetFrame.ARP);
         }
     }
 }

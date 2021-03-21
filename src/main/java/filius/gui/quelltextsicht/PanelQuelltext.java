@@ -38,9 +38,8 @@ import javax.swing.JTabbedPane;
 
 import filius.Main;
 
+@SuppressWarnings("serial")
 public class PanelQuelltext extends JTabbedPane {
-
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Die Editoren fuer die Quelltextdateien. Als Schluessel wird der Dateipfad
@@ -105,7 +104,8 @@ public class PanelQuelltext extends JTabbedPane {
 	 * Methode zum Speichern aller bearbeiteten bzw. neu erstellten Quelltexte
 	 */
 	public void speicherQuelltexte() {
-		Enumeration dateipfade, editors;
+		Enumeration<String> dateipfade;
+		Enumeration<JEditorPane> editors;
 		JEditorPane pane;
 		String pfad;
 		FileWriter writer;
@@ -113,8 +113,8 @@ public class PanelQuelltext extends JTabbedPane {
 		dateipfade = editorPanes.keys();
 		editors = editorPanes.elements();
 		while (dateipfade.hasMoreElements() && editors.hasMoreElements()) {
-			pfad = (String) dateipfade.nextElement();
-			pane = (JEditorPane) editors.nextElement();
+			pfad = dateipfade.nextElement();
+			pane = editors.nextElement();
 
 			try {
 				writer = new FileWriter(pfad, false);

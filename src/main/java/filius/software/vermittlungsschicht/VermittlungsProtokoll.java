@@ -31,11 +31,11 @@ import java.util.StringTokenizer;
 import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
-import filius.software.Protokoll;
+import filius.software.Protocol;
 import filius.software.system.SystemSoftware;
 
 /** Oberklasse von ARP und IP mit Hilfsmethoden */
-public abstract class VermittlungsProtokoll extends Protokoll {
+public abstract class VermittlungsProtokoll extends Protocol {
 
     /** Standard-Konstruktor der Oberklasse Protokoll */
     public VermittlungsProtokoll(SystemSoftware systemSoftware) {
@@ -124,8 +124,8 @@ public abstract class VermittlungsProtokoll extends Protokoll {
             return true;
         }
 
-        InternetNode knoten = (InternetNode) holeSystemSoftware().getKnoten();
-        for (NetworkInterface nic : knoten.getNIlist()) {
+        InternetNode knoten = (InternetNode) getSystemSoftware().getNode();
+        for (NetworkInterface nic : knoten.getNICList()) {
             if (ip.equals(nic.getIp())) {
                 return true;
             }
@@ -134,7 +134,7 @@ public abstract class VermittlungsProtokoll extends Protokoll {
     }
 
     public boolean isApplicableBroadcast(String zielIp) {
-        List<NetworkInterface> nics = ((InternetNode) this.holeSystemSoftware().getKnoten()).getNIlist();
+        List<NetworkInterface> nics = ((InternetNode) this.getSystemSoftware().getNode()).getNICList();
         for (NetworkInterface nic : nics) {
             if (isBroadcast(zielIp, nic.getIp(), nic.getSubnetMask())) {
                 return true;

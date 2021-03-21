@@ -28,12 +28,12 @@ package filius.gui.anwendungssicht;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ListIterator;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Observable;
 
 import javax.swing.AbstractAction;
@@ -51,11 +51,9 @@ import javax.swing.JTextArea;
 
 import filius.Main;
 import filius.gui.CloseableBrowserTabbedPaneUI;
-import filius.software.system.Betriebssystem;
+import filius.software.system.HostOS;
 import filius.software.system.FiliusFile;
-import filius.software.system.FiliusFileListener;
 import filius.software.system.FiliusFileNode;
-import filius.software.system.FiliusFileListener.ChangeType;
 
 /**
  * Applikationsfenster fuer TextEditor
@@ -63,42 +61,43 @@ import filius.software.system.FiliusFileListener.ChangeType;
  * @author Johannes Bade & Thomas Gerding
  * 
  */
-public class GUIApplicationTextEditorWindow extends GUIApplicationWindow implements FiliusFileListener {
+@SuppressWarnings("serial")
+public class GUIApplicationTextEditorWindow extends GUIApplicationWindow implements PropertyChangeListener {
 
-	private static final long serialVersionUID = 1L;
 	private JTextArea editorField;
 	private JPanel backPanel;
 	private GUIApplicationWindow diesesFenster;
-	private FiliusFile aktuelleDatei = null;
+	private FiliusFile currentFile = null;
 	private String original = "";
-	private FiliusFileNode arbeitsVerzeichnis;
+	private FiliusFileNode workingDir;
 	private JTabbedPane tpTabs;
+	
 
 	public GUIApplicationTextEditorWindow(GUIDesktopPanel desktop, String appName) {
 		super(desktop, appName);
 		this.diesesFenster = this;
 
-		this.setTitle(messages.getString("texteditor_msg1"));
+		setTitle(messages.getString("texteditor_msg1"));
 		editorField = new JTextArea("");
 		editorField.setEditable(true);
 		editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
 
-		this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getWorkingDirectory();
+		workingDir = getApplication().getSystemSoftware().getFileSystem().getWorkingDirectory();
 
-		String dateiName = holeParameter()[0];
+		String dateiName = getParameter()[0];
 		if (!dateiName.equals("")) {
 
-			if (this.arbeitsVerzeichnis == null) {
+			if (this.workingDir == null) {
 
-				this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
+				this.workingDir = getApplication().getSystemSoftware().getFileSystem().getRoot();
 
 			}
-			FiliusFile datei = arbeitsVerzeichnis.getFiliusFile(dateiName);
+			FiliusFile datei = workingDir.getFiliusFile(dateiName);
 			if (datei != null) {
 				this.setTitle(dateiName);
 				editorField.setText(datei.getContent());
 				original = datei.getContent();
-				aktuelleDatei = datei;
+				currentFile = datei;
 			}
 		}
 
@@ -119,7 +118,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 		backPanel = new JPanel(new BorderLayout());
 		backPanel.add(editorBox, BorderLayout.CENTER);
 
-		this.getContentPane().add(backPanel);
+		getContentPane().add(backPanel);
 
 		JMenuBar mb = new JMenuBar();
 
@@ -171,16 +170,16 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 	}
 
 	public void speichern() {
-		if (aktuelleDatei != null) {
+		if (currentFile != null) {
 			original = editorField.getText();
-			aktuelleDatei.setContent(original);
+			currentFile.setContent(original);
 		} else {
 			speichernUnter();
 		}
 	}
 
 	public void speichernUnter() {
-		DMTNFileChooser fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
+		DMTNFileChooser fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
 		int rueckgabe = fc.saveDialog();
 
 		if (rueckgabe == DMTNFileChooser.OK) {
@@ -192,18 +191,18 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 	}
 
 	public void changeCurrentFile(FiliusFile tmpFile) {
-		if (aktuelleDatei != null) {
-			aktuelleDatei.addFileListener(this);
+		if (currentFile != null) {
+			currentFile.addPropertyChangeListener("filecontent", this);
 		}
-		aktuelleDatei = tmpFile;
+		currentFile = tmpFile;
 		updateFromFile();
-		if (aktuelleDatei != null) {
-			aktuelleDatei.removeFileListener(this);
+		if (currentFile != null) {
+			currentFile.removePropertyChangeListener("filecontent", this);
 		}
 	}
 
 	public void oeffnen() {
-		DMTNFileChooser fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
+		DMTNFileChooser fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
 		int rueckgabe = fc.openDialog();
 		if (rueckgabe == DMTNFileChooser.OK) {
 			FiliusFile tmpFile = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());
@@ -214,9 +213,9 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 	}
 
 	private void updateFromFile() {
-		if (aktuelleDatei != null) {
-			this.setTitle(aktuelleDatei.getName());
-			original = aktuelleDatei.getContent();
+		if (currentFile != null) {
+			this.setTitle(currentFile.getName());
+			original = currentFile.getContent();
 			editorField.setText(original);
 		} else {
 			Main.debug.println("ERROR (" + this.hashCode()
@@ -235,21 +234,21 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 		diesesFenster.doDefaultCloseAction();
 	}
 
-	public void starten(String[] param) {
-		String dateiName = holeParameter()[0];
+	public void start(String[] param) {
+		String dateiName = getParameter()[0];
 		if (!dateiName.equals("")) {
-			this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getWorkingDirectory();
-			if (this.arbeitsVerzeichnis == null) {
-				this.arbeitsVerzeichnis = this.holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
+			this.workingDir = this.getApplication().getSystemSoftware().getFileSystem().getWorkingDirectory();
+			if (this.workingDir == null) {
+				this.workingDir = this.getApplication().getSystemSoftware().getFileSystem().getRoot();
 			}
-			FiliusFile datei = arbeitsVerzeichnis.getFiliusFile(dateiName);
+			FiliusFile datei = workingDir.getFiliusFile(dateiName);
 			if (datei != null) {
 				editorField = new JTextArea();
 				editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
 				this.setTitle(dateiName);
 				editorField.setText(datei.getContent());
 				original = datei.getContent();
-				aktuelleDatei = datei;
+				currentFile = datei;
 
 				JScrollPane tpPane = new JScrollPane(editorField);
 				tpPane.setBorder(null);
@@ -266,8 +265,9 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 	public void tabVerhalten() {
 		/* Tabs schliessbar machen */
 		tpTabs.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent me) {
-				if (me.getButton() == 3) {
+			public void mouseClicked(MouseEvent e) {
+				
+				if (e.getButton() == 3) {
 
 					JPopupMenu popmen = new JPopupMenu();
 					final JMenuItem miTabsSchliessen = new JMenuItem(messages.getString("texteditor_msg11"));
@@ -306,34 +306,43 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 					popmen.add(miAndereTabsSchliessen);
 					popmen.setVisible(true);
 
-					zeigePopupMenu(popmen, me.getX(), me.getY());
+					showPopupMenu(popmen, e.getX(), e.getY());
 
 				}
-				if (me.getButton() == 1) {
-					boolean treffer = false;
-					Rectangle aktuellesRect = null;
+				if (e.getButton() == 1) {
+					
 					CloseableBrowserTabbedPaneUI tpui = (CloseableBrowserTabbedPaneUI) tpTabs.getUI();
-
-					ListIterator it = tpui.getButton_positionen().listIterator();
-					while (it.hasNext()) {
-						Rectangle rect = (Rectangle) it.next();
-						if (rect.intersects(new Rectangle(me.getX(), me.getY(), 1, 1))) {
-							treffer = true;
-							aktuellesRect = rect;
+					int index = tpui.getClickedCrossIndex(e.getX(), e.getY());					
+					if (index >= 0) {
+						if (showConfirmDialog(messages.getString("texteditor_msg13")) == JOptionPane.YES_OPTION) {
+							tpui.removeTab(index);
 						}
 					}
-
-					if (treffer) {
-						int abfrage = showConfirmDialog(messages.getString("texteditor_msg13"));
-
-						if (abfrage == JOptionPane.YES_OPTION) {
-							tpui.getButton_positionen().remove(aktuellesRect);
-							tpTabs.remove(tpTabs.getSelectedIndex());
-						}
-					}
+					
+//					boolean treffer = false;
+//					Rectangle aktuellesRect = null;
+//					CloseableBrowserTabbedPaneUI tpui = (CloseableBrowserTabbedPaneUI) tpTabs.getUI();
+//
+//					ListIterator it = tpui.getButtonPositions().listIterator();
+//					while (it.hasNext()) {
+//						Rectangle rect = (Rectangle) it.next();
+//						if (rect.intersects(new Rectangle(me.getX(), me.getY(), 1, 1))) {
+//							treffer = true;
+//							aktuellesRect = rect;
+//						}
+//					}
+//
+//					if (treffer) {
+//						int abfrage = showConfirmDialog(messages.getString("texteditor_msg13"));
+//
+//						if (abfrage == JOptionPane.YES_OPTION) {
+//							tpui.getButtonPositions().remove(aktuellesRect);
+//							tpTabs.remove(tpTabs.getSelectedIndex());
+//						}
+//					}
 
 					/* Neuer Tab bei Doppelklick */
-					if (me.getClickCount() == 2) {
+					if (e.getClickCount() == 2) {
 						neu();
 					}
 
@@ -349,21 +358,29 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 	}
 
 	public void updateUnchangedTextFromFile() {
-		if (original != null && editorField != null && aktuelleDatei != null && original.equals(editorField.getText())) {
-			original = aktuelleDatei.getContent();
+		if (original != null && editorField != null && currentFile != null && original.equals(editorField.getText())) {
+			original = currentFile.getContent();
 			editorField.setText(original);
 		}
 	}
 	
-	// From interface FiliusFileListener
 	@Override
-	public void onChange(ChangeType ct) {		
-		if (ct == ChangeType.CONTENT) updateUnchangedTextFromFile();
+	public void propertyChange(PropertyChangeEvent evt) {
+		
+        String pn = evt.getPropertyName();
+		
+		if (pn.equals("filecontent")) {
+			
+			// Update the user interface
+			// From: FiliusFile
+			updateUnchangedTextFromFile();
+		}	
 	}
+	
 
 	// No longer used (Observer replaced by FiliusFileListener)
 	// To be removed when Observer will be removed from ancestor 
 	@Override
 	public void update(Observable observable, Object arg1) {		
-	}
+	}	
 }

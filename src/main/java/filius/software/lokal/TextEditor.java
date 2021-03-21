@@ -26,7 +26,7 @@
 package filius.software.lokal;
 
 import filius.Main;
-import filius.software.Anwendung;
+import filius.software.Application;
 
 /**
  * 
@@ -34,17 +34,17 @@ import filius.software.Anwendung;
  * @author Thomas Gerding & Johannes Bade
  * 
  */
-public class TextEditor extends Anwendung {
+public class TextEditor extends Application {
 
 	// Betriebssystem betriebssystem;
 	boolean abfrageVar;
 
-	public void beenden() {
+	public void stopThread() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
 		        + " (TextEditor), beenden()");
 	}
 
-	public void starten() {
+	public void startThread() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
 		        + " (TextEditor), starten()");
 	}

@@ -55,7 +55,7 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.software.dateiaustausch.PeerToPeerAnwendung;
 import filius.software.system.FiliusFile;
 
@@ -112,7 +112,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         connectNetworkButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (pruefungOK == true) {
-                    ((PeerToPeerAnwendung) holeAnwendung()).beitretenNetzwerk(networkIpField.getText());
+                    ((PeerToPeerAnwendung) getApplication()).beitretenNetzwerk(networkIpField.getText());
                 } else {
                     JOptionPane.showMessageDialog(desktop, messages.getString("peertopeeranwendung_msg5"));
                 }
@@ -120,7 +120,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         });
         quitNetworkButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
-                ((PeerToPeerAnwendung) holeAnwendung()).resetNetwork();
+                ((PeerToPeerAnwendung) getApplication()).resetNetwork();
             }
         });
 
@@ -194,7 +194,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         searchButton = new JButton(messages.getString("peertopeeranwendung_msg13"));
         searchButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
-                ((PeerToPeerAnwendung) holeAnwendung()).sucheDatei(searchField.getText());
+                ((PeerToPeerAnwendung) getApplication()).sucheDatei(searchField.getText());
             }
         });
 
@@ -203,7 +203,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         stopSearchButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
                 {
-                    ((PeerToPeerAnwendung) holeAnwendung()).abbrechenSuche();
+                    ((PeerToPeerAnwendung) getApplication()).abbrechenSuche();
                 }
             }
         });
@@ -213,7 +213,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         emptyListButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
                 {
-                    ((PeerToPeerAnwendung) holeAnwendung()).loescheSuchergebnisse();
+                    ((PeerToPeerAnwendung) getApplication()).loescheSuchergebnisse();
                     updateErgebnisTabelle();
                 }
             }
@@ -226,7 +226,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
                 {
                     int zeilenNummer = ergebnisTabelle.getSelectedRow();
                     if (zeilenNummer > -1) {
-                        ((PeerToPeerAnwendung) holeAnwendung()).herunterladenDatei(zeilenNummer);
+                        ((PeerToPeerAnwendung) getApplication()).herunterladenDatei(zeilenNummer);
                     }
 
                 }
@@ -290,7 +290,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
 
         configPanel = new JPanel(new BorderLayout());
         maxClientsLabel = new JLabel(messages.getString("peertopeeranwendung_msg25"));
-        maxClientsField = new JTextField("" + ((PeerToPeerAnwendung) holeAnwendung()).getMaxTeilnehmerZahl());
+        maxClientsField = new JTextField("" + ((PeerToPeerAnwendung) getApplication()).getMaxTeilnehmerZahl());
         maxClientsField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 zahlPruefen(maxClientsField);
@@ -302,7 +302,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
             public void mousePressed(MouseEvent e) {
                 {
                     if (zahlOK == true) {
-                        ((PeerToPeerAnwendung) holeAnwendung())
+                        ((PeerToPeerAnwendung) getApplication())
                                 .setMaxTeilnehmerZahl(Integer.parseInt(maxClientsField.getText()));
                     } else {
                         JOptionPane.showMessageDialog(desktop, messages.getString("peertopeeranwendung_msg27"));
@@ -357,7 +357,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         DefaultTableModel tabellenModell = (DefaultTableModel) dateiTabelle.getModel();
         tabellenModell.setRowCount(0);
 
-        List<FiliusFile> tempListe = ((PeerToPeerAnwendung) holeAnwendung()).holeVerzeichnis().getChildFiliusFiles();
+        List<FiliusFile> tempListe = ((PeerToPeerAnwendung) getApplication()).holeVerzeichnis().getChildrenFiliusFiles();
 
         for (FiliusFile tmpDatei : tempListe) {
             Vector<String> v = new Vector<>();
@@ -378,7 +378,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         DefaultTableModel tabellenModell = (DefaultTableModel) netzwerkTabelle.getModel();
         tabellenModell.setRowCount(0);
 
-        List<String> tempListe = ((PeerToPeerAnwendung) holeAnwendung()).holeBekanntePeerToPeerTeilnehmer();
+        List<String> tempListe = ((PeerToPeerAnwendung) getApplication()).holeBekanntePeerToPeerTeilnehmer();
 
         int zaehler = 0;
         for (String ip : tempListe) {
@@ -402,7 +402,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         DefaultTableModel tabellenModell = (DefaultTableModel) ergebnisTabelle.getModel();
         tabellenModell.setRowCount(0);
 
-        List<String> tempListe = ((PeerToPeerAnwendung) holeAnwendung()).holeErgebnisse();
+        List<String> tempListe = ((PeerToPeerAnwendung) getApplication()).holeErgebnisse();
 
         for (String ergebnis : tempListe) {
             Vector<String> v = new Vector<>();
@@ -425,11 +425,11 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
      * @param feld
      */
     public void ipPruefen(JTextField feld) {
-        if (EingabenUeberpruefung.isGueltig(feld.getText(), EingabenUeberpruefung.musterIpAdresse)) {
-            feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+        if (EntryValidator.isValid(feld.getText(), EntryValidator.musterIpAdresse)) {
+            feld.setForeground(EntryValidator.rightTextColor);
             pruefungOK = true;
         } else {
-            feld.setForeground(EingabenUeberpruefung.farbeFalsch);
+            feld.setForeground(EntryValidator.wrongTextColor);
             pruefungOK = false;
 
         }
@@ -444,11 +444,11 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
      * @param feld
      */
     public void zahlPruefen(JTextField feld) {
-        if (EingabenUeberpruefung.isGueltig(feld.getText(), EingabenUeberpruefung.musterNurZahlen)) {
-            feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+        if (EntryValidator.isValid(feld.getText(), EntryValidator.musterNurZahlen)) {
+            feld.setForeground(EntryValidator.rightTextColor);
             zahlOK = true;
         } else {
-            feld.setForeground(EingabenUeberpruefung.farbeFalsch);
+            feld.setForeground(EntryValidator.wrongTextColor);
             zahlOK = false;
 
         }

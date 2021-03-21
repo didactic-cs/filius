@@ -34,7 +34,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ListIterator;
-
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -49,9 +48,8 @@ import filius.Main;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 
+@SuppressWarnings("serial")
 public class PanelCompiler extends JPanel implements I18n, Runnable {
-
-	private static final long serialVersionUID = 1L;
 
 	private String[] quelltextDateien;
 
@@ -121,14 +119,14 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
 		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern()");
 		boolean vorhanden = false;
 		FileWriter fw = null;
-		ListIterator it;
-		HashMap map;
+		ListIterator<HashMap<String, String>> it;
+		HashMap<String, String> map;
 
 		if (fehlerfreiKompiliert) {
 			try {
 				it = Information.getInstance().ladeProgrammListe().listIterator();
 				while (it.hasNext() && !vorhanden) {
-					map = (HashMap) it.next();
+					map = it.next();
 					if (map.get("Klasse").equals("filius.software.clientserver." + anwendungsKlasse)) {
 						vorhanden = true;
 					}
@@ -139,7 +137,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
 
 			if (!vorhanden) {
 				try {
-					fw = new FileWriter(Information.getInstance().getAnwendungenPfad() + "EigeneAnwendungen.txt",
+					fw = new FileWriter(Information.getInstance().getApplicationsPath() + "EigeneAnwendungen.txt",
 					        true);
 					fw.write("\n" + anwendungsName + ";filius.software.clientserver." + anwendungsKlasse
 					        + ";filius.gui.anwendungssicht.GUIApplication" + anwendungsKlasse

@@ -26,9 +26,9 @@
 package filius.software.lokal;
 
 import filius.Main;
-import filius.software.Anwendung;
+import filius.software.Application;
 
-public class ImageViewer extends Anwendung {
+public class ImageViewer extends Application {
 
 	public ImageViewer() // Betriebssystem betriebssystem)
 	{
@@ -37,12 +37,12 @@ public class ImageViewer extends Anwendung {
 		        + " (ImageWriter), constr: ImageWriter()");
 	}
 
-	public void starten() {
+	public void startThread() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (ImageWriter), starten()");
 	}
 
-	public void beenden() {
+	public void stopThread() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (ImageWriter), beenden()");
 	}

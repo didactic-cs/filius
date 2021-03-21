@@ -32,6 +32,7 @@ import java.util.ListIterator;
 import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
+import filius.software.system.InternetNodeOS;
 
 @SuppressWarnings("serial")
 public abstract class InternetNode extends Node {
@@ -40,38 +41,77 @@ public abstract class InternetNode extends Node {
         
 
     /**
-     * <b>createNics</b> creates a list of network interfaces for the node.
+     * <b>createNICList</b> creates a list of network interfaces for the node.
      *      
      * @param count An integer with the number of network interfaces to be created.
      */
-    public void createNIlist(int count) {
+    public void createNICList(int count) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
-                           " (InternetNode), setNicCount(" + count + ")");
+                           " (InternetNode), createNICList(" + count + ")");
 
         networkInterfaces = new LinkedList<NetworkInterface>();
-        for (int i = 0; i < count; i++) {
-        	NetworkInterface ni = new NetworkInterface();
-            networkInterfaces.add(ni);
-            ni.getPort().setOwner(this);
-        }
+        if (this instanceof Host) {
+        	// Hosts        	        
+        	NetworkInterface ni = addNIC();
+        	ni.setIp("192.168.0.10"); 
+        } else {
+        	// Routers
+        	for (int i = 0; i < count; i++) {           
+        		NetworkInterface ni = addNIC();
+        		ni.setIp("192.168."+String.valueOf(i)+".1"); 
+        	}
+        }   
     }    
     
-    public void addNI() {
+    public NetworkInterface addNIC() {
         NetworkInterface ni = new NetworkInterface();
         networkInterfaces.add(ni);
         ni.getPort().setOwner(this);
+        return ni;
     }
     
-    public void removeNI(NetworkInterface nic) {
-        this.networkInterfaces.remove(nic);
+    public void removeNIC(NetworkInterface ni) {
+        networkInterfaces.remove(ni);
     }  
     
-    public List<NetworkInterface> getNIlist() {
+    public List<NetworkInterface> getNICList() {
         return networkInterfaces;
     }  
 
-    public int getNIcount() {
+    public int getNICCount() {
         return networkInterfaces.size();
+    }
+    
+    /**
+     * <b>getNic</b> returns the network interface corresponding to the given index, 
+     * or null if there is none.
+     * 
+     * @return A NetworkInterface instance or null.
+     */
+    public NetworkInterface getNIC(int index) {
+
+    	if (index < 0 || index >= networkInterfaces.size()) return null;
+    	
+        ListIterator<NetworkInterface> it = this.networkInterfaces.listIterator();
+        NetworkInterface ni = null;
+        int i = index;
+        while (it.hasNext() && i >= 0) {
+            ni = (NetworkInterface) it.next();
+            i--;
+         }
+        return ni;
+    }
+    
+    /**
+     * <b>getNic0</b> returns the first network interface corresponding or null if there is none.<br>
+     * This convenient for Hosts which only have this one.
+     * 
+     * @return A NetworkInterface instance or null.
+     */
+    public NetworkInterface getNIC0(){
+    	
+    	if (networkInterfaces.size() == 0) return null;
+    	else                               return networkInterfaces.get(0);
     }
     
     /**
@@ -82,10 +122,11 @@ public abstract class InternetNode extends Node {
      * @param ip String containing the IP address to look for.
      * @return A NetworkInterface instance or null.
      */
-    public NetworkInterface getNIbyIP(String ip) {
+    public NetworkInterface getNICbyIP(String ip) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() +
                            " (InternetNode), getNicByIp(" + ip + ")");
         
+        if (networkInterfaces.size() == 0) return null;
         if (ip.equals("127.0.0.1")) return (NetworkInterface) networkInterfaces.get(0);
         
         ListIterator<NetworkInterface> it = this.networkInterfaces.listIterator();
@@ -104,7 +145,7 @@ public abstract class InternetNode extends Node {
      * @param mac String containing the MAC address to look for.
      * @return A NetworkInterface instance or null.
      */
-    public NetworkInterface getNIbyMAC(String mac) {
+    public NetworkInterface getNICbyMAC(String mac) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
         		           " (InternetNode), getNicByMac(" + mac + ")");
         
@@ -123,7 +164,7 @@ public abstract class InternetNode extends Node {
      * @param port Port containing the port to look for.
      * @return A NetworkInterface instance or null.
      */
-    public NetworkInterface getNIbyPort(Port port) {        
+    public NetworkInterface getNICbyPort(Port port) {        
         
         ListIterator<NetworkInterface> it = this.networkInterfaces.listIterator();
         while (it.hasNext()) {
@@ -165,6 +206,16 @@ public abstract class InternetNode extends Node {
     	}
     	return -1;
     }
+    
+    public int getPortIndex(NetworkInterface ni) {
+    	
+    	int i = 0;
+    	for (NetworkInterface nic : networkInterfaces) {
+    		if (nic.equals(ni)) return i;
+    		i++;
+    	}
+    	return -1;
+    }
 
     /**
      * {@inheritDoc}
@@ -173,18 +224,25 @@ public abstract class InternetNode extends Node {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
         		           " (InternetNode), getFreePort()");
         
-        ListIterator<NetworkInterface> iter = getNIlist().listIterator();
+        ListIterator<NetworkInterface> iter = getNICList().listIterator();
         while (iter.hasNext()) {
             NetworkInterface nic = (NetworkInterface) iter.next();
             Port port = nic.getPort();
             if (!port.isConnected()) return port; 
         }
         return null;
-    }       
+    }   
+    
+    /**
+     * 
+     */
+    public InternetNodeOS getOS() {
+        return (InternetNodeOS) systemSoftware;
+    }
     
     /**
      * Required for the serialization<br>
-     * Use getNIlist instead
+     * Use {@link #getNICList} instead
      */
     public List<NetworkInterface> getNetworkInterfaces() {
         return networkInterfaces;

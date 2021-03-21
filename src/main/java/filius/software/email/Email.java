@@ -36,6 +36,7 @@ import filius.Main;
  * @author Andre Asschoff
  * 
  */
+@SuppressWarnings("serial")
 public class Email implements Serializable {
     private AddressEntry absender;
     private List<AddressEntry> empfaenger = new ArrayList<AddressEntry>();

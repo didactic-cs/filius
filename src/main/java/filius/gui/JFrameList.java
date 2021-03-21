@@ -5,17 +5,17 @@
  * Singleton used to coherently handle several JFrame windows, one being considered the master of the others.
  * 
  * Use:
- * call JFrameList.gI().addMain(...) to assign the main application's JFrame (the call must placed before the JFrame becomes visible)
- * call JFrameList.gI().add(...) for each other JFrame (each call must placed before the corresponding JFrame becomes visible)
+ * call JFrameList.getInstance().addMain(...) to assign the main application's JFrame (the call must placed before the JFrame becomes visible)
+ * call JFrameList.getInstance().add(...) for each other JFrame (each call must placed before the corresponding JFrame becomes visible)
  * 
  * When the master JFrame is iconified, the other JFrames are automatically hidden. Only the master JFrame's icon is visible in the taskbar.
  * When the master JFrame is deiconified, the other JFrames are automatically restored. Their Z-order and iconification states are restored too.
  * 
  * When the window of a JFrame (other than the master) is closed, the JFrame is automatically removed from the list.
  * 
- * call JFrameList.gI().hideAll() to hide all JFrames except the master
- * call JFrameList.gI().restoreAll() to show all JFrames previously hidden with hideAll(). Their Z-order and iconification states are restored too.
- * call JFrameList.gI().putMasterInTheBackground() to put the master JFrame behind all other JFrame windows.
+ * call JFrameList.getInstance().hideAll() to hide all JFrames except the master
+ * call JFrameList.getInstance().restoreAll() to show all JFrames previously hidden with hideAll(). Their Z-order and iconification states are restored too.
+ * call JFrameList.getInstance().putMasterInTheBackground() to put the master JFrame behind all other JFrame windows.
  */
 
 package filius.gui;
@@ -24,12 +24,13 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
-
 import javax.swing.JFrame;
+
+import filius.gui.nachrichtensicht.AbstractPacketsAnalyzerDialog;
 
 public class JFrameList {
 	
-	private static JFrameList singleton = null;
+	private static JFrameList frameList = null;
 	
 	private JFrame mainFrame = null;	
 	private ArrayList<JFrame> frames = new ArrayList<JFrame>();
@@ -46,11 +47,11 @@ public class JFrameList {
 	/*
 	 * returns the instance of the singleton 
 	 */
-	public static JFrameList gI() {
-		if (singleton == null) {
-			singleton = new JFrameList();
+	public static JFrameList getInstance() {
+		if (frameList == null) {
+			frameList = new JFrameList();
 		}
-		return singleton;
+		return frameList;
 	}
 	
 	public void addMain(JFrame f) {
@@ -158,22 +159,55 @@ public class JFrameList {
         }    	
     }
     
-    public void restoreAll() {
-    	if (! frozen) return;
-    	    	
-    	for (int i = frames.size()-1; i>=0; i--) { 		      
+    private void setFramesVisible() {
+    	for (int i = frames.size()-1; i>=0; i--) { 		    		
+    		JFrame frame = frames.get(i);    		
+    		if (frame instanceof AbstractPacketsAnalyzerDialog) {
+    			// The packets analyzer dialog is only shown if it's not empty
+    			if (((AbstractPacketsAnalyzerDialog)frame).isEmpty()) continue;
+    		}
     		frames.get(i).setVisible(true);			
         }
-    	
+    }
+    
+    public void restoreAll() {
+    	if (! frozen) return;    	    	
+
+    	setFramesVisible();    	
     	frozen = false;
     }
     
     public void putMasterInTheBackground() {
     	if (frozen || mainFrame == null) return;
     	
-    	for (int i = frames.size()-1; i>=0; i--) { 		      
-    		frames.get(i).setVisible(true);			
-        }
+    	setFramesVisible();
+    }
+    
+    public void closeAll() {
+    	
+        // Just hiding the windows (for the moment)
+    	for (JFrame f : frames) { 		      
+    		f.setVisible(false);		
+        }  	
+    	    	
+//    	javax.swing.JOptionPane.showMessageDialog(null,frames.size()); 
+//    	int count = frames.size() - 1;
+//    	while (count >= 0) {
+//    		JFrame f = frames.get(count); 
+//    		if (f != mainFrame) f.dispose();
+//    		count--;
+//    	}
+    	
+    	
+//    	for (JFrame f : frames) { 		      
+//    		f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));		
+//        }   
+//    	Iterator<JFrame> i = frames.iterator();
+//    	while (i.hasNext()) {
+//    		JFrame f = i.next(); 
+//    		if (f != mainFrame) f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));	
+//    	}
+    	//frames.clear();
     }
 }
 

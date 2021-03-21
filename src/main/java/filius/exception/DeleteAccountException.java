@@ -25,6 +25,7 @@
  */
 package filius.exception;
 
+@SuppressWarnings("serial")
 public class DeleteAccountException extends Exception {
 	public DeleteAccountException() {
 		super();

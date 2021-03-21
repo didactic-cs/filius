@@ -26,12 +26,12 @@
 package filius.software.transportschicht;
 
 import filius.Main;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IpPaket;
 
 public class UDP extends TransportProtokoll {
 
-	public UDP(InternetKnotenBetriebssystem betriebssystem) {
+	public UDP(InternetNodeOS betriebssystem) {
 		super(betriebssystem, IpPaket.UDP);
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDP), constr: UDP("
 		        + betriebssystem + ")");

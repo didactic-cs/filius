@@ -60,7 +60,7 @@ public class PeerToPeerServer extends TCPServerAnwendung {
 		        + " (PeerToPeerServer), constr: PeerToPeerServer(" + peerToPeerAnwendung + ")");
 		this.peerToPeerAnwendung = peerToPeerAnwendung;
 		setPort(6346);
-		setAktiv(true);
+		setActive(true);
 	}
 
 	/**

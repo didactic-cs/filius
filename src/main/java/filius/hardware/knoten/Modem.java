@@ -25,32 +25,23 @@
  */
 package filius.hardware.knoten;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
-import filius.Main;
 import filius.hardware.Port;
 import filius.software.system.ModemFirmware;
 
 @SuppressWarnings("serial")
-public class Modem extends LocalNode {
+public class Modem extends LocalNode {	
 
 	public static final String TYPE = "Modem";
 	
-	// connectionActive becomes true when a connection with another 
-	// modem is established. 
-	private boolean connectionActive = false;
-	
-	// List of event listeners that need to be notified when connectionActive changes
-	private ArrayList<ModemConnectedListener> listenerList = new ArrayList<ModemConnectedListener>();
-
 	public Modem() {
 		super();
 
-		this.createPortList(1);
-		this.setSystemSoftware(new ModemFirmware());
-		getSystemSoftware().setKnoten(this);
-		this.setName(TYPE);
+		createPortList(1);
+		setSystemSoftware(new ModemFirmware());
+		getSystemSoftware().setNode(this);
+		setName(TYPE);
 	}
 	
     /**
@@ -66,34 +57,13 @@ public class Modem extends LocalNode {
         
         return (Port) ports.getFirst();        
     }
-	
-	public boolean isConnectionActive() {
-		return connectionActive;
-	}
-
-	public void setConnectionActive(boolean active) {
-		
-		this.connectionActive = active;
-		// Notify the listeners (GUI of the modem node)  
-        for (ModemConnectedListener l : listenerList) l.onModemConnectedChange(active);
-	}
-	
-	//***************************************************************************************
-	// Handling event listeners
-	//***************************************************************************************
-	
-    /**
-     * <b>addListener<b> adds a listener to the list.<br>
-     * Each listener is notified every time the connection status changes.
-     * 
-     * @param l the listener to be added
-     */
-    public void addListener(ModemConnectedListener l) {
-    	
-        if (!listenerList.contains(l)) listenerList.add(l);
+    
+    public ModemFirmware getFirmware() {    	
+        
+        return (ModemFirmware) getSystemSoftware();        
     }
     
-	@Override
+    @Override
 	public String getHardwareType() {
 		return TYPE;
 	}

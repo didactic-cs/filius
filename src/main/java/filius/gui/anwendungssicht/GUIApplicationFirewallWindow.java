@@ -66,8 +66,6 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 1L;
-
 	private JTable tTabellePort;
 
 	private JTextField tfPort;
@@ -96,7 +94,7 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 		cbEinAus = new JCheckBox(messages.getString("firewall_msg1"));
 		cbEinAus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				((Firewall) holeAnwendung()).setActivated(cbEinAus.isSelected()); // new
+				((Firewall) getApplication()).setActivated(cbEinAus.isSelected()); // new
 				                                                                  // format
 				cbIcmp.setEnabled(cbEinAus.isSelected());
 				updateAttribute();
@@ -108,7 +106,7 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 		cbIcmp = new JCheckBox(messages.getString("firewall_msg13"));// Bei
 		cbIcmp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				((Firewall) holeAnwendung()).setDropICMP(!cbIcmp.isSelected()); // old
+				((Firewall) getApplication()).setDropICMP(!cbIcmp.isSelected()); // old
 				                                                                // format
 				updateAttribute();
 
@@ -227,7 +225,7 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 			                                                                 // local
 			                                                                 // network
 
-			((Firewall) holeAnwendung()).eintragHinzufuegenPort("" + port, unterscheideNetzwerk); // old
+			((Firewall) getApplication()).eintragHinzufuegenPort("" + port, unterscheideNetzwerk); // old
 			                                                                                      // (includes
 			                                                                                      // new
 			                                                                                      // rule
@@ -241,7 +239,7 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 
 	private void loescheRegel() {
 		if (tTabellePort.getSelectedRow() != -1) {
-			((Firewall) holeAnwendung()).entferneRegelPort(tTabellePort.getSelectedRow());
+			((Firewall) getApplication()).entferneRegelPort(tTabellePort.getSelectedRow());
 		}
 		updateAttribute();
 	}
@@ -269,13 +267,13 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
 		model = (DefaultTableModel) tTabellePort.getModel();
 		model.setRowCount(0);
 
-		Vector<FirewallRule> ruleset = ((Firewall) holeAnwendung()).getRuleset();
+		Vector<FirewallRule> ruleset = ((Firewall) getApplication()).getRuleset();
 		for (int i = 0; i < ruleset.size(); i++) {
 			model.addRow(ruleset.get(i).getVectorPFW());
 		}
 
-		cbEinAus.setSelected(((Firewall) holeAnwendung()).isActivated());
-		cbIcmp.setSelected(!((Firewall) holeAnwendung()).getDropICMP());
+		cbEinAus.setSelected(((Firewall) getApplication()).isActivated());
+		cbIcmp.setSelected(!((Firewall) getApplication()).getDropICMP());
 	}
 
 	public void update(Observable arg0, Object nachricht) {

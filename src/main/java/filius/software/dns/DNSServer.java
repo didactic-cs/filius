@@ -54,15 +54,15 @@ public class DNSServer extends UDPServerAnwendung {
         super();
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), constr: DNSServer()");
-        FFS = getSystemSoftware().getDateisystem();
+        FFS = getSystemSoftware().getFileSystem();
 
         setPort(53);
     }
 
-    public void starten() {
+    public void startThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), starten()");
-        super.starten();
+        super.startThread();
 
         FiliusFileNode node = FFS.toNode("dns", "hosts");
         if (node == null) {
@@ -72,10 +72,10 @@ public class DNSServer extends UDPServerAnwendung {
         }
     }
 
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), beenden()");
-        super.beenden();
+        super.stopThread();
     }
 
     public List<ResourceRecord> holeResourceRecords() {
@@ -162,7 +162,7 @@ public class DNSServer extends UDPServerAnwendung {
             }
         }
         this.schreibeRecordListe(rrList);
-        benachrichtigeBeobachter(type);
+        notifyObservers(type);
     }
 
     public void loescheResourceRecord(String domainname, String typ) {

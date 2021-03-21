@@ -1,0 +1,97 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css">
+    html { background-color: rgb(250, 248, 246); padding-left: 8px; padding-right: 8px; padding-bottom: 20px; }
+    body { font-family: Helvetica,Arial,sans-serif; font-size: 12pt; }  
+    h1 { color: rgb(0, 100, 200); font-size: 20pt; border-bottom: 1px solid rgb(0, 100, 200); }
+    h2 { color: rgb(0, 100, 200); font-size: 18pt; margin-top: 0px; margin-bottom: 10px; }
+    h3 { color: rgb(0, 100, 200); font-size: 15pt; margin-top: 10px; margin-bottom: 6px; }
+    h4 { font-weight: bold; margin-top: 0px; margin-bottom: 4px; }
+    p { margin-top: 0px; margin-bottom: 8px; }
+    a { color: rgb(0, 100, 200); text-decoration: none; }
+    div.menu span { font-size: 11pt; color: rgb(0, 100, 200); white-space: nowrap; text-decoration: none; }
+    div.menu span.selected { font-weight: bold; }
+    div.center { text-align: center; margin-top: 0px; margin-bottom: 8px; }
+    ol { margin-left: 15px; margin-top: 0px; }
+    ul { margin-left: 15px; margin-top: 0px; }
+    li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Projet</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Ordinateur et portable</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span class="selected">Table de routage</span>&nbsp;&nbsp;
+    <span><a href="design_mode_firewall.html">Pare-feu</a></span> 
+  </div>
+  
+  <h1>Mode conception</h1>
+
+  <h2>Table de routage</h2>
+  
+  <p>La table de routage est constituée d'une liste de règles, appelées routes, 
+     qui sont appliquées aux paquets qui parviennent au routeur. Ces règles 
+     permettent de déterminer les routes à suivre pour acheminer les paquets.</p>
+     
+  <h3>Configuration</h3>
+  
+  <p>Utiliser le menu contextuel sur les lignes de la table pour ajouter, supprimer 
+     ou modifier une règle.</p>   
+     
+  <p>L'ordre dans lequel les règles sont saisies n'est pas important. Le routeur
+     détermine en effet pour chaque paquet qui lui parvient la route la plus
+     spécifique qui s'applique.</p>    
+  
+  <h4>IP de destination / Masque </h4>
+  
+  <p>Utilisés conjointement, ces deux paramètres déterminent un sous-réseau ou 
+     un hôte précis (dans le cas où le masque vaut 255.255.255.255) que la règle
+     permet d'atteindre.</p>
+
+  <h4>Passerelle suivante</h4>
+
+  <p>Ce champ doit contenir l'adresse IP du routeur auquel seront transmis les
+     paquets dont l'adresse de destination est dans le réseau défini par l'IP 
+     de destination et le masque spécifiés dans la règle.</p>
+
+  <p>La passerelle suivante doit nécessairement se trouver dans un sous-réseau 
+     adjacent au routeur, c'est-à-dire auquel il est directement raccordé.</p>
+     
+  <h4>Interface de sortie</h4>
+
+  <p>Ce champ contient l'adresse IP de l'interface du routeur qui est raccordée au 
+     sous-réseau contenant la passerelle suivante.</p>
+
+  <h4>Règle par défaut</h4>
+
+  <p>Lorsque l'adresse IP et le masque sont égaux à 0.0.0.0, la règle correspond à 
+     la route par défaut. Il s'agit de la règle la moins spécifique et donc celle 
+     qui est utilisée en dernier ressort, lorsqu'aucune autre règle ne peut être 
+     appliquée.</p>
+
+  <p>La règle par défaut peut être générée automatiquement par FILIUS. Il suffit pour
+     cela de remplir le champ Passerelle situé sous le bouton Table de routage du 
+     panneau de configuration du routeur.</p> 
+
+  <h4>Règles présaisies</h4>
+
+  <p>Trois types de règles sont présaisies par FILIUS :</p>
+  
+  <ul>
+  <li>La règle localhost 127.0.0.0/255.0.0.0 qui correspond au routeur lui-même.</li>    
+  <li>Pour chaque réseau adjacent, la règle d'accès à l'interface correspondante du routeur.</li>
+  <li>Pour chaque réseau adjacent, la règle de sortie vers ce réseau.</li>
+  </ul>
+  
+  <p>Ces règles sont suffisantes pour permettre à un réseau n'utilisant qu'un seul 
+     routeur de fonctionner.</p>
+
+</body>
+</html>

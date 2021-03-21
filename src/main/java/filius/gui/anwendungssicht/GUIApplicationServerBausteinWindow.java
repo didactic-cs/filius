@@ -53,9 +53,8 @@ import filius.software.clientserver.ServerBaustein;
  * Benachrichtigung der Beobachter angenommen und verarbeitet.
  * </p>
  */
+@SuppressWarnings("serial")
 public class GUIApplicationServerBausteinWindow extends GUIApplicationWindow {
-
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Textbereich zur Ausgabe von Log-Daten, die vom Server-Programm erzeugt
@@ -103,11 +102,11 @@ public class GUIApplicationServerBausteinWindow extends GUIApplicationWindow {
 		bStartStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("start")) {
-					((ServerAnwendung) holeAnwendung()).setPort(Integer.parseInt(tfPort.getText()));
-					((ServerAnwendung) holeAnwendung()).setAktiv(true);
-					((ServerAnwendung) holeAnwendung()).setPort(Integer.parseInt(tfPort.getText()));
+					((ServerAnwendung) getApplication()).setPort(Integer.parseInt(tfPort.getText()));
+					((ServerAnwendung) getApplication()).setActive(true);
+					((ServerAnwendung) getApplication()).setPort(Integer.parseInt(tfPort.getText()));
 				} else {
-					((ServerAnwendung) holeAnwendung()).setAktiv(false);
+					((ServerAnwendung) getApplication()).setActive(false);
 				}
 				aktualisieren();
 			}
@@ -117,7 +116,7 @@ public class GUIApplicationServerBausteinWindow extends GUIApplicationWindow {
 
 		lbPort = new JLabel(messages.getString("serverbaustein_msg1"));
 		hBox.add(lbPort);
-		tfPort = new JTextField("" + ((ServerAnwendung) holeAnwendung()).getPort());
+		tfPort = new JTextField("" + ((ServerAnwendung) getApplication()).getPort());
 		hBox.add(tfPort);
 
 		vBox.add(hBox);
@@ -145,8 +144,8 @@ public class GUIApplicationServerBausteinWindow extends GUIApplicationWindow {
 	public void aktualisieren() {
 		ServerBaustein server;
 
-		server = (ServerBaustein) holeAnwendung();
-		if (server.isAktiv()) {
+		server = (ServerBaustein) getApplication();
+		if (server.isActive()) {
 			tfPort.setEditable(false);
 			bStartStop.setText(messages.getString("serverbaustein_msg2"));
 			bStartStop.setActionCommand("stop");

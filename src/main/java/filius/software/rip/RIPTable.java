@@ -29,7 +29,7 @@ import java.util.LinkedList;
 
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IP;
 
 /**
@@ -53,9 +53,9 @@ public class RIPTable {
 
 	private long nextBeacon;
 
-	private InternetKnotenBetriebssystem bs;
+	private InternetNodeOS bs;
 
-	public RIPTable(InternetKnotenBetriebssystem bs) {
+	public RIPTable(InternetNodeOS bs) {
 		this.bs = bs;
 		reset();
 	}
@@ -72,11 +72,11 @@ public class RIPTable {
 	public void addLocalRoutes(InternetNode knoten) {
 		long netMask, netAddr;
 
-		for (NetworkInterface nic : knoten.getNIlist()) {
+		for (NetworkInterface nic : knoten.getNICList()) {
 			netMask = IP.inetAton(nic.getSubnetMask());
 			netAddr = IP.inetAton(nic.getIp()) & netMask;
 
-			addRoute(new RIPRoute(0, IP.inetNtoa(netAddr), IP.inetNtoa(netMask), nic.getIp(), bs.holeIPAdresse(),
+			addRoute(new RIPRoute(0, IP.inetNtoa(netAddr), IP.inetNtoa(netMask), nic.getIp(), bs.getIPAddress(),
 			        nic.getIp(), 0));
 		}
 	}

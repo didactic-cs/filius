@@ -27,8 +27,8 @@ package filius.software.netzzugangsschicht;
 
 import filius.Main;
 import filius.hardware.NetworkInterface;
-import filius.rahmenprogramm.nachrichten.Lauscher;
-import filius.software.ProtokollThread;
+import filius.rahmenprogramm.nachrichten.PacketAnalyzer;
+import filius.software.ProtocolThread;
 import filius.software.vermittlungsschicht.ArpPaket;
 import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.IpPaket;
@@ -36,7 +36,7 @@ import filius.software.vermittlungsschicht.IpPaket;
 /**
  * Diese Klasse ueberwacht die Eingangspuffer von Netzwerkkarten.
  */
-public class EthernetThread extends ProtokollThread {
+public class EthernetThread extends ProtocolThread {
 
     /** die Netzwerkkarte, deren Anschluss ueberwacht wird */
     private NetworkInterface netzwerkInterface;
@@ -60,7 +60,7 @@ public class EthernetThread extends ProtokollThread {
      * Hier werden die Nutzdaten des ankommenden Frames entweder in den Puffer fuer IP-Pakete oder fuer ARP-Pakete
      * geschrieben.
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
+    protected void processFrame(Object datenEinheit) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EthernetThread), verarbeiteDateneinheit(" + datenEinheit.toString() + ")");
         EthernetFrame etp;
@@ -68,7 +68,7 @@ public class EthernetThread extends ProtokollThread {
         etp = (EthernetFrame) datenEinheit;
 
         // record receipt (independent of further processing)
-        Lauscher.getLauscher().addDatenEinheit(netzwerkInterface.getMac(), etp);
+        PacketAnalyzer.getInstance().addDataEntry(netzwerkInterface.getMac(), etp);
 
         // only process in case of correct MAC address, i.e., this packet is
         // addressed for this NIC (or broadcast)

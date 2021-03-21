@@ -38,11 +38,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import filius.Main;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
-import filius.software.Anwendung;
+import filius.software.Application;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 
-public class FileExplorer extends Anwendung implements I18n {
+public class FileExplorer extends Application implements I18n {
 
 	// Betriebssystem betriebssystem;
 //	private HashMap<String, String> fileTypeMap;
@@ -55,13 +55,13 @@ public class FileExplorer extends Anwendung implements I18n {
 //		this.getFileTypeMap();
 	}
 
-	public void beenden() {
+	public void stopThread() {
 		// TODO Auto-generated method stub
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FileExplorer), beenden()");
 	}
 
-	public void starten() {
+	public void startThread() {
 		// TODO Auto-generated method stub
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FileExplorer), starten()");

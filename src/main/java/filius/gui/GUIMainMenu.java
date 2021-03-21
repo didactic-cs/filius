@@ -32,13 +32,14 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
@@ -49,288 +50,356 @@ import javax.tools.ToolProvider;
 import filius.Main;
 import filius.gui.netzwerksicht.GUICableItem;
 import filius.gui.netzwerksicht.GUINodeItem;
-import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
+import filius.gui.netzwerksicht.config.JConfigRouter;
 import filius.gui.quelltextsicht.FrameSoftwareWizard;
 import filius.hardware.Cable;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
-import filius.rahmenprogramm.SzenarioVerwaltung;
+import filius.rahmenprogramm.ProjectExport;
+import filius.rahmenprogramm.ProjectManager;
+import filius.rahmenprogramm.ProjectReport;
+import filius.software.netzzugangsschicht.SwitchSpanningTree;
 import filius.software.system.SystemSoftware;
 
+@SuppressWarnings("serial")
 public class GUIMainMenu implements Serializable, I18n {
 
-    private static final long serialVersionUID = 1L;
+    public static final int DESIGN_MODE = 1;
+    public static final int ACTION_MODE = 2;
+    public static final int DOC_MODE = 3;
 
-    public static final int MODUS_ENTWURF = 1;
-    public static final int MODUS_AKTION = 2;
-    public static final int MODUS_DOKUMENTATION = 3;
-
-    private JBackgroundPanel menupanel;
-
-    private JSlider verzoegerung;
-
+    private JBackgroundPanel menuPanel;    
     private FileFilter filiusFileFilter;
-
-    private JLabel geschwindigkeit;
-
-    private int aktuellerModus = MODUS_ENTWURF;
-
-    private JButton btAktionsmodus, btEntwurfsmodus, btDokumodus, btOeffnen, btSpeichern, btNeu, btWizard, btHilfe, btInfo;
-    
+    private JLabel lbSpeed;
+    private JSlider slSpeed;
+    private int currentMode = DESIGN_MODE;
+    private JButton btNew, btOpen, btDocMode, btActionMode, btDesignMode, btWizard, btInfo, btHelp;   
+    private JExtendedButton btSave;
     private GUIContainer container;    
+    private SwitchSpanningTree switchSpanningTree = new SwitchSpanningTree();
 
     public GUIMainMenu() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
         container = GUIContainer.getInstance();
         
-        Container c = JMainFrame.getJMainFrame().getContentPane();
+        Container c = JMainFrame.getInstance().getContentPane();
 
-        menupanel = new JBackgroundPanel();
-        menupanel.setPreferredSize(new Dimension(100, 63));
-        menupanel.setBounds(0, 0, c.getWidth(), 65);
-        menupanel.setEnabled(false);
-        menupanel.setBackgroundImage("gfx/allgemein/menue_hg.png");
+        menuPanel = new JBackgroundPanel();
+        menuPanel.setPreferredSize(new Dimension(100, 63));
+        menuPanel.setBounds(0, 0, c.getWidth(), 65);
+        menuPanel.setEnabled(false);
+        menuPanel.setBackgroundImage("gfx/allgemein/menue_hg.png");
+        
+        btNew = new JButton();
+        btNew.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/neu.png")));
+        btNew.setBounds(10, 5, btNew.getIcon().getIconWidth(), btNew.getIcon().getIconHeight());
+        btNew.setActionCommand("neu");
+        btNew.setToolTipText(messages.getString("guimainmemu_msg5"));
 
-        btOeffnen = new JButton();
-        btOeffnen.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/oeffnen.png")));
-        btOeffnen.setBounds(80, 5, btOeffnen.getIcon().getIconWidth(), btOeffnen.getIcon().getIconHeight());
-        btOeffnen.setActionCommand("oeffnen");
-        btOeffnen.setToolTipText(messages.getString("guimainmemu_msg1"));
+        btOpen = new JButton();
+        btOpen.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/oeffnen.png")));
+        btOpen.setBounds(70, 5, btOpen.getIcon().getIconWidth(), btOpen.getIcon().getIconHeight());
+        btOpen.setActionCommand("oeffnen");
+        btOpen.setToolTipText(messages.getString("guimainmemu_msg1"));
+        
+        JPopupMenu popupMenu = new JPopupMenu();
+        
+        JMenuItem miSaveAs = new JMenuItem(messages.getString("guimainmemu_msg18"));
+        miSaveAs.setActionCommand("speichernunter");
+        popupMenu.add(miSaveAs);        
+         
+        JMenuItem miExportAsImage = new JMenuItem(messages.getString("guimainmemu_msg19"));
+        miExportAsImage.setActionCommand("exportImage");
+        popupMenu.add(miExportAsImage);
+         
+        JMenuItem miCreateReport = new JMenuItem(messages.getString("guimainmemu_msg20"));
+        miCreateReport.setActionCommand("createReport");
+        popupMenu.add(miCreateReport);        
+                
+        btSave = new JExtendedButton();
+        btSave.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/speichern.png")));
+        btSave.setPopupMenu(popupMenu);
+        btSave.setBounds(130, 5, btSave.getIcon().getIconWidth(), btSave.getIcon().getIconHeight());
+        btSave.setActionCommand("speichern");
+        btSave.setToolTipText(messages.getString("guimainmemu_msg2"));        
+        
+        btDocMode = new JButton();
+        btDocMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
+        btDocMode.setBounds(320, 5, btDocMode.getIcon().getIconWidth(), btDocMode.getIcon().getIconHeight());
+        btDocMode.setActionCommand("dokumodus");
+        btDocMode.setToolTipText(messages.getString("guimainmemu_msg14"));
 
-        btSpeichern = new JButton();
-        btSpeichern.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/speichern.png")));
-        btSpeichern.setBounds(150, 5, btSpeichern.getIcon().getIconWidth(), btSpeichern.getIcon().getIconHeight());
-        btSpeichern.setActionCommand("speichern");
-        btSpeichern.setToolTipText(messages.getString("guimainmemu_msg2"));
+        btDesignMode = new JButton();
+        btDesignMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus_aktiv.png")));
+        btDesignMode.setBounds(380, 5, btDesignMode.getIcon().getIconWidth(), btDesignMode.getIcon().getIconHeight());
+        btDesignMode.setActionCommand("entwurfsmodus");
+        btDesignMode.setToolTipText(messages.getString("guimainmemu_msg3"));
 
-        btEntwurfsmodus = new JButton();
-        btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus_aktiv.png")));
-        btEntwurfsmodus.setBounds(350, 5, btEntwurfsmodus.getIcon().getIconWidth(),
-                btEntwurfsmodus.getIcon().getIconHeight());
-        btEntwurfsmodus.setActionCommand("entwurfsmodus");
-        btEntwurfsmodus.setToolTipText(messages.getString("guimainmemu_msg3"));
+        btActionMode = new JButton();
+        btActionMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
+        btActionMode.setBounds(440, 5, btActionMode.getIcon().getIconWidth(), btActionMode.getIcon().getIconHeight());
+        btActionMode.setActionCommand("aktionsmodus");
+        btActionMode.setToolTipText(messages.getString("guimainmemu_msg4"));          
+        
+        lbSpeed = new JLabel("100%");
+        lbSpeed.setVisible(true);
+        lbSpeed.setToolTipText(messages.getString("guimainmemu_msg15"));
+        lbSpeed.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
+        lbSpeed.setBounds(510, 0, 120, 44);
 
-        btAktionsmodus = new JButton();
-        btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
-        btAktionsmodus.setBounds(420, 5, btAktionsmodus.getIcon().getIconWidth(),
-                btAktionsmodus.getIcon().getIconHeight());
-        btAktionsmodus.setActionCommand("aktionsmodus");
-        btAktionsmodus.setToolTipText(messages.getString("guimainmemu_msg4"));
+        slSpeed = new JSlider(0, 100);
+        slSpeed.setToolTipText(messages.getString("guimainmemu_msg16"));
+        slSpeed.setMaximum(10);
+        slSpeed.setMinimum(1);
+        slSpeed.setValue(slSpeed.getMaximum());
+        Cable.setDelayFactor(slSpeed.getMaximum() - slSpeed.getValue() + 1);
+        slSpeed.setBounds(495, 20, 50, 44);
+        slSpeed.setOpaque(false);
+        slSpeed.addChangeListener(new ChangeListener() {
 
-        btNeu = new JButton();
-        btNeu.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/neu.png")));
-        btNeu.setBounds(10, 5, btNeu.getIcon().getIconWidth(), btNeu.getIcon().getIconHeight());
-        btNeu.setActionCommand("neu");
-        btNeu.setToolTipText(messages.getString("guimainmemu_msg5"));
+            public void stateChanged(ChangeEvent arg0) {
+                Cable.setDelayFactor(slSpeed.getMaximum() - slSpeed.getValue() + 1);
+                lbSpeed.setText("" + slSpeed.getValue() * 10 + "%");
+            }
 
-        btDokumodus = new JButton();
-        btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
-        btDokumodus.setBounds(250, 5, btDokumodus.getIcon().getIconWidth(), btDokumodus.getIcon().getIconHeight());
-        btDokumodus.setActionCommand("dokumodus");
-        btDokumodus.setToolTipText(messages.getString("guimainmemu_msg14"));
+        });        
 
         if (isSoftwareWizardEnabled()) {
             btWizard = new JButton();
             btWizard.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/button_wizard.png")));
-            btWizard.setBounds(720, 5, btWizard.getIcon().getIconWidth(), btWizard.getIcon().getIconHeight());
+            btWizard.setBounds(670, 5, btWizard.getIcon().getIconWidth(), btWizard.getIcon().getIconHeight());
             btWizard.setActionCommand("wizard");
             btWizard.setToolTipText(messages.getString("guimainmemu_msg6"));
         }
-
-        btHilfe = new JButton();
-        btHilfe.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/hilfe.png")));
-        btHilfe.setBounds(840, 5, btHilfe.getIcon().getIconWidth(), btHilfe.getIcon().getIconHeight());
-        btHilfe.setActionCommand("hilfe");
-        btHilfe.setToolTipText(messages.getString("guimainmemu_msg7"));
-
+        
         btInfo = new JButton();
         btInfo.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/info.png")));
-        btInfo.setBounds(910, 5, btInfo.getIcon().getIconWidth(), btInfo.getIcon().getIconHeight());
+        btInfo.setBounds(730, 5, btInfo.getIcon().getIconWidth(), btInfo.getIcon().getIconHeight());
         btInfo.setActionCommand("info");
         btInfo.setToolTipText(messages.getString("guimainmemu_msg8"));
+
+        btHelp = new JButton();
+        btHelp.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/hilfe.png")));
+        btHelp.setBounds(790, 5, btHelp.getIcon().getIconWidth(), btHelp.getIcon().getIconHeight());
+        btHelp.setActionCommand("hilfe");
+        btHelp.setToolTipText(messages.getString("guimainmemu_msg7"));        
 
         ActionListener al = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                boolean erfolg;
-
                 if (isSoftwareWizardEnabled() && e.getActionCommand().equals(btWizard.getActionCommand())) {
                     FrameSoftwareWizard gsw = new FrameSoftwareWizard();
                     gsw.setVisible(true);
-                }
+                } 
 
-                if (e.getActionCommand().equals(btHilfe.getActionCommand())) {
-                    GUIHilfe.getGUIHilfe().anzeigen();
-                }
-
-                if (e.getActionCommand().equals(btNeu.getActionCommand())) {
-                    int entscheidung = JOptionPane.YES_OPTION;
+                // New
+                if (e.getActionCommand().equals(btNew.getActionCommand())) {
+                	
+                	// If the current project is modified, ask the user whether it should be saved
+                    int choice = JOptionPane.YES_OPTION;
                     try {
-                        if (SzenarioVerwaltung.getInstance().istGeaendert()) {
-                            entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                                    messages.getString("guimainmemu_msg9"), messages.getString("guimainmemu_msg10"),
-                                    JOptionPane.YES_NO_OPTION);
-                        } else {
-                            entscheidung = JOptionPane.YES_OPTION;
-                        }
+                        if (ProjectManager.getInstance().isModified()) {
+                        	
+                            choice = JOptionPane.showConfirmDialog(JMainFrame.getInstance(), messages.getString("guimainmemu_msg9"), 
+                                                                   messages.getString("guimainmemu_msg10"), JOptionPane.YES_NO_CANCEL_OPTION);
+                        } 
                     } catch (Exception exc) {
                         exc.printStackTrace(Main.debug);
                     }
-                    if (entscheidung == JOptionPane.YES_OPTION) {
-                    	container.clearAllItems();
-                    	container.setProperty(null);
-                        Information.getInstance().reset();
-                        SzenarioVerwaltung.getInstance().reset();
+                    if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION) return;
+                    
+                    if (ProjectManager.getInstance().isModified() && choice == JOptionPane.YES_OPTION) {         
+                    	// Save the project
+                    	GUIContainer.getInstance().getMainMenu().doClick("btSpeichern");
+                    	// The user may have canceled the dialog box
+                    	if (ProjectManager.getInstance().isModified()) return;
+                    }
+                    
+                    // Create a new project
+                    container.clearAllItems();
+                	container.setConfigPanel(null);
+                    Information.getInstance().reset();
+                    ProjectManager.getInstance().reset();
+                }
+                
+                // Open
+                if (e.getActionCommand().equals(btOpen.getActionCommand())) {
+                	
+                	// If the current project is modified, ask the user whether it should be saved
+                    int choice = JOptionPane.YES_OPTION;
+                    try {
+                        if (ProjectManager.getInstance().isModified()) {
+                        	
+                        	choice = JOptionPane.showConfirmDialog(JMainFrame.getInstance(), messages.getString("guimainmemu_msg21"), 
+                                                                   messages.getString("guimainmemu_msg22"), JOptionPane.YES_NO_CANCEL_OPTION);
+                        } 
+                    } catch (Exception exc) {
+                        exc.printStackTrace(Main.debug);
+                    }
+                    if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION) return;
+                    
+                    if (ProjectManager.getInstance().isModified() && choice == JOptionPane.YES_OPTION) {         
+                    	// Save the project
+                    	GUIContainer.getInstance().getMainMenu().doClick("btSpeichern");
+                    	// The user may have canceled the dialog box
+                    	if (ProjectManager.getInstance().isModified()) return;
+                    }
+                    
+                    // Load a project
+                    JFileChooser fcOpen = new JFileChooser();
+                    fcOpen.setDialogTitle(messages.getString("main_dlg_OPENTITLE"));
+                    fcOpen.setFileFilter(filiusFileFilter);
+                    initCurrentFileOrDirSelection(fcOpen);
+
+                    if (fcOpen.showOpenDialog(JMainFrame.getInstance()) == JFileChooser.APPROVE_OPTION) {
+                    	if (fcOpen.getSelectedFile() != null) {
+                    		Information.getInstance().setLastOpenedDirectory(fcOpen.getSelectedFile().getParent());
+                    		try {
+                    			Information.getInstance().reset();
+                    			ProjectManager.getInstance().load(fcOpen.getSelectedFile().getPath(),
+                    					container.getNodeItems(),
+                    					container.getCableList(),
+                    					container.getDocItems());
+                    			container.setConfigPanel(null);
+                    			container.updateViewport();
+                    			Thread.sleep(10);
+                    			container.updateCables();
+                    		} catch (FileNotFoundException e1) {
+                    			e1.printStackTrace(Main.debug);
+                    		} catch (Exception e2) {
+                    			e2.printStackTrace(Main.debug);
+                    		}
+                    	}                        
                     }
                 }
+                
+                // Save
+                Boolean saveAs = false;
+                
+                if (e.getActionCommand().equals(btSave.getActionCommand())) {
+                	
+                    if (container.getCurrentMode() != ACTION_MODE) {                    	
+                    	
+                    	String projectPath = ProjectManager.getInstance().getPath();
+                    	
+                    	if (projectPath != null) {
+                    		
+                    		boolean success = ProjectManager.getInstance().save(projectPath, container.getNodeItems(),
+                    				                                            container.getCableList(), container.getDocItems());                                    
+                    		if (!success) {
+                    			JOptionPane.showMessageDialog(JMainFrame.getInstance(), messages.getString("guimainmemu_msg11"));
+                    		}                    		
+                    		
+                    	}  
+                    	else saveAs = true;
+                    }
+                }                
 
-                if (e.getActionCommand().equals(btSpeichern.getActionCommand())) {
-                    if (container.getActiveSite() != MODUS_AKTION) {
-                        JFileChooser fcSpeichern = new JFileChooser();
+                // Save as
+                if (saveAs || e.getActionCommand().equals(miSaveAs.getActionCommand())) {
+                	
+                    if (container.getCurrentMode() != ACTION_MODE) {
+                        JFileChooser fsSaveAs = new JFileChooser();
+                        fsSaveAs.setDialogTitle(messages.getString("main_dlg_SAVETITLE"));
+                        fsSaveAs.setFileFilter(filiusFileFilter);
+                        initCurrentFileOrDirSelection(fsSaveAs);
 
-                        fcSpeichern.setFileFilter(filiusFileFilter);
-                        initCurrentFileOrDirSelection(fcSpeichern);
-
-                        if (fcSpeichern.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
-                            if (fcSpeichern.getSelectedFile() != null) {
-                                Information.getInstance()
-                                        .setLastOpenedDirectory(fcSpeichern.getSelectedFile().getParent());
-                                String targetFilePath;
-                                if (fcSpeichern.getSelectedFile().getName().endsWith(".fls")) {
-                                    targetFilePath = fcSpeichern.getSelectedFile().getPath();
-                                } else {
-                                    targetFilePath = fcSpeichern.getSelectedFile().getPath() + ".fls";
+                        // Dialogbox
+                        if (fsSaveAs.showSaveDialog(JMainFrame.getInstance()) == JFileChooser.APPROVE_OPTION) {
+                        	
+                            if (fsSaveAs.getSelectedFile() != null) {
+                                Information.getInstance().setLastOpenedDirectory(fsSaveAs.getSelectedFile().getParent());
+                                
+                                String newFilePath = fsSaveAs.getSelectedFile().getPath();
+                                if (!newFilePath.endsWith(".fls")) newFilePath += ".fls";
+                                File newFile = new File(newFilePath);
+                                
+                                String currentFilePath = ProjectManager.getInstance().getPath();
+                                File currentFile = null;
+                                if (currentFilePath != null) currentFile = new File(currentFilePath);
+                                
+                                int choice = JOptionPane.YES_OPTION;
+                                if (newFile.exists() && !newFile.equals(currentFile)) {
+                                	
+                                	// Confirmation
+                                    choice = JOptionPane.showConfirmDialog(JMainFrame.getInstance(), messages.getString("guimainmemu_msg17"),
+                                                                           messages.getString("guimainmemu_msg10"), JOptionPane.YES_NO_OPTION);
                                 }
-
-                                int entscheidung = JOptionPane.YES_OPTION;
-                                if (SzenarioVerwaltung.getInstance().holePfad() != null && targetFilePath != null
-                                        && new File(targetFilePath).exists()
-                                        && !new File(SzenarioVerwaltung.getInstance().holePfad())
-                                                .equals(new File(targetFilePath))) {
-                                    entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                                            messages.getString("guimainmemu_msg17"),
-                                            messages.getString("guimainmemu_msg10"), JOptionPane.YES_NO_OPTION);
-                                }
-
-                                if (entscheidung == JOptionPane.YES_OPTION) {                                	
-                                    erfolg = SzenarioVerwaltung.getInstance().speichern(targetFilePath,
-                                    		container.getKnotenItems(),
-                                    		container.getCableItems(),
-                                    		container.getDocuItems());                                    
-                                    if (!erfolg) {
-                                        JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(),
+                          
+                                if (choice == JOptionPane.YES_OPTION) {                                	
+                                	boolean success = ProjectManager.getInstance().save(newFilePath, container.getNodeItems(),
+                                    		                                            container.getCableList(), container.getDocItems());                                    
+                                    if (!success) {
+                                        JOptionPane.showMessageDialog(JMainFrame.getInstance(),
                                                 messages.getString("guimainmemu_msg11"));
                                     }
                                 }
                             }
                         }
                     }
-                }
-
-                if (e.getActionCommand().equals(btOeffnen.getActionCommand())) {
-                    int entscheidung = JOptionPane.YES_OPTION;
-                    try {
-                        if (SzenarioVerwaltung.getInstance().istGeaendert()) {
-                            entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                                    messages.getString("guimainmemu_msg9"), messages.getString("guimainmemu_msg10"),
-                                    JOptionPane.YES_NO_OPTION);
-                        } else {
-                            entscheidung = JOptionPane.YES_OPTION;
-                        }
-                    } catch (Exception exc) {
-                        exc.printStackTrace(Main.debug);
-                    }
-                    if (entscheidung == JOptionPane.YES_OPTION && container.getActiveSite() != MODUS_AKTION) {
-                        JFileChooser fcLaden = new JFileChooser();
-                        fcLaden.setFileFilter(filiusFileFilter);
-                        initCurrentFileOrDirSelection(fcLaden);
-
-                        if (fcLaden.showOpenDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
-                            if (fcLaden.getSelectedFile() != null) {
-                                Information.getInstance()
-                                        .setLastOpenedDirectory(fcLaden.getSelectedFile().getParent());
-                                try {
-                                    Information.getInstance().reset();
-                                    SzenarioVerwaltung.getInstance().laden(fcLaden.getSelectedFile().getPath(),
-                                    		container.getKnotenItems(),
-                                    		container.getCableItems(),
-                                    		container.getDocuItems());
-                                    container.setProperty(null);
-                                    container.updateViewport();
-                                    Thread.sleep(10);
-                                    container.updateCables();
-                                } catch (FileNotFoundException e1) {
-                                    e1.printStackTrace(Main.debug);
-                                } catch (Exception e2) {
-                                    e2.printStackTrace(Main.debug);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (e.getActionCommand().equals(btEntwurfsmodus.getActionCommand())) {
-                    selectMode(MODUS_ENTWURF);
-                } else if (e.getActionCommand().equals(btAktionsmodus.getActionCommand())) {
-                    selectMode(MODUS_AKTION);
-                } else if (e.getActionCommand().equals(btDokumodus.getActionCommand())) {
-                    selectMode(MODUS_DOKUMENTATION);
+                }   
+                
+                if (e.getActionCommand().equals(miExportAsImage.getActionCommand())) {
+                	
+                	ProjectExport.getInstance().exportAsImage();
+                	
+                } else if (e.getActionCommand().equals(miCreateReport.getActionCommand())) {
+                	
+                	ProjectReport.getInstance().createReport();
+                	
+                } else if (e.getActionCommand().equals(btDesignMode.getActionCommand())) {
+                	
+                    selectMode(DESIGN_MODE);
+                    
+                } else if (e.getActionCommand().equals(btActionMode.getActionCommand())) {
+                	
+                    selectMode(ACTION_MODE);
+                    
+                } else if (e.getActionCommand().equals(btDocMode.getActionCommand())) {
+                	
+                    selectMode(DOC_MODE);
+                    
                 } else if (e.getActionCommand().equals(btInfo.getActionCommand())) {
-                    (new InfoDialog(JMainFrame.getJMainFrame())).setVisible(true);
+                	
+                    (new AboutDialog(JMainFrame.getInstance())).setVisible(true);
+                    
+                } else if (e.getActionCommand().equals(btHelp.getActionCommand())) {
+                	
+                    GUIHelp.getGUIHelp().show();
                 }
             }
         };
 
-        btNeu.addActionListener(al);
-        btOeffnen.addActionListener(al);
-        btSpeichern.addActionListener(al);
-        btEntwurfsmodus.addActionListener(al);
-        btAktionsmodus.addActionListener(al);
-        btDokumodus.addActionListener(al);
+        btNew.addActionListener(al);
+        btOpen.addActionListener(al);
+        btSave.addActionListener(al);
+        miSaveAs.addActionListener(al);
+        miExportAsImage.addActionListener(al);
+        miCreateReport.addActionListener(al);
+        btDocMode.addActionListener(al);
+        btDesignMode.addActionListener(al);
+        btActionMode.addActionListener(al);        
         if (isSoftwareWizardEnabled()) {
             btWizard.addActionListener(al);
         }
         btInfo.addActionListener(al);
-        btHilfe.addActionListener(al);
+        btHelp.addActionListener(al);        
 
-        geschwindigkeit = new JLabel("100%");
-        geschwindigkeit.setVisible(true);
-        geschwindigkeit.setToolTipText(messages.getString("guimainmemu_msg15"));
-        geschwindigkeit.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
-        geschwindigkeit.setBounds(612, 10, 120, 44);
-
-        verzoegerung = new JSlider(0, 100);
-        verzoegerung.setToolTipText(messages.getString("guimainmemu_msg16"));
-        verzoegerung.setMaximum(10);
-        verzoegerung.setMinimum(1);
-        verzoegerung.setValue(verzoegerung.getMaximum());
-        Cable.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
-        verzoegerung.setBounds(510, 10, 100, 44);
-        verzoegerung.setOpaque(false);
-        verzoegerung.addChangeListener(new ChangeListener() {
-
-            public void stateChanged(ChangeEvent arg0) {
-                Cable.setDelayFactor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
-                geschwindigkeit.setText("" + verzoegerung.getValue() * 10 + "%");
-            }
-
-        });
-
-        menupanel.setLayout(null);
-
-        menupanel.add(btEntwurfsmodus);
-        menupanel.add(btAktionsmodus);
-        menupanel.add(btDokumodus);
-        menupanel.add(btNeu);
-        menupanel.add(btOeffnen);
-        menupanel.add(btSpeichern);
-        menupanel.add(verzoegerung);
-        menupanel.add(geschwindigkeit);
+        menuPanel.setLayout(null);
+        
+        menuPanel.add(btNew);
+        menuPanel.add(btOpen);
+        menuPanel.add(btSave);
+        menuPanel.add(btDocMode);
+        menuPanel.add(btDesignMode);
+        menuPanel.add(btActionMode);        
+        menuPanel.add(slSpeed);
+        menuPanel.add(lbSpeed);        
         if (isSoftwareWizardEnabled()) {
-            menupanel.add(btWizard);
+            menuPanel.add(btWizard);
         }
-        menupanel.add(btHilfe);
-        menupanel.add(btInfo);
+        menuPanel.add(btHelp);
+        menuPanel.add(btInfo);
 
         filiusFileFilter = new FileFilter() {
             public boolean accept(File pathname) {
@@ -346,11 +415,12 @@ public class GUIMainMenu implements Serializable, I18n {
     }
 
     private void initCurrentFileOrDirSelection(JFileChooser fcLaden) {
-        String scenarioPath = SzenarioVerwaltung.getInstance().holePfad();
+    	
+        String projectPath = ProjectManager.getInstance().getPath();
         String lastOpenedDir = Information.getInstance().getLastOpenedDirectory();
         File file = null;
-        if (scenarioPath != null) {
-            file = new File(scenarioPath);
+        if (projectPath != null) {
+            file = new File(projectPath);
         }
         if (null != file && file.exists()) {
             fcLaden.setSelectedFile(file);
@@ -369,32 +439,32 @@ public class GUIMainMenu implements Serializable, I18n {
     }
 
     public void changeSlider(int diff) {
-        if (diff < 0 && verzoegerung.getValue() + diff < 1) {
-            verzoegerung.setValue(1);
-        } else if (diff > 0 && verzoegerung.getValue() + diff > 10) {
-            verzoegerung.setValue(10);
+        if (diff < 0 && slSpeed.getValue() + diff < 1) {
+            slSpeed.setValue(1);
+        } else if (diff > 0 && slSpeed.getValue() + diff > 10) {
+            slSpeed.setValue(10);
         } else
-            verzoegerung.setValue(verzoegerung.getValue() + diff);
+            slSpeed.setValue(slSpeed.getValue() + diff);
     }
 
-    public boolean doClick(String button) { // manually perform click event on a
-                                            // registered button
+    public boolean doClick(String button) { // manually perform click event on a registered button
+    	
         if (button.equals("btAktionsmodus"))
-            btAktionsmodus.doClick();
+            btActionMode.doClick();
         else if (button.equals("btEntwurfsmodus"))
-            btEntwurfsmodus.doClick();
+            btDesignMode.doClick();
         else if (button.equals("btDokumodus"))
-            btDokumodus.doClick();
+            btDocMode.doClick();
         else if (button.equals("btOeffnen"))
-            btOeffnen.doClick();
+            btOpen.doClick();
         else if (button.equals("btSpeichern"))
-            btSpeichern.doClick();
+            btSave.doClick();
         else if (button.equals("btNeu"))
-            btNeu.doClick();
+            btNew.doClick();
         else if (button.equals("btWizard"))
             btWizard.doClick();
         else if (button.equals("btHilfe"))
-            btHilfe.doClick();
+            btHelp.doClick();
         else if (button.equals("btInfo"))
             btInfo.doClick();
         else
@@ -403,124 +473,128 @@ public class GUIMainMenu implements Serializable, I18n {
     }
 
     // set/reset cable highlight, i.e., make all cables normal coloured for
-    // simulation
-    // and possibly highlight in development view
+    // simulation and possibly highlight in development view
     private void resetCableHighlighting(int mode) {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), resetCableHL(" + mode + ")");
-        if (mode == MODUS_AKTION) { // change to simulation view: de-highlight
-                                    // all cables
-            for (GUICableItem cableItem : container.getCableItems()) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
+        		           " (GUIMainMenu), resetCableHL(" + mode + ")");
+        
+        if (mode == ACTION_MODE) { // change to simulation view: unhighlight all cables
+            for (GUICableItem cableItem : container.getCableList()) {
                 if (cableItem.getCable() != null) cableItem.getCable().setActive(false);
             }
-            GUIEvents.getGUIEvents().unselectActiveCable();
-        } else { // change to development view: possibly highlight a cable (only
-                 // for 'Vermittlungsrechner' configuration
-            if (container.getProperty() instanceof JVermittlungsrechnerKonfiguration) {
-                ((JVermittlungsrechnerKonfiguration) container.getProperty()).highlightConnCable();
+            GUIEvents.getInstance().unselectCable();
+        } else { // change to development view: possibly highlight a cable 
+                 // (only for 'Router' configuration)
+        	for (GUICableItem cableItem : container.getCableList()) {
+                if (cableItem.getCable() != null) cableItem.getCable().setBlocked(false);
             }
-            if (mode == MODUS_DOKUMENTATION) GUIEvents.getGUIEvents().unselectActiveCable();
+            if (container.getConfigPanel() instanceof JConfigRouter) {
+                ((JConfigRouter) container.getConfigPanel()).highlightCable();
+            }
+            if (mode == DOC_MODE) GUIEvents.getInstance().unselectCable();
         }
     }
 
     public synchronized void selectMode(int mode) {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), selectMode(" + mode + ")");
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
+        		           " (GUIMainMenu), selectMode(" + mode + ")");
 
-        if (mode == MODUS_ENTWURF) {
-            resetCableHighlighting(mode); // de-highlight cables   
+        if (mode == DESIGN_MODE) {
+            resetCableHighlighting(mode); // unhighlight cables   
 
-            btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus_aktiv.png")));
-            btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
-            btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
-            container.setActiveSite(MODUS_ENTWURF);
+            btDesignMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus_aktiv.png")));
+            btActionMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
+            btDocMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
+            container.setCurrentMode(DESIGN_MODE);
 
-            GUIHilfe.getGUIHilfe().laden("entwurfsmodus");
+            GUIHelp.getGUIHelp().loadModeMainPage(DESIGN_MODE);
 
             stopSimulation();
 
-            btOeffnen.setEnabled(true);
-            btNeu.setEnabled(true);
-            btSpeichern.setEnabled(true);
+            btOpen.setEnabled(true);
+            btNew.setEnabled(true);
+            btSave.setEnabled(true);
             if (isSoftwareWizardEnabled()) {
                 btWizard.setEnabled(true);
             }
             
-            GUIEvents.getGUIEvents().unFreezeActiveElements();   
+            GUIEvents.getInstance().unfreezeSelectedElement();   
             
             ToolTipManager.sharedInstance().setDismissDelay(3000);
             
-        } else if (mode == MODUS_DOKUMENTATION) {
-        	GUIEvents.getGUIEvents().freezeActiveElements(); 
-            resetCableHighlighting(mode); // de-highlight cables
+        } else if (mode == DOC_MODE) {
+        	GUIEvents.getInstance().freezeSelectedElement(); 
+            resetCableHighlighting(mode); // unhighlight cables
 
-            btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus.png")));
-            btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
-            btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus_aktiv.png")));
-            container.setActiveSite(MODUS_DOKUMENTATION);
+            btDesignMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus.png")));
+            btActionMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
+            btDocMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus_aktiv.png")));
+            container.setCurrentMode(DOC_MODE);
 
-            GUIHilfe.getGUIHilfe().laden("dokumodus");
+            GUIHelp.getGUIHelp().loadModeMainPage(DOC_MODE);
 
             stopSimulation();
 
-            btOeffnen.setEnabled(true);
-            btNeu.setEnabled(true);
-            btSpeichern.setEnabled(true);
+            btOpen.setEnabled(true);
+            btNew.setEnabled(true);
+            btSave.setEnabled(true);
             if (isSoftwareWizardEnabled()) {
                 btWizard.setEnabled(false);
             }
             
             ToolTipManager.sharedInstance().setDismissDelay(3000);
             
-        } else if (mode == MODUS_AKTION && aktuellerModus != MODUS_AKTION) {
+        } else if (mode == ACTION_MODE && currentMode != ACTION_MODE) {
             // Main.debug.println("\tMode: MODUS_AKTION");
-        	GUIEvents.getGUIEvents().freezeActiveElements(); 
+        	GUIEvents.getInstance().freezeSelectedElement(); 
             resetCableHighlighting(mode); // de-highlight cables
 
-            btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus.png")));
-            btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus_aktiv.png")));
-            btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
-            container.setActiveSite(MODUS_AKTION);
-            GUIHilfe.getGUIHilfe().laden("simulationsmodus");
+            btDesignMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus.png")));
+            btActionMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus_aktiv.png")));
+            btDocMode.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
+            container.setCurrentMode(ACTION_MODE);
+            GUIHelp.getGUIHelp().loadModeMainPage(ACTION_MODE);
+                        
+            switchSpanningTree.apply(container.getNodeItems());
 
-            for (GUINodeItem knotenItem : container.getKnotenItems()) {
+            for (GUINodeItem nodeItem : container.getNodeItems()) {
                 SystemSoftware system;
-                system = knotenItem.getNode().getSystemSoftware();
-                system.starten();
+                system = nodeItem.getNode().getSystemSoftware();
+                system.start();
             }
 
-            btOeffnen.setEnabled(false);
-            btNeu.setEnabled(false);
-            btSpeichern.setEnabled(false);
+            btOpen.setEnabled(false);
+            btNew.setEnabled(false);
+            btSave.setEnabled(false);
             if (isSoftwareWizardEnabled()) {
                 btWizard.setEnabled(false);
             }
 
-            geschwindigkeit.setEnabled(true);
-            verzoegerung.setEnabled(true);
+            lbSpeed.setEnabled(true);
+            slSpeed.setEnabled(true);
             
             // Tooltips remain visible longer
             ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
         }
-        aktuellerModus = mode;
-    }
+        currentMode = mode;
+    }  
 
     private void stopSimulation() {
-        for (GUINodeItem knotenItem : container.getKnotenItems()) {
+        for (GUINodeItem nodeItem : container.getNodeItems()) {
             SystemSoftware system;
-            system = knotenItem.getNode().getSystemSoftware();
+            system = nodeItem.getNode().getSystemSoftware();
             try {
-                system.beenden();
+                system.stop();
             } catch (Exception e) {}
         }
-        ((JFrame) container.getExchangeDialog()).setVisible(false);
+        ((JFrame) container.getPacketsAnalyzerDialog()).setVisible(false);
     }
 
     public JBackgroundPanel getMenupanel() {
-        return menupanel;
+        return menuPanel;
     }
 
     public void setMenupanel(JBackgroundPanel menupanel) {
-        this.menupanel = menupanel;
+        this.menuPanel = menupanel;
     }
 }

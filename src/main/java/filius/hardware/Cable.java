@@ -25,11 +25,13 @@
  */
 package filius.hardware;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.beans.Transient;
 import java.io.Serializable;
-import java.util.ArrayList;
-
 import filius.Main;
 import filius.exception.ConnectionException;
+import filius.gui.netzwerksicht.GUICableItem;
 import filius.rahmenprogramm.I18n;
 
 /**
@@ -37,7 +39,7 @@ import filius.rahmenprogramm.I18n;
  * 
  */
 @SuppressWarnings("serial")
-public class Cable extends Hardware implements Serializable, I18n {
+public class Cable extends Hardware implements Serializable, I18n {	
     
     public static final String TYPE = messages.getString("hw_kabel_msg1");
 
@@ -58,7 +60,7 @@ public class Cable extends Hardware implements Serializable, I18n {
      */
     private static final int MAX_HOPS = 50;
 
-    // extend RTT in case of slow machines by this factor; 1: no change
+    //* extend RTT in case of slow machines by this factor; 1: no change */
     private static int extendRTTfactor = 1;
     
     // Cable becomes active when data flows through it in Simulation mode
@@ -68,12 +70,22 @@ public class Cable extends Hardware implements Serializable, I18n {
     // The network icon of the desktops also uses this.
     private boolean active = false;   
     
-    // List of event listeners that need to be notified when active changes.
- 	private ArrayList<CableActiveListener> listenerList = new ArrayList<CableActiveListener>();
+    //* Cable becomes blocked when the ports it connects are blocked by the spanning tree. */
+    private boolean blocked = false;  
+    
+    private GUICableItem cableItem = null;  
  	
     private Port[] ports = null;
     private SimplexConnection simplex01, simplex10;
     private Thread thread01, thread10;
+        
+    
+    public Cable() {    	
+    }
+    
+    public Cable(Port port1, Port port2) {
+    	setPorts(new Port[] { port1, port2 });
+    }
     
     private void connect() throws ConnectionException {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + 
@@ -118,6 +130,20 @@ public class Cable extends Hardware implements Serializable, I18n {
         		           " (Connection), setPorts(" + ports + ")");
         
         this.ports = ports;
+
+        try {
+            connect();
+        } catch (ConnectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace(Main.debug);
+        }
+    }
+    
+    public void setPorts(Port port0, Port port1) {
+        
+        this.ports = new Port[2];
+        ports[0] = port0;
+        ports[1] = port1;
 
         try {
             connect();
@@ -191,6 +217,19 @@ public class Cable extends Hardware implements Serializable, I18n {
         return MAX_HOPS * getDelay() * extendRTTfactor;
     }
     
+    @Transient
+    public GUICableItem getCableItem() {
+
+    	return cableItem;
+    }
+    
+    @Transient
+    public void setCableItem(GUICableItem cableItem) {
+
+    	this.cableItem = cableItem;
+    }
+    
+    
 	//***************************************************************************************
 	// Active status
 	//***************************************************************************************
@@ -205,28 +244,47 @@ public class Cable extends Hardware implements Serializable, I18n {
         if (this.active != active) {
             this.active = active;
             // Notify the listeners (GUI of the cable and network icon of desktops)  
-            for (CableActiveListener l : listenerList) l.onActiveChange(active);
+            fireCableActivityChange(active);
         }
     }
     
-	//***************************************************************************************
-	// Handling event listeners
-	//***************************************************************************************
-	
-    /**
-     * <b>addListener<b> adds a listener to the list.<br>
-     * Each listener is notified every time the active status changes.
-     * 
-     * @param l the listener to be added
-     */
-    public void addListener(CableActiveListener l) {
-    	
-    	if (!listenerList.contains(l)) listenerList.add(l);
+    //***************************************************************************************
+  	// Blocked status
+  	//***************************************************************************************
+      
+    public boolean isBlocked() {
+      	
+       return blocked;
     }
 
+    
+    public void setBlocked(boolean blocked) {
+
+    	this.blocked = blocked;
+    	cableItem.getCablePanel().setBlocked(blocked);
+    }
+    
 	@Override
 	public String getHardwareType() {
 		
 		return TYPE;
 	}
+    
+	//***************************************************************************************
+	// Listeners management
+	//***************************************************************************************
+	
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);   
+    
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        this.pcs.addPropertyChangeListener(propertyName, listener);
+    }
+	
+    // Notify the listeners that there is activity on the cable
+    // Fired by: Cable
+    // Listened to by: JCablePanel, GUIDesktopPanel
+    protected void fireCableActivityChange(Boolean active) {
+        this.pcs.firePropertyChange("cableactivity", null, active);
+    }
+
 }

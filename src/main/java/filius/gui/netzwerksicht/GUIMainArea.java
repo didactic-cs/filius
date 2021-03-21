@@ -33,10 +33,10 @@ import javax.swing.JPanel;
 /**
  * Diese Klasse dient als Oberklasse für die verschiedenen Sichten im Haupt-Bereich der GUI.
  */
+@SuppressWarnings("serial")
 public class GUIMainArea extends JPanel implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-    protected double minX = Integer.MAX_VALUE, maxX = 0, minY = Integer.MAX_VALUE, maxY = 0;
+	
+	protected double minX = Integer.MAX_VALUE, maxX = 0, minY = Integer.MAX_VALUE, maxY = 0; 
 
     private void resetClipBounds() {
         minX = Integer.MAX_VALUE;

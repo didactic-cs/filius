@@ -46,7 +46,7 @@ import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
-import filius.software.clientserver.ClientAnwendung;
+import filius.software.clientserver.ClientApplication;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
 
@@ -63,7 +63,7 @@ import filius.software.transportschicht.TCPSocket;
  * Beobachter als HTTPNachricht weitergegeben.
  * 
  */
-public class WebBrowser extends ClientAnwendung implements I18n {
+public class WebBrowser extends ClientApplication implements I18n {
 
     private static final int ABRUF_HTML = 1, ABRUF_IMG = 2;
 
@@ -88,7 +88,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
         args = new Object[2];
         args[0] = url;
         args[1] = "";
-        ausfuehren("internHoleRessource", args);
+        execute("internHoleRessource", args);
     }
 
     public void holeWebseite(URL url, String post) {
@@ -106,7 +106,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
         args = new Object[2];
         args[0] = url;
         args[1] = post;
-        ausfuehren("internHoleRessource", args);
+        execute("internHoleRessource", args);
     }
 
     public void internHoleRessource(URL url, String post) {
@@ -138,7 +138,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                     if (zustand == ABRUF_HTML) {
                         fehler = new HTTPNachricht(HTTPNachricht.CLIENT);
                         fehler.setDaten(erzeugeHtmlFehlermeldung(0));
-                        benachrichtigeBeobachter(fehler);
+                        notifyObservers(fehler);
                     }
                 }
             }
@@ -149,7 +149,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                     if (zustand == ABRUF_HTML && aktuellerSocket == socket) {
                         fehler = new HTTPNachricht(HTTPNachricht.CLIENT);
                         fehler.setDaten(erzeugeHtmlFehlermeldung(0));
-                        benachrichtigeBeobachter(fehler);
+                        notifyObservers(fehler);
                     }
                     e.printStackTrace(Main.debug);
                 }
@@ -173,10 +173,10 @@ public class WebBrowser extends ClientAnwendung implements I18n {
         return host;
     }
 
-    public void starten() {
+    public void startThread() {
         Main.debug.println(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebBrowser), starten()");
-        super.starten();
+        super.startThread();
         bilddateien = new LinkedList<String>();
     }
 
@@ -265,7 +265,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                     Object[] args = new Object[2];
                     args[0] = url;
                     args[1] = "";
-                    ausfuehren("internHoleRessource", args);
+                    execute("internHoleRessource", args);
                 } catch (MalformedURLException e) {
                     e.printStackTrace(Main.debug);
                 }
@@ -321,7 +321,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                         if (bilddateien.size() > 0) {
                             dateipfad = bilddateien.removeFirst();
                             Base64.decodeToFile(antwort.getDaten(),
-                                    Information.getInstance().getTempPfad() + dateipfad);
+                                    Information.getInstance().getTempPath() + dateipfad);
                         }
                     }
                     antwort = null;
@@ -333,12 +333,12 @@ public class WebBrowser extends ClientAnwendung implements I18n {
             }
 
             if (aktuellerSocket == socket)
-                benachrichtigeBeobachter(antwort);
+                notifyObservers(antwort);
 
         } else if (zustand == ABRUF_HTML && aktuellerSocket == socket) {
             antwort = new HTTPNachricht(HTTPNachricht.CLIENT);
             antwort.setDaten(erzeugeHtmlFehlermeldung(0));
-            benachrichtigeBeobachter(antwort);
+            notifyObservers(antwort);
         }
 
         if ((bilddateien == null || bilddateien.size() == 0) && aktuellerSocket == socket) {

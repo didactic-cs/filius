@@ -29,14 +29,14 @@ import java.util.LinkedList;
 
 import filius.Main;
 import filius.hardware.Cable;
-import filius.software.ProtokollThread;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.ProtocolThread;
+import filius.software.system.InternetNodeOS;
 
 /**
  * Klasse zur Ueberwachung des Puffers fuer eingehende ICMP-Pakete
  * 
  */
-public class ICMPThread extends ProtokollThread {
+public class ICMPThread extends ProtocolThread {
 
     private ICMP vermittlung;
 
@@ -44,7 +44,7 @@ public class ICMPThread extends ProtokollThread {
     private LinkedList<IcmpPaket> rcvdPackets;
 
     public ICMPThread(ICMP vermittlung) {
-        super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeICMPPuffer());
+        super(((InternetNodeOS) vermittlung.getSystemSoftware()).getEthernet().holeICMPPuffer());
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ICMPThread), constr: ICMPThread(" + vermittlung + ")");
         this.rcvdPackets = new LinkedList<IcmpPaket>();
@@ -54,7 +54,7 @@ public class ICMPThread extends ProtokollThread {
     /**
      * Methode zur Verarbeitung eingehender ICMP-Pakete <br />
      */
-    protected void verarbeiteDatenEinheit(Object datenEinheit) {
+    protected void processFrame(Object datenEinheit) {
         IcmpPaket icmpPaket = ((IcmpPaket) datenEinheit).clone();
 
         if (vermittlung.isLocalAddress(icmpPaket.getZielIp())

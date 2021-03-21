@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.system.SystemSoftware;
 
 public class VermittlungsProtokollTest {
@@ -127,12 +127,12 @@ public class VermittlungsProtokollTest {
         }
         
         @Override
-        public void starten() {
+        public void start() {
             throw new RuntimeException();
         }
         
         @Override
-        public void beenden() {
+        public void stop() {
             throw new RuntimeException();
         }
     }
@@ -141,7 +141,7 @@ public class VermittlungsProtokollTest {
     public void testIsApplicableBroadcast_Success() throws Exception {
         String localIpAddress = "10.10.10.5";
         String subnetzMaske = "255.255.255.0";
-        InternetKnotenBetriebssystem betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
+        InternetNodeOS betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
         VermittlungsProtokoll protokoll = new VermittlungsProtokollTestable(betriebssystem );
         
         boolean isApplicableBroadcast = protokoll.isApplicableBroadcast("10.10.10.255");
@@ -149,14 +149,14 @@ public class VermittlungsProtokollTest {
         assertThat(isApplicableBroadcast, is(true));
     }
 
-    private InternetKnotenBetriebssystem initSystemSoftwareAndNodeMock(String localIpAddress, String subnetzMaske) {
+    private InternetNodeOS initSystemSoftwareAndNodeMock(String localIpAddress, String subnetzMaske) {
         InternetNode internetKnoten = mock(InternetNode.class);
         NetworkInterface nic = new NetworkInterface();
         nic.setIp(localIpAddress);
         nic.setSubnetMask(subnetzMaske);
-        when(internetKnoten.getNIlist()).thenReturn(Arrays.asList(nic ));
-        InternetKnotenBetriebssystem betriebssystem = mock(InternetKnotenBetriebssystem.class);
-        when(betriebssystem.getKnoten()).thenReturn(internetKnoten);
+        when(internetKnoten.getNICList()).thenReturn(Arrays.asList(nic ));
+        InternetNodeOS betriebssystem = mock(InternetNodeOS.class);
+        when(betriebssystem.getNode()).thenReturn(internetKnoten);
         return betriebssystem;
     }
     
@@ -164,7 +164,7 @@ public class VermittlungsProtokollTest {
     public void testIsApplicableBroadcast_NotBroadcast_Failure() throws Exception {
         String localIpAddress = "10.10.10.5";
         String subnetzMaske = "255.255.255.0";
-        InternetKnotenBetriebssystem betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
+        InternetNodeOS betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
         VermittlungsProtokoll protokoll = new VermittlungsProtokollTestable(betriebssystem );
         
         boolean isApplicableBroadcast = protokoll.isApplicableBroadcast("10.10.10.254");
@@ -176,7 +176,7 @@ public class VermittlungsProtokollTest {
     public void testIsApplicableBroadcast_WrongNetwork_Failure() throws Exception {
         String localIpAddress = "10.10.10.5";
         String subnetzMaske = "255.255.255.0";
-        InternetKnotenBetriebssystem betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
+        InternetNodeOS betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
         VermittlungsProtokoll protokoll = new VermittlungsProtokollTestable(betriebssystem );
         
         boolean isApplicableBroadcast = protokoll.isApplicableBroadcast("10.11.10.255");

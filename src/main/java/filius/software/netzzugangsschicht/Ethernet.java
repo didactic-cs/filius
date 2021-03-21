@@ -30,15 +30,15 @@ import java.util.LinkedList;
 import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.InternetNode;
-import filius.rahmenprogramm.nachrichten.Lauscher;
-import filius.software.Protokoll;
+import filius.rahmenprogramm.nachrichten.PacketAnalyzer;
+import filius.software.Protocol;
 import filius.software.system.SystemSoftware;
 import filius.software.vermittlungsschicht.ArpPaket;
 import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /** Diese Klasse implementiert die Netzzugangsschicht */
-public class Ethernet extends Protokoll {
+public class Ethernet extends Protocol {
 
     public static final String ETHERNET_BROADCAST = "FF:FF:FF:FF:FF:FF";
 
@@ -96,7 +96,7 @@ public class Ethernet extends Protokoll {
 
         ethernetFrame = new EthernetFrame(daten, startMAC, zielMAC, typ, daten instanceof IcmpPaket);
 
-        for (NetworkInterface nic : ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist()) {
+        for (NetworkInterface nic : ((InternetNode) getSystemSoftware().getNode()).getNICList()) {
             if (nic.getMac().equalsIgnoreCase(zielMAC)) {
                 synchronized (nic.getPort().getInputBuffer()) {
                     nic.getPort().getInputBuffer().add(ethernetFrame);
@@ -107,13 +107,13 @@ public class Ethernet extends Protokoll {
         }
 
         if (!gesendet) {
-            for (NetworkInterface nic : ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist()) {
+            for (NetworkInterface nic : ((InternetNode) getSystemSoftware().getNode()).getNICList()) {
                 if (nic.getMac().equalsIgnoreCase(startMAC)) {
                     synchronized (nic.getPort().getOutputBuffer()) {
                         nic.getPort().getOutputBuffer().add(ethernetFrame);
                         nic.getPort().getOutputBuffer().notify();
                     }
-                    Lauscher.getLauscher().addDatenEinheit(nic.getMac(), ethernetFrame);
+                    PacketAnalyzer.getInstance().addDataEntry(nic.getMac(), ethernetFrame);
                 }
             }
         }
@@ -126,17 +126,17 @@ public class Ethernet extends Protokoll {
     /**
      * Hier wird zu jeder Netzwerkkarte ein Thread zur Ueberwachung des Eingangspuffers gestartet.
      */
-    public void starten() {
+    public void start() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), starten()");
         InternetNode knoten;
         EthernetThread interfaceBeobachter;
 
-        if (holeSystemSoftware().getKnoten() instanceof InternetNode) {
-            knoten = (InternetNode) holeSystemSoftware().getKnoten();
+        if (getSystemSoftware().getNode() instanceof InternetNode) {
+            knoten = (InternetNode) getSystemSoftware().getNode();
 
-            for (NetworkInterface nic : knoten.getNIlist()) {
+            for (NetworkInterface nic : knoten.getNICList()) {
                 interfaceBeobachter = new EthernetThread(this, nic);
-                interfaceBeobachter.starten();
+                interfaceBeobachter.startThread();
                 try {
                     threads.add(interfaceBeobachter);
                 } catch (Exception e) {
@@ -149,13 +149,13 @@ public class Ethernet extends Protokoll {
     /**
      * beendet alle laufenden EthernetThreads zur Ueberwachung der Eingangspuffer der Netzwerkkarten
      */
-    public void beenden() {
+    public void stop() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), beenden()");
         EthernetThread interfaceBeobachter;
 
         for (int x = 0; x < threads.size(); x++) {
             interfaceBeobachter = (EthernetThread) threads.get(x);
-            interfaceBeobachter.beenden();
+            interfaceBeobachter.stopThread();
         }
     }
 }

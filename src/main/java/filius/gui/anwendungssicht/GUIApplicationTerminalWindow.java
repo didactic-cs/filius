@@ -158,7 +158,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                         } else {
                             inputLabel.setVisible(false);
                             jobRunning = true;
-                            ((Terminal) holeAnwendung()).terminalEingabeAuswerten(enteredCommand, enteredParameters);
+                            ((Terminal) getApplication()).terminalEingabeAuswerten(enteredCommand, enteredParameters);
                         }
                     } else {
                         terminalField.append("\n");
@@ -169,7 +169,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                 }
                 // [strg] + [c]
                 if (e.getKeyCode() == KeyEvent.VK_C && e.getModifiers() == 2) {
-                    ((Terminal) holeAnwendung()).setInterrupt(true);
+                    ((Terminal) getApplication()).setInterrupt(true);
                 }
                 // 38 arrow-up / 40 arrow-down
                 if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -247,7 +247,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
 
         inputField.requestFocus();
         //this.inputLabel.setText(FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
-        this.inputLabel.setText(((Terminal) holeAnwendung()).getAktuellerOrdner().toPath() + "> ");
+        this.inputLabel.setText(((Terminal) getApplication()).getCurrentDirectory().toPath() + "> ");
     }
 
     public void setMultipleObserverEvents(boolean flag) {}
@@ -321,7 +321,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                 this.tpPane.repaint();
                 if (!multipleObserverEvents) {
                     //this.inputLabel.setText(FiliusFileSystem.nodeToAbsolutePath(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");   
-                    this.inputLabel.setText(((Terminal) holeAnwendung()).getAktuellerOrdner().toPath() + "> ");
+                    this.inputLabel.setText(((Terminal) getApplication()).getCurrentDirectory().toPath() + "> ");
                     this.inputLabel.setVisible(true);
                     jobRunning = false;
                 }

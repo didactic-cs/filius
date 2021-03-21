@@ -31,6 +31,7 @@ import java.io.Serializable;
  * @author stefan
  * 
  */
+@SuppressWarnings("serial")
 public class AddressEntry implements Serializable {
     private String name;
     private String mailAddress;

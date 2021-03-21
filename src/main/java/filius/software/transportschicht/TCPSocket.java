@@ -36,7 +36,7 @@ import filius.exception.SocketException;
 import filius.exception.TimeOutException;
 import filius.exception.ConnectionException;
 import filius.hardware.Cable;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /**
@@ -182,7 +182,7 @@ public class TCPSocket extends Socket implements Runnable {
      * @param zielPort
      * @throws ConnectionException
      */
-    public TCPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort)
+    public TCPSocket(InternetNodeOS betriebssystem, String zielAdresse, int zielPort)
             throws ConnectionException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.TCP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
@@ -199,7 +199,7 @@ public class TCPSocket extends Socket implements Runnable {
      * @param zielPort
      * @throws ConnectionException
      */
-    public TCPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws ConnectionException {
+    public TCPSocket(InternetNodeOS betriebssystem, int lokalerPort) throws ConnectionException {
         super(betriebssystem, lokalerPort, IpPaket.TCP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
                 + betriebssystem + "," + lokalerPort + ")");

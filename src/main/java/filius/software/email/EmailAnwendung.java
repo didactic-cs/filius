@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import filius.Main;
-import filius.rahmenprogramm.EingabenUeberpruefung;
-import filius.software.Anwendung;
+import filius.rahmenprogramm.EntryValidator;
+import filius.software.Application;
 import filius.software.system.FiliusFile;
 
 /**
@@ -41,7 +41,7 @@ import filius.software.system.FiliusFile;
  * @author Andre Asschoff
  * 
  */
-public class EmailAnwendung extends Anwendung {
+public class EmailAnwendung extends Application {
     // Attribute
     private Vector<Kontakt> adressbuch = new Vector<Kontakt>();
 
@@ -55,28 +55,28 @@ public class EmailAnwendung extends Anwendung {
     /**
      * Startet die Email-Anwendung und für Sie jeweils einen Pop3- und Smtp-Client.
      */
-    public void starten() {
+    public void startThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), starten()");
-        super.starten();
+        super.startThread();
 
         pop3client = new POP3Client(this);
-        pop3client.starten();
+        pop3client.startThread();
 
         smtpclient = new SMTPClient(this);
-        smtpclient.starten();
+        smtpclient.startThread();
     }
 
     /**
      * Methode beendet die EmailAnwendung inkl. der dazu gehörigen smtp und pop3 clients. Dazu wird die Methode der
      * Superklasse aufgerufen und der Socket geschlossen.
      */
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), beenden()");
-        super.beenden();
+        super.stopThread();
         if (pop3client != null)
-            pop3client.beenden();
+            pop3client.stopThread();
         if (smtpclient != null)
-            smtpclient.beenden();
+            smtpclient.stopThread();
     }
 
     /**
@@ -119,9 +119,9 @@ public class EmailAnwendung extends Anwendung {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), kontaktHinzufuegen(" + name + "," + vorname + "," + strasse + "," + hausnr + ","
                 + plz + "," + wohnort + "," + email + "," + telefon + ")");
-        if (EingabenUeberpruefung.isGueltig(name, EingabenUeberpruefung.musterMindEinZeichen)
-                && EingabenUeberpruefung.isGueltig(vorname, EingabenUeberpruefung.musterMindEinZeichen)
-                && EingabenUeberpruefung.isGueltig(email, EingabenUeberpruefung.musterEmailAdresse)) {
+        if (EntryValidator.isValid(name, EntryValidator.musterMindEinZeichen)
+                && EntryValidator.isValid(vorname, EntryValidator.musterMindEinZeichen)
+                && EntryValidator.isValid(email, EntryValidator.musterEmailAdresse)) {
             try {
                 Kontakt kontaktNeu = new Kontakt();
 
@@ -149,9 +149,9 @@ public class EmailAnwendung extends Anwendung {
     public boolean kontaktLoeschen(String name, String vorname, String email) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), kontaktLoeschen(" + name + "," + vorname + "," + email + ")");
-        if (EingabenUeberpruefung.isGueltig(name, EingabenUeberpruefung.musterMindEinZeichen)
-                && EingabenUeberpruefung.isGueltig(vorname, EingabenUeberpruefung.musterMindEinZeichen)
-                && EingabenUeberpruefung.isGueltig(email, EingabenUeberpruefung.musterEmailAdresse)) {
+        if (EntryValidator.isValid(name, EntryValidator.musterMindEinZeichen)
+                && EntryValidator.isValid(vorname, EntryValidator.musterMindEinZeichen)
+                && EntryValidator.isValid(email, EntryValidator.musterEmailAdresse)) {
             for (Kontakt kontakt : adressbuch) {
                 if (email.equalsIgnoreCase(kontakt.getEmail())) {
                     if (name.equals(kontakt.getName()) && vorname.equals(kontakt.getVorname())) {
@@ -172,13 +172,13 @@ public class EmailAnwendung extends Anwendung {
         datei.setContent(konto.toString());
         datei.setName("konten.txt");
         datei.setType("text/txt");
-        getSystemSoftware().getDateisystem().getRoot().saveFiliusFile(datei);
+        getSystemSoftware().getFileSystem().getRoot().saveFiliusFile(datei);
     }
 
     public void laden() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), laden()");
-        FiliusFile datei = getSystemSoftware().getDateisystem().getRoot().getFiliusFile("konten.txt");
+        FiliusFile datei = getSystemSoftware().getFileSystem().getRoot().getFiliusFile("konten.txt");
         if (datei != null) {
             String kontenString = datei.getContent();
             String[] konten = kontenString.split("\n");

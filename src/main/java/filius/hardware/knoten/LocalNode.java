@@ -29,10 +29,9 @@ import java.util.LinkedList;
 import filius.Main;
 import filius.hardware.Port;
 
+@SuppressWarnings("serial")
 public abstract class LocalNode extends Node {
 	
-	private static final long serialVersionUID = 1L;
-
     private LinkedList<Port> ports = new LinkedList<Port>();
     
     /**

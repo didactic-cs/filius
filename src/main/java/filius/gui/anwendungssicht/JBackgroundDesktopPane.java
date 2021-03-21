@@ -31,9 +31,9 @@ import java.awt.Insets;
 import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 
+@SuppressWarnings("serial")
 public class JBackgroundDesktopPane extends JDesktopPane {
 
-	private static final long serialVersionUID = 1L;
 	private ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/gfx/allgemein/menue_hg.png"));
 	private boolean repeatBG = true;
 

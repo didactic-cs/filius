@@ -31,10 +31,10 @@ import java.util.Map.Entry;
 
 import filius.Main;
 import filius.hardware.NetworkInterface;
-import filius.hardware.Cable;
 import filius.hardware.knoten.InternetNode;
+import filius.hardware.Cable;
 import filius.software.netzzugangsschicht.EthernetFrame;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.system.SystemSoftware;
 
 /**
@@ -65,18 +65,18 @@ public class ARP extends VermittlungsProtokoll {
                 + systemAnwendung + ")");
     }
 
-    public void starten() {
+    public void start() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), starten()");
         arpTabelle = new HashMap<String, String[]>();
         hinzuARPTabellenEintrag("255.255.255.255", "FF:FF:FF:FF:FF:FF");
         thread = new ARPThread(this);
-        thread.starten();
+        thread.startThread();
     }
 
-    public void beenden() {
+    public void stop() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), beenden()");
         if (thread != null)
-            thread.beenden();
+            thread.stopThread();
     }
 
     /**
@@ -130,11 +130,11 @@ public class ARP extends VermittlungsProtokoll {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag("
                 + zielIp + ")");
         if (zielIp.equals("127.0.0.1")) {
-            return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
+            return ((InternetNodeOS) getSystemSoftware()).getMACAddress();
         }
-        if (holeSystemSoftware() instanceof InternetKnotenBetriebssystem) {
-            if (zielIp.equals(((InternetKnotenBetriebssystem) holeSystemSoftware()).holeIPAdresse())) {
-                return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
+        if (getSystemSoftware() instanceof InternetNodeOS) {
+            if (zielIp.equals(((InternetNodeOS) getSystemSoftware()).getIPAddress())) {
+                return ((InternetNodeOS) getSystemSoftware()).getMACAddress();
             }
         }
         // Eintrag in ARP-Tabelle fuer gesuchte IP-Adresse?
@@ -179,7 +179,7 @@ public class ARP extends VermittlungsProtokoll {
         arpPaket.setQuellIp(nic.getIp());
         arpPaket.setQuellMacAdresse(nic.getMac());
 
-        ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeEthernet().senden(arpPaket, nic.getMac(),
+        ((InternetNodeOS) getSystemSoftware()).getEthernet().senden(arpPaket, nic.getMac(),
                 "FF:FF:FF:FF:FF:FF", EthernetFrame.ARP);
     }
 
@@ -189,7 +189,7 @@ public class ARP extends VermittlungsProtokoll {
         long bestMask = -1;
         NetworkInterface bestNic = null;
 
-        for (NetworkInterface nic : ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist()) {
+        for (NetworkInterface nic : ((InternetNode) getSystemSoftware().getNode()).getNICList()) {
             maskAddr = IP.inetAton(nic.getSubnetMask());
             if (maskAddr <= bestMask) {
                 continue;
@@ -201,8 +201,8 @@ public class ARP extends VermittlungsProtokoll {
             }
         }
         if (null == bestNic) {
-            bestMask = IP.inetAton(((InternetKnotenBetriebssystem) holeSystemSoftware()).holeNetzmaske());
-            bestNic = ((InternetNode) holeSystemSoftware().getKnoten()).getNIlist().get(0);
+            bestMask = IP.inetAton(((InternetNodeOS) getSystemSoftware()).getSubnetMask());
+            bestNic = ((InternetNode) getSystemSoftware().getNode()).getNICList().get(0);
         }
         return bestNic;
     }

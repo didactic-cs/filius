@@ -33,10 +33,10 @@ import java.util.Random;
 import filius.Main;
 import filius.exception.SocketException;
 import filius.rahmenprogramm.I18n;
-import filius.software.Protokoll;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.Protocol;
+import filius.software.system.InternetNodeOS;
 
-public abstract class TransportProtokoll extends Protokoll implements I18n, Runnable {
+public abstract class TransportProtokoll extends Protocol implements I18n, Runnable {
 
     private static final int PORT_UNTERE_GRENZE = 1024;
 
@@ -66,7 +66,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
      * @author carsten
      * @param betriebssystem
      */
-    public TransportProtokoll(InternetKnotenBetriebssystem betriebssystem, int typ) {
+    public TransportProtokoll(InternetNodeOS betriebssystem, int typ) {
         super(betriebssystem);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (TransportProtokoll), constr: TransportProtokoll(" + betriebssystem + "," + typ + ")");
@@ -180,7 +180,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
 
     public void run() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), run()");
-        InternetKnotenBetriebssystem bs;
+        InternetNodeOS bs;
 
         Object[] temp;
 
@@ -193,19 +193,19 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
                 }
                 if (segmentListe.size() > 0) {
                     temp = (Object[]) segmentListe.removeFirst();
-                    bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
-                    bs.holeIP().senden((String) temp[0], (String) temp[1], holeTyp(), TTL, temp[2]);
+                    bs = (InternetNodeOS) getSystemSoftware();
+                    bs.getIP().senden((String) temp[0], (String) temp[1], holeTyp(), TTL, temp[2]);
                 }
             }
         }
     }
 
-    public void starten() {
+    public void start() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), starten()");
         portTabelle = new Hashtable<Integer, SocketSchnittstelle>();
 
         thread = new TransportProtokollThread(this);
-        thread.starten();
+        thread.startThread();
 
         if (!running) {
             running = true;
@@ -217,9 +217,9 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
         }
     }
 
-    public void beenden() {
+    public void stop() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), beenden()");
-        thread.beenden();
+        thread.stopThread();
 
         running = false;
         if (sendeThread != null

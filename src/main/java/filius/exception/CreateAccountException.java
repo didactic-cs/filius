@@ -25,6 +25,7 @@
  */
 package filius.exception;
 
+@SuppressWarnings("serial")
 public class CreateAccountException extends Exception {
 	public CreateAccountException() {
 		super();

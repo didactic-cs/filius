@@ -46,7 +46,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import filius.gui.JMainFrame;
 import filius.rahmenprogramm.I18n;
-import filius.software.system.Betriebssystem;
+import filius.software.system.HostOS;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
@@ -61,7 +61,6 @@ public class DMTNFileChooser implements I18n {
 	private JTextField tfDateiname;
 	private JLabel lbDateiname, lbAktuellerOrdner;
 	private JButton btAktion, btAbbrechen;
-	private Betriebssystem betriebssystem;
 	private FiliusFileSystem FFS;
 	private int rueckgabe = 0;
 	private JDialog dialog;
@@ -69,12 +68,11 @@ public class DMTNFileChooser implements I18n {
 	public static final int OK = 1;
 	public static final int CANCEL = 2;
 
-	public DMTNFileChooser(Betriebssystem bs) {
+	public DMTNFileChooser(HostOS bs) {
 		dialog = new JDialog();
-		dialog.setIconImage(JMainFrame.getJMainFrame().getIconImage());
+		dialog.setIconImage(JMainFrame.getInstance().getIconImage());
 
-		betriebssystem = bs;
-		FFS = bs.getDateisystem();
+		FFS = bs.getFileSystem();
 		aktuellerOrdner = FFS.getRoot();
 		pHaupt = new JPanel(new BorderLayout());
 		Box boxHaupt = Box.createVerticalBox();

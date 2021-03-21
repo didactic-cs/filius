@@ -72,9 +72,8 @@ import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.FiliusFileSystem.errorCode;
 
+@SuppressWarnings("serial")
 public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
-
-    private static final long serialVersionUID = 1L;
     
     private FiliusFileSystem FFS;
     private String importExportPath = null;
@@ -119,8 +118,6 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
     // Tree model
     private class expTreeModel extends DefaultTreeModel {
-
-		private static final long serialVersionUID = 1L;		
 		
 	    public expTreeModel(TreeNode root) {
 	       super(root, false);
@@ -205,7 +202,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     
     public GUIApplicationFileExplorerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-        FFS = holeAnwendung().getSystemSoftware().getDateisystem();
+        FFS = getApplication().getSystemSoftware().getFileSystem();
         FFS.sortTree(); // Only necessary for older versions of the FFS (saved as Dateisystem)    <<< certainly not the best place
         rootNode = FFS.getRoot();
         currentDirNode = rootNode;

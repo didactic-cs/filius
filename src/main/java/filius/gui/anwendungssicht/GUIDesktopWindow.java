@@ -25,22 +25,21 @@
  */
 package filius.gui.anwendungssicht;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import filius.gui.JFrameList;
 import filius.gui.netzwerksicht.GUIDesignSidebar;
-import filius.hardware.Hardware;
+import filius.hardware.knoten.Computer;
 import filius.hardware.knoten.Host;
-import filius.hardware.knoten.Notebook;
-import filius.hardware.knoten.Rechner;
-import filius.software.system.Betriebssystem;
+import filius.software.system.HostOS;
 
-public class GUIDesktopWindow extends JFrame implements Observer {
-	
+@SuppressWarnings("serial")
+public class GUIDesktopWindow extends JFrame implements PropertyChangeListener {
+		
 	public enum Mode {
 		ROW(0), COLUMN(1), STACK(2);
 		private final int value;
@@ -61,35 +60,36 @@ public class GUIDesktopWindow extends JFrame implements Observer {
 			}
 		}
 	}
-
-	private static final long serialVersionUID = 1L;
-
+		
+	Host host = null;
+	HostOS hostOS = null;
 	private GUIDesktopPanel desktopPanel;
+	
 
-	public GUIDesktopWindow(Betriebssystem bs) {
+	public GUIDesktopWindow(HostOS hostOS) {
 		super();
-		JFrameList.gI().add(this);
+		JFrameList.getInstance().add(this);
+		
+		this.hostOS = hostOS;
+		host = (Host) hostOS.getNode();
 
-		bs.addObserver(this);
-
-		Hardware hardware;
-		String imageFile = null;
-
-		hardware = bs.getKnoten();
-		if (hardware instanceof Rechner)
-			imageFile = GUIDesignSidebar.RECHNER;
-		else if (hardware instanceof Notebook)
-			imageFile = GUIDesignSidebar.NOTEBOOK;
-
-		ImageIcon icon = new ImageIcon(getClass().getResource("/" + imageFile));
+		String iconFile;
+		if (host instanceof Computer) iconFile = GUIDesignSidebar.RECHNER;
+		else                          iconFile = GUIDesignSidebar.NOTEBOOK;
+		ImageIcon icon = new ImageIcon(getClass().getResource("/" + iconFile));
 		setIconImage(icon.getImage());
 
 		setSize(640, 480);
-		// setBounds(100, 100, 640, 480);
 		setResizable(false);
 
-		desktopPanel = new GUIDesktopPanel(bs);
-		getContentPane().add(desktopPanel);
+		desktopPanel = new GUIDesktopPanel(hostOS);
+		getContentPane().add(desktopPanel);	
+		
+		registerListeners();
+	}
+	
+	public HostOS getOS() {
+		return desktopPanel.getOS();
 	}
 
 	public void setVisible(boolean flag) {
@@ -103,24 +103,27 @@ public class GUIDesktopWindow extends JFrame implements Observer {
 	}
 
 	private void updateTitle() {
-		String title;
-		Host host = (Host) desktopPanel.getBetriebssystem().getKnoten();
-		if (host.isUseIPAsName()) {
-			title = desktopPanel.getBetriebssystem().getKnoten().getDisplayName();
-		} else {
-			title = desktopPanel.getBetriebssystem().getKnoten().getDisplayName() + " - "
-			        + desktopPanel.getBetriebssystem().holeIPAdresse();
+
+		setTitle(host.getName() + " - " + hostOS.getIPAddress());	
+	}
+	
+    private void registerListeners() {   
+    	
+    	host.getSystemSoftware().addPropertyChangeListener("ipaddress", this); 	
+    }
+
+	/**
+     * <b>propertyChange</b> whenever a change in the host must be reflected by the user interface. 
+     * 
+     */
+	public void propertyChange(PropertyChangeEvent evt) {
+		
+		String pn = evt.getPropertyName();
+		
+		if (pn == "ipaddress") {                       
+			// Update the title of the desktop window
+			// From: Node
+			updateTitle();
 		}
-		// Main.debug.println("GUIDesktopWindow: Titel = " + title);
-		setTitle(title);
-	}
-
-	public Betriebssystem getBetriebssystem() {
-		return desktopPanel.getBetriebssystem();
-	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		updateTitle();
-	}
+	};
 }

@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.rahmenprogramm.I18n;
-import filius.software.ProtokollThread;
+import filius.software.ProtocolThread;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.IpPaket;
@@ -41,7 +41,7 @@ import filius.software.vermittlungsschicht.IpPaket;
  * tauscht den Ip-Pakete-Puffer aus, sodass sie nach Regeln selektieren kann, welche Pakete
  * als gueltig weitergeleitet werden
  */
-public class FirewallThread extends ProtokollThread implements I18n {
+public class FirewallThread extends ProtocolThread implements I18n {
 
 	private LinkedList<EthernetFrame> ausgangsPuffer;
 	private Firewall firewall;
@@ -63,21 +63,20 @@ public class FirewallThread extends ProtokollThread implements I18n {
 	 * tauscht den IP-Puffer zwischen Ethernetschicht und Vermittlungsschicht
 	 * aus, und startet den Thread zur Überwachung des Datenaustausches
 	 */
-	public void starten() {
+	public void startThread() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FirewallThread), starten()");
 		LinkedList<EthernetFrame> eingangsPuffer;
 
-		super.starten();
+		super.startThread();
 
 		this.ausgangsPuffer = netzwerkInterface.getPort().getInputBuffer();
-		eingangsPuffer = (LinkedList<EthernetFrame>) holeEingangsPuffer();
+		eingangsPuffer = (LinkedList<EthernetFrame>) getInputBuffer();
 		netzwerkInterface.getPort().setInputBuffer(eingangsPuffer);
-
 	}
 
-	public void beenden() {
-		super.beenden();
+	public void stopThread() {
+		super.stopThread();
 
 		netzwerkInterface.getPort().setInputBuffer(this.ausgangsPuffer);
 	}
@@ -85,10 +84,10 @@ public class FirewallThread extends ProtokollThread implements I18n {
 	// getter und setter:
 
 	@Override
-	protected void verarbeiteDatenEinheit(Object datenEinheit) {
+	protected void processFrame(Object datenEinheit) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FirewallThread), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
-		IpPaket ipPaket = null;
+		//IpPaket ipPaket = null;
 		EthernetFrame frame = (EthernetFrame) datenEinheit;
 
 		// Hier erfolgt nun die Abfrage, ob die Pakete laut Firewall in Ordnung
@@ -109,7 +108,7 @@ public class FirewallThread extends ProtokollThread implements I18n {
 		boolean isIcmp = frame.getData() instanceof IcmpPaket;
 		if (firewall.isActivated() && firewall.getDropICMP() && isIcmp) {
 			IcmpPaket icmp = (IcmpPaket) frame.getData();
-			firewall.benachrichtigeBeobachter(messages.getString("firewallthread_msg1") + icmp.getQuellIp() + " -> "
+			firewall.notifyObservers(messages.getString("firewallthread_msg1") + icmp.getQuellIp() + " -> "
 			        + icmp.getZielIp() + " (code: " + icmp.getIcmpCode() + ", type: " + icmp.getIcmpType() + ")");
 			return;
 		}

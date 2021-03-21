@@ -36,7 +36,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import filius.Main;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
-import filius.software.Anwendung;
+import filius.software.Application;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 
@@ -47,7 +47,7 @@ import filius.software.system.FiliusFileNode;
  * @author Thomas Gerding & Johannes Bade
  * 
  */
-public class FileImporter extends Anwendung implements I18n {
+public class FileImporter extends Application implements I18n {
 
 	private HashMap<String, String> fileTypeMap;
 
@@ -58,12 +58,12 @@ public class FileImporter extends Anwendung implements I18n {
 		this.getFileTypeMap();
 	}
 
-	public void starten() {
+	public void startThread() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FileImporter), starten()");
 	}
 
-	public void beenden() {
+	public void stopThread() {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (FileImporter), beenden()");
 	}

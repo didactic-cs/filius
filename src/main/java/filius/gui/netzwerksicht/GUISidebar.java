@@ -27,59 +27,55 @@ package filius.gui.netzwerksicht;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.util.LinkedList;
-import java.util.List;
-
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 
 import filius.gui.JBackgroundPanel;
 
+@SuppressWarnings("serial")
 public abstract class GUISidebar {
-	protected JBackgroundPanel leistenpanel;
-	protected List<JNodeLabel> buttonList;
+	
+	private JBackgroundPanel buttonPanel;
 
 	private static int width = 0;
 
 	protected GUISidebar() {
-		buttonList = new LinkedList<JNodeLabel>();
-
-		leistenpanel = new JBackgroundPanel() {
-			private static final long serialVersionUID = 1L;
+		
+		buttonPanel = new JBackgroundPanel() {
 
 			public Dimension getPreferredSize() {
 				int height = 0;
-				for (Component component : this.getComponents()) {
-					if (component.getWidth() > width)
-						width = component.getWidth();
+				for (Component component : getComponents()) {
+					if (component.getWidth() > width)  width = component.getWidth();
 					height += component.getHeight();
 				}
 				height += 30;
 				return new Dimension(width, height);
 			}
 		};
-		leistenpanel.setBackgroundImage("gfx/allgemein/leisten_hg.png");
-		BoxLayout layout = new BoxLayout( leistenpanel, BoxLayout.Y_AXIS );
-        leistenpanel.setLayout( layout);
-		leistenpanel.setEnabled(false);
+		buttonPanel.setBackgroundImage("gfx/allgemein/leisten_hg.png");
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		buttonPanel.setEnabled(false);
 
-		addItemsToSidebar();
+		addItems();
+	}
+	
+	public JBackgroundPanel getButtonPanel() {
+		return buttonPanel;
 	}
 
-	protected abstract void addItemsToSidebar();
+	protected abstract void addItems();
+	
+	public void addItem(JLabel label) {
+		buttonPanel.add(label);
+	}
 
 	public JNodeLabel findButtonAt(int x, int y) {
-		JNodeLabel klickLabel = null;
-		for (JNodeLabel tmpLbl : buttonList) {
-			if (x >= tmpLbl.getX() && y >= tmpLbl.getY() && x <= tmpLbl.getX() + tmpLbl.getWidth()
-			        && y <= tmpLbl.getY() + tmpLbl.getHeight()) {
-				klickLabel = tmpLbl;
-			}
-
+		
+		for (Component component : buttonPanel.getComponents()) {
+			if (component instanceof JNodeLabel && ((JNodeLabel)component).inBounds(x, y)) 
+				return (JNodeLabel)component; 			
 		}
-		return klickLabel;
-	}
-
-	public JBackgroundPanel getLeistenpanel() {
-		return leistenpanel;
+		return null;
 	}
 }

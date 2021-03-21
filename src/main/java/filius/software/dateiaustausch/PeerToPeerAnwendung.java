@@ -29,15 +29,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import filius.Main;
-import filius.software.Anwendung;
-import filius.software.system.Betriebssystem;
+import filius.software.Application;
+import filius.software.system.HostOS;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 
 /**
  * Diese Klasse verwaltet die notwendigen Daten fuer den Dateiaustausch mit 'Gnutella'. Das ist ein Programm fuer den
@@ -52,7 +50,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * 
  */
 
-public class PeerToPeerAnwendung extends Anwendung {
+public class PeerToPeerAnwendung extends Application {
 
     /**
      * Liste der Teilnehmer im Peer-to-Peer-Netzwerk, die dem Prozess bekannt sind. Die Liste enthaelt die
@@ -116,12 +114,12 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Hier wird das Betriebssystem gesetzt und das Standardverzeichnis initialisiert und wenn noetig im Dateisystem
      * erstellt
      */
-    public void setSystemSoftware(InternetKnotenBetriebssystem betriebssystem) {
+    public void setSystemSoftware(InternetNodeOS betriebssystem) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
 
-        FiliusFileSystem FFS = betriebssystem.getDateisystem();
+        FiliusFileSystem FFS = betriebssystem.getFileSystem();
         FFS.getRoot().addDirectory("peer2peer");
         verzeichnis = FFS.toNode("peer2peer");
     }
@@ -129,10 +127,10 @@ public class PeerToPeerAnwendung extends Anwendung {
     /**
      * Starten der Anwendung
      */
-    public void starten() {
+    public void startThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), starten()");
-        super.starten();
+        super.startThread();
 
         eigeneAnfragen = new LinkedList<Integer>();
         fremdeAnfragen = new LinkedList<Integer>();
@@ -140,22 +138,22 @@ public class PeerToPeerAnwendung extends Anwendung {
 
         peerToPeerServer = new PeerToPeerServer(this);
         peerToPeerServer.setSystemSoftware(getSystemSoftware());
-        peerToPeerServer.starten();
+        peerToPeerServer.startThread();
         peerToPeerClient = new PeerToPeerClient(this);
         peerToPeerClient.setSystemSoftware(getSystemSoftware());
-        peerToPeerClient.starten();
+        peerToPeerClient.startThread();
     }
 
     /**
      * Beenden der Anwendung
      */
-    public void beenden() {
+    public void stopThread() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), beenden()");
-        super.beenden();
+        super.stopThread();
 
-        peerToPeerServer.beenden();
-        peerToPeerClient.beenden();
+        peerToPeerServer.stopThread();
+        peerToPeerClient.stopThread();
     }
 
     /**
@@ -173,22 +171,22 @@ public class PeerToPeerAnwendung extends Anwendung {
         FiliusFile aktuelle;
         PongPaket pong;
         long anzahlBytes = 0;
-        Betriebssystem bs;
+        HostOS bs;
 
         if (schonmalVerschicktListe.contains(ping.getGuid())) {
             return null;
         } else {
-            bs = (Betriebssystem) getSystemSoftware();
+            bs = (HostOS) getSystemSoftware();
 
-            dateien = verzeichnis.getChildFiliusFiles();
+            dateien = verzeichnis.getChildrenFiliusFiles();
 
             for (int i = 0; i < dateien.size(); i++) {
                 aktuelle = (FiliusFile) dateien.get(i);
                 anzahlBytes = anzahlBytes + aktuelle.getSize();
             }
-            pong = new PongPaket(bs.holeIPAdresse(), 6346, dateien.size(), anzahlBytes);
+            pong = new PongPaket(bs.getIPAddress(), 6346, dateien.size(), anzahlBytes);
             pong.setGuid(ping.getGuid());
-            pong.setIpAdresse(bs.holeIPAdresse());
+            pong.setIpAdresse(bs.getIPAddress());
 
             return pong;
         }
@@ -233,7 +231,7 @@ public class PeerToPeerAnwendung extends Anwendung {
             fremdeAnfragen.add(anfrage.getGuid());
             schonmalVerschicktListe.add(anfrage.getGuid());
 
-            dateien = verzeichnis.getChildFiliusFiles();
+            dateien = verzeichnis.getChildrenFiliusFiles();
             ergebnisListe = new LinkedList<FiliusFile>();
             for (int i = 0; i < dateien.size(); i++) {
                 ergebnis = (FiliusFile) dateien.get(i);
@@ -272,23 +270,23 @@ public class PeerToPeerAnwendung extends Anwendung {
     public void beitretenNetzwerk(String teilnehmerIP) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), beitretenNetzwerk(" + teilnehmerIP + ")");
-        Betriebssystem bs;
+        HostOS bs;
         PingPaket pingPaket;
 
-        bs = (Betriebssystem) getSystemSoftware();
+        bs = (HostOS) getSystemSoftware();
 
-        if (!bs.holeIPAdresse().equals(teilnehmerIP)) {
+        if (!bs.getIPAddress().equals(teilnehmerIP)) {
             pingPaket = new PingPaket();
-            pingPaket.setIp(bs.holeIPAdresse());
+            pingPaket.setIp(bs.getIPAddress());
             eigeneAnfragen.add(pingPaket.getGuid());
 
-            peerToPeerClient.sendePing(teilnehmerIP, pingPaket, bs.holeIPAdresse());
+            peerToPeerClient.sendePing(teilnehmerIP, pingPaket, bs.getIPAddress());
         }
     }
 
     public void resetNetwork() {
         bekanntePeerToPeerTeilnehmer.clear();
-        benachrichtigeBeobachter(bekanntePeerToPeerTeilnehmer);
+        notifyObservers(bekanntePeerToPeerTeilnehmer);
     }
 
     /**
@@ -312,7 +310,7 @@ public class PeerToPeerAnwendung extends Anwendung {
 
         erwarteteDateien.add(tmpDateiname);
         peerToPeerClient.dateiVomTeilnehmerAnfordern(tmpBesitzer, tmpDateiname);
-        benachrichtigeBeobachter();
+        notifyObservers();
     }
 
     /**
@@ -324,15 +322,15 @@ public class PeerToPeerAnwendung extends Anwendung {
     public void sucheDatei(String datei) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), sucheDatei(" + datei + ")");
-        Betriebssystem bs;
+        HostOS bs;
         QueryPaket anfragePaket;
 
         ergebnisse.clear();
         anfragePaket = new QueryPaket("1", datei);
         eigeneAnfragen.add(anfragePaket.getGuid());
 
-        bs = (Betriebssystem) getSystemSoftware();
-        peerToPeerClient.sendeAnfrage(anfragePaket, bs.holeIPAdresse());
+        bs = (HostOS) getSystemSoftware();
+        peerToPeerClient.sendeAnfrage(anfragePaket, bs.getIPAddress());
     }
 
     /** Zum Abbruch aller Suchanfragen, die zuvor gestartet worden sind. */
@@ -381,7 +379,7 @@ public class PeerToPeerAnwendung extends Anwendung {
         // warte ich selbst auf diese Antwort?
         if (eigeneAnfragen.contains(antwortPaket.getGuid())) {
             hinzuErgebnis(antwortPaket);
-            benachrichtigeBeobachter();
+            notifyObservers();
         }
         // ich kenne die Anfrage, die Antwort ist nicht fuer mich
         else if (fremdeAnfragen.contains(antwortPaket.getGuid())) {
@@ -402,7 +400,7 @@ public class PeerToPeerAnwendung extends Anwendung {
     void verarbeitePong(PongPaket pongPaket) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeitePong(" + pongPaket + ")" + "\n\tPong-Nachricht bei '"
-                + getSystemSoftware().getKnoten().getDisplayName() + "' eingetroffen: " + pongPaket.toString());
+                + getSystemSoftware().getNode().getDisplayName() + "' eingetroffen: " + pongPaket.toString());
 
         if (eigeneAnfragen.contains(pongPaket.getGuid())) {
             hinzuTeilnehmer(pongPaket.getIpAdresse());
@@ -452,7 +450,7 @@ public class PeerToPeerAnwendung extends Anwendung {
         neuesErgebnis = ergebnis.getIpAdresse() + "/" + ergebnis.getErgebnis();
         if (!ergebnisse.contains(neuesErgebnis)) {
             ergebnisse.add(neuesErgebnis);
-            benachrichtigeBeobachter();
+            notifyObservers();
         }
     }
 
@@ -482,7 +480,7 @@ public class PeerToPeerAnwendung extends Anwendung {
             // + " wird nicht mehr eingetragen");
         } else {
             bekanntePeerToPeerTeilnehmer.add(ipAdresse);
-            benachrichtigeBeobachter();
+            notifyObservers();
         }
     }
 

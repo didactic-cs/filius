@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import filius.Main;
 import filius.exception.SocketException;
 import filius.exception.ConnectionException;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /**
@@ -57,7 +57,7 @@ public class UDPSocket extends Socket {
      * @param zielPort
      * @throws ConnectionException
      */
-    public UDPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort)
+    public UDPSocket(InternetNodeOS betriebssystem, String zielAdresse, int zielPort)
             throws ConnectionException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.UDP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
@@ -76,7 +76,7 @@ public class UDPSocket extends Socket {
      *            dann verwendet, wenn der Wert groesser 0 ist.
      * @throws ConnectionException
      */
-    public UDPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int lokalerPort)
+    public UDPSocket(InternetNodeOS betriebssystem, String zielAdresse, int zielPort, int lokalerPort)
             throws ConnectionException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.UDP, lokalerPort);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
@@ -93,7 +93,7 @@ public class UDPSocket extends Socket {
      * @param zielPort
      * @throws ConnectionException
      */
-    public UDPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws ConnectionException {
+    public UDPSocket(InternetNodeOS betriebssystem, int lokalerPort) throws ConnectionException {
         super(betriebssystem, lokalerPort, IpPaket.UDP);
         Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
                 + betriebssystem + "," + lokalerPort + ")");

@@ -25,590 +25,789 @@
  */
 package filius.gui;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import filius.Main;
-import filius.gui.nachrichtensicht.ExchangeDialog;
 import filius.gui.netzwerksicht.GUICableItem;
 import filius.gui.netzwerksicht.GUINodeItem;
-import filius.gui.netzwerksicht.GUINetworkPanel;
 import filius.gui.netzwerksicht.JCablePanel;
-import filius.gui.netzwerksicht.JKonfiguration;
 import filius.gui.netzwerksicht.JNodeLabel;
 import filius.hardware.Cable;
 import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
-import filius.hardware.knoten.Host;
+import filius.hardware.knoten.Computer;
 import filius.hardware.knoten.InternetNode;
-import filius.hardware.knoten.Node;
 import filius.hardware.knoten.Modem;
+import filius.hardware.knoten.Node;
 import filius.hardware.knoten.Notebook;
-import filius.hardware.knoten.Rechner;
+import filius.hardware.knoten.Router;
 import filius.hardware.knoten.Switch;
-import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.I18n;
-import filius.rahmenprogramm.SzenarioVerwaltung;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.rahmenprogramm.ProjectManager;
 import filius.software.system.SwitchFirmware;
 
 public class GUIEvents implements I18n {
+	
+	private static GUIEvents guiEvents;   
+	private GUIContainer container;
+	
+	// Clicked items
+	private enum MouseTarget {nothing, cable, node, marquee};
+	private MouseTarget mouseTarget = MouseTarget.nothing;
 
-    private int auswahlx, auswahly, auswahlx2, auswahly2, mausposx, mausposy;
-
-    private int startPosX, startPosY;
+	// Marquee
+    private int tempMarqueeX1, tempMarqueeY1;
+    private int tempMarqueeX2, tempMarqueeY2;    
+    private int marqueeStartDragX, marqueeStartDragY;
+    private List<GUINodeItem> marqueeNodeItemList;
     
-    private int shiftX, shiftY;
-
-    private GUICableItem neuesKabel;
-
-    private static GUIEvents ref;   
-
-    private boolean aufmarkierung = false;
-
-    private List<GUINodeItem> markedlist;
+    // Selected node or cable    
+    private GUICableItem selectedCableItem;
+    private GUINodeItem selectedNodeItem = null;  
+    private int dragRelativeX, dragRelativeY;
     
-    private JNodeLabel loeschLabel, selectedLabel = null;
-
-    private GUINodeItem loeschItem, selectedItem, frozenSelectedItem, ziel2;       
+    // Selected node or cable freeze
+    private GUINodeItem frozenSelectedItem; 
+    private GUICableItem frozenSelectedCable;       
+    private boolean selectionIsFrozen = false;
     
-    private GUICableItem selectedCable, frozenSelectedCable;    
-    
-    private boolean selectedIsFrozen = false;
-
-    private JCablePanel kabelPanelVorschau;
-    
-    private GUIContainer container;
+    // Connection
+    private GUICableItem newCableItem;
+    private JCablePanel newCablePanel;   
     
 
     private GUIEvents() {
-        markedlist = new LinkedList<GUINodeItem>();
+        marqueeNodeItemList = new LinkedList<GUINodeItem>();
         container = GUIContainer.getInstance();
     }
 
-    public static GUIEvents getGUIEvents() {
-        if (ref == null) {
-            ref = new GUIEvents();
-        }
-
-        return ref;
-    }
-
-    public void mausReleased() {
-
-        List<GUINodeItem> itemlist = container.getKnotenItems();
-        JMarkerPanel auswahl = container.getAuswahl();
-        JMarkerPanel markierung = container.getMarkierung();
-
-        SzenarioVerwaltung.getInstance().setzeGeaendert();
-
-        if (auswahl.isVisible()) {
-            int tx, ty, twidth, theight;
-            int minx = 999999, miny = 999999, maxx = 0, maxy = 0;
-            markedlist = new LinkedList<GUINodeItem>();
-            for (GUINodeItem tempitem : itemlist) {
-                tx = tempitem.getNodeLabel().getX();
-                twidth = tempitem.getNodeLabel().getWidth();
-                ty = tempitem.getNodeLabel().getY();
-                theight = tempitem.getNodeLabel().getHeight();
-
-                int itemPosX = tx + twidth / 2;
-                int itemPosY = ty + theight / 2;
-
-                if (itemPosX >= auswahl.getX() && itemPosX <= auswahl.getX() + auswahl.getWidth()
-                        && itemPosY >= auswahl.getY() && itemPosY <= auswahl.getY() + auswahl.getHeight()) {
-                    minx = Math.min(tx, minx);
-                    maxx = Math.max(tx + twidth, maxx);
-                    miny = Math.min(ty, miny);
-                    maxy = Math.max(ty + theight, maxy);
-
-                    markedlist.add(tempitem);
-                }
-            }
-            if (!this.markedlist.isEmpty()) {
-                markierung.setBounds(minx, miny, maxx - minx, maxy - miny);
-                markierung.setVisible(true);
-            }
-            auswahl.setVisible(false);
-        }
-    }
-
-    public void mausDragged(MouseEvent e) {    	  
+    public static GUIEvents getInstance() {
     	
-        // Do not allow dragging while cable connector is visible, i.e., during
-        // cable assignment
-        if (container.getKabelvorschau().isVisible()) return;   
+        if (guiEvents == null) {
+            guiEvents = new GUIEvents();
+        }
+        return guiEvents;
+    }
+    
+    //-----------------------------------------------------------------------------------
+    //  Mouse events (for the DESIGN mode)
+    //-----------------------------------------------------------------------------------   
+    
+    public void mousePressed(MouseEvent e) {
         
-        // Only drag with left mouse button
-        if (!SwingUtilities.isLeftMouseButton(e)) return;    
+        //ProjectManager.getInstance().setModified();    // <<<  To be fixed: the configuration panels must notify their changes themselves!
         
-        JMarkerPanel auswahl = container.getAuswahl();
-        int neuX, neuY;
+        // Determine what the user clicked on: the marquee, a single node 
+    	// outside of the marquee, a cable, or an empty area
+        getMouseTarget(e.getX(), e.getY());
+        
+        // Left button        
+        if (e.getButton() == MouseEvent.BUTTON1) {
 
-        JNodeLabel dragVorschau = container.getDragVorschau();
+        	// A node is selected
+        	if (mouseTarget == MouseTarget.node) {
 
-        SzenarioVerwaltung.getInstance().setzeGeaendert();
+        		// If the connecting tool is currently selected, we try to connect nodes
+        		if (container.getConnectingTool().isVisible()) {
 
-        // Einzelnes Item verschieben
-        if (!container.isMarkerVisible()) {
-            if (selectedLabel != null && !dragVorschau.isVisible()) {
-            	neuX = e.getX() + shiftX;
-            	if (neuX < 0) {
-            		neuX = 0;
+        			// Hide the configuration panel 
+        			container.getConfigPanel().minimize();
+        			
+        			if (!selectedNodeItem.getNode().hasFreePort()) {
+        				// All ports are already connected        	
+        				GUIErrorHandler.getGUIErrorHandler().DisplayError(messages.getString("guievents_msg1"));
+        				return;
+        			}             			
+        
+        			if (newCableItem == null) {  
+        				// A new cable is required     				
+        				newCableItem = new GUICableItem();   
+        				newCablePanel = newCableItem.getCablePanel();         
+        			} else {
+        				// The first extremity of the cable is already plugged
+        				GUINodeItem nodeItem = newCablePanel.getNodeItem1();
+            			if (nodeItem != null) {        	
+            				if (selectedNodeItem.getNode().isConnectedTo(nodeItem.getNode())) {
+            					// nodeItems are already connected to each other        					
+            					GUIErrorHandler.getGUIErrorHandler().DisplayError(messages.getString("guievents_msg12"));
+            					return;
+            				}
+            			}
+        			}    
+        			
+        			// Do connect the cable to the node
+        			plugCable(e.getX(), e.getY());       
+
+        			// 
+        		} else {
+        			// Update property panel
+        			container.setConfigPanel(selectedNodeItem);
+        			if (e.getClickCount() == 2) container.getConfigPanel().maximize();
+
+        			// Show selection frame
+        			JNodeLabel selectedNodeLabel = selectedNodeItem.getNodeLabel();
+        			selectedNodeLabel.setSelected(true);
+
+        			// Coordinates of the mouse relative to the top left corner of the nodeLabel
+        			dragRelativeX = e.getX() - selectedNodeLabel.getX();                           
+        			dragRelativeY = e.getY() - selectedNodeLabel.getY();    
+        		}
+        			
+        	} else if (mouseTarget == MouseTarget.cable) {
+        		
+        		// A cable was clicked on
+        		container.setConfigPanel(selectedCableItem);
+        		if (e.getClickCount() == 2) container.getConfigPanel().maximize();
+        		
+        	} else if (mouseTarget == MouseTarget.nothing) {
+
+        		// The click was done on an empty area 
+        		container.getTempMarquee().setVisible(false);   
+        		unselectCable();
+        		container.getConfigPanel().minimize();
+        		container.setConfigPanel(null);        		
+        	}
+        }       
+        
+        // Right button
+        else if (e.getButton() == MouseEvent.BUTTON3) {
+        	
+        	// Release the connecting tool if selected
+        	if (container.getConnectingTool().isVisible()) {
+                resetAndHideCablePreview();
+                return;
+            }  
+        	
+        	if (mouseTarget == MouseTarget.marquee) {      
+            	// Show the context menu            
+                designModeContextMenu(e.getX(), e.getY());   
+                
+        	} else if (mouseTarget == MouseTarget.node) {      
+            	// Update the configuration panel and show the context menu
+            	container.setConfigPanel(selectedNodeItem);              
+                designModeContextMenu(e.getX(), e.getY());           
+                 
+            } else if (mouseTarget == MouseTarget.cable) {   
+            	// Update the configuration panel and show the context menu
+            	container.setConfigPanel(selectedCableItem);            	          	
+            	cableContextMenu(selectedCableItem, e.getX(), e.getY());               
+            } 
+        }
+    }
+    
+    public void mouseDragged(MouseEvent e) {    
+    	
+    	// Only drag with left mouse button
+        if (!SwingUtilities.isLeftMouseButton(e)) return; 
+    	
+        // Do not allow dragging while cable connector is visible (i.e. during cable assignment)
+        if (container.getConnectingTool().isVisible()) return;          
+        
+        boolean dragPreviewVisible = container.getDragNode().isVisible();
+
+        if (!container.isMarqueeVisible()) {
+            if (selectedNodeItem != null && !dragPreviewVisible) {
+            	
+            	JNodeLabel selectedNodeLabel = selectedNodeItem.getNodeLabel();
+            	
+            	// Drag a single nodeLabel
+            	int newX = e.getX() - dragRelativeX;
+            	if (newX < 0) {
+            		newX = 0;
             	} else {
-            		int maxX = container.getWidth() - selectedLabel.getWidth();
-            		if (neuX > maxX) {
-            			neuX = maxX - 1;
+            		int maxX = container.getWidth() - selectedNodeLabel.getWidth();
+            		if (newX >= maxX) {
+            			newX = maxX - 1;
+            	    }            		
+            	}            	
+            	int newY = e.getY() - dragRelativeY;
+            	if (newY < 0) {
+            		newY = 0;
+            	} else {
+            		int maxY = container.getHeight() - selectedNodeLabel.getHeight();
+            		if (newY >= maxY) {
+            			newY = maxY - 1;
             	    }            		
             	}
             	
-            	neuY = e.getY() + shiftY;
-            	if (neuY < 0) {
-            		neuY = 0;
-            	} else {
-            		int maxY = container.getHeight() - selectedLabel.getHeight();
-            		if (neuY > maxY) {
-            			neuY = maxY - 1;
-            	    }            		
-            	}
-            	
-                selectedLabel.setLocation(neuX, neuY);
-                container.updateCables();
+                selectedNodeLabel.setLocation(newX, newY);
+                container.updateCables();                
+                ProjectManager.getInstance().setModified();
+               
             } else {
-                mausposx = e.getX();
-                mausposy = e.getY();
-                if (!auswahl.isVisible()) {
-                    auswahlx = mausposx;
-                    auswahly = mausposy;
-                    auswahlx2 = auswahlx;
-                    auswahly2 = auswahly;
+            	// Marquee definition 
+                JMarqueePanel tempMarquee = container.getTempMarquee();
+                
+                // Start marquee definition
+                if (!tempMarquee.isVisible()) {
+                    tempMarqueeX1 = e.getX();
+                    tempMarqueeY1 = e.getY();
+                    tempMarqueeX2 = tempMarqueeX1;
+                    tempMarqueeY2 = tempMarqueeY1;
 
-                    auswahl.setBounds(auswahlx, auswahly, auswahlx2 - auswahlx, auswahly2 - auswahly);
-                    auswahl.setVisible(true);
+                    tempMarquee.setBounds(tempMarqueeX1, tempMarqueeY1, 0, 0);
+                    tempMarquee.setVisible(true);
+                    
+                // Extend marquee definition    
                 } else {
-                    auswahlx2 = mausposx;
-                    auswahly2 = mausposy;
+                    tempMarqueeX2 = e.getX();
+                    tempMarqueeY2 = e.getY();
 
-                    auswahl.setBounds(auswahlx, auswahly, auswahlx2 - auswahlx, auswahly2 - auswahly);
+                    if (tempMarqueeX1 < tempMarqueeX2) {
+                    	if (tempMarqueeY1 < tempMarqueeY2) {
+                    		tempMarquee.setBounds(tempMarqueeX1, tempMarqueeY1, tempMarqueeX2 - tempMarqueeX1, tempMarqueeY2 - tempMarqueeY1);
+                    	} else {
+                    		tempMarquee.setBounds(tempMarqueeX1, tempMarqueeY2, tempMarqueeX2 - tempMarqueeX1, tempMarqueeY1 - tempMarqueeY2);
+                    	}
 
-                    if (mausposx < auswahlx) {
-                        auswahl.setBounds(auswahlx2, auswahly, auswahlx - auswahlx2, auswahly2 - auswahly);
-                    }
-                    if (mausposy < auswahly) {
-                        auswahl.setBounds(auswahlx, auswahly2, auswahlx2 - auswahlx, auswahly - auswahly2);
-                    }
-                    if (mausposy < auswahly && mausposx < auswahlx) {
-                        auswahl.setBounds(auswahlx2, auswahly2, auswahlx - auswahlx2, auswahly - auswahly2);
+                    } else {
+                    	if (tempMarqueeY1 < tempMarqueeY2) {
+                    		tempMarquee.setBounds(tempMarqueeX2, tempMarqueeY1, tempMarqueeX1 - tempMarqueeX2, tempMarqueeY2 - tempMarqueeY1);
+                    	} else {
+                    		tempMarquee.setBounds(tempMarqueeX2, tempMarqueeY2, tempMarqueeX1 - tempMarqueeX2, tempMarqueeY1 - tempMarqueeY2);
+                    	}
                     }
                 }
             }
         }
-        // Items im Auswahlrahmen verschieben
-        else if (!dragVorschau.isVisible()) {
-            /* Verschieben mehrerer ausgewaehlter Objekte */
-            if (aufmarkierung && markedlist.size() > 0 && e.getX() >= 0 && e.getX() <= container.getWidth() && e.getY() >= 0
-                    && e.getY() <= container.getHeight()) {
+        
+        else if (!dragPreviewVisible) {
+            // Drag all selected items in marquee
+            if ((mouseTarget == MouseTarget.marquee) &&  
+               (0 <= e.getX()) && (e.getX() <= container.getWidth()) && 
+               (0 <= e.getY()) && (e.getY() <= container.getHeight())) {
 
-                int verschiebungx = startPosX - e.getX();
-                startPosX = e.getX();
-                int verschiebungy = startPosY - e.getY();
-                startPosY = e.getY();
+                int Xshift = marqueeStartDragX - e.getX();
+                marqueeStartDragX = e.getX();
+                int Yshift = marqueeStartDragY - e.getY();
+                marqueeStartDragY = e.getY();
 
-                container.moveMarker(-verschiebungx, -verschiebungy, markedlist);
+                container.moveMarquee(-Xshift, -Yshift, marqueeNodeItemList);
+                ProjectManager.getInstance().setModified();
+                
             } else {
                 Main.debug.println("Out of Boundaries!");
             }
         }
     }
-
-    public void mausPressedDesignMode(MouseEvent e) {
-        
-        JMarkerPanel auswahl = container.getAuswahl();
-
-        SzenarioVerwaltung.getInstance().setzeGeaendert();
-
-        if (neuesKabel == null) {
-            neuesKabel = new GUICableItem();
-        }
-        updateAktivesItem(e.getX(), e.getY());
-
-        if (container.getMarkierung().inBounds(e.getX(), e.getY())) {
-            if (container.getMarkierung().isVisible()) {
-                aufmarkierung = true;
-                startPosX = e.getX();
-                startPosY = e.getY();
-            }
-        } else {
-            aufmarkierung = false;
-            container.getMarkierung().setVisible(false);
-            auswahl.setBounds(0, 0, 0, 0);
-        }
-
-        // Right click
-        if (e.getButton() == MouseEvent.BUTTON3) {
-        	
-        	// On a node
-            if (selectedItem != null && selectedLabel != null) {
-
-                if (!container.getKabelvorschau().isVisible()) {
-                    kontextMenueEntwurfsmodus(selectedLabel, e.getX(), e.getY());
-                } else {
-                    resetAndHideCablePreview();
-                }
-                
-             // Show selection frame
-                selectedLabel.setSelected(true);
-                
-            // On a cable?    
-            } else {
-            	updateActiveCable(e.getX(), e.getY());
-            	
-                GUICableItem cableItem = findClickedCable(e);
-                if ((kabelPanelVorschau == null || !kabelPanelVorschau.isVisible())
-                        && container.getActiveSite() == GUIMainMenu.MODUS_ENTWURF
-                        && cableItem != null) {
-                    contextMenuCable(cableItem, e.getX(), e.getY());
-                } else {
-                    resetAndHideCablePreview();
-                }                  
-            }
-        }
-        // Left click
-        else {
-            if (e.getButton() == MouseEvent.BUTTON1) {
-            	
-                // A node is active
-                if (selectedItem != null && selectedLabel != null) {
-                	
-                    // The connector tool is selected
-                    if (container.getKabelvorschau().isVisible()) {
-                    	
-                        // hide property panel (JKonfiguration)
-                    	container.getProperty().minimieren();
-
-                        if (selectedItem.getNode() instanceof Node) {
-                            Node tempKnoten = (Node) selectedItem.getNode();
-                            boolean success = true;
-                            if (selectedItem.getNode() instanceof Node) {
-                                tempKnoten = (Node) selectedItem.getNode();
-                                Port anschluss = tempKnoten.getFreePort();
-                                if (anschluss == null) {
-                                    success = false;
-                                    GUIErrorHandler.getGUIErrorHandler()
-                                            .DisplayError(messages.getString("guievents_msg1"));
-                                }
-                            }
-                            if (success && neuesKabel.getCablePanel().getZiel1() != null) {
-                                Node quellKnoten = neuesKabel.getCablePanel().getZiel1().getNode();
-                                if (tempKnoten.isConnectedTo(quellKnoten)) {
-                                    success = false;
-                                    GUIErrorHandler.getGUIErrorHandler()
-                                            .DisplayError(messages.getString("guievents_msg12"));
-                                }
-                            }
-                            if (success) {
-                                processCableConnection(e.getX(), e.getY());
-                            }
-                        }
-                        
-                      // 
-                    } else {
-                    	// Update property panel
-                        container.setProperty(selectedItem);
-                        
-                        // Display property panel if double-clicked
-                        if (e.getClickCount() == 2) container.getProperty().maximieren();
-                                                                
-                        // Show selection frame
-                        selectedLabel.setSelected(true);
-                        
-                        // Die Verschiebung speichern für spätere Verwendung in mausDragged
-                        shiftX = selectedLabel.getX() - e.getX();                           
-                        shiftY = selectedLabel.getY() - e.getY();    
-                    }
-           	
-                // No node is active	
-                } else {
-                	// Did the click occur on a cable?
-                	updateActiveCable(e.getX(), e.getY());
-                	if (selectedCable != null) {
-                		
-                		container.setProperty(selectedCable);
-                		
-                		if (e.getClickCount() == 2) container.getProperty().maximieren();
-                		
-                		return;                	
-                	}
-                	
-                	// The click was done on an empty area
-                    auswahl.setVisible(false);   
-                    unselectActiveCable();
-                    container.getProperty().minimieren();
-                    container.setProperty(null);
-                }
-            }
-        }
-    }
     
-    public void cancelMultipleSelection() {
-        aufmarkierung = false;
-        container.getMarkierung().setVisible(false);
-        container.getAuswahl().setBounds(0, 0, 0, 0);
-    }
-
-    public void processCableConnection(int currentPosX, int currentPosY) {
-        if (neuesKabel.getCablePanel().getZiel1() == null) {
-            connectCableToFirstComponent(currentPosX, currentPosY);
-        } else {
-            if (neuesKabel.getCablePanel().getZiel2() == null && neuesKabel.getCablePanel().getZiel1() != selectedItem) {
-                connectCableToSecondComponent(selectedItem);
-            }
-            int posX = currentPosX;
-            int posY = currentPosY;
-            resetAndShowCablePreview(posX, posY);
-        }
-    }
-
-    private void connectCableToFirstComponent(int currentPosX, int currentPosY) {
-        // Main.debug.println("\tmausPressed: IF-2.2.1.2.1");
-        neuesKabel.getCablePanel().setZiel1(selectedItem);
-        container.getKabelvorschau().setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel2.png")));
-        kabelPanelVorschau = new JCablePanel();
-        container.getDesignpanel().add(kabelPanelVorschau);
-        kabelPanelVorschau.setZiel1(selectedItem);
-        container.setZiel2Label(new JNodeLabel());
-        ziel2 = new GUINodeItem();
-        ziel2.setNodeLabel(container.getZiel2Label());
-
-        container.getZiel2Label().setBounds(currentPosX, currentPosY, 8, 8);
-        kabelPanelVorschau.setZiel2(ziel2);
-        kabelPanelVorschau.setVisible(true);
-        container.setKabelPanelVorschau(kabelPanelVorschau);
-    }
-
-    private GUICableItem findClickedCable(MouseEvent e) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", clickedCable(" + e + ")");
-        // Falls kein neues Objekt erstellt werden soll
-        int xPos = e.getX() + container.getXOffset();
-        int yPos = e.getY() + container.getYOffset();
-
-        for (GUICableItem tempitem : container.getCableItems()) {
-            // item clicked, i.e., mouse pointer within item bounds
-            if (tempitem.getCablePanel().clicked(xPos, yPos)) {
-                // mouse pointer really close to the drawn line, too
-                return tempitem;
-            }
-        }
-        return null;
-    }
-
-    private void updateAktivesItem(int posX, int posY) {
-        // Falls kein neues Objekt erstellt werden soll
-        selectedLabel = null;
-        selectedItem = null;        
+    public void mouseReleased() {        
         
-        if (!container.isMarkerVisible()) {
-        	
-        	// Unselect all nodes and determine which is the active one
-            for (GUINodeItem tempItem : container.getKnotenItems()) {
-                JNodeLabel tempLabel = tempItem.getNodeLabel();
-                tempLabel.setSelected(false);
-                tempLabel.revalidate();
-                tempLabel.updateUI();
+        JMarqueePanel tempMarquee = container.getTempMarquee();
 
-                if (tempLabel.inBounds(posX, posY)) {
-                    selectedItem = tempItem;
-                    selectedLabel = tempItem.getNodeLabel();
-                }
-            }  
+        // Transform the temporary marquee into a definitive marquee
+        // Build the list of nodeItems inside the temporary marquee 
+        if (tempMarquee.isVisible()) {
+            int minX = Integer.MAX_VALUE; 
+            int minY = Integer.MAX_VALUE;
+            int maxX = 0; 
+            int maxY = 0;  
             
-            if (selectedItem != null) unselectActiveCable();
+            tempMarquee.setVisible(false);
+            
+            marqueeNodeItemList = new LinkedList<GUINodeItem>();
+            List<GUINodeItem> nodeItems = container.getNodeItems();
+            for (GUINodeItem nodeItem : nodeItems) {
+                int nodeX = nodeItem.getNodeLabel().getX();                
+                int nodeY = nodeItem.getNodeLabel().getY();
+                int nodeW = nodeItem.getNodeLabel().getWidth();
+                int nodeH = nodeItem.getNodeLabel().getHeight();
+
+                int nodeCenterX = nodeX + nodeW / 2;
+                int nodeCenterY = nodeY + nodeH / 2;
+
+                // Add the node to the list if its center is in the temporary marquee
+                if ((tempMarquee.getX() <= nodeCenterX) && (nodeCenterX <= tempMarquee.getX() + tempMarquee.getWidth()) &&
+                    (tempMarquee.getY() <= nodeCenterY) && (nodeCenterY <= tempMarquee.getY() + tempMarquee.getHeight())) {
+                	
+                	marqueeNodeItemList.add(nodeItem);
+                	
+                	// Compute the dimension of the definitive marquee
+                    minX = Math.min(nodeX, minX);
+                    maxX = Math.max(nodeX + nodeW, maxX);
+                    minY = Math.min(nodeY, minY);
+                    maxY = Math.max(nodeY + nodeH, maxY);
+                }
+            }
+            
+            // If the marqueeList is not empty, create the definitive marquee
+            // except when there is only one nodeItem in the list, in which case
+            // the nodeItem is selected directly
+            if (!marqueeNodeItemList.isEmpty()) {
+            	if (marqueeNodeItemList.size() > 1) {
+            		JMarqueePanel marquee = container.getMarquee();
+            		marquee.setBounds(minX, minY, maxX - minX, maxY - minY);
+            		marquee.setVisible(true);
+            	} else {
+            		// if there is only one element in the marqueeList, just select it directly
+            		selectedNodeItem = marqueeNodeItemList.get(0);            		
+            		JNodeLabel nodeLabel = selectedNodeItem.getNodeLabel();                   
+            		nodeLabel.setSelected(true);      
+            		marqueeNodeItemList = null;
+            		nodeLabel.updateUI();
+            	}            	
+            }
         }
     }
     
-    // Remove the active cable if any
-    protected void removeActiveCable() {     
-    	
-    	if (selectedCable != null) {
-    		removeSingleCable(selectedCable);
-    		selectedCable = null;
-    		container.getProperty().minimieren();
-    		container.setProperty(null);
-    	}
-    }
-    
-    // Unselect the active cable if any
-    // Activation is used in design mode only to highlight a cable
-    protected void unselectActiveCable() {     
-    	
-    	if (selectedCable != null) {
-    		selectedCable.getCablePanel().setSelected(false);
-    		selectedCable = null;
-    	}
-    }
-    
-    // Determine if a cable can be set active based on the coordinates
-    private void updateActiveCable(int x, int y) {      
-    	
-    	for (GUICableItem cable : container.getCableItems()) {
+    //-----------------------------------------------------------------------------------
+    //  Selection and marquee
+    //-----------------------------------------------------------------------------------      
 
-    		JCablePanel cp = cable.getCablePanel();
-    		if (cp.clicked(x, y)) {
-    			if (cable == selectedCable) return;
-    			
-    			unselectActiveCable();   
-    			
-    			cp.setSelected(true);
-    			selectedCable = cable;
-    			return;
-    		}
-    	}
+    /**
+     * <b>getMouseTarget</b> determines what the mouse is over.
+     * 
+     * @param posX
+     * @param posY
+     */
+    private void getMouseTarget(int posX, int posY) {
     	
-    	unselectActiveCable();   
-    }
-    
-    public GUICableItem getActiveCable() {
-        return selectedCable;
-    }
-    
-    public GUINodeItem getActiveItem() {
-        return selectedItem;
-    }
-    
-    // Keep track of which element is active
-    // when leaving the design mode
-    public void freezeActiveElements() {
-    	
-    	if (! selectedIsFrozen) {
-    		frozenSelectedItem = selectedItem;
-        	frozenSelectedCable = selectedCable; 
+    	// The mouse was pressed on the marquee?
+    	if (container.getMarquee().isVisible() && container.getMarquee().inBounds(posX, posY)) {    		
+        	marqueeStartDragX = posX;
+        	marqueeStartDragY = posY;
         	
-        	selectedIsFrozen = true;
+        	mouseTarget = MouseTarget.marquee;
+        	return;
+           
+        } else {         
+        	// The marquee, if any, is lost
+        	container.getMarquee().setVisible(false);
+    		
+    		// The mouse was pressed on a node?
+    		for (GUINodeItem nodeItem : container.getNodeItems()) {
+    			
+    			JNodeLabel nodeLabel = nodeItem.getNodeLabel();
+    			if (nodeLabel.inBounds(posX, posY)) {
+    				if (nodeItem == selectedNodeItem) {
+    					mouseTarget = MouseTarget.node;
+    					return;
+    				}
+    				
+    				unselectNode();
+    				unselectCable(); 
+    				
+    				selectedNodeItem = nodeItem;
+    				nodeLabel.setSelected(true);
+        			nodeLabel.updateUI();
+        			mouseTarget = MouseTarget.node;
+    				return;
+    			}
+    		}  
+    		// The selected node, if any, is deselected
+    		unselectNode();
+    		
+    		// The mouse was pressed on a cable?
+    		for (GUICableItem cableItem : container.getCableList()) {
+
+    			JCablePanel cablePanel = cableItem.getCablePanel();
+    			if (cablePanel.clicked(posX, posY)) {
+    				if (cableItem == selectedCableItem) {
+    					mouseTarget = MouseTarget.cable;
+    					return;
+    				}
+
+    				unselectCable();   
+
+    				cablePanel.setSelected(true);
+    				selectedCableItem = cableItem;
+    				mouseTarget = MouseTarget.cable;
+    				return;
+    			}
+    		}
+    		// The selected cable, if any, is deselected
+    		unselectCable();   
+  		 
+    		// The mouse was pressed on an empty area
+    		mouseTarget = MouseTarget.nothing;
+        }
+    }    
+    
+    // Unselect the selected cable if any
+    protected void unselectCable() {     
+    	
+    	if (selectedCableItem != null) {
+    		selectedCableItem.getCablePanel().setSelected(false);
+    		selectedCableItem = null;
+    	}
+    } 
+    
+    // Remove the selected cable if any
+    protected void removeSelectedCable() {     
+    	
+    	if (selectedCableItem != null) {
+    		container.removeCableItem(selectedCableItem);
+    		selectedCableItem = null;
+    		container.getConfigPanel().minimize();
+    		container.setConfigPanel(null);
+    		ProjectManager.getInstance().setModified();  
+    	}
+    }
+    
+    // Remove the selected node if any
+    protected void removeSelectedNode() {     
+    	
+    	if (selectedNodeItem != null) {
+    		container.removeItem(selectedNodeItem);
+    		selectedNodeItem = null;
+    		container.getConfigPanel().minimize();
+    		container.setConfigPanel(null);
+    		ProjectManager.getInstance().setModified();  
+    	}
+    }
+    
+    public void removeSelectedItem() {
+        
+    	if (selectedNodeItem != null) {
+    		removeSelectedNode();
+    	} else if (selectedCableItem != null) {
+    		removeSelectedCable();
+    	}        
+    } 
+    
+    // 
+    public GUINodeItem getSelectedItem() {
+        return selectedNodeItem;
+    }
+    
+    // Called when creating a new node
+    public void setSelectedItem(GUINodeItem item) {
+        selectedNodeItem = item;
+    }
+    
+    // Unselect the selected node if any
+    protected void unselectNode() {     
+    	
+    	if (selectedNodeItem != null) {
+    		selectedNodeItem.getNodeLabel().setSelected(false);
+    		selectedNodeItem.getNodeLabel().updateUI();
+    		selectedNodeItem = null;
+    	}
+    }
+    
+    // Keep track of which element is selected
+    // when leaving the design mode
+    public void freezeSelectedElement() {
+    	
+    	if (! selectionIsFrozen) {
+    		// Freeze both, even though only one is really selected
+    		frozenSelectedItem = selectedNodeItem;
+        	frozenSelectedCable = selectedCableItem; 
+        	
+        	selectionIsFrozen = true;
     	}    	
     }
     
-    // Restore the active element when
+    // Restore the selected element when
     // returning to the design mode
-    public void unFreezeActiveElements() {
+    public void unfreezeSelectedElement() {
     	
-    	if (selectedIsFrozen) {
+    	if (selectionIsFrozen) {
     		if (frozenSelectedItem != null) {
-    			selectedItem = frozenSelectedItem;
-    			selectedItem.getNodeLabel().setSelected(true);    			
+    			selectedNodeItem = frozenSelectedItem;
+    			selectedNodeItem.getNodeLabel().setSelected(true);    			
     		} else if (frozenSelectedCable != null) {
-    			selectedCable = frozenSelectedCable;
-    			selectedCable.getCablePanel().setSelected(true);
+    			selectedCableItem = frozenSelectedCable;
+    			selectedCableItem.getCablePanel().setSelected(true);
     		}        	
-        	selectedIsFrozen = false;
+        	selectionIsFrozen = false;
     	}  
     }
+    
+    //-----------------------------------------------------------------------------------
+    //  Connecting a cable
+    //-----------------------------------------------------------------------------------
 
-    /*
-     * method called in case of new item creation in GUIContainer, such that this creation process will be registered
-     * and the according item is marked active
-     */
-    public void setNewItemActive(GUINodeItem item) {
-        selectedItem = item;
+    public void plugCable(int X, int Y) {
+    	
+        if (newCablePanel.getNodeItem1() == null) {
+        	
+        	// Plug the first extremity of the cable
+        	plugCableIntoFirstNode(X, Y);
+
+        } else if (newCablePanel.getNodeItem1() != selectedNodeItem) {
+
+        	// Plug the second extremity of the cable
+        	plugCableIntoSecondNode(X, Y);
+
+        	ProjectManager.getInstance().setModified();  
+        }
     }
 
-    private void desktopAnzeigen(GUINodeItem aktivesItem) {
-    	container.showDesktop(aktivesItem);
+    private void plugCableIntoFirstNode(int X, int Y) {
+    	
+    	// Plug the new cable into the selected (first) node
+    	newCablePanel.setNodeItem1(selectedNodeItem);           	       	            
+        
+    	// Attach the other end to the handle node
+        newCablePanel.setNodeItem2(container.getHandleEndNodeItem()); 
+                
+        // Add the cable to the design panel
+        container.getDesignPanel().add(newCablePanel);           
+        newCablePanel.setVisible(true);  
+        
+        // Set it at the cable being drawn
+        container.setCurrentDesignCable(newCablePanel, X, Y);   
+        
+        // Select connecting tool icon 2
+        container.setConnectingToolIcon2();
     }
 
-    private void connectCableToSecondComponent(GUINodeItem tempitem) {
+    private void plugCableIntoSecondNode(int X, int Y) {
        
-        GUINetworkPanel draftpanel = container.getDesignpanel();
-        NetworkInterface nic1, nic2;
-        Port anschluss1 = null;
-        Port anschluss2 = null;
+        Port port1 = null;
+        Port port2 = null;
 
-        neuesKabel.getCablePanel().setZiel2(tempitem);
-        draftpanel.remove(kabelPanelVorschau);
-        ziel2 = null;
-
-        draftpanel.add(neuesKabel.getCablePanel());
-        neuesKabel.getCablePanel().updateBounds();
-        draftpanel.updateUI();
-        container.getCableItems().add(neuesKabel);
-        if (neuesKabel.getCablePanel().getZiel1().getNode() instanceof Modem) {
-            Modem vrOut = (Modem) neuesKabel.getCablePanel().getZiel1().getNode();
-            anschluss1 = vrOut.getPort();
-        } else if (neuesKabel.getCablePanel().getZiel1().getNode() instanceof Vermittlungsrechner) {
-            Vermittlungsrechner r = (Vermittlungsrechner) neuesKabel.getCablePanel().getZiel1().getNode();
-            anschluss1 = r.getFreePort();
-        } else if (neuesKabel.getCablePanel().getZiel1().getNode() instanceof Switch) {
-            Switch sw = (Switch) neuesKabel.getCablePanel().getZiel1().getNode();
-            anschluss1 = ((SwitchFirmware) sw.getSystemSoftware()).getKnoten().getFreePort();
-        } else if (neuesKabel.getCablePanel().getZiel1().getNode() instanceof InternetNode) {
-            nic1 = (NetworkInterface) ((InternetNode) neuesKabel.getCablePanel().getZiel1().getNode())
-                    .getNIlist().get(0);
-            anschluss1 = nic1.getPort();
+        // Attach the other end to the selected (second) node
+        newCablePanel.setNodeItem2(selectedNodeItem);
+        
+        newCablePanel.updateBounds();        
+        container.getCableList().add(newCableItem);
+        container.getDesignPanel().updateUI();
+        
+        // Get the end ports
+        
+        Node node = newCablePanel.getNodeItem1().getNode();
+        if (node instanceof Modem) {
+            Modem vrOut = (Modem) node;
+            port1 = vrOut.getPort();
+            
+        } else if (node instanceof Router) {
+            Router r = (Router) node;
+            port1 = r.getFreePort();
+            
+        } else if (node instanceof Switch) {
+            Switch sw = (Switch) node;
+            port1 = ((SwitchFirmware) sw.getSystemSoftware()).getNode().getFreePort();
+            
+        } else if (node instanceof InternetNode) {
+        	NetworkInterface nic1 = (NetworkInterface) ((InternetNode) node).getNICList().get(0);
+            port1 = nic1.getPort();
         }
 
-        if (neuesKabel.getCablePanel().getZiel2().getNode() instanceof Modem) {
-            Modem vrOut = (Modem) neuesKabel.getCablePanel().getZiel2().getNode();
-            anschluss2 = vrOut.getPort();
-        } else if (neuesKabel.getCablePanel().getZiel2().getNode() instanceof Vermittlungsrechner) {
-            Vermittlungsrechner r = (Vermittlungsrechner) neuesKabel.getCablePanel().getZiel2().getNode();
-            anschluss2 = r.getFreePort();
-        } else if (neuesKabel.getCablePanel().getZiel2().getNode() instanceof Switch) {
-            Switch sw = (Switch) neuesKabel.getCablePanel().getZiel2().getNode();
-            anschluss2 = ((SwitchFirmware) sw.getSystemSoftware()).getKnoten().getFreePort();
-        } else if (neuesKabel.getCablePanel().getZiel2().getNode() instanceof InternetNode) {
-            nic2 = (NetworkInterface) ((InternetNode) neuesKabel.getCablePanel().getZiel2().getNode())
-                    .getNIlist().get(0);
-            anschluss2 = nic2.getPort();
+        node = newCablePanel.getNodeItem2().getNode();
+        if (node instanceof Modem) {
+            Modem vrOut = (Modem) node;
+            port2 = vrOut.getPort();
+            
+        } else if (node instanceof Router) {
+            Router r = (Router) node;
+            port2 = r.getFreePort();
+            
+        } else if (node instanceof Switch) {
+            Switch sw = (Switch) node;
+            port2 = ((SwitchFirmware) sw.getSystemSoftware()).getNode().getFreePort();
+            
+        } else if (node instanceof InternetNode) {
+        	NetworkInterface nic2 = (NetworkInterface) ((InternetNode) node).getNICList().get(0);
+            port2 = nic2.getPort();
         }
 
-        neuesKabel.setCable(new Cable());
-        neuesKabel.getCable().setPorts(new Port[] { anschluss1, anschluss2 });
-
-        resetAndHideCablePreview();
+        // Create the cable between the ports
+        newCableItem.setCable(new Cable(port1, port2));
+        
+        // Reset the newCable for another connection
+        resetAndShowCablePreview(X, Y);
     }
 
-    public void resetAndHideCablePreview() {
-        resetCableTool();
-        hideCableToolPanel();
+    private void resetCableTool() {    	
+    	
+        newCableItem = null;
+        newCablePanel = null;
+        container.setConnectingToolIcon1();
+        container.setCurrentDesignCable(null, 0, 0); 
     }
-
-    private void hideCableToolPanel() {
-    	container.getKabelvorschau().setVisible(false);
-    }
-
-    private void resetCableTool() {
-        neuesKabel = new GUICableItem();
-        container.getKabelvorschau()
-                .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel1.png")));
-        ziel2 = null;
-
-        if (kabelPanelVorschau != null) {
-            kabelPanelVorschau.setVisible(false);
-        }
-    }
-
+    
     public void resetAndShowCablePreview(int currentPosX, int currentPosY) {
+    	
         resetCableTool();
-        showCableToolPanel(currentPosX, currentPosY);
-        cancelMultipleSelection();
+
+        container.getConnectingTool().setLocation(currentPosX, currentPosY);
+        container.getConnectingTool().setVisible(true);
+        
+        container.getMarquee().setVisible(false);
+    }    
+    
+    public void resetAndHideCablePreview() {    	
+    	
+    	if (newCablePanel != null) {
+    		// Don't forget to remove the no longer used cable from the design panel
+    		container.getDesignPanel().remove(newCablePanel);  
+    		container.getDesignPanel().updateUI();
+    	}    	
+        resetCableTool();
+        
+        container.getConnectingTool().setVisible(false);
+    }
+    
+    //-----------------------------------------------------------------------------------
+    //  Removing items
+    //-----------------------------------------------------------------------------------
+    
+    /**
+     * Remove all nodes under the marquee
+     */
+    public void removeMarqueeNodes() {
+    	
+    	for (GUINodeItem nodeItem : marqueeNodeItemList) container.removeItem(nodeItem);    
+    	marqueeNodeItemList = null;
+    	container.getMarquee().setVisible(false);
+    	ProjectManager.getInstance().setModified();  
+    }
+    
+    //-----------------------------------------------------------------------------------
+    //  Context menus
+    //-----------------------------------------------------------------------------------
+
+    /**
+     * @author Johannes Bade & Thomas Gerding
+     * 
+     *         Bei rechter Maustaste auf ein Item (bei Laufendem Entwurfsmodus) wird ein Kontextmenü angezeigt, in dem
+     *         z.B. das Item gelöscht, kopiert oder ausgeschnitten werden kann.
+     * 
+     * @param nodeLabel
+     *            Item auf dem das Kontextmenü erscheint
+     * @param e
+     *            MouseEvent (Für Position d. Kontextmenü u.a.)
+     */
+    private void designModeContextMenu(int posX, int posY) {
+    	
+    	if (container.isMarqueeVisible()) {
+    		
+    		final JMenuItem pmDeleteNodes = new JMenuItem(messages.getString("guievents_msg7"));
+            pmDeleteNodes.setActionCommand("delete");
+
+            JPopupMenu popmen = new JPopupMenu();
+            ActionListener al = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                	removeMarqueeNodes(); 
+                }
+            };
+
+            pmDeleteNodes.addActionListener(al);
+            popmen.add(pmDeleteNodes);
+
+            container.getDesignPanel().add(popmen);
+            popmen.setVisible(true);
+            popmen.show(container.getDesignPanel(), posX, posY);
+    		
+    	} else if (selectedNodeItem != null) {
+    		
+        	String removeCableString;
+            if (selectedNodeItem.getNode() instanceof Computer || selectedNodeItem.getNode() instanceof Notebook) {
+                removeCableString = messages.getString("guievents_msg5");
+            } else {
+                removeCableString = messages.getString("guievents_msg6");
+            }
+
+            final JMenuItem pmShowConfig = new JMenuItem(messages.getString("guievents_msg11"));
+            pmShowConfig.setActionCommand("showconfig");
+            
+            final JMenuItem pmDeleteCable = new JMenuItem(removeCableString);
+            pmDeleteCable.setActionCommand("deletecable");
+            
+            final JMenuItem pmDeleteNode = new JMenuItem(messages.getString("guievents_msg7"));
+            pmDeleteNode.setActionCommand("deletenode");
+
+            JPopupMenu popmen = new JPopupMenu();
+            ActionListener al = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    if (e.getActionCommand() == pmDeleteNode.getActionCommand()) {
+                        removeSelectedNode();
+                        
+                    } else if (e.getActionCommand() == pmDeleteCable.getActionCommand()) {
+                    	container.removeCablesConnectedTo(selectedNodeItem);
+                        
+                    } else if (e.getActionCommand() == pmShowConfig.getActionCommand()) {
+                    	container.setConfigPanel(selectedNodeItem);
+                    	container.getConfigPanel().maximize();
+                    }
+                }
+            };
+
+            pmDeleteNode.addActionListener(al);
+            pmDeleteCable.addActionListener(al);
+            pmShowConfig.addActionListener(al);
+
+            popmen.add(pmShowConfig);
+            popmen.add(pmDeleteCable);
+            popmen.add(pmDeleteNode);
+
+            container.getDesignPanel().add(popmen);
+            popmen.setVisible(true);
+            popmen.show(container.getDesignPanel(), posX, posY);
+        }
     }
 
-    private void showCableToolPanel(int currentPosX, int currentPosY) {
-        JNodeLabel cablePreview = container.getKabelvorschau();
-        cablePreview.setBounds(currentPosX, currentPosY, cablePreview.getWidth(), cablePreview.getHeight());
-        cablePreview.setVisible(true);
-    }
+    /**
+     * Context menu in case of clicking on single cable item
+	 * Used to delete a single cable
+     */
+    private void cableContextMenu(final GUICableItem cableItem, int posX, int posY) {
+    	
+        final JMenuItem pmRemoveCable = new JMenuItem(messages.getString("guievents_msg5"));
+        pmRemoveCable.setActionCommand("removecable");
 
+        JPopupMenu popmen = new JPopupMenu();
+        ActionListener al = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand() == pmRemoveCable.getActionCommand()) {
+                	removeSelectedCable();                    
+                }
+            }
+        };
+
+        pmRemoveCable.addActionListener(al);
+        popmen.add(pmRemoveCable);
+
+        container.getDesignPanel().add(popmen);
+        popmen.setVisible(true);
+        popmen.show(container.getDesignPanel(), posX, posY);
+    }
+    
+    /**
+     * Context menu in case of clicking on the workarea in action mode
+	 * Used to hide all windows
+     */
+    public void actionModeContextMenu(int posX, int posY) {
+    	
+    	final JMenuItem pmMoveToBottom = new JMenuItem(messages.getString("guiactionmenu_msg1"));
+    	//pmMoveToBottom.setActionCommand("movetobottom");
+
+    	final JMenuItem pmCloseAllFrames = new JMenuItem(messages.getString("guiactionmenu_msg2"));
+    	//pmCloseAllFrames.setActionCommand("removecable");
+
+        JPopupMenu popmen = new JPopupMenu();
+        ActionListener al = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand() == pmMoveToBottom.getActionCommand()) {
+                	JFrameList.getInstance().putMasterInTheBackground();                  
+                }
+                else if (e.getActionCommand() == pmCloseAllFrames.getActionCommand()) {
+                	JFrameList.getInstance().closeAll();                   
+                }
+            }
+        };
+        
+        pmMoveToBottom.addActionListener(al);
+        popmen.add(pmMoveToBottom);
+
+        pmCloseAllFrames.addActionListener(al);
+        popmen.add(pmCloseAllFrames);
+
+        container.getDesignPanel().add(popmen);
+        popmen.setVisible(true);
+        popmen.show(container.getDesignPanel(), posX, posY);
+    }
+    
     /**
      * @author Johannes Bade & Thomas Gerding
      * 
@@ -620,277 +819,82 @@ public class GUIEvents implements I18n {
      * @param e
      *            MouseEvent (Für Position d. Kontextmenü u.a.)
      */
-    public void kontextMenueAktionsmodus(final GUINodeItem knotenItem, int posX, int posY) {
-        if (knotenItem != null) {
-            if (knotenItem.getNode() instanceof InternetNode) {
+    public void actionModeNodeContextMenu(final GUINodeItem nodeItem, int posX, int posY) {
+    	
+        if (nodeItem != null) {
+        	
+        	if (nodeItem.getNode() instanceof Switch) {
 
-                JPopupMenu popmen = new JPopupMenu();
+            	Switch sw = (Switch) nodeItem.getNode();
+            	
+                JPopupMenu menu = new JPopupMenu();
 
                 ActionListener al = new ActionListener() {
+                	
                     public void actionPerformed(ActionEvent e) {
+                    	
+                        if (e.getActionCommand().equals("satanzeigen")) {
+                        	container.showDesktop(nodeItem);
+                        	SatViewerControl.getInstance().addOrShowViewer(sw);
+                        }
+                    }
+                };       
+                                            
+                JMenuItem pmSatAnzeigen = new JMenuItem(messages.getString("guievents_msg13"));
+                pmSatAnzeigen.setActionCommand("satanzeigen");
+                pmSatAnzeigen.addActionListener(al);
+                menu.add(pmSatAnzeigen);
+ 
+                nodeItem.getNodeLabel().add(menu);                
+                menu.setVisible(true);                
+                menu.show(nodeItem.getNodeLabel(), posX, posY);
+            }
+        	else if (nodeItem.getNode() instanceof InternetNode) {
+
+            	InternetNode node = (InternetNode) nodeItem.getNode();
+            	
+                JPopupMenu menu = new JPopupMenu();
+
+                ActionListener al = new ActionListener() {
+                	
+                    public void actionPerformed(ActionEvent e) {
+                    	
                         if (e.getActionCommand().equals("desktopanzeigen")) {
-                            desktopAnzeigen(knotenItem);
+                        	container.showDesktop(nodeItem);
                         }
 
                         if (e.getActionCommand().startsWith("datenaustausch")) {
                             String macAddress = e.getActionCommand().substring(15);
-                            datenAustauschAnzeigen(knotenItem, macAddress);
+                            container.displayInPacketsAnalyzerDialog(nodeItem, macAddress);
                         }
-
                     }
                 };
 
                 JMenuItem pmVROUTKonf = new JMenuItem(messages.getString("guievents_msg2"));
                 pmVROUTKonf.setActionCommand("vroutkonf");
                 pmVROUTKonf.addActionListener(al);
-
-                JMenuItem pmDesktopAnzeigen = new JMenuItem(messages.getString("guievents_msg3"));
-                pmDesktopAnzeigen.setActionCommand("desktopanzeigen");
-                pmDesktopAnzeigen.addActionListener(al);
-                if (knotenItem.getNode() instanceof Rechner || knotenItem.getNode() instanceof Notebook) {
-                    popmen.add(pmDesktopAnzeigen);
+                
+                if (node instanceof Computer || node instanceof Notebook) {                               
+                	JMenuItem pmDesktopAnzeigen = new JMenuItem(messages.getString("guievents_msg3"));
+                    pmDesktopAnzeigen.setActionCommand("desktopanzeigen");
+                    pmDesktopAnzeigen.addActionListener(al);
+                    menu.add(pmDesktopAnzeigen);
+                }
+                
+                for (NetworkInterface nic : node.getNICList()) {
+                	if (nic.getPort().isConnected()) {
+                		// Display only the connected nic
+                		JMenuItem pmDatenAustauschAnzeigen = new JMenuItem(messages.getString("guievents_msg4") + " (" + nic.getIp() + ")");
+                		pmDatenAustauschAnzeigen.setActionCommand("datenaustausch-" + nic.getMac());
+                		pmDatenAustauschAnzeigen.addActionListener(al);
+                		menu.add(pmDatenAustauschAnzeigen);
+                	}                    
                 }
 
-                InternetNode node = (InternetNode) knotenItem.getNode();
-                for (NetworkInterface nic : node.getNIlist()) {
-                    JMenuItem pmDatenAustauschAnzeigen = new JMenuItem(
-                            messages.getString("guievents_msg4") + " (" + nic.getIp() + ")");
-                    pmDatenAustauschAnzeigen.setActionCommand("datenaustausch-" + nic.getMac());
-                    pmDatenAustauschAnzeigen.addActionListener(al);
-
-                    popmen.add(pmDatenAustauschAnzeigen);
-                }
-
-                knotenItem.getNodeLabel().add(popmen);
-                popmen.setVisible(true);
-                popmen.show(knotenItem.getNodeLabel(), posX, posY);
+                nodeItem.getNodeLabel().add(menu);                
+                menu.setVisible(true);                
+                menu.show(nodeItem.getNodeLabel(), posX, posY);
             }
         }
-    }
-
-    private void datenAustauschAnzeigen(GUINodeItem item, String macAddress) {
-        InternetKnotenBetriebssystem bs;
-        ExchangeDialog exchangeDialog = container.getExchangeDialog();
-
-        if (item.getNode() instanceof InternetNode) {
-            bs = (InternetKnotenBetriebssystem) ((InternetNode) item.getNode()).getSystemSoftware();
-            exchangeDialog.addTable(bs, macAddress);
-            ((JFrame) exchangeDialog).setVisible(true);
-        }
-    }
-
-    /**
-     * @author Johannes Bade & Thomas Gerding
-     * 
-     *         Bei rechter Maustaste auf ein Item (bei Laufendem Entwurfsmodus) wird ein Kontextmenü angezeigt, in dem
-     *         z.B. das Item gelöscht, kopiert oder ausgeschnitten werden kann.
-     * 
-     * @param templabel
-     *            Item auf dem das Kontextmenü erscheint
-     * @param e
-     *            MouseEvent (Für Position d. Kontextmenü u.a.)
-     */
-    private void kontextMenueEntwurfsmodus(JNodeLabel templabel, int posX, int posY) {
-        String textKabelEntfernen;
-
-        updateAktivesItem(posX, posY);
-
-        if (selectedItem != null) {
-            if (selectedItem.getNode() instanceof Rechner || selectedItem.getNode() instanceof Notebook) {
-                textKabelEntfernen = messages.getString("guievents_msg5");
-            } else {
-                textKabelEntfernen = messages.getString("guievents_msg6");
-            }
-
-            final JMenuItem pmShowConfig = new JMenuItem(messages.getString("guievents_msg11"));
-            pmShowConfig.setActionCommand("showconfig");
-            final JMenuItem pmKabelEntfernen = new JMenuItem(textKabelEntfernen);
-            pmKabelEntfernen.setActionCommand("kabelentfernen");
-            final JMenuItem pmLoeschen = new JMenuItem(messages.getString("guievents_msg7"));
-            pmLoeschen.setActionCommand("del");
-
-            JPopupMenu popmen = new JPopupMenu();
-            ActionListener al = new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-
-                    if (e.getActionCommand() == pmLoeschen.getActionCommand()) {
-                        itemLoeschen(loeschLabel, loeschItem);
-                    } else if (e.getActionCommand() == pmKabelEntfernen.getActionCommand()) {
-                        kabelEntfernen();
-                    } else if (e.getActionCommand() == pmShowConfig.getActionCommand()) {
-                    	container.setProperty(selectedItem);
-                    	container.getProperty().maximieren();
-                    }
-                }
-            };
-
-            pmLoeschen.addActionListener(al);
-            pmKabelEntfernen.addActionListener(al);
-            pmShowConfig.addActionListener(al);
-
-            popmen.add(pmShowConfig);
-            popmen.add(pmKabelEntfernen);
-            popmen.add(pmLoeschen);
-
-            container.getDesignpanel().add(popmen);
-            popmen.setVisible(true);
-            popmen.show(container.getDesignpanel(), posX, posY);
-
-            loeschLabel = templabel;
-            loeschItem = selectedItem;
-        }
-    }
-
-    /**
-     * context menu in case of clicking on single cable item --> used for deleting a single cable
-     */
-    private void contextMenuCable(final GUICableItem cable, int posX, int posY) {
-        final JMenuItem pmRemoveCable = new JMenuItem(messages.getString("guievents_msg5"));
-        pmRemoveCable.setActionCommand("removecable");
-
-        JPopupMenu popmen = new JPopupMenu();
-        ActionListener al = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == pmRemoveCable.getActionCommand()) {
-                	removeActiveCable();                    
-                }
-            }
-        };
-
-        pmRemoveCable.addActionListener(al);
-        popmen.add(pmRemoveCable);
-
-        container.getDesignpanel().add(popmen);
-        popmen.setVisible(true);
-        popmen.show(container.getDesignpanel(), posX, posY);
-    }
-
-    /**
-     * 
-     * Löscht das durch loeschlabel angegebene Item NOTE: made public for using del key to delete items without local
-     * context menu action (cf. JMainFrame)
-     */
-    public void itemLoeschen(JNodeLabel loeschlabel, GUINodeItem loeschitem) {
-        loeschlabel.setVisible(false);
-        container.setProperty(null);
-        ListIterator<GUICableItem> iteratorAlleKabel = container.getCableItems().listIterator();
-        GUICableItem kabel = new GUICableItem();
-        LinkedList<GUICableItem> loeschKabel = new LinkedList<GUICableItem>();
-
-        // Zu löschende Elemente werden in eine temporäre Liste gepackt
-        while (iteratorAlleKabel.hasNext()) {
-            kabel = (GUICableItem) iteratorAlleKabel.next();
-            if (kabel.getCablePanel().getZiel1().equals(loeschitem)
-                    || kabel.getCablePanel().getZiel2().equals(loeschitem)) {
-                loeschKabel.add(kabel);
-            }
-        }
-
-        // Temporäre Liste der zu löschenden Kabel wird iteriert und dabei
-        // werden die Kabel aus der globalen Kabelliste gelöscht
-        // und vom Panel entfernt
-        ListIterator<GUICableItem> iteratorLoeschKabel = loeschKabel.listIterator();
-        while (iteratorLoeschKabel.hasNext()) {
-            kabel = iteratorLoeschKabel.next();
-
-            this.removeSingleCable(kabel);
-        }
-        
-        // Remove the simulation mode's elements related to the item
-        if (loeschitem.getNode() instanceof Host) {
-        	// Remove the desktop's JFrame
-        	container.removeDesktopWindow(loeschitem);
-        	
-        	// Remove the table in ExchangeDialog        	
-        	String mac = ((Host)loeschitem.getNode()).getMac();
-        	container.getExchangeDialog().removeTable(mac, null);
-        	
-        } else if (loeschitem.getNode() instanceof Switch) {
-        	// Remove the SATtable's JFrame
-        	SatViewerControl.getInstance().removeViewer((Switch)loeschitem.getNode());
-        	
-        } else if (loeschitem.getNode() instanceof Vermittlungsrechner) {
-        	// Remove the tables in ExchangeDialog
-        	List<String> macs = ((Vermittlungsrechner)loeschitem.getNode()).getMacs();
-        	for (String mac: macs) container.getExchangeDialog().removeTable(mac, null);
-        }
-
-        container.removeNodeItem(loeschitem);
-        container.getDesignpanel().remove(loeschlabel);
-        container.getDesignpanel().updateUI();
-        container.updateViewport();
-    }
-
-    // remove a single cable without using touching the connected node
-    protected void removeSingleCable(GUICableItem cableItem) {
-        Main.debug.println("INVOKED filius.gui.GUIEvents, removeSingleCable(" + cableItem + ")");
-        if (cableItem == null)
-            return; // no cable to be removed (this variable should be set in
-                    // contextMenuCable)
-
-        filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration ziel1konf = null;
-        filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration ziel2konf = null;
-
-        if (JKonfiguration.getInstance(cableItem.getCablePanel().getZiel1()
-                .getNode()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
-            // JVermittlungsrechnerKonfiguration");
-            ziel1konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
-                    .getInstance(cableItem.getCablePanel().getZiel1().getNode()));
-        }
-        if (JKonfiguration.getInstance(cableItem.getCablePanel().getZiel2()
-                .getNode()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
-            // JVermittlungsrechnerKonfiguration");
-            ziel2konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
-                    .getInstance(cableItem.getCablePanel().getZiel2().getNode()));
-        }
-        cableItem.getCable().disconnect();
-        container.getCableItems().remove(cableItem);
-        container.getDesignpanel().remove(cableItem.getCablePanel());
-        container.updateViewport();
-
-        if (ziel1konf != null)
-            ziel1konf.updateAttribute();
-        if (ziel2konf != null)
-            ziel2konf.updateAttribute();
-    }
-
-    /**
-     * 
-     * Entfernt das Kabel, welches am aktuellen Item angeschlossen ist
-     * 
-     * Ersetzt spaeter kabelEntfernen!
-     * 
-     */
-    private void kabelEntfernen() {
-        ListIterator<GUICableItem> iteratorAlleKabel = container.getCableItems().listIterator();
-        GUICableItem tempKabel = null;
-        LinkedList<GUICableItem> loeschListe = new LinkedList<GUICableItem>();
-
-        // Zu löschende Elemente werden in eine temporäre Liste gepackt
-        while (iteratorAlleKabel.hasNext()) {
-            tempKabel = (GUICableItem) iteratorAlleKabel.next();
-            if (tempKabel.getCablePanel().getZiel1().equals(loeschItem)) {
-                loeschListe.add(tempKabel);
-            }
-
-            if (tempKabel.getCablePanel().getZiel2().equals(loeschItem)) {
-                loeschListe.add(tempKabel);
-                ziel2 = loeschItem;
-            }
-        }
-
-        // Temporäre Liste der zu löschenden Kabel wird iteriert und dabei
-        // werden die Kabel aus der globalen Kabelliste gelöscht
-        // und vom Panel entfernt
-        ListIterator<GUICableItem> iteratorLoeschKabel = loeschListe.listIterator();
-        while (iteratorLoeschKabel.hasNext()) {
-            tempKabel = iteratorLoeschKabel.next();
-            this.removeSingleCable(tempKabel);
-        }
-
-        container.updateViewport();
-
     }
 }

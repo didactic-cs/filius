@@ -44,11 +44,10 @@ import javax.swing.table.DefaultTableModel;
 import filius.Main;
 import filius.software.www.WebServer;
 
+@SuppressWarnings("serial")
 public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
 	private static final int VHOST_NUMBER = 5;
-
-	private static final long serialVersionUID = 1L;
 
 	private JPanel backPanel;
 
@@ -74,9 +73,9 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
 			public void actionPerformed(ActionEvent arg0) {
 				if (buttonStart.getText().equals(messages.getString("webserver_msg1"))) {
-					((WebServer) holeAnwendung()).setAktiv(true);
+					((WebServer) getApplication()).setActive(true);
 				} else {
-					((WebServer) holeAnwendung()).setAktiv(false);
+					((WebServer) getApplication()).setActive(false);
 				}
 			}
 		});
@@ -93,7 +92,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 				JCheckBox checkBox = (JCheckBox) evt.getSource();
 				GUIApplicationWebServerWindow.this.setVHostTableVisible(checkBox.isSelected());
 				if (!checkBox.isSelected()) {
-					((WebServer) holeAnwendung()).resetVHosts();
+					((WebServer) getApplication()).resetVHosts();
 				}
 			}
 		});
@@ -158,7 +157,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
 	private boolean isVHostAvailable() {
 		boolean vHostsAvailable = false;
-		String[][] vHosts = ((WebServer) holeAnwendung()).getVHostArray();
+		String[][] vHosts = ((WebServer) getApplication()).getVHostArray();
 		for (String[] vHost : vHosts) {
 			if (vHost[0] != null && !vHost[0].equals("") || vHost[1] != null && !vHost[1].equals("")) {
 				vHostsAvailable = true;
@@ -169,8 +168,8 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
 	public void updateTable() {
 		Main.debug.println("DEBUG GUIApplicationWebServerWindow, updateTable; vHostArray:\n"
-		        + ((WebServer) holeAnwendung()).printVHostTable());
-		String[][] vhosts = ((WebServer) holeAnwendung()).getVHostArray();
+		        + ((WebServer) getApplication()).printVHostTable());
+		String[][] vhosts = ((WebServer) getApplication()).getVHostArray();
 		DefaultTableModel tablemodel = (DefaultTableModel) vHostTable.getModel();
 		tablemodel.setRowCount(0);
 
@@ -195,7 +194,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 	}
 
 	private void aktualisieren() {
-		if (((WebServer) holeAnwendung()).isAktiv()) {
+		if (((WebServer) getApplication()).isActive()) {
 			buttonStart.setText(messages.getString("webserver_msg2"));
 		} else {
 			buttonStart.setText(messages.getString("webserver_msg1"));

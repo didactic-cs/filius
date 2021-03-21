@@ -27,23 +27,23 @@ package filius.software.transportschicht;
 
 import filius.Main;
 import filius.exception.SocketException;
-import filius.software.ProtokollThread;
-import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.ProtocolThread;
+import filius.software.system.InternetNodeOS;
 import filius.software.vermittlungsschicht.IpPaket;
 
-public class TransportProtokollThread extends ProtokollThread {
+public class TransportProtokollThread extends ProtocolThread {
 
 	private TransportProtokoll protokoll;
 
 	public TransportProtokollThread(TransportProtokoll protokoll) {
-		super(((InternetKnotenBetriebssystem) protokoll.holeSystemSoftware()).holeIP().holePaketListe(
+		super(((InternetNodeOS) protokoll.getSystemSoftware()).getIP().holePaketListe(
 		        protokoll.holeTyp()));
 		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (TransportProtokollThread), constr: TransportProtokollThread(" + protokoll + ")");
 		this.protokoll = protokoll;
 	}
 
-	protected void verarbeiteDatenEinheit(Object datenEinheit) {
+	protected void processFrame(Object datenEinheit) {
 		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
 		        + " (TransportProtokollThread), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
 		SocketSchnittstelle socket;

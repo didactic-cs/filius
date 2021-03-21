@@ -69,7 +69,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
         this.socket = socket;
         this.emailServer = server.holeEmailServer();
 
-        emailServer.benachrichtigeBeobachter(EmailServer.LINE_SEPARATOR);
+        emailServer.notifyObservers(EmailServer.LINE_SEPARATOR);
         senden(messages.getString("sw_smtpmitarbeiter_msg1") + " " + emailServer.getMailDomain());
     }
 
@@ -83,7 +83,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
         String tmp;
         int pos, pos2;
 
-        emailServer.benachrichtigeBeobachter(socket.holeZielIPAdresse() + "< " + nachricht);
+        emailServer.notifyObservers(socket.holeZielIPAdresse() + "< " + nachricht);
 
         // Verarbeitung der vom Client ankommenden Daten
         if (nachricht.trim().equalsIgnoreCase("QUIT")) {
@@ -180,7 +180,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
                 empfaengerKonto = emailServer.sucheKonto(benutzer);
                 if (empfaengerKonto != null) {
                     empfaengerKonto.getNachrichten().add(new Email(email.toString()));
-                    emailServer.benachrichtigeBeobachter(messages.getString("sw_smtpmitarbeiter_msg12") + " "
+                    emailServer.notifyObservers(messages.getString("sw_smtpmitarbeiter_msg12") + " "
                             + empfaengerKonto.getBenutzername() + " " + messages.getString("sw_smtpmitarbeiter_msg13"));
                 } else {
                     unknownRecipients.add(aktuellerEmpfaenger);
@@ -208,10 +208,10 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
                 + " (SMTPMitarbeiter), senden(" + nachricht + ")");
         try {
             socket.senden(nachricht);
-            emailServer.benachrichtigeBeobachter(socket.holeZielIPAdresse() + "> " + nachricht);
+            emailServer.notifyObservers(socket.holeZielIPAdresse() + "> " + nachricht);
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
-            emailServer.benachrichtigeBeobachter(messages.getString("sw_smtpmitarbeiter_msg14") + " "
+            emailServer.notifyObservers(messages.getString("sw_smtpmitarbeiter_msg14") + " "
                     + socket.holeZielIPAdresse());
         }
     }

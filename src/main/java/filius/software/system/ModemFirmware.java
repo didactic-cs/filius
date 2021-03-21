@@ -35,7 +35,7 @@ import java.net.UnknownHostException;
 import filius.Main;
 import filius.hardware.knoten.Modem;
 import filius.rahmenprogramm.I18n;
-import filius.software.netzzugangsschicht.ModemEmpfaenger;
+import filius.software.netzzugangsschicht.ModemReceiver;
 import filius.software.netzzugangsschicht.ModemSender;
 
 /**
@@ -59,107 +59,167 @@ import filius.software.netzzugangsschicht.ModemSender;
  */
 @SuppressWarnings("serial")
 public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
+	
+	public static enum ModemStatus {off, waiting, connected};	
 
+	private ModemStatus status = ModemStatus.off;	
+	
     /**
      * Das Modem kann in zwei verschiedenen Modi betrieben werden. Als Server wartet es auf Verbindungswuensche und als
      * Client baut es die Verbindung zu einem anderen Modem im Server-Modus auf.
      */
-    public static final int SERVER = 1, CLIENT = 2;
+    public static enum ModemMode {SERVER, CLIENT};
+    
+    /**
+     * Der Modus, in dem das Modem betrieben wird. Das Modem kann in zwei verschiedenen Modi betrieben werden. Als
+     * Server wartet es auf Verbindungswuensche und als Client baut es die Verbindung zu einem anderen Modem im
+     * Server-Modus auf.
+     */
+    private ModemMode mode = ModemMode.CLIENT;
+    
+    /**
+     * Port number used in server mode
+     */
+    private int localPort = 12345;
 
     /**
-     * Der tatsaechliche TCP-Port, der geoeffnet wird oder zu dem die Verbindung aufgebaut wird. D. h. es wird immer nur
-     * der Port des Modems im Server-Modus festgelegt.
+     * Port number of the contacted server when in client mode 
      */
-    private int port = 12345;
+    private int remotePort = 12345;
 
     /**
-     * Die IP-Adresse des anderen Rechners, auf dem das Server-Modem laeuft. D. h. dieses Attribut wird nur im
-     * Client-Modus verwendet.
+     * IP address of the contacted server when in client mode 
      */
-    private String ipAdresse = "localhost";
+    private String remoteIPAddress = "localhost";
 
     private ServerSocket serverSocket;
 
     private Socket socket = null;
 
     /** Hier kommen die Daten vom anderen Modem an */
-    private ModemEmpfaenger empfaenger = null;
+    private ModemReceiver receiver = null;
 
     /**
      * Hier kommen die Daten des verbundenen (eigenen) Rechnernetzes an.
      */
     private ModemSender sender = null;
+    
+    private boolean serverRunning = false;
 
-    /**
-     * Der Modus, in dem das Modem betrieben wird. Das Modem kann in zwei verschiedenen Modi betrieben werden. Als
-     * Server wartet es auf Verbindungswuensche und als Client baut es die Verbindung zu einem anderen Modem im
-     * Server-Modus auf.
-     */
-    private int mode = CLIENT;
-
+    
     /**
      * Diese Methode dient dazu, ein Modem zu starten, dass im Server-Modus betrieben wird. Damit wird der TCP-Port
      * geoeffnet und eingehende Verbindungsanfragen koennen entgegen genommen werden. Das Warten auf eingehende
      * Verbindungen und die Ueberwachung des Socket-Status erfolgt in einem neuen Thread!
      */
-    public synchronized void starteServer() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteServer()");
-        (new Thread(this)).start();
-    }
-
-    /**
-     * Mit diesr Methode wird das Modem im Client-Modus gestartet. Das heisst, dass eine TCP/IP-Verbindung zu einem
-     * anderen Modem im Server-Modus hergestellt wird. Ausserdem wird der Thread zur Ueberwachung des Socket-Status
-     * gestartet.
-     */
-    public void starteClient() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteClient()");
-        try {
-            socket = new Socket(ipAdresse, port);
-            aktiviereModemVerbindung();
-        } catch (UnknownHostException e) {
-            e.printStackTrace(Main.debug);
-            benachrichtigeBeobacher(messages.getString("modemfirmware_msg1"));
-            ((Modem) getKnoten()).setConnectionActive(false);
-        } catch (IOException e) {
-            e.printStackTrace(Main.debug);
-            benachrichtigeBeobacher(messages.getString("modemfirmware_msg2"));
-            ((Modem) getKnoten()).setConnectionActive(false);
-        } catch (InterruptedException e) {
-            e.printStackTrace(Main.debug);
-            benachrichtigeBeobacher(null);
-            ((Modem) getKnoten()).setConnectionActive(false);
+    public synchronized void startServer() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), startServer()");
+        
+        if (!serverRunning) {
+        	try {
+        		serverSocket = new ServerSocket(localPort);
+        		serverRunning = true;    
+        		
+        		setStatus(ModemStatus.waiting);
+        		
+        		(new Thread(this)).start();
+        	} catch (Exception e) {}   
         }
     }
 
-    private synchronized void aktiviereModemVerbindung() throws IOException, InterruptedException {
+    /**
+     * Dieser Thread wird ausschliesslich fuer den Verbindungsaufbau im Server-Modus genutzt! Das Modem im Server-Modus
+     * wartet auf eingehende Verbindungen. Es wird aber nur eine Verbindungsanfrage angenommen. Um nicht den gesamten
+     * Programmablauf zu unterbrechen, erfolgt das Warten in einem eigenen Thread.
+     */
+    public void run() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), run()");
+        
+        try {        	
+            socket = serverSocket.accept();
+            activateModemConnection();
+            serverSocket.close();
+            
+        } catch (Exception e) {
+            Main.debug.println("EXCEPTION (" + this.hashCode() + "): Modemverbindung beendet.");    
+        } finally {     
+        	//serverRunning = false;
+        }
+    }
+    
+    /**
+     * Mit dieser Methode wird das Modem im Client-Modus gestartet. Das heisst, dass eine TCP/IP-Verbindung zu einem
+     * anderen Modem im Server-Modus hergestellt wird. Ausserdem wird der Thread zur Ueberwachung des Socket-Status
+     * gestartet.
+     */
+    public void startClient() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), startClient()");
+        
+        try {
+            socket = new Socket(remoteIPAddress, remotePort);
+            activateModemConnection();
+            
+        } catch (UnknownHostException e) {
+            e.printStackTrace(Main.debug);
+            fireDisplayMessage(messages.getString("modemfirmware_msg1"));
+            setStatus(ModemStatus.off);
+           
+        } catch (IOException e) {
+            e.printStackTrace(Main.debug);
+            fireDisplayMessage(messages.getString("modemfirmware_msg2"));
+            setStatus(ModemStatus.off);
+            
+        } catch (InterruptedException e) {
+            e.printStackTrace(Main.debug);     
+            setStatus(ModemStatus.off);
+        }
+    }   
+
+    private synchronized void activateModemConnection() throws IOException, InterruptedException {
+    	
         OutputStream out = null;
         InputStream in = null;
         while (!socket.isConnected()) {
             Thread.sleep(100);
-        }
-        benachrichtigeBeobacher(null);
+        }        
         in = socket.getInputStream();
-        out = socket.getOutputStream();
-        ((Modem) getKnoten()).setConnectionActive(true);
+        out = socket.getOutputStream();   
+        
+        setStatus(ModemStatus.connected);
+        
         if (in != null && out != null) {
-            leerePortPuffer();
-            empfaenger = new ModemEmpfaenger(this, in);
+            clearPortBuffer();
+            receiver = new ModemReceiver(this, in);
             sender = new ModemSender(this, out);
-            empfaenger.starten();
-            sender.starten();
+            receiver.startThread();
+            sender.startThread();
         }
     }
 
-    private synchronized void deaktiviereModemVerbindung() {
-        if (empfaenger != null) {
-            empfaenger.beenden();
-            empfaenger = null;
+    private synchronized void deactivateModemConnection() {
+    	
+    	serverRunning = false;
+        if (receiver != null) {
+            receiver.stopThread();
+            receiver = null;
         }
         if (sender != null) {
-            sender.beenden();
+            sender.stopThread();
             sender = null;
         }
+    }
+    
+    public ModemStatus getStatus() {
+        return status;
+    }
+    
+    public void setStatus (ModemStatus status) {
+        this.status = status;
+        fireModemStatusChange(status);
+    }    
+    
+    public ModemMode getMode() {
+        return mode;
     }
 
     /**
@@ -169,17 +229,20 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * @param mode
      *            der neue Modus (SERVER oder CLIENT)
      */
-    public void setMode(int mode) {
-        trennen();
+    public void setMode(ModemMode mode) {
+    	
+    	if (this.mode == mode) return;
+    	
+        closeConnection();
         this.mode = mode;
     }
 
-    public int getMode() {
-        return mode;
-    }
-
-    public boolean istServerBereit() {
+    public boolean isServerConnected() {
         return serverSocket != null && serverSocket.isBound();
+    }
+    
+    public boolean isServerRunning() {
+        return serverRunning;
     }
 
     /**
@@ -187,11 +250,11 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * ausgeloest, der den Socket ueberwacht oder beim Wechsel des Modus aufgerufen. <br />
      * Wenn noch Verbindungen bestehen werden diese abgebaut.
      */
-    public void trennen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), trennen()");
+    public void closeConnection() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), closeConnection()");
 
-        deaktiviereModemVerbindung();
-        if (mode == SERVER && serverSocket != null) {
+        deactivateModemConnection();
+        if (mode == ModemMode.SERVER && serverSocket != null) {
             try {
                 serverSocket.close();
             } catch (IOException e) {}
@@ -206,62 +269,49 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
             }
             socket = null;
         }
-        benachrichtigeBeobacher(null);
-        ((Modem) getKnoten()).setConnectionActive(false);
+        setStatus(ModemStatus.off);
     }
 
-    public void verbindungZuruecksetzen() {
-        trennen();
-        if (mode == SERVER) {
-            starteServer();
-        }
+    public void resetConnection() {
+    	
+        closeConnection();        
+        if (mode == ModemMode.SERVER) startServer();       
     }
 
     /**
      * Mit dieser Methode werden gegebenenfalls noch nicht leere Puffer der Modemanschluesse vor dem Start der
      * Datenweiterleitung geleert.
      */
-    private void leerePortPuffer() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), leerePortPuffer()");
-        synchronized (((Modem) getKnoten()).getPort().getInputBuffer()) {
-            ((Modem) getKnoten()).getPort().getInputBuffer().clear();
+    private void clearPortBuffer() {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), clearPortBuffer()");
+        
+        synchronized (((Modem) getNode()).getPort().getInputBuffer()) {
+            ((Modem) getNode()).getPort().getInputBuffer().clear();
         }
     }
-
-    /**
-     * Dieser Thread wird ausschliesslich fuer den Verbindungsaufbau im Server-Modus genutzt! Das Modem im Server-Modus
-     * wartet auf eingehende Verbindungen. Es wird aber nur eine Verbindungsanfrage angenommen. Um nicht den gesamten
-     * Programmablauf zu unterbrechen, erfolgt das Warten in einem eigenen Thread.
-     */
-    public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), run()");
-        try {
-            serverSocket = new ServerSocket(port);
-            benachrichtigeBeobacher(null);
-            socket = serverSocket.accept();
-            aktiviereModemVerbindung();
-            serverSocket.close();
-        } catch (Exception e) {
-            Main.debug.println("EXCEPTION (" + this.hashCode() + "): Modemverbindung beendet.");
-            ((Modem) getKnoten()).setConnectionActive(false);
-        } finally {
-            benachrichtigeBeobacher(null);
-        }
+    
+    public int getLocalPort() {
+        return localPort;
     }
 
-    public String getIpAdresse() {
-        return ipAdresse;
+    public void setLocalPort(int localPort) {
+        this.localPort = localPort;
+    }
+    
+    public int getRemotePort() {
+        return remotePort;
     }
 
-    public void setIpAdresse(String ipAdresse) {
-        this.ipAdresse = ipAdresse;
+    public void setRemotePort(int remotePort) {
+        this.remotePort = remotePort;
     }
 
-    public int getPort() {
-        return port;
+    public String getRemoteIPAddress() {
+        return remoteIPAddress;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setRemoteIPAddress(String remoteIPAddress) {
+        this.remoteIPAddress = remoteIPAddress;
     }
+
 }

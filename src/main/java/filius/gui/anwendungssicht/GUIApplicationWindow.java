@@ -39,47 +39,48 @@ import javax.swing.JPopupMenu;
 import filius.Main;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
-import filius.software.Anwendung;
+import filius.software.Application;
 
 /**
  * Diese Klasse dient als Oberklasse für alle Anwendungsfenster
  * 
  */
+@SuppressWarnings("serial")
 public abstract class GUIApplicationWindow extends JInternalFrame implements I18n, Observer {
 
-    private static final long serialVersionUID = 1L;
-
     private GUIDesktopPanel desktop;
-    private Anwendung anwendung;
+    private Application application;
 
-    public GUIApplicationWindow(GUIDesktopPanel desktop, String appKlasse) {
+    
+    public GUIApplicationWindow(GUIDesktopPanel desktop, String appClass) {
         super();
-        this.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 
         this.desktop = desktop;
-        this.desktop.getDesktopPane().add(this);
+        desktop.getDesktopPane().add(this);
 
-        this.anwendung = desktop.getBetriebssystem().holeSoftware(appKlasse);
-        this.anwendung.hinzuBeobachter(this);
+        application = desktop.getOS().getSoftware(appClass);
+        application.addObserver(this);
 
-        this.setPreferredSize(new Dimension(550, 420));
-        this.setClosable(true);
-        this.setMaximizable(true);
-        this.setIconifiable(false);
-        this.setResizable(true);
+        setPreferredSize(new Dimension(550, 420));
+        setClosable(true);
+        setMaximizable(true);
+        setIconifiable(false);
+        setResizable(true);
 
-        this.setTitle(anwendung.holeAnwendungsName());
-        this.initIcon();
+        setTitle(application.getAppName());
+        initIcon();
     }
 
     private void initIcon() {
+    	
         String awName;
         ImageIcon image;
         try {
             for (Map<String, String> tmpMap : Information.getInstance().ladeProgrammListe()) {
                 awName = (String) tmpMap.get("Anwendung");
 
-                if (awName.equals(anwendung.holeAnwendungsName())) {
+                if (awName.equals(application.getAppName())) {
                     image = new ImageIcon(getClass().getResource("/" + ((String) tmpMap.get("gfxFile"))));
                     image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
                     setFrameIcon(image);
@@ -91,47 +92,54 @@ public abstract class GUIApplicationWindow extends JInternalFrame implements I18
         }
     }
 
-    public Anwendung holeAnwendung() {
-        return anwendung;
+    public Application getApplication() {
+        return application;
     }
 
     public void showMessageDialog(String msg) {
         JOptionPane.showMessageDialog(desktop, msg);
     }
 
-    public int showOptionDialog(Object message, String title, int optionType, int messageType, Icon icon,
-            Object[] options, Object initialValue) {
-        return JOptionPane.showOptionDialog(desktop, message, title, optionType, messageType, icon, options,
-                initialValue);
+    public int showOptionDialog(Object message, String title, int optionType, int messageType, 
+    		                    Icon icon, Object[] options, Object initialValue) {
+        return JOptionPane.showOptionDialog(desktop, message, title, optionType, messageType, 
+        		                            icon, options, initialValue);
     }
 
     public int showConfirmDialog(String msg) {
+    	
         return JOptionPane.showConfirmDialog(desktop, msg);
     }
 
     public void addFrame(JInternalFrame frame) {
+    	
         desktop.getDesktopPane().add(frame);
     }
 
     public void removeFrame(JInternalFrame frame) {
+    	
         desktop.getDesktopPane().remove(frame);
     }
 
-    public void starteExterneAnwendung(String softwareName) {
-        desktop.starteAnwendung(softwareName);
+    public void startExternalApplication(String softwareName) {
+    	
+        desktop.startApplication(softwareName);
     }
 
-    public void starteExterneAnwendung(String softwareName, String[] param) {
-        desktop.starteAnwendung(softwareName, param);
+    public void startExternalApplication(String softwareName, String[] param) {
+    	
+        desktop.startApplication(softwareName, param);
     }
 
-    public String[] holeParameter() {
+    public String[] getParameter() {
+    	
         return desktop.getParameter();
     }
 
-    public void zeigePopupMenu(JPopupMenu menu, int x, int y) {
+    public void showPopupMenu(JPopupMenu menu, int x, int y) {
+    	
         menu.show(desktop, x, y);
     }
 
-    public void starten(String[] param) {}
+    public void start(String[] param) {}
 }

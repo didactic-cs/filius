@@ -25,6 +25,7 @@
  */
 package filius.exception;
 
+@SuppressWarnings("serial")
 public class TcpSocketException extends HauptException {
 
 	public TcpSocketException() {

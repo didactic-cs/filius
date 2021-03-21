@@ -53,14 +53,13 @@ import org.htmlparser.filters.TagNameFilter;
 import org.htmlparser.util.NodeList;
 
 import filius.Main;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.Information;
 import filius.software.www.HTTPNachricht;
 import filius.software.www.WebBrowser;
 
+@SuppressWarnings("serial")
 public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
-
-	private static final long serialVersionUID = 1L;
 
 	private JPanel browserPanel;
 
@@ -143,12 +142,12 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 		// + "gfx/desktop/browser_waterwolf_logo.png", Information
 		// .getInformation().getTempPfad()
 		// + "browser_waterwolf_logo.png");
-		filius.rahmenprogramm.SzenarioVerwaltung.saveStream(
+		filius.rahmenprogramm.ProjectManager.saveStream(
 		        getClass().getResourceAsStream("/gfx/desktop/browser_waterwolf_logo.png"), Information.getInstance()
-		                .getTempPfad() + "browser_waterwolf_logo.png");
+		                .getTempPath() + "browser_waterwolf_logo.png");
 		try {
 			((HTMLDocument) anzeigeFeld.getDocument()).setBase(new URL("file:"
-			        + Information.getInstance().getTempPfad()));
+			        + Information.getInstance().getTempPath()));
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace(Main.debug);
 		}
@@ -173,8 +172,8 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 		teilstrings = ressource.split("/");
 		// Fuer den Fall, dass URL-Eingabe mit Hostadresse beginnt
 		if (teilstrings.length > 0 && !teilstrings[0].equalsIgnoreCase("http:")) {
-			if (EingabenUeberpruefung.isGueltig(teilstrings[0], EingabenUeberpruefung.musterDomain)
-			        || EingabenUeberpruefung.isGueltig(teilstrings[0], EingabenUeberpruefung.musterIpAdresse)) {
+			if (EntryValidator.isValid(teilstrings[0], EntryValidator.musterDomain)
+			        || EntryValidator.isValid(teilstrings[0], EntryValidator.musterIpAdresse)) {
 				host = teilstrings[0];
 
 				for (int i = 1; i < teilstrings.length; i++) {
@@ -184,8 +183,8 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 		}
 		// Fuer den Fall, dass URL-Eingabe mit http:// beginnt
 		if (teilstrings.length > 2 && teilstrings[0].equalsIgnoreCase("http:")) {
-			if (EingabenUeberpruefung.isGueltig(teilstrings[2], EingabenUeberpruefung.musterDomain)
-			        || EingabenUeberpruefung.isGueltig(teilstrings[2], EingabenUeberpruefung.musterIpAdresse)) {
+			if (EntryValidator.isValid(teilstrings[2], EntryValidator.musterDomain)
+			        || EntryValidator.isValid(teilstrings[2], EntryValidator.musterIpAdresse)) {
 				host = teilstrings[2];
 			}
 			for (int i = 3; i < teilstrings.length; i++) {
@@ -212,12 +211,12 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 
 		if (url != null) {
 			if (postDaten == null)
-				((WebBrowser) holeAnwendung()).holeWebseite(url);
+				((WebBrowser) getApplication()).holeWebseite(url);
 			else
-				((WebBrowser) holeAnwendung()).holeWebseite(url, postDaten);
+				((WebBrowser) getApplication()).holeWebseite(url, postDaten);
 
 			if (url.getHost() == null || url.getHost().equals("")) {
-				host = ((WebBrowser) holeAnwendung()).holeHost();
+				host = ((WebBrowser) getApplication()).holeHost();
 			} else {
 				host = url.getHost();
 			}

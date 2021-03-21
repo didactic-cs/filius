@@ -52,14 +52,13 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import filius.Main;
-import filius.rahmenprogramm.EingabenUeberpruefung;
+import filius.rahmenprogramm.EntryValidator;
 import filius.software.dns.DNSServer;
 import filius.software.dns.ResourceRecord;
 import filius.software.vermittlungsschicht.IP;
 
+@SuppressWarnings("serial")
 public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
-
-	private static final long serialVersionUID = 1L;
 
 	private JPanel backPanel, aPanel, mxPanel, nsPanel;
 
@@ -94,10 +93,10 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		buttonStart.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				if (((DNSServer) holeAnwendung()).isAktiv()) {
-					((DNSServer) holeAnwendung()).setAktiv(false);
+				if (((DNSServer) getApplication()).isActive()) {
+					((DNSServer) getApplication()).setActive(false);
 				} else {
-					((DNSServer) holeAnwendung()).setAktiv(true);
+					((DNSServer) getApplication()).setActive(true);
 				}
 			}
 		});
@@ -107,14 +106,14 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 
 		recResolution = new JCheckBox();
 		recResolution.setText(messages.getString("dnsserver_msg20"));
-		DNSServer dnsServer = (DNSServer) this.holeAnwendung();
+		DNSServer dnsServer = (DNSServer) this.getApplication();
 		recResolution.setSelected(dnsServer.isRecursiveResolutionEnabled());
 		recResolution.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JCheckBox checkBox = GUIApplicationDNSServerWindow.this.recResolution;
 				boolean activated = checkBox.isSelected();
-				DNSServer dnsServer = (DNSServer) GUIApplicationDNSServerWindow.this.holeAnwendung();
+				DNSServer dnsServer = (DNSServer) GUIApplicationDNSServerWindow.this.getApplication();
 				dnsServer.setRecursiveResolutionEnabled(activated);
 				checkBox.setSelected(dnsServer.isRecursiveResolutionEnabled());
 			}
@@ -195,7 +194,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		hBox.add(aIpLabel);
 		hBox.add(Box.createHorizontalStrut(5));
 
-		aIpField = new JTextField(this.holeAnwendung().getSystemSoftware().holeIPAdresse());
+		aIpField = new JTextField(this.getApplication().getSystemSoftware().getIPAddress());
 		aIpField.setPreferredSize(new Dimension(275, 25));
 		aIpField.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
@@ -214,7 +213,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		aAddButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (checkFQDN(aDomainField) && checkIP(aIpField) && IP.ipCheck(aIpField.getText()) != null) {
-					((DNSServer) holeAnwendung()).hinzuRecord(aDomainField.getText(), ResourceRecord.ADDRESS,
+					((DNSServer) getApplication()).hinzuRecord(aDomainField.getText(), ResourceRecord.ADDRESS,
 					        aIpField.getText());
 					aDomainField.setText("");
 					aIpField.setText("");
@@ -233,7 +232,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 				int zeilenNummer = aRecordsTable.getSelectedRow();
 				if (zeilenNummer != -1) {
 					String domainname = aRecordsTable.getValueAt(zeilenNummer, 0).toString();
-					((DNSServer) holeAnwendung()).loescheResourceRecord(domainname, ResourceRecord.ADDRESS);
+					((DNSServer) getApplication()).loescheResourceRecord(domainname, ResourceRecord.ADDRESS);
 					Main.debug.println("GUIApplicationDNSServerWindow: A-Eintrag " + domainname + " geloescht");
 
 					updateARecordsTable();
@@ -325,7 +324,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		mxAddButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (checkFQDN(mxMaildomainField) && checkFQDN(mxURLField)) {
-					((DNSServer) holeAnwendung()).hinzuRecord(mxMaildomainField.getText(),
+					((DNSServer) getApplication()).hinzuRecord(mxMaildomainField.getText(),
 					        ResourceRecord.MAIL_EXCHANGE, mxURLField.getText());
 					mxMaildomainField.setText("");
 					mxURLField.setText("");
@@ -344,7 +343,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 				int zeilenNummer = mxRecordsTable.getSelectedRow();
 				if (zeilenNummer != -1) {
 					String domainname = mxRecordsTable.getValueAt(zeilenNummer, 0).toString();
-					((DNSServer) holeAnwendung()).loescheResourceRecord(domainname, ResourceRecord.MAIL_EXCHANGE);
+					((DNSServer) getApplication()).loescheResourceRecord(domainname, ResourceRecord.MAIL_EXCHANGE);
 					Main.debug.println("GUIApplicationDNSServerWindow: MX-Eintrag " + domainname + " geloescht");
 					updateMXRecordsTable();
 				}
@@ -435,7 +434,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 		nsAddButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (checkFQDN(nsDomainField) && checkFQDN(nsDomainServerField)) {
-					((DNSServer) holeAnwendung()).hinzuRecord(nsDomainField.getText(), ResourceRecord.NAME_SERVER,
+					((DNSServer) getApplication()).hinzuRecord(nsDomainField.getText(), ResourceRecord.NAME_SERVER,
 					        nsDomainServerField.getText());
 					nsDomainField.setText("");
 					nsDomainServerField.setText("");
@@ -453,7 +452,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 				int zeilenNummer = nsRecordsTable.getSelectedRow();
 				if (zeilenNummer != -1) {
 					String domainname = nsRecordsTable.getValueAt(zeilenNummer, 0).toString();
-					((DNSServer) holeAnwendung()).loescheResourceRecord(domainname, ResourceRecord.NAME_SERVER);
+					((DNSServer) getApplication()).loescheResourceRecord(domainname, ResourceRecord.NAME_SERVER);
 					Main.debug.println("GUIApplicationDNSServerWindow: NS-Eintrag " + domainname + " geloescht");
 					updateNSRecordsTable();
 				}
@@ -501,7 +500,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 	private synchronized void updateRecordsTable(JTableEditable table) {
 		String type = table.getType();
 
-		List<ResourceRecord> tempListe = ((DNSServer) holeAnwendung()).holeResourceRecords();
+		List<ResourceRecord> tempListe = ((DNSServer) getApplication()).holeResourceRecords();
 		List<ResourceRecord> recordsOfSelectedType = new ArrayList<ResourceRecord>();
 		for (ResourceRecord rr : tempListe) {
 			if (rr.getType().equals(type)) {
@@ -523,28 +522,28 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 	 */
 	private boolean checkIP(JTextField feld) {
 		feld.setText(feld.getText().trim());
-		boolean validAddress = EingabenUeberpruefung.isGueltig(feld.getText(), EingabenUeberpruefung.musterIpAdresse);
+		boolean validAddress = EntryValidator.isValid(feld.getText(), EntryValidator.musterIpAdresse);
 		if (validAddress) {
-			feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+			feld.setForeground(EntryValidator.rightTextColor);
 		} else {
-			feld.setForeground(EingabenUeberpruefung.farbeFalsch);
+			feld.setForeground(EntryValidator.wrongTextColor);
 		}
 		return validAddress;
 	}
 
 	private boolean checkFQDN(JTextField feld) {
 		feld.setText(feld.getText().trim());
-		boolean validFqdn = EingabenUeberpruefung.isGueltig(feld.getText(), EingabenUeberpruefung.musterDomain);
+		boolean validFqdn = EntryValidator.isValid(feld.getText(), EntryValidator.musterDomain);
 		if (validFqdn) {
-			feld.setForeground(EingabenUeberpruefung.farbeRichtig);
+			feld.setForeground(EntryValidator.rightTextColor);
 		} else {
-			feld.setForeground(EingabenUeberpruefung.farbeFalsch);
+			feld.setForeground(EntryValidator.wrongTextColor);
 		}
 		return validFqdn;
 	}
 
 	private void aktualisieren() {
-		if (((DNSServer) holeAnwendung()).isAktiv()) {
+		if (((DNSServer) getApplication()).isActive()) {
 			buttonStart.setText(messages.getString("dnsserver_msg14"));
 		} else {
 			buttonStart.setText(messages.getString("dnsserver_msg1"));

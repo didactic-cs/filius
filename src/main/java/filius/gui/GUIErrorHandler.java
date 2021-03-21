@@ -47,6 +47,6 @@ public class GUIErrorHandler {
 	}
 
 	public void DisplayError(String s) {
-		JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), s);
+		JOptionPane.showMessageDialog(JMainFrame.getInstance(), s);
 	}
 }

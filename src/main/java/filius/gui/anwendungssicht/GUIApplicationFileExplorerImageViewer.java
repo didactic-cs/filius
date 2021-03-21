@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import javax.swing.JInternalFrame;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+@SuppressWarnings("serial")
 public class GUIApplicationFileExplorerImageViewer extends JInternalFrame {
 	
 	private static GUIApplicationFileExplorerImageViewer singleton = null;	

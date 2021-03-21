@@ -32,7 +32,7 @@ import filius.rahmenprogramm.Information;
 import filius.software.rip.RIPRoute;
 import filius.software.rip.RIPTable;
 import filius.software.rip.RIPUtil;
-import filius.software.system.VermittlungsrechnerBetriebssystem;
+import filius.software.system.RouterOS;
 import filius.software.www.WebServerPlugIn;
 
 /**
@@ -42,30 +42,30 @@ import filius.software.www.WebServerPlugIn;
  * 
  */
 public class VermittlungWeb extends WebServerPlugIn implements I18n {
-    private VermittlungsrechnerBetriebssystem bs;
+    private RouterOS bs;
 
-    public VermittlungWeb(VermittlungsrechnerBetriebssystem bs) {
+    public VermittlungWeb(RouterOS bs) {
         super();
 
         this.bs = bs;
     }
 
-    public String holeHtmlSeite(String postDaten) {
+    public String getHtmlPage(String postDaten) {
         RIPTable table = bs.getRIPTable();
 
         String html = null;
         if (table != null) {
             html = createRoutingTablePage(table);
         } else {
-            html = createForwardingTablePage(bs.getWeiterleitungstabelle());
+            html = createForwardingTablePage(bs.getRoutingTable());
         }
 
         return html;
     }
 
-    private String createForwardingTablePage(Weiterleitungstabelle weiterleitungstabelle) {
+    private String createForwardingTablePage(RoutingTable weiterleitungstabelle) {
         StringBuffer forwardingEntries = new StringBuffer();
-        for (String[] forwardingEntry : weiterleitungstabelle.holeTabelle()) {
+        for (String[] forwardingEntry : weiterleitungstabelle.getRouteList()) {
             forwardingEntries.append(forwardingEntryToHtml(forwardingEntry));
         }
         String html = null;

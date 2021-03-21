@@ -79,9 +79,9 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
                 + " (ServerMitarbeiter), sendeNachricht(" + nachricht + ")");
         try {
             socket.senden(nachricht);
-            server.benachrichtigeBeobachter("<<" + nachricht);
+            server.notifyObservers("<<" + nachricht);
         } catch (Exception e) {
-            server.benachrichtigeBeobachter(e.getMessage());
+            server.notifyObservers(e.getMessage());
             e.printStackTrace(Main.debug);
         }
     }
@@ -101,26 +101,26 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
                 }
 
                 if (nachricht != null) {
-                    server.benachrichtigeBeobachter(">>" + nachricht);
+                    server.notifyObservers(">>" + nachricht);
                     verarbeiteNachricht(nachricht);
                 } else if (socket != null) {
                     socket.schliessen();
                     running = false;
 
-                    server.benachrichtigeBeobachter(
+                    server.notifyObservers(
                             messages.getString("sw_servermitarbeiter_msg1") + " " + socket.holeZielIPAdresse() + ":"
                                     + socket.holeZielPort() + " " + messages.getString("sw_servermitarbeiter_msg2"));
                 }
                 nachricht = null;
             } catch (ConnectionException e) {
                 e.printStackTrace(Main.debug);
-                server.benachrichtigeBeobachter(e.getMessage());
+                server.notifyObservers(e.getMessage());
                 socket.beenden();
                 running = false;
                 server.entferneMitarbeiter(this);
             } catch (Exception e) {
                 e.printStackTrace(Main.debug);
-                server.benachrichtigeBeobachter(e.getMessage());
+                server.notifyObservers(e.getMessage());
                 socket.schliessen();
                 running = false;
                 server.entferneMitarbeiter(this);
