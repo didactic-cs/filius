@@ -93,7 +93,7 @@ public class Main implements I18n {
             Main.debug.println("ini could not be read: " + e1.getMessage());
         }
 
-        konfigPfad = Information.getInstance().getArbeitsbereichPfad() + "konfig.xml";
+        konfigPfad = Information.getInstance().getWorkingDirectory() + "konfig.xml";
         if (!(new File(konfigPfad)).exists() && null == Information.getInstance().getLocale()) {
             String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
@@ -236,7 +236,13 @@ public class Main implements I18n {
         UIManager.put("FileChooser.acceptAllFileFilterText", messages.getString("main_dlg_ALLFILES")); 
         
         UIManager.put("FileChooser.win32.newFolder", messages.getString("main_dlg_WINNEWFOLDER"));
-        UIManager.put("FileChooser.win32.newFolder.subsequent", messages.getString("main_dlg_WINNEWFOLDER")+" ({0})");   
+        UIManager.put("FileChooser.win32.newFolder.subsequent", messages.getString("main_dlg_WINNEWFOLDER")+" ({0})");  
+        
+        // Standard dialog box        
+        UIManager.put("InternalFrame.iconButtonToolTip", messages.getString("main_dlg_MINIMIZE"));
+        UIManager.put("InternalFrame.maxButtonToolTip", messages.getString("main_dlg_MAXIMIZE"));   
+        UIManager.put("InternalFrame.restoreButtonToolTip", messages.getString("main_dlg_RESTORE"));
+        UIManager.put("InternalFrame.closeButtonToolTip", messages.getString("main_dlg_CLOSE"));
     }
 
     
@@ -301,7 +307,7 @@ public class Main implements I18n {
         programmKonfig[3] = Information.getInstance().getLocale().getCountry();
         programmKonfig[4] = Information.getInstance().getLastOpenedDirectory();
 
-        String applicationConfigPath = Information.getInstance().getArbeitsbereichPfad() + "konfig.xml";
+        String applicationConfigPath = Information.getInstance().getWorkingDirectory() + "konfig.xml";
         try (FileOutputStream fos = new FileOutputStream(applicationConfigPath);
         		XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
         	encoder.writeObject(programmKonfig);
@@ -344,7 +350,7 @@ public class Main implements I18n {
      * zum Start geladen werden soll.
      */
     public static void main(String[] args) {
-        String currWD = Information.initArbeitsbereichPfad;
+        String currWD = Information.initWorkingDirectory;
         File file;
         boolean log = false;
         String newWD = null;
@@ -419,7 +425,7 @@ public class Main implements I18n {
             // if no logging specified on command line or logging to file
             // fails, then set logging to null
             if (log) {
-                log = log(Information.getInstance().getArbeitsbereichPfad() + "filius.log", verbose);
+                log = log(Information.getInstance().getWorkingDirectory() + "filius.log", verbose);
             } else {
                 log(null, verbose);
             }
@@ -439,7 +445,7 @@ public class Main implements I18n {
         Main.debug.println("\tParameters: '" + argsString.trim() + "'");
         // +"\n\tWD Base: "+newWD
         Main.debug.println("\tFILIUS Installation: " + Information.getInstance().getProgramPath());
-        Main.debug.println("\tFILIUS Working Directory: " + Information.getInstance().getArbeitsbereichPfad());
+        Main.debug.println("\tFILIUS Working Directory: " + Information.getInstance().getWorkingDirectory());
         Main.debug.println("\tFILIUS Temp Directory: " + Information.getInstance().getTempPath());
         Main.debug.println("------------------------------------------------------\n");
 

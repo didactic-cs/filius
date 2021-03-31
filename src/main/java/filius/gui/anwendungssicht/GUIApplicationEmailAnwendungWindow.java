@@ -460,10 +460,8 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
 
                 mail = new Email();
 
-                if (cbAbsender.getSelectedItem() == null) {
-                    String msgNoAccountAvailable = GUIApplicationEmailAnwendungWindow.messages
-                            .getString("emailanwendung_msg47");
-                    GUIApplicationEmailAnwendungWindow.this.showMessageDialog(msgNoAccountAvailable);
+                if (cbAbsender.getSelectedItem() == null) {                    
+                    infoDialog(messages.getString("emailanwendung_msg47"), "");
                 } else {
                     kontoString = cbAbsender.getSelectedItem().toString();
                     versendeKonto = (EmailKonto) ((EmailAnwendung) getApplication()).holeKontoListe().get(kontoString);
@@ -491,10 +489,10 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
                     }
 
                     if (eingabeFehler) {
-                        showMessageDialog(messages.getString("emailanwendung_msg20"));
+                    	infoDialog(messages.getString("emailanwendung_msg20"), "");
                     } else if (mail.getEmpfaenger().size() == 0 && mail.getCc().size() == 0
                             && mail.getBcc().size() == 0) {
-                        showMessageDialog(messages.getString("emailanwendung_msg21"));
+                    	infoDialog(messages.getString("emailanwendung_msg21"), "");
                     } else {
                         mail.setBetreff(betreffszeile.getText());
                         mail.setText(inhaltField.getText());
@@ -750,7 +748,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
                 if (kontoSpeichern()) {
                     inFrKonten.setVisible(false);
                 } else {
-                    showMessageDialog(messages.getString("emailanwendung_msg46"));
+                	infoDialog(messages.getString("emailanwendung_msg46"), "");
                 }
             }
         });
@@ -891,7 +889,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         gesendeteAktualisieren();
 
         if (arg1 instanceof Exception) {
-            showMessageDialog(((Exception) arg1).getMessage());
+        	infoDialog(((Exception) arg1).getMessage(), "");
         }
 
         if (arg1 == null || arg1.equals("") || arg1 instanceof Exception) {

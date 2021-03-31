@@ -52,6 +52,7 @@ import javax.swing.JTextArea;
 import filius.Main;
 import filius.gui.CloseableBrowserTabbedPaneUI;
 import filius.software.system.HostOS;
+import filius.software.system.FiliusFileSystem.FileType;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 
@@ -84,7 +85,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 
 		workingDir = getApplication().getSystemSoftware().getFileSystem().getWorkingDirectory();
 
-		String dateiName = getParameter()[0];
+		String dateiName = ""; // getParameter()[0];
 		if (!dateiName.equals("")) {
 
 			if (this.workingDir == null) {
@@ -128,7 +129,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 			private static final long serialVersionUID = 4307765243000198382L;
 
 			public void actionPerformed(ActionEvent arg0) {
-				neu();
+				newFile();
 			}
 		});
 
@@ -136,7 +137,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent arg0) {
-				oeffnen();
+				open();
 			}
 		});
 
@@ -144,14 +145,14 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent arg0) {
-				speichern();
+				save();
 			}
 		});
 		menuDatei.add(new AbstractAction(messages.getString("texteditor_msg6")) {
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent arg0) {
-				speichernUnter();
+				saveAs();
 			}
 		});
 		menuDatei.addSeparator();
@@ -168,23 +169,40 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 		this.setJMenuBar(mb);
 		pack();
 	}
+	
+	public void open() {
+		DMTNFileChooser fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
+		int rueckgabe = fc.openDialog();
+		if (rueckgabe == DMTNFileChooser.OK) {
+			FiliusFile tmpFile = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());
+			changeCurrentFile(tmpFile);
+		} else {
+			Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
+		}
+	}
+	
+	public void newFile() {
+		editorField.setText("");
+		setTitle(messages.getString("texteditor_msg1"));
+		changeCurrentFile(null);
+	}
 
-	public void speichern() {
+	public void save() {
 		if (currentFile != null) {
 			original = editorField.getText();
 			currentFile.setContent(original);
 		} else {
-			speichernUnter();
+			saveAs();
 		}
 	}
 
-	public void speichernUnter() {
+	public void saveAs() {
 		DMTNFileChooser fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
 		int rueckgabe = fc.saveDialog();
 
 		if (rueckgabe == DMTNFileChooser.OK) {
 			String dateiNameNeu = fc.getAktuellerDateiname();
-			FiliusFile tmpFile = new FiliusFile(dateiNameNeu, messages.getString("texteditor_msg8"), editorField.getText());
+			FiliusFile tmpFile = new FiliusFile(dateiNameNeu, FileType.TEXT, editorField.getText());
 			fc.getAktuellerOrdner().saveFiliusFile(tmpFile);
 			changeCurrentFile(tmpFile);
 		}
@@ -198,17 +216,6 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 		updateFromFile();
 		if (currentFile != null) {
 			currentFile.removePropertyChangeListener("filecontent", this);
-		}
-	}
-
-	public void oeffnen() {
-		DMTNFileChooser fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
-		int rueckgabe = fc.openDialog();
-		if (rueckgabe == DMTNFileChooser.OK) {
-			FiliusFile tmpFile = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());
-			changeCurrentFile(tmpFile);
-		} else {
-			Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
 		}
 	}
 
@@ -227,39 +234,46 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 		if (original != editorField.getText()) {
 			if (JOptionPane.showConfirmDialog(this, messages.getString("texteditor_msg9"),
 			        messages.getString("texteditor_msg10"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				speichern();
+				save();
 			}
 
 		}
 		diesesFenster.doDefaultCloseAction();
 	}
 
-	public void start(String[] param) {
-		String dateiName = getParameter()[0];
-		if (!dateiName.equals("")) {
-			this.workingDir = this.getApplication().getSystemSoftware().getFileSystem().getWorkingDirectory();
-			if (this.workingDir == null) {
-				this.workingDir = this.getApplication().getSystemSoftware().getFileSystem().getRoot();
-			}
-			FiliusFile datei = workingDir.getFiliusFile(dateiName);
-			if (datei != null) {
-				editorField = new JTextArea();
-				editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
-				this.setTitle(dateiName);
-				editorField.setText(datei.getContent());
-				original = datei.getContent();
-				currentFile = datei;
-
-				JScrollPane tpPane = new JScrollPane(editorField);
-				tpPane.setBorder(null);
-
-				/* Tabs */
-				tpTabs.addTab(datei.getName(), tpPane);
-				tpTabs.setSelectedIndex(tpTabs.getTabCount() - 1);
-			}
-
-		}
-
+//	public void start(String[] param) {
+//		
+//		// String filename = getParameter()[0]; // !!!
+//		String filename = "";
+//		if (param != null && param.length > 0)  filename = param[0]; 
+//		
+//		if (!filename.equals("")) {
+//			this.workingDir = this.getApplication().getSystemSoftware().getFileSystem().getWorkingDirectory();
+//			if (this.workingDir == null) {
+//				this.workingDir = this.getApplication().getSystemSoftware().getFileSystem().getRoot();
+//			}
+//			FiliusFile datei = workingDir.getFiliusFile(filename);
+//			if (datei != null) {
+//				editorField = new JTextArea();
+//				editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
+//				this.setTitle(filename);
+//				editorField.setText(datei.getContent());
+//				original = datei.getContent();
+//				currentFile = datei;
+//
+//				JScrollPane tpPane = new JScrollPane(editorField);
+//				tpPane.setBorder(null);
+//
+//				/* Tabs */
+//				tpTabs.addTab(datei.getName(), tpPane);
+//				tpTabs.setSelectedIndex(tpTabs.getTabCount() - 1);
+//			}
+//		}
+//	}
+	
+	public void start(FiliusFileNode node, String[] param) {
+		
+		if (node != null) changeCurrentFile(node.getFiliusFile());		
 	}
 
 	public void tabVerhalten() {
@@ -343,18 +357,12 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow impleme
 
 					/* Neuer Tab bei Doppelklick */
 					if (e.getClickCount() == 2) {
-						neu();
+						newFile();
 					}
 
 				}
 			}
 		});
-	}
-
-	public void neu() {
-		editorField.setText("");
-		setTitle(messages.getString("texteditor_msg1"));
-		changeCurrentFile(null);
 	}
 
 	public void updateUnchangedTextFromFile() {

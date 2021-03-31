@@ -2,22 +2,7 @@
 <head>
   <meta charset="UTF-8">
   <base href="file:">
-  <style type="text/css">
-    html { background-color: rgb(250, 248, 246); padding-left: 8px; padding-right: 8px; padding-bottom: 20px; }
-    body { font-family: Helvetica,Arial,sans-serif; font-size: 12pt; }  
-    h1 { color: rgb(0, 100, 200); font-size: 20pt; border-bottom: 1px solid rgb(0, 100, 200); }
-    h2 { color: rgb(0, 100, 200); font-size: 18pt; margin-top: 0px; margin-bottom: 10px; }
-    h3 { color: rgb(0, 100, 200); font-size: 15pt; margin-top: 10px; margin-bottom: 6px; }
-    h4 { font-weight: bold; margin-top: 0px; margin-bottom: 4px; }
-    p { margin-top: 0px; margin-bottom: 8px; }
-    a { color: rgb(0, 100, 200); text-decoration: none; }
-    div.menu span { font-size: 11pt; color: rgb(0, 100, 200); white-space: nowrap; text-decoration: none; }
-    div.menu span.selected { font-weight: bold; }
-    div.center { text-align: center; margin-top: 0px; margin-bottom: 8px; }
-    ol { margin-left: 15px; margin-top: 0px; }
-    ul { margin-left: 15px; margin-top: 0px; }
-    li { margin-bottom: 4px; }
-  </style>
+  <style type="text/css"></style>
 </head>
 <body>	
   <div class="menu">
@@ -65,16 +50,28 @@
       à son routage, soit rejeté et, dans ce cas, le paquet est détruit.</li>
   </ul>
 
+  <p>L'ordre des règles est important. En effet, pour déterminer si un paquet est accepté
+     ou rejeté, le pare-feu parcourt la table des règles du haut vers le bas jusqu'à
+     ce qu'une règle s'applique.</p>
+
+  <p>Pour modifier l'ordre des règles dans la table, 
+     sélectionner la règle à repositionner, puis utiliser les raccourcis clavier 
+     Alt + Flèche haut et Alt + Flèche bas.</p>
+
+  <p>La règle par défaut, toujours placée en fin de table, s'applique à tous les paquets
+     pour lesquels aucune règle plus spécifique n'existe. La règle par défaut ne peut
+     être supprimée. Seule son action peut être modifiée.</p>
+     
   <h4>Ne rejeter que les paquets TCP dont le drapeau SYN est activé</h4>
 
   <p>Lors de l'établissement d'une connexion TCP entre un client et un serveur,
      le premier paquet TCP envoyé a un drapeau de synchronisation (SYN) qui 
-     est activé. En interceptant ce type de paquet, le routeur empêche 
-     l'établissement de la connexion TCP.</p>
+     est activé. Intercepter ce type de paquet est suffisant pour faire échouer
+     une transaction TCP.</p>
 
-  <p>En cochant cette case, le pare-feu traite plus rapidement les paquets.
-     En effet, lorsqu'une connexion TCP est établie, les paquets échangés n'ont 
-     pas le drapeau SYN activé. Le routeur n'a donc pas à les traiter.</p> 
+  <p>Un autre avantage est qu'il devient inutile pour le pare-feu de contrôler les 
+     paquets TCP sans le drapeau SYN activé puisque ces derniers correspondent à des 
+     transactions autorisées.</p>
 
   <h4>Rejeter les paquets ICMP</h4>
 

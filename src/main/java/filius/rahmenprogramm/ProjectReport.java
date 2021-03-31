@@ -195,7 +195,7 @@ public class ProjectReport  implements I18n {
                 if (systemSoftware instanceof HostOS) {
                     Chunk chunk = new Chunk(I18n.messages.getString("installationsdialog_msg3") + " ", BOLD_FONT);
                     document.add(chunk);
-                    Application[] apps = ((HostOS) systemSoftware).getInstalledSoftwares();
+                    Application[] apps = ((HostOS) systemSoftware).getInstalledAppsArray();
                     String[] appNames = new String[apps.length];
                     for (int i = 0; i < apps.length; i++) {
                         appNames[i] = apps[i].getAppName();

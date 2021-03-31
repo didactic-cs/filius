@@ -24,7 +24,7 @@
  ** along with Filius.  If not, see <http://www.gnu.org/licenses/>.
  */
 /*
- * NewJFrame.java
+ * JMainFrame.java
  *
  * Created on 28. April 2006, 18:31
  */

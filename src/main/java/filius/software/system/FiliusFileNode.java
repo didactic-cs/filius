@@ -1,9 +1,11 @@
 package filius.software.system;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,6 +18,7 @@ import javax.swing.tree.TreeNode;
 
 import filius.Main;
 import filius.rahmenprogramm.Base64;
+import filius.software.system.FiliusFileSystem.FileType;
 import filius.software.system.FiliusFileSystem.errorCode;
 
 
@@ -220,12 +223,12 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
 	 *
      * @return A String containing the type of the file or directory object attached to the node.
      */
-    public String getType() {    
+    public FileType getType() {    
     	
     	if (isFile()) {
     		return ((FiliusFile) getUserObject()).getType();
     	} else {
-    		return "directory";
+    		return FileType.DIRECTORY;
     	}
     }
     
@@ -473,7 +476,7 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
      *            String containing the type of the file to be created.
      * @return true when the file was created, false when the name is already used.
     */
-    public boolean addFile(String name, String type, String content) {    	
+    public boolean addFile(String name, FileType type, String content) {    	
 
     	if (hasChildNamed(name)) return false;
     	
@@ -485,7 +488,6 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
 	 * <b>importRealFile</b> imports a "real" file into the Filius File System.<br>
 	 * The content of binary files is stored in Base64 encoded String.
 	 * 
-	 * @param directory FFSNode into which the file is to be imported
 	 * @param filePath String containing the path to the real file to be imported (the last separator is optional). 
 	 * @param fileName String containing the name of the real file to be imported. 
 	 * @return An error code. 
@@ -503,26 +505,26 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
 		java.io.File file = new java.io.File(fullFileName);
 		
 		if (!file.exists()) return errorCode.FILE_NOT_FOUND;		
-		if (file.length() > 150000) return errorCode.FILE_TOO_LARGE;
+		if (file.length() > 150*1024) return errorCode.FILE_TOO_LARGE;
 
 		String newName = makeNameUnique(fileName);
 		
-		String type = FFS.getTypeFromExtension(fileName);
+		FileType type = FFS.getTypeFromExtension(fileName);
 		FiliusFile fFile;
 		
-		if (type != null && type.equals("text")) {
-			String txtInhalt = "";
+		if (type != null && (type == FileType.TEXT || type == FileType.CSS || type == FileType.XML)) {
+			String text = "";
 			try {
 				BufferedReader in = new BufferedReader(new FileReader(fullFileName));
 				String str;
 				while ((str = in.readLine()) != null) {
-					txtInhalt += str + "\r\n";
+					text += str + "\r\n";
 				}
 				in.close();				
 			} catch (IOException e) {
 				e.printStackTrace(Main.debug);
 			}
-			fFile = new FiliusFile(newName, type, txtInhalt);
+			fFile = new FiliusFile(newName, type, text);
 			
 		} else {
 			fFile = new FiliusFile(newName, type, Base64.encodeFromFile(fullFileName));
@@ -530,6 +532,41 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
 		}
 		
 		saveFiliusFile(fFile);	
+
+		return errorCode.NO_ERROR;
+	}    
+	
+	/**
+	 * <b>exportFile</b> exports the content associated to the node as a real file.
+	 * 
+	 * @param filePath String containing the path to the real file to be imported (the last separator is optional). 
+	 * @param fileName String containing the name of the real file to be imported. 
+	 * @return An error code. 
+	 */
+	public errorCode exportFile(String filePath, String fileName) {
+				
+		// Only files can be exported 
+		if (isDirectory()) return errorCode.NOT_EXPORTABLE;	
+		
+		// Add the last file separator if missing
+		if (!filePath.endsWith(System.getProperty("file.separator"))) filePath += System.getProperty("file.separator");
+		String fullFileName = filePath + fileName;
+				
+		FiliusFile fFile = getFiliusFile();
+		
+		if (fFile.getType().equals("text")) {
+			BufferedWriter writer;
+			try {
+				writer = new BufferedWriter(new FileWriter(fullFileName));
+				writer.write(fFile.getContent());		    
+			    writer.close();
+			} catch (IOException e) {
+				e.printStackTrace(Main.debug);
+			}
+		    
+		} else {
+			Base64.decodeToFile(fFile.getContent(), fullFileName);
+		}
 
 		return errorCode.NO_ERROR;
 	}    
@@ -654,9 +691,9 @@ public class FiliusFileNode extends DefaultMutableTreeNode {
         	if (((FiliusFile) getUserObject()).getName().isEmpty()) {
         		((FiliusFile) getUserObject()).setName("restored-" + System.currentTimeMillis());
         	}
-        	if (((FiliusFile) getUserObject()).getType().isEmpty()) {
-        		((FiliusFile) getUserObject()).setType("");
-        	}
+//        	if (((FiliusFile) getUserObject()).getType().isEmpty()) {
+//        		((FiliusFile) getUserObject()).setType("");
+//        	}
         }        
         
         for (int i = 0; i < getChildCount(); i++) {

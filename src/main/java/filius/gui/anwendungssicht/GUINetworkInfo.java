@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyVetoException;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -44,6 +45,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import filius.Main;
 import filius.hardware.NetworkInterface;
 import filius.hardware.knoten.Host;
 import filius.rahmenprogramm.EntryValidator;
@@ -59,20 +61,18 @@ import filius.software.system.HostOS;
  * 
  */
 @SuppressWarnings("serial")
-public class GUINetworkWindow extends JInternalFrame implements I18n {
+public class GUINetworkInfo extends JInternalFrame implements I18n {
 
-	/**
-	 *
-	 */
 	private GUIDesktopPanel dp;
 	private JLabel ipLabel, dnsLabel, gatewayLabel, netmaskLabel, macLabel;
 	private JTextField ipField, dnsField, gatewayField, netmaskField, macField;
 	private JButton changeButton;
-	private HostOS bs;
+	private HostOS hostOS;
 	private JPanel backPanel;
-	private boolean istGueltig = true;
+	//private boolean istGueltig = true;
 
-	public GUINetworkWindow(final GUIDesktopPanel dp) {
+	
+	public GUINetworkInfo(final GUIDesktopPanel dp) {
 		super();
 
 		NetworkInterface nic;
@@ -97,8 +97,8 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		macLabel.setSize(new Dimension(100, 15));
 		macLabel.setPreferredSize(new Dimension(100, 15));
 
-		bs = this.dp.getOS();
-		nic = (NetworkInterface) ((Host) bs.getNode()).getNICList().get(0);
+		hostOS = this.dp.getOS();
+		nic = (NetworkInterface) ((Host) hostOS.getNode()).getNICList().get(0);
 
 		ipField = new JTextField(nic.getIp());
 		ipField.setEditable(false);
@@ -106,27 +106,27 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		ipField.setPreferredSize(new Dimension(100, 15));
 		ipField.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
-				ueberpruefen(EntryValidator.musterIpAdresse, ipField);
+				checkValue(EntryValidator.musterIpAdresse, ipField);
 			}
 
 		});
-		dnsField = new JTextField(bs.getDNSServer());
+		dnsField = new JTextField(hostOS.getDNSServer());
 		dnsField.setEditable(false);
 		dnsField.setSize(new Dimension(100, 15));
 		dnsField.setPreferredSize(new Dimension(100, 15));
 		dnsField.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
-				ueberpruefen(EntryValidator.musterIpAdresse, dnsField);
+				checkValue(EntryValidator.musterIpAdresse, dnsField);
 			}
 
 		});
-		gatewayField = new JTextField(bs.getStandardGateway());
+		gatewayField = new JTextField(hostOS.getStandardGateway());
 		gatewayField.setEditable(false);
 		gatewayField.setSize(new Dimension(100, 15));
 		gatewayField.setPreferredSize(new Dimension(100, 15));
 		gatewayField.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
-				ueberpruefen(EntryValidator.musterIpAdresse, gatewayField);
+				checkValue(EntryValidator.musterIpAdresse, gatewayField);
 			}
 
 		});
@@ -136,9 +136,8 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		netmaskField.setPreferredSize(new Dimension(100, 15));
 		netmaskField.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
-				ueberpruefen(EntryValidator.musterIpAdresse, netmaskField);
+				checkValue(EntryValidator.musterIpAdresse, netmaskField);
 			}
-
 		});
 
 		macField = new JTextField(nic.getMac());
@@ -149,28 +148,24 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		changeButton = new JButton(messages.getString("network_msg5"));
 		changeButton.setToolTipText(messages.getString("network_msg6"));
 		changeButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				istGueltig = true; // Um den nächsten Testdurchlauf zu
-				                   // ermöglichen
+			
+			public void actionPerformed(ActionEvent e) {
+				boolean isValid = true; // Um den nächsten Testdurchlauf zu ermöglichen
 
-				if (!EntryValidator.isValid(ipField.getText(), EntryValidator.musterIpAdresse)
-				        || istGueltig == false)
-					istGueltig = false;
-				if (!EntryValidator.isValid(netmaskField.getText(), EntryValidator.musterIpAdresse)
-				        || istGueltig == false)
-					istGueltig = false;
-				if (!EntryValidator.isValid(dnsField.getText(), EntryValidator.musterIpAdresse)
-				        || istGueltig == false)
-					istGueltig = false;
-				if (!EntryValidator.isValid(gatewayField.getText(), EntryValidator.musterIpAdresse)
-				        || istGueltig == false)
-					istGueltig = false;
+				if (!EntryValidator.isValid(ipField.getText(), EntryValidator.musterIpAdresse) || isValid == false)
+					isValid = false;
+				if (!EntryValidator.isValid(netmaskField.getText(), EntryValidator.musterIpAdresse) || isValid == false)
+					isValid = false;
+				if (!EntryValidator.isValid(dnsField.getText(), EntryValidator.musterIpAdresse) || isValid == false)
+					isValid = false;
+				if (!EntryValidator.isValid(gatewayField.getText(), EntryValidator.musterIpAdresse) || isValid == false)
+					isValid = false;
 
-				if (istGueltig == true) {
-					bs.setIPAddress(ipField.getText());
-					bs.setSubnetMask(netmaskField.getText());
-					bs.setDNSServer(dnsField.getText());
-					bs.setStandardGateway(gatewayField.getText());
+				if (isValid == true) {
+					hostOS.setIPAddress(ipField.getText());
+					hostOS.setSubnetMask(netmaskField.getText());
+					hostOS.setDNSServer(dnsField.getText());
+					hostOS.setStandardGateway(gatewayField.getText());
 				} else {
 					JOptionPane.showMessageDialog(dp, messages.getString("network_msg7"));
 				}
@@ -229,17 +224,16 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		// backBox.add(buttonBox);
 
 		backPanel.add(backBox, BorderLayout.CENTER);
-		this.getContentPane().add(backPanel);
+		getContentPane().add(backPanel);
 
-		this.setClosable(true);
-		this.setMaximizable(false);
-
-		this.setResizable(false);
-		this.setBounds(375, 253, 250, 160);
-		this.setTitle(messages.getString("network_msg8"));
-		this.setVisible(false);
-		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
-		this.setAnwendungsIcon("gfx/desktop/netzwek_aus.png");
+		setClosable(true);
+		setMaximizable(false);
+		setResizable(false);
+		setSize(250, 160);
+		setTitle(messages.getString("network_msg8"));
+		setVisible(false);
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setAnwendungsIcon("gfx/desktop/netzwek_aus.png");
 		dp.getDesktopPane().add(this);
 	}
 
@@ -248,38 +242,51 @@ public class GUINetworkWindow extends JInternalFrame implements I18n {
 		image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
 		this.setFrameIcon(image);
 	}
+	
+	public void showAndSelect() {    	
+
+		if (! isVisible()) setLocation(390, 298);
+		setVisible(true);		
+		// toFront();        // <- really necessary?
+    	try {
+    		setSelected(true);   		
+    		
+    	} catch (PropertyVetoException e) {
+    		e.printStackTrace(Main.debug);
+    	}		
+    }
 
 	/**
 	 * Funktion die waehrend der Eingabe ueberprueft ob die bisherige Eingabe
 	 * einen korrekten Wert darstellt.
 	 * 
 	 * @author Johannes Bade & Thomas Gerding
-	 * @param pruefRegel
-	 * @param feld
+	 * @param pattern
+	 * @param textField
 	 */
-	public void ueberpruefen(Pattern pruefRegel, JTextField feld) {
-		if (EntryValidator.isValid(feld.getText(), pruefRegel)) {
-			feld.setForeground(EntryValidator.rightTextColor);
+	public void checkValue(Pattern pattern, JTextField textField) {
+		
+		if (EntryValidator.isValid(textField.getText(), pattern)) {
+			textField.setForeground(EntryValidator.rightTextColor);
 			JTextField test = new JTextField();
-			feld.setBorder(test.getBorder());
+			textField.setBorder(test.getBorder());
 		} else {
-			feld.setForeground(EntryValidator.wrongTextColor);
+			textField.setForeground(EntryValidator.wrongTextColor);
 
-			feld.setForeground(EntryValidator.wrongTextColor);
-			feld.setBorder(BorderFactory.createLineBorder(EntryValidator.wrongTextColor, 1));
+			textField.setForeground(EntryValidator.wrongTextColor);
+			textField.setBorder(BorderFactory.createLineBorder(EntryValidator.wrongTextColor, 1));
 		}
-
 	}
 
 	public void setVisible(boolean b) {
 		if (b) {
 			// bring data up-to-date:
-			bs = this.dp.getOS();
-			NetworkInterface nic = (NetworkInterface) ((Host) bs.getNode()).getNICList().get(0);
+			hostOS = this.dp.getOS();
+			NetworkInterface nic = (NetworkInterface) ((Host) hostOS.getNode()).getNICList().get(0);
 
 			ipField.setText(nic.getIp());
-			dnsField.setText(bs.getDNSServer());
-			gatewayField.setText(bs.getStandardGateway());
+			dnsField.setText(hostOS.getDNSServer());
+			gatewayField.setText(hostOS.getStandardGateway());
 			netmaskField.setText(nic.getSubnetMask());
 		}
 		super.setVisible(b);

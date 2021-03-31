@@ -35,6 +35,7 @@ import filius.Main;
 import filius.rahmenprogramm.EntryValidator;
 import filius.software.Application;
 import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileSystem.FileType;
 
 /**
  * 
@@ -171,7 +172,7 @@ public class EmailAnwendung extends Application {
         FiliusFile datei = new FiliusFile();
         datei.setContent(konto.toString());
         datei.setName("konten.txt");
-        datei.setType("text/txt");
+        datei.setType(FileType.TEXT);
         getSystemSoftware().getFileSystem().getRoot().saveFiliusFile(datei);
     }
 

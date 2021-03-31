@@ -161,7 +161,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
                 if (http.getStatusCode() == 200) {
                     abfrage = new HTTPNachricht(nachricht);
                     datei = new FiliusFile();
-                    datei.setType(http.getContentType());
+                    datei.setType(http.getFileType());
                     datei.setName(abfrage.getPfad());
                     datei.setContent(http.getDaten());
                     peerToPeerAnwendung.speicherDatei(datei);

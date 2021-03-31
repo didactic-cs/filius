@@ -44,6 +44,7 @@ import filius.software.system.HostOS;
 import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
+import filius.software.system.FiliusFileSystem.FileType;
 import filius.software.system.InternetNodeOS;
 import filius.software.transportschicht.ServerSocket;
 import filius.software.transportschicht.Socket;
@@ -442,7 +443,7 @@ public class Terminal extends ClientApplication implements I18n {
             	if (node == null) {
             		ergebnis = "Le répertoire parent n'existe pas.";                           // I18n            		
             	} else {
-            		node.saveFiliusFile(new FiliusFile(dateiName, "text", "")); 
+            		node.saveFiliusFile(new FiliusFile(dateiName, FileType.TEXT, "")); 
             		ergebnis = messages.getString("sw_terminal_msg13");
             	}
                 
@@ -655,7 +656,7 @@ public class Terminal extends ClientApplication implements I18n {
         String ergebnis = messages.getString("sw_terminal_msg23");
 
         FiliusFileNode node = FFS.toNode(args[0]);        
-        if (node != null && node.saveFiliusFile(new FiliusFile("test", "txt", "blaaa"))) {
+        if (node != null && node.saveFiliusFile(new FiliusFile("test", FileType.TEXT, "blaaa"))) {
             ergebnis = messages.getString("sw_terminal_msg24");
         }
 

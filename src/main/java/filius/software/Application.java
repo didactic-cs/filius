@@ -72,16 +72,12 @@ public abstract class Application extends Thread {
     public Application() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() +
                            " (Anwendung), constr: Anwendung()");
-
-        try {
-            for (Map<String, String> appInfo : Information.getInstance().ladeProgrammListe()) {
-                if (this.getClass().getCanonicalName().equals((String) appInfo.get("Klasse"))) {
-                    this.setAppName(appInfo.get("Anwendung").toString());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+       
+        for (Map<String, String> appInfo : Information.getInstance().getInstallableSoftwareList()) {
+        	if (this.getClass().getCanonicalName().equals((String) appInfo.get("Klasse"))) {
+        		this.setAppName(appInfo.get("Anwendung").toString());
+        		break;
+        	}
         }
     }
 

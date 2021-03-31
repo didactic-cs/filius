@@ -52,36 +52,47 @@ public class FiliusFileSystem implements Serializable {
     	FILE_NOT_FOUND,
     	FILE_TOO_LARGE,
     	NO_DIRECTORY_NODE,
+    	NOT_EXPORTABLE,
     	UNSPECIFIED
+   	}
+    
+    // File types
+    public static enum FileType {
+    	UNKNOWN,    	
+    	DIRECTORY,
+    	TEXT,
+    	CSS,
+    	XML,
+    	HTML,
+    	IMAGE_JPG,
+    	IMAGE_GIF,
+    	IMAGE_PNG,
+    	IMAGE_BMP
    	}
     
     // Filetypes map
     // Two special types are also used:
     // binary: for files for which the type is unspecified
     // directory: for directories
-    private static HashMap<String, String> fileTypeMap;    
+    private static HashMap<String, FileType> fileTypeMap;    
     static {	
-		fileTypeMap = new HashMap<String, String>();
+		fileTypeMap = new HashMap<String, FileType>();
 		
-		fileTypeMap.put("txt", "text");
-		fileTypeMap.put("ini", "text");
-		fileTypeMap.put("cfg", "text");
-		fileTypeMap.put("xml", "text");
+		fileTypeMap.put("txt",  FileType.TEXT);
+		fileTypeMap.put("ini",  FileType.TEXT);
+		fileTypeMap.put("cfg",  FileType.TEXT);
+		fileTypeMap.put("conf", FileType.TEXT);
 		
-		fileTypeMap.put("htm",  "web");
-		fileTypeMap.put("html", "web");
-		fileTypeMap.put("css",  "web");
-		fileTypeMap.put("js",   "web");
+		fileTypeMap.put("css",  FileType.CSS);	
+		fileTypeMap.put("xml",  FileType.XML);		
+		fileTypeMap.put("htm",  FileType.HTML);
+		fileTypeMap.put("html", FileType.HTML);
 		
-		fileTypeMap.put("jpg",  "image");
-		fileTypeMap.put("jpeg", "image");
-		fileTypeMap.put("gif",  "image");
-		fileTypeMap.put("png",  "image");
-		fileTypeMap.put("bmp",  "image");
-		
-		fileTypeMap.put("mp2", "sound");
-		fileTypeMap.put("mp3", "sound");
-		fileTypeMap.put("wav", "sound");		
+		fileTypeMap.put("jpg",  FileType.IMAGE_JPG);
+		fileTypeMap.put("jpeg", FileType.IMAGE_JPG);
+		fileTypeMap.put("gif",  FileType.IMAGE_GIF);
+		fileTypeMap.put("png",  FileType.IMAGE_PNG);
+		fileTypeMap.put("bmp",  FileType.IMAGE_BMP);			
 	}
 
     // Character used as separator in a path
@@ -361,7 +372,7 @@ public class FiliusFileSystem implements Serializable {
      * @param name String containing the name to be checked.
      * @return true if the name uses only allowed characters.
      */
-    public static boolean nameIsValid(String name) {    	    	
+    public boolean nameIsValid(String name) {    	    	
     	
     	for (int i = 0; i < name.length(); i++) {
     		if ("\\|/\":?*<>".indexOf(name.charAt(i)) != -1) return false;
@@ -462,15 +473,15 @@ public class FiliusFileSystem implements Serializable {
 	 *             String containing the name of the file the type of which is to be determined.
 	 * @return A String containing the file's type 
 	 */
-	public String getTypeFromExtension(String fileName) { 
+	public FileType getTypeFromExtension(String fileName) { 
 						
-		String type = "binary"; 
+		FileType type = FileType.UNKNOWN; 
 		String fileExt = getPathExtension(fileName).toLowerCase();
 		if (fileExt != null) {
 			
 			fileExt = fileExt.substring(1);
 			type = fileTypeMap.get(fileExt);
-			if (type == null) type = "binary";
+			if (type == null) type = FileType.UNKNOWN;
 		}
 	
 		return type;

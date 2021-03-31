@@ -27,6 +27,7 @@ package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -76,6 +77,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
 
     public GUIApplicationTerminalWindow(GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
+        setPreferredSize(new Dimension(550, 420));
         this.setMaximizable(false);
         this.setResizable(false);
         jobRunning = false;

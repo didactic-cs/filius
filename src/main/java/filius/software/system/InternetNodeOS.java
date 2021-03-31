@@ -1,4 +1,5 @@
 /*
+
  ** This file is part of Filius, a network construction and simulation software.
  ** 
  ** Originally created at the University of Siegen, Institute "Didactics of
@@ -25,11 +26,11 @@
  */
 package filius.software.system;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import filius.Main;
@@ -40,7 +41,6 @@ import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Router;
 import filius.rahmenprogramm.EntryValidator;
 import filius.rahmenprogramm.FiliusClassLoader;
-import filius.rahmenprogramm.Information;
 import filius.software.Application;
 import filius.software.dns.Resolver;
 import filius.software.netzzugangsschicht.Ethernet;
@@ -69,11 +69,12 @@ import filius.software.vermittlungsschicht.RoutingTable;
 @SuppressWarnings("serial")
 public abstract class InternetNodeOS extends SystemSoftware {
 
-    /** Das lokale Dateisystem eines Rechners */
+    /** The filesystem of the OS */
     private FiliusFileSystem filesystem;
 
     /**
-     * Die installierten Anwendungen. Sie werden mit dem Anwendungsnamen als Schluessel in einer HashMap gespeichert.
+     * HashMap of the OS installed applications. Each key is an application class name and 
+     * the corresponding value is an Application.
      */
     private HashMap<String, Application> installedApps;
 
@@ -117,13 +118,14 @@ public abstract class InternetNodeOS extends SystemSoftware {
      */
     private Ethernet ethernet;
 
+    
     /**
-     * Konstruktor fuer das Betriebssystem eines Internetknotens. Hier werden
+     * Constructor of the operating system of an Internet node.
      * <ul>
-     * <li>die Schichten initialisiert,</li>
-     * <li>die installierten Anwendungen zurueck gesetzt,</li>
-     * <li>das Dateisystem initialisiert,</li>
-     * <li>der DNS-Client erzeugt.</li>
+     * <li>the layers are initialized,</li>
+     * <li>the installed applications are reset,</li>
+     * <li>the filesysem is initialized,</li>
+     * <li>the DNS client is created.</li>
      * </ul>
      */
     public InternetNodeOS() {
@@ -143,7 +145,7 @@ public abstract class InternetNodeOS extends SystemSoftware {
         tcp = new TCP(this);
         udp = new UDP(this);
 
-        this.filesystem = new FiliusFileSystem();
+        filesystem = new FiliusFileSystem();
 
         dnsclient = new Resolver();
         dnsclient.setSystemSoftware(this);
@@ -155,6 +157,10 @@ public abstract class InternetNodeOS extends SystemSoftware {
                 + vermittlung.hashCode() + "\n" + "\tICMP: " + icmpVermittlung.hashCode() + "\n" + "\tTCP: "
                 + tcp.hashCode() + "\n" + "\tUDP: " + udp.hashCode());
     }    
+    
+    public InternetNode getNode() {
+        return (InternetNode) super.getNode();
+    }  
 
     /**
      * Methode zum starten der Protokoll-Threads und der Anwendungen.
@@ -179,10 +185,8 @@ public abstract class InternetNodeOS extends SystemSoftware {
 
         printDebugInfo();
 
-        for (Application anwendung : installedApps.values()) {
-            if (anwendung != null) {
-                anwendung.startThread();
-            }
+        for (Application app : installedApps.values()) {
+            if (app != null)  app.startThread();            
         }
     }
 
@@ -212,15 +216,15 @@ public abstract class InternetNodeOS extends SystemSoftware {
 
         dnsclient.stopThread();
 
-        for (Application anwendung : installedApps.values()) {
-            anwendung.stopThread();
+        for (Application app : installedApps.values()) {
+            app.stopThread();
         }
     }
 
     private void printDebugInfo() {
         Main.debug.println("DEBUG (" + this.hashCode() + "): start InternetNodeOS");
-        if (this.getNode() != null) {
-            Main.debug.println("DEBUG (" + this.hashCode() + ") - Hostname = " + this.getNode().getDisplayName());
+        if (getNode() != null) {
+            Main.debug.println("DEBUG (" + this.hashCode() + ") - Hostname = " + getNode().getDisplayName());
             Main.debug.print("DEBUG (" + this.hashCode() + ") - Hardwaretyp = '");
             if (getNode() instanceof filius.hardware.knoten.Notebook) {
                 Main.debug.println("Notebook'");
@@ -255,7 +259,7 @@ public abstract class InternetNodeOS extends SystemSoftware {
             Main.debug.println("DEBUG (" + this.hashCode() + ")      - ICMP T = " + ICMPthread.hashCode());
         Main.debug.println("DEBUG (" + this.hashCode() + ") - TCP = " + tcp.hashCode());
         Main.debug.println("DEBUG (" + this.hashCode() + ") - UDP = " + udp.hashCode());
-        if (this.getNode() != null) {
+        if (getNode() != null) {
             if (getNode() instanceof Notebook) {
                 NetworkInterface nic = ((NetworkInterface) ((Notebook) getNode()).getNICList().get(0));
                 Main.debug.println(
@@ -351,9 +355,8 @@ public abstract class InternetNodeOS extends SystemSoftware {
      */
     public String getMACAddress() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), getMACAddress()");
-          
-        InternetNode node = (InternetNode) getNode();
-        NetworkInterface nic = (NetworkInterface) node.getNIC0();
+ 
+        NetworkInterface nic = getNode().getNIC0();
 
         if (nic != null) return nic.getMac();
         else             return null;
@@ -365,14 +368,12 @@ public abstract class InternetNodeOS extends SystemSoftware {
      */
     public String getIPAddress() {
   
-        InternetNode node = (InternetNode) getNode();
-
         String ip = null;
         
-        ListIterator<NetworkInterface> it = node.getNICList().listIterator();
-        while (it.hasNext()) {
-        	NetworkInterface nic = it.next();
-            ip = nic.getIp();
+        ListIterator<NetworkInterface> it = getNode().getNICList().listIterator();
+        while (it.hasNext()) {      
+        	
+            ip = it.next().getIp();
 
             // search for a public IP
             if (!(ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("0.") || ip.startsWith("127."))) {
@@ -390,15 +391,16 @@ public abstract class InternetNodeOS extends SystemSoftware {
     public void setIPAddress(String ip) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), setIPAddress(" + ip + ")");
                
-        InternetNode node = (InternetNode) getNode();
+        InternetNode node = getNode();
         
         ip = IP.ipCheck(ip);
         if (ip != null && EntryValidator.isValid(ip, EntryValidator.musterIpAdresse)) {
         	if (!node.getNIC0().getIp().equals(ip)) {
+        		
         		node.getNIC0().setIp(ip);
         		
         		// notify the JNodeLabel and GUIDesktopWindow
-        		fireIPChange(((InternetNode)getNode()).getDisplayName());
+        		fireIPChange(node.getDisplayName());
         	}            
         }
     }
@@ -409,14 +411,11 @@ public abstract class InternetNodeOS extends SystemSoftware {
      */
     public String getSubnetMask() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), getSubnetMask()");
-        
-        InternetNode node;
 
-        if (getNode() instanceof InternetNode) {
-            node = (InternetNode) getNode();
-            return ((NetworkInterface) node.getNICList().get(0)).getSubnetMask();
-        }
-        return null;
+        NetworkInterface nic = getNode().getNIC0();
+
+        if (nic != null) return nic.getSubnetMask();
+        else             return null;
     }
     
     /**
@@ -426,7 +425,7 @@ public abstract class InternetNodeOS extends SystemSoftware {
     public void setSubnetMask(String mask) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), setSubnetMask(" + mask + ")");
         
-        InternetNode node = (InternetNode) getNode();
+        InternetNode node = getNode();
         
         mask = IP.ipCheck(mask);
         if (mask != null && EntryValidator.isValid(mask, EntryValidator.musterSubNetz)) {
@@ -445,8 +444,7 @@ public abstract class InternetNodeOS extends SystemSoftware {
     public String getStandardGateway() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), getStandardGateway()");
         
-        InternetNode node = (InternetNode) getNode();
-        NetworkInterface nic = (NetworkInterface) node.getNIC0();
+        NetworkInterface nic = getNode().getNIC0();
 
         if (nic != null) return nic.getGateway();
         else             return null;
@@ -459,20 +457,16 @@ public abstract class InternetNodeOS extends SystemSoftware {
      * @param gateway
      *            IP-Adresse der Netzwerkkarten als String
      */
-    public void setStandardGateway(String gateway) {
+    @SuppressWarnings("deprecation")
+	public void setStandardGateway(String gateway) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), setStandardGateway(" + gateway + ")");
-        
-        InternetNode node = (InternetNode) getNode();   
       
         gateway = (gateway != null && gateway.trim().equals("")) ? gateway.trim() : IP.ipCheck(gateway);
 
         if (gateway != null && EntryValidator.isValid(gateway, EntryValidator.musterIpAdresseAuchLeer)) {
          
-        	Iterator<NetworkInterface> it = node.getNICList().listIterator();
-        	while (it.hasNext()) {
-        		NetworkInterface nic = it.next();
-        		nic.setGateway(gateway);
-        	}
+        	Iterator<NetworkInterface> it = getNode().getNICList().listIterator();        	
+        	while (it.hasNext())  it.next().setGateway(gateway);        	
         }
     }
     
@@ -483,8 +477,7 @@ public abstract class InternetNodeOS extends SystemSoftware {
     public String getDNSServer() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), getDNSServer()");
         
-        InternetNode node = (InternetNode) getNode();
-        NetworkInterface nic = (NetworkInterface) node.getNIC0();
+        NetworkInterface nic = getNode().getNIC0();
 
         if (nic != null) return nic.getDns();
         else             return null;
@@ -494,22 +487,19 @@ public abstract class InternetNodeOS extends SystemSoftware {
      * Methode fuer den Zugriff auf die IP-Adresse des DNS-Servers der aller Netzwerkkarten. Das ist eine Methode des
      * Entwurfsmusters Fassade
      */
-    public void setDNSServer(String dns) {
+    @SuppressWarnings("deprecation")
+	public void setDNSServer(String dns) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), setDNSServer(" + dns + ")");
-        
-        InternetNode node = (InternetNode) getNode();
-    
+            
         dns = (dns != null && dns.trim().equals("")) ? dns.trim() : IP.ipCheck(dns);
 
         if (dns != null && EntryValidator.isValid(dns, EntryValidator.musterIpAdresseAuchLeer)) {
 
-        	Iterator<NetworkInterface> it = node.getNICList().listIterator();
-        	while (it.hasNext()) {
-        		NetworkInterface nic = it.next();
-        		nic.setDns(dns);
-        	}
+        	Iterator<NetworkInterface> it = getNode().getNICList().listIterator();
+        	while (it.hasNext())  it.next().setDns(dns);
+        	
         	// notify the JNodeLabel
-        	fireDNSChange(((InternetNode)getNode()).getDisplayName());
+        	fireDNSChange(getNode().getDisplayName());
         }
     }
 
@@ -547,137 +537,19 @@ public abstract class InternetNodeOS extends SystemSoftware {
      * Methode fuer den Zugriff auf die Hash-Map zur Verwaltung der installierten Anwendungen. Diese Methode wird
      * benoetigt, um den Anforderungen an JavaBeans gerecht zu werden.
      */
-    public void setInstalledApps(HashMap<String, Application> applications) {
+    public void setInstalledApps(HashMap<String, Application> installedApps) {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), setInstalledApps()");
         
-        this.installedApps = applications;
-        // printInstallierteAnwendungen();
-    }
-
-    /**
-     * Methode zur Ausgabe auf der aktuell installierten Anwendungen auf der Standardausgabe
-     */
-    private void printInstalledApps() {
-        Iterator<Entry<String, Application>> it = installedApps.entrySet().iterator();
-
-        Main.debug.println("\tInternetNodeOS: installierte Anwendungen:");
-        while (it.hasNext()) {
-            //Main.debug.println("\t  - " + ((Entry) it.next()).getKey().toString());
-            Main.debug.println("\t  - " + it.next().getKey());
-        }
-        Main.debug.println("\t  ges: " + installedApps.toString());
+        this.installedApps = installedApps;
+        // printInstalledApps();
     }
     
-    public boolean uninstallApp(String applicationName) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), uninstallApp(" + applicationName + ")");
-        
-        printInstalledApps(); // DEBUG
-        Application application;
-
-        if (applicationName == null)
-            return false;
-        application = (Application) installedApps.get(applicationName);
-        if (application == null) {
-            return false;
-        } else {
-            installedApps.remove(application.getAppName());
-            return true;
-        }
-    }
-
-    /**
-     * Methode fuer den Zugriff auf eine bereits installierte Anwendung.
-     * 
-     * @param appClass
-     *            Klasse der Anwendung
-     * @return das Programm / die Anwendung
-     */
-    public Application getSoftware(String appClass) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), getSoftware(" + appClass + ")");
-
-        if (appClass == null) return null;
-        
-        return (Application) installedApps.get(appClass);
-    }
-
-    /**
-     * Methode zum Entfernen einer installierten Anwendung.
-     * 
-     * @param appClass
-     *            Klasse der zu entfernenden Anwendung
-     * @return ob eine Anwendung entfernt wurde
-     */
-    public boolean removeSoftware(String appClass) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), removeSoftware(" + appClass + ")");
-        
-        printInstalledApps(); // DEBUG
-        Iterator<Entry<String, Application>> it = installedApps.entrySet().iterator();
-
-        while (it.hasNext()) {
-            //if (appClass.equals((String) ((Entry) it.next()).getKey())) {
-            if (appClass.equals(it.next().getKey())) {
-                it.remove();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean installSoftware(String appClass) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), installSoftware(" + appClass + ")");
-        
-        printInstalledApps(); // DEBUG
-        Application neueAnwendung = null;
-        boolean erfolg = false;
-        List<HashMap<String, String>> liste = null;
-        HashMap<String, String> tmpMap;
-        Class<?> cl;
-        ListIterator<HashMap<String, String>> it;
-
-        if (getSoftware(appClass) != null) {
-            // Main.debug.println(klassenname + " ist bereits installiert!");
-            return false;
-        } else {
-            try {
-                liste = Information.getInstance().ladeProgrammListe();
-            } catch (Exception e) {
-                e.printStackTrace(Main.debug);
-                return false;
-            }
-
-            it = liste.listIterator();
-            while (it.hasNext() && !erfolg) {
-                tmpMap = it.next();
-                if (appClass.equals((String) tmpMap.get("Klasse"))) {
-
-                    try {
-                        cl = Class.forName(appClass, true,
-                                FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
-                        try {
-                            neueAnwendung = (Application) cl.getConstructor().newInstance();
-                            neueAnwendung.setSystemSoftware(this);
-                        } catch (Exception e) {
-                            e.printStackTrace(Main.debug);
-                        }
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace(Main.debug);
-                    }
-                    if (neueAnwendung != null) {
-                        installedApps.put(appClass, neueAnwendung);
-                        erfolg = true;
-                    }
-                }
-            }
-        }
-        return erfolg;
-    }
-
     /**
      * Methode zur Abfrage aller aktuell installierter Anwendungen
      * 
      * @return ein Array der Anwendungsnamen
      */
-    public Application[] getInstalledSoftwares() {
+    public Application[] getInstalledAppsArray() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), getInstalledSoftwares()");
         
         Iterator<Entry<String, Application>>  it = installedApps.entrySet().iterator();
@@ -687,8 +559,116 @@ public abstract class InternetNodeOS extends SystemSoftware {
             applications[i] = it.next().getValue();
         }
 
-        // printInstallierteAnwendungen();
+        // printInstalledApps();
 
         return applications;
-    }    
+    }  
+
+    /**
+     * Methode fuer den Zugriff auf eine bereits installierte Anwendung.
+     * 
+     * @param appClassName
+     *            Klasse der Anwendung
+     * @return das Programm / die Anwendung
+     */
+    public Application getApp(String appClassName) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), getSoftware(" + appClassName + ")");
+
+        if (appClassName == null) return null;
+        
+        return (Application) installedApps.get(appClassName);
+    }
+
+    /**
+     * Create an instance of the application the class name of which is given 
+     * and then add it to the list of the installed applications.
+     *  
+     * @param appClassName
+     * @return
+     */
+    public boolean installApp(String appClassName) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), installApp(" + appClassName + ")");        
+        //printInstalledApps(); // DEBUG        
+        
+        // Install application only once
+        if (getApp(appClassName) != null) return false;
+        
+        Application app = createApp(appClassName);
+		if (app == null) return false;
+		
+		installedApps.put(appClassName, app);
+		return true;   
+    }  
+    
+    /** 
+     * <b>createApp</b> creates an instance of Application based on the application class name
+     * 
+     * @param appClassName
+     * @return An instance of Application
+     */
+    private Application createApp(String appClassName) {
+    	
+    	Application app = null;
+		try {
+			Class<?> cl = Class.forName(appClassName, true, FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
+			try {	
+				app = (Application) cl.getConstructor().newInstance();
+				app.setSystemSoftware(this);
+			} catch (Exception e) {
+				e.printStackTrace(Main.debug);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace(Main.debug);
+		}
+		return app;
+    }
+
+    /**
+     * Methode zum Entfernen einer installierten Anwendung.
+     * 
+     * @param appClassName
+     *            Klasse der zu entfernenden Anwendung
+     * @return ob eine Anwendung entfernt wurde
+     */
+    public boolean removeApp(String appClassName) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), removeApp(" + appClassName + ")");
+        //printInstalledApps(); // DEBUG
+        
+        Iterator<Entry<String, Application>> it = installedApps.entrySet().iterator();
+
+        while (it.hasNext()) {
+            if (it.next().getKey().equals(appClassName)) {
+                it.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+//    /**
+//     * Methode zur Ausgabe auf der aktuell installierten Anwendungen auf der Standardausgabe
+//     */
+//    private void printInstalledApps() {
+//        Iterator<Entry<String, Application>> it = installedApps.entrySet().iterator();
+//
+//        Main.debug.println("\tInternetNodeOS: installierte Anwendungen:");
+//        while (it.hasNext()) {
+//            //Main.debug.println("\t  - " + ((Entry) it.next()).getKey().toString());
+//            Main.debug.println("\t  - " + it.next().getKey());
+//        }
+//        Main.debug.println("\t  ges: " + installedApps.toString());
+//    }    
+    
+//    public boolean uninstallApp(String appClassName) {
+//        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetNodeOS), uninstallApp(" + appClassName + ")");
+//        printInstalledApps(); // DEBUG
+// 
+//        if (appClassName == null) return false;
+//        
+//        Application app = installedApps.get(appClassName);
+//        if (app == null) return false;
+//
+//        installedApps.remove(app.getAppName());
+//        return true;     
+//    }
 }

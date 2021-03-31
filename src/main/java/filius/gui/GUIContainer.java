@@ -134,9 +134,9 @@ public class GUIContainer implements Serializable, I18n {
     private JCablePanel designCable;             
     
     /** Marquee while still being constructed */
-    private JMarqueePanel designTempMarquee;    
+    private JMarqueePanel designTempMarquee;
     /** Marquee once constructed */
-    private JMarqueePanel designMarquee;        
+    private JMarqueePanel designMarquee;
 
     // Action mode elements
     private JScrollPane actionPane;
@@ -227,7 +227,7 @@ public class GUIContainer implements Serializable, I18n {
         designListenerPanel.setOpaque(false);
         designLayeredPane.add(designListenerPanel, ACTIVE_LISTENER_LAYER);
 
-        /* tempDesignMarquee: area covered during mouse pressed, i.e., area with components to be selected */
+        /* designTempMarquee: area covered during mouse pressed, i.e., area with components to be selected */
         designTempMarquee = new JMarqueePanel();
         designTempMarquee.setBounds(0, 0, 0, 0);
         designTempMarquee.setBackgroundImage("gfx/allgemein/auswahl.png");
@@ -365,11 +365,7 @@ public class GUIContainer implements Serializable, I18n {
     public void initDesignListeners() {    
 
         /*
-         * Wird auf ein Item der Sidebar geklickt, so wird ein neues Vorschau-Label mit dem entsprechenden Icon
-         * erstellt.
-         * 
-         * Wird die Maus auf dem Entwurfspanel losgelassen, während ein Item gedragged wird, so wird eine neue
-         * Komponente erstellt.
+         * Begins and ends the creation of a new node by dragging a node from the left side bar 
          */
         designSidebarScrollpane.addMouseListener(new MouseInputAdapter() {
         	
@@ -378,8 +374,8 @@ public class GUIContainer implements Serializable, I18n {
                 JNodeLabel button = designSidebar.findButtonAt(e.getX(), e.getY() + designSidebarScrollpane.getVerticalScrollBar().getValue());
                 if (button != null) {
                     updateDragNode(button.getType(), e.getX() + getXOffset() - designSidebarScrollpane.getWidth(), e.getY() + getYOffset());
-                    // The exact location depends on the size of the dragDropNode which is only 
-                    // determined in method updateDragDropNode. Hence the call below. 
+                    // The exact location depends on the size of the dragNode which is only 
+                    // determined in method updateDragNode. Hence the call below. 
                     dragNode.setLocation(dragNode.getX() - dragNode.getWidth()/2, dragNode.getY() - dragNode.getHeight()/2); 
                     GUIEvents.getInstance().resetAndHideCablePreview();                    
                 }
@@ -400,8 +396,7 @@ public class GUIContainer implements Serializable, I18n {
         });
 
         /*
-         * Sofern die Drag & Drop Vorschau sichtbar ist, wird beim draggen der Maus die entsprechende Vorschau auf die
-         * Mausposition verschoben.
+         * Updates the position of the dragged node
          */
         designSidebarScrollpane.addMouseMotionListener(new MouseInputAdapter() {
         	
@@ -726,6 +721,8 @@ public class GUIContainer implements Serializable, I18n {
     	
     	if (nodeItem == null) return;
     	
+    	Node node = nodeItem.getNode();
+    	
     	// Hide the configuration panel
         setConfigPanel(null);
         
@@ -733,21 +730,21 @@ public class GUIContainer implements Serializable, I18n {
         removeCablesConnectedTo(nodeItem);
         
         // Remove the simulation mode's elements related to the item
-        if (nodeItem.getNode() instanceof Host) {
+        if (node instanceof Host) {
         	// Remove the desktop's JFrame
-        	removeDesktopWindow(nodeItem);
+        	removeDesktopWindow((Host) node);
         	
         	// Remove the table in ExchangeDialog        	
         	String mac = ((Host)nodeItem.getNode()).getMac();
         	getPacketsAnalyzerDialog().removeTable(mac, null);
         	
-        } else if (nodeItem.getNode() instanceof Switch) {
+        } else if (node instanceof Switch) {
         	// Remove the SAT table's JFrame
-        	SatViewerControl.getInstance().removeViewer((Switch)nodeItem.getNode());
+        	SatViewerControl.getInstance().removeViewer((Switch) node);
         	
-        } else if (nodeItem.getNode() instanceof Router) {
+        } else if (node instanceof Router) {
         	// Remove the tables in ExchangeDialog
-        	List<String> macs = ((Router)nodeItem.getNode()).getMACList();
+        	List<String> macs = ((Router) node).getMACList();
         	for (String mac: macs) getPacketsAnalyzerDialog().removeTable(mac, null);
         }
         
@@ -1044,38 +1041,29 @@ public class GUIContainer implements Serializable, I18n {
     //  Desktops methods
     //-----------------------------------------------------------------------------------------
 
-    public void showDesktop(GUINodeItem hardwareItem) {
+    public void showDesktop(Host host) {
+    	
+    	if (host == null) return;
+    	
+    	HostOS hostOS = host.getOS();  
 
-        if (hardwareItem == null) return;
-        if (!(hardwareItem.getNode() instanceof Host)) return;
-        	
-        GUIDesktopWindow desktop = null;
-        boolean fertig = false;
+        // Look for the desktop in the list of already created desktops
+        for (GUIDesktopWindow desktop: desktopWindowList) {
+    		if (desktop.getOS() == hostOS) {
+    			desktop.setVisible(true);
+    	        return;
+    		}
+    	}
 
-        HostOS nodeOS = ((Host) hardwareItem.getNode()).getOS();
-
-        ListIterator<GUIDesktopWindow> it = desktopWindowList.listIterator();
-        while (!fertig && it.hasNext()) {
-        	desktop = it.next();
-        	if (nodeOS == desktop.getOS()) {
-        		desktop.setVisible(true);
-        		fertig = true;
-        	}
-        }
-
-        if (!fertig) {
-        	desktop = new GUIDesktopWindow(nodeOS);
-        	setDesktopPos(desktop);
-        	desktop.setVisible(true);
-        	desktop.toFront();
-
-        	fertig = true;
-        }
-
-        if (desktop != null)  desktopWindowList.add(desktop);
+        // Not yet in the list? We create it now.
+        GUIDesktopWindow desktop = new GUIDesktopWindow(hostOS);        
+        setDesktopInitialPos(desktop);
+        desktop.setVisible(true);
+        //desktop.toFront();   // <- Really necessary?
+        desktopWindowList.add(desktop);
     }
 
-    private void setDesktopPos(GUIDesktopWindow tmpDesktop) {
+    private void setDesktopInitialPos(GUIDesktopWindow tmpDesktop) {
     	
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension desktopSize = tmpDesktop.getSize();
@@ -1084,52 +1072,35 @@ public class GUIContainer implements Serializable, I18n {
         int totalNumberOfDesktops = numberOfDesktopsPerRow * numberOfDesktopsPerColumn;
         int xPos = MIN_DESKTOP_SPACING;
         int yPos = MIN_DESKTOP_SPACING;
-        if (desktopWindowList.size() < totalNumberOfDesktops
-                && !Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.STACK)) {
+        
+        if (desktopWindowList.size() < totalNumberOfDesktops && !Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.STACK)) {
             if (Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.COLUMN)) {
-                xPos = MIN_DESKTOP_SPACING
-                        + (desktopWindowList.size() / numberOfDesktopsPerColumn) * (int) desktopSize.getWidth();
-                yPos = MIN_DESKTOP_SPACING
-                        + (desktopWindowList.size() % numberOfDesktopsPerColumn) * (int) desktopSize.getHeight();
+                xPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() / numberOfDesktopsPerColumn) * (int) desktopSize.getWidth();
+                yPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() % numberOfDesktopsPerColumn) * (int) desktopSize.getHeight();
             } else {
-                xPos = MIN_DESKTOP_SPACING
-                        + (desktopWindowList.size() % numberOfDesktopsPerRow) * (int) desktopSize.getWidth();
-                yPos = MIN_DESKTOP_SPACING
-                        + (desktopWindowList.size() / numberOfDesktopsPerRow) * (int) desktopSize.getHeight();
+                xPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() % numberOfDesktopsPerRow) * (int) desktopSize.getWidth();
+                yPos = MIN_DESKTOP_SPACING + (desktopWindowList.size() / numberOfDesktopsPerRow) * (int) desktopSize.getHeight();
             }
         } else {
             int overlappingDesktops = Information.getDesktopWindowMode().equals(GUIDesktopWindow.Mode.STACK)
-                    ? desktopWindowList.size()
-                    : desktopWindowList.size() - totalNumberOfDesktops;
+                                      ? desktopWindowList.size()
+                                      : desktopWindowList.size() - totalNumberOfDesktops;
             xPos = (overlappingDesktops + 1) * 20;
             yPos = (overlappingDesktops + 1) * 20;
-            if (xPos + desktopSize.getWidth() > screenSize.getWidth()) {
-                xPos = MIN_DESKTOP_SPACING;
-            }
-            if (yPos + desktopSize.getHeight() > screenSize.getHeight()) {
-                yPos = MIN_DESKTOP_SPACING;
-            }
+            if (xPos + desktopSize.getWidth() > screenSize.getWidth())    xPos = MIN_DESKTOP_SPACING;       
+            if (yPos + desktopSize.getHeight() > screenSize.getHeight())  yPos = MIN_DESKTOP_SPACING;        
         }
         tmpDesktop.setBounds(xPos, yPos, tmpDesktop.getWidth(), tmpDesktop.getHeight());
     }
-
-    public void addDesktopWindow(GUINodeItem hardwareItem) {
-    	
-    	if (hardwareItem == null || !(hardwareItem.getNode() instanceof Host)) return;
-        
-        HostOS bs = (HostOS) ((Host) hardwareItem.getNode()).getSystemSoftware();
-        GUIDesktopWindow tmpDesktop = new GUIDesktopWindow(bs);
-        desktopWindowList.add(tmpDesktop);      
-    }
     
-    public void removeDesktopWindow(GUINodeItem hardwareItem) {
+    public void removeDesktopWindow(Host host) {
     	
-    	if (hardwareItem == null || !(hardwareItem.getNode() instanceof Host)) return;
+    	if (host == null) return;
     	
-    	HostOS bs = (HostOS)((Host) hardwareItem.getNode()).getSystemSoftware();
+    	HostOS hostOS = (HostOS) host.getSystemSoftware();
     	
     	for (GUIDesktopWindow desktop: desktopWindowList) {
-    		if (desktop.getOS() == bs) {
+    		if (desktop.getOS() == hostOS) {
     			desktop.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     	        desktop.dispatchEvent(new WindowEvent(desktop, WindowEvent.WINDOW_CLOSING));
     	        desktopWindowList.remove(desktop);

@@ -72,23 +72,19 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 	private DefaultListModel<String> lmInstalled;
 	private DefaultListModel<String> lmAvailable;
 
-	private GUIDesktopPanel dp;
+	private GUIDesktopPanel desktopPanel;
 
-	private List<HashMap<String, String>> programme = null;
+	private List<HashMap<String, String>> installableSoftwareList = null;
 	
 
-	public GUIInstallationsDialog(GUIDesktopPanel dp) {
+	public GUIInstallationsDialog(GUIDesktopPanel desktopPanel) {
 		super();
-		c = this.getContentPane();
-		this.dp = dp;
-
-		try {
-			programme = Information.getInstance().ladeProgrammListe();
-		} catch (IOException e) {
-			e.printStackTrace(Main.debug);
-		}
-
-		initListen();
+		c = getContentPane();
+		this.desktopPanel = desktopPanel;
+		
+		installableSoftwareList = Information.getInstance().getInstallableSoftwareList();
+	
+		initListener();
 		initButtons();
 
 		/* Title above lists */
@@ -144,20 +140,27 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		gesamtBox.add(Box.createVerticalStrut(10));
 
 		c.add(gesamtBox, BorderLayout.CENTER);
-		this.setClosable(true);
-		this.setMaximizable(true);
-		this.setResizable(true);
-		this.setBounds(0, 40, 480, 360);
-		this.setTitle(messages.getString("installationsdialog_msg1"));
-		this.setVisible(true);
-		this.setAnwendungsIcon("gfx/desktop/icon_softwareinstallation.png");
+		setClosable(true);
+		setMaximizable(true);
+		setResizable(true);
+		setBounds(0, 40, 480, 360);
+		setTitle(messages.getString("installationsdialog_msg1"));
+		setVisible(true);
+		setApplicationIcon("gfx/desktop/icon_softwareinstallation.png");
+	}	
+
+	public void setApplicationIcon(String filename) {
+		
+		ImageIcon image = new ImageIcon(getClass().getResource("/" + filename));
+		image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
+		this.setFrameIcon(image);
 	}
 
 	private GUIDesktopPanel getDesktopPanel() {
-		return dp;
+		return desktopPanel;
 	}
 
-	private void hinzufuegen() {
+	private void add() {
 		Vector<String> vLoeschen = new Vector<String>();
 		int[] selektiertIndices = availableSoftware.getSelectedIndices();
 
@@ -174,7 +177,7 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		}
 	}
 
-	private void entfernen() {
+	private void remove() {
 		int[] selektiertIndices = installedSoftware.getSelectedIndices();
 		Vector<String> hinzu = new Vector<String>();
 
@@ -191,49 +194,51 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		}
 	}
 
-	private void aenderungenSpeichern() {
-		InternetNodeOS bs = getDesktopPanel().getOS();
-		Application anwendung;
+	private void saveChanges() {
+		
+		InternetNodeOS nodeOS = getDesktopPanel().getOS();
 
-		for (Map<String, String> appInfo : programme) {
+		for (Map<String, String> appInfo : installableSoftwareList) {
+			
 			for (int i = 0; i < lmInstalled.getSize(); i++) {
-				if (lmInstalled.getElementAt(i).equals(appInfo.get("Anwendung"))
-				        && bs.getSoftware(appInfo.get("Klasse").toString()) == null) {
-					bs.installSoftware(appInfo.get("Klasse").toString());
+				if (lmInstalled.getElementAt(i).equals(appInfo.get("Anwendung")) &&
+				    nodeOS.getApp(appInfo.get("Klasse").toString()) == null) {
+					
+					nodeOS.installApp(appInfo.get("Klasse").toString());
 					          
-					anwendung = bs.getSoftware(appInfo.get("Klasse").toString());
-					if (anwendung != null) anwendung.startThread();  									             
+					Application app = nodeOS.getApp(appInfo.get("Klasse").toString());
+					if (app != null) app.startThread();  									             
 				}
 			}
 
 			for (int i = 0; i < lmAvailable.getSize(); i++) {
 				if (lmAvailable.getElementAt(i).equals(appInfo.get("Anwendung"))) {
-					anwendung = bs.getSoftware(appInfo.get("Klasse").toString());
-					if (anwendung != null) {
-						anwendung.stopThread();
-						bs.removeSoftware(appInfo.get("Klasse").toString());
+					
+					Application app = nodeOS.getApp(appInfo.get("Klasse").toString());
+					if (app != null) {
+						app.stopThread();
+						nodeOS.removeApp(appInfo.get("Klasse").toString());
 					}
 				}
 			}
 		}
 
-		dp.updateApplications();
+		desktopPanel.updateIconPanel();
 	}
 
 	private void initButtons() {
 		/* ActionListener */
 		ActionListener al = new ActionListener() {
 
-			public void actionPerformed(ActionEvent arg0) {
-				if (arg0.getActionCommand().equals(addButton.getActionCommand())) {
-					hinzufuegen();
-				} else if (arg0.getActionCommand().equals(removeButton.getActionCommand())) {
-					entfernen();
-				} else if (arg0.getActionCommand() == confirmButton.getText()) {
-					aenderungenSpeichern();
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals(addButton.getActionCommand())) {
+					add();
+				} else if (e.getActionCommand().equals(removeButton.getActionCommand())) {
+					remove();
+				} else if (e.getActionCommand() == confirmButton.getText()) {
+					saveChanges();
 					setVisible(false);
 				}
-
 			}
 		};
 
@@ -252,32 +257,26 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		confirmButton.addActionListener(al);
 	}
 
-	private void initListen() {
-		Application[] anwendungen;
-		String awKlasse;
-		InternetNodeOS bs;
-
+	private void initListener() {
+		
 		lmInstalled = new DefaultListModel<String>();
 		lmAvailable = new DefaultListModel<String>();
 
-		bs = dp.getOS();
+		InternetNodeOS nodeOS = desktopPanel.getOS();
 
 		/* Installierte Anwendung auslesen */
-		anwendungen = bs.getInstalledSoftwares();
+		Application[] apps = nodeOS.getInstalledAppsArray();
 
-		for (int i = 0; i < anwendungen.length; i++) {
-			if (anwendungen[i] != null) {
-				lmInstalled.addElement(anwendungen[i].getAppName());
-			}
+		for (int i = 0; i < apps.length; i++) {
+			
+			if (apps[i] != null) lmInstalled.addElement(apps[i].getAppName());
 		}
 
-		if (programme != null) {
-			for (Map<String, String> programmInfo : programme) {
-				awKlasse = (String) programmInfo.get("Klasse");
-
-				if (dp.getOS().getSoftware(awKlasse) == null) {
-					lmAvailable.addElement(programmInfo.get("Anwendung"));
-				}
+		if (installableSoftwareList != null) {
+			for (Map<String, String> programmInfo : installableSoftwareList) {
+				
+				String appClassName = programmInfo.get("Klasse");
+				if (nodeOS.getApp(appClassName) == null) lmAvailable.addElement(programmInfo.get("Anwendung"));			
 			}
 		}
 
@@ -287,25 +286,21 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		installedSoftware.addMouseListener(new MouseListener() {
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
+			public void mouseReleased(MouseEvent e) {}
 
 			@Override
-			public void mousePressed(MouseEvent e) {
-			}
+			public void mousePressed(MouseEvent e) {}
 
 			@Override
-			public void mouseExited(MouseEvent e) {
-			}
+			public void mouseExited(MouseEvent e) {}
 
 			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
+			public void mouseEntered(MouseEvent e) {}
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					GUIInstallationsDialog.this.entfernen();
+					remove();
 				}
 			}
 		});
@@ -314,33 +309,23 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
 		availableSoftware.addMouseListener(new MouseListener() {
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
+			public void mouseReleased(MouseEvent e) {}
 
 			@Override
-			public void mousePressed(MouseEvent e) {
-			}
+			public void mousePressed(MouseEvent e) {}
 
 			@Override
-			public void mouseExited(MouseEvent e) {
-			}
+			public void mouseExited(MouseEvent e) {}
 
 			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
+			public void mouseEntered(MouseEvent e) {}
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					GUIInstallationsDialog.this.hinzufuegen();
+					add();
 				}
 			}
 		});
-	}
-
-	public void setAnwendungsIcon(String datei) {
-		ImageIcon image = new ImageIcon(getClass().getResource("/" + datei));
-		image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
-		this.setFrameIcon(image);
 	}
 }

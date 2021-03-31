@@ -26,7 +26,11 @@
 package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Observable;
 
 import javax.swing.AbstractAction;
@@ -41,75 +45,130 @@ import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.Information;
 import filius.software.system.HostOS;
 import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileNode;
 
 @SuppressWarnings("serial")
 public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 
-	/**
-	 *
-	 */
 	private JPanel backPanel;
+	private JLabel container;
+	private Image image;
+	private int imageWidth;
+	private int imageHeight;
+	private int curWidth;
+	private int curHeight;
+	
 
 	public GUIApplicationImageViewerWindow(final GUIDesktopPanel desktop, String appName) {
+		
 		super(desktop, appName);
 
+		initMenu();
+			
 		backPanel = new JPanel(new BorderLayout());
+		getContentPane().add(backPanel);
+		pack();		
+		
+		addComponentListener(new ComponentAdapter() {
+			
+            public void componentResized(ComponentEvent e) {
+            	super.componentResized(e);
+            	updateIcon();
+            }
+        });
+	}
+	
+	private void initMenu() {
+		
+		JMenu menu = new JMenu(messages.getString("imageviewer_msg1"));
 
-		JMenuBar mb = new JMenuBar();
-
-		JMenu menuDatei = new JMenu(messages.getString("imageviewer_msg1"));
-
-		menuDatei.add(new AbstractAction(messages.getString("imageviewer_msg2")) {
-
-			private static final long serialVersionUID = 1L;
+		menu.add(new AbstractAction(messages.getString("imageviewer_msg2")) {
 
 			public void actionPerformed(ActionEvent arg0) {
-				oeffnen();
+				open();
 			}
 		});
 
-		mb.add(menuDatei);
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(menu);
 
-		this.setJMenuBar(mb);
-
-		this.getContentPane().add(backPanel);
-		pack();
-
+		setJMenuBar(menuBar);		
 	}
 
-	public void oeffnen() {
-		DMTNFileChooser fc;
-		int rueckgabe;
-		FiliusFile aktuelleDatei;
-		String path;
-		ImageIcon image;
-
-		fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
-		rueckgabe = fc.openDialog();
+	public void open() {
+		
+		DMTNFileChooser fc = new DMTNFileChooser((HostOS) getApplication().getSystemSoftware());
+		int rueckgabe = fc.openDialog();
 
 		if (rueckgabe == DMTNFileChooser.OK) {
-			aktuelleDatei = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());
-			if (aktuelleDatei != null) {
-				this.setTitle(aktuelleDatei.getName());
-				Base64.decodeToFile(aktuelleDatei.getContent(), Information.getInstance().getTempPath()
-				        + aktuelleDatei.getName());
-
-				path = Information.getInstance().getTempPath() + aktuelleDatei.getName();
-				image = new ImageIcon(path);
-				JLabel titelgrafik = new JLabel(image);
-				backPanel.add(titelgrafik, BorderLayout.CENTER);
-				backPanel.updateUI();
-			} else {
-				Main.debug.println("ERROR (" + this.hashCode()
-				        + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
-			}
-
-		} else {
-			Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
+			
+			FiliusFile file = fc.getAktuellerOrdner().getFiliusFile(fc.getAktuellerDateiname());			
+			displayFile(file);
+		} 
+		else {
+			Main.debug.println("ERROR (" + hashCode() + "): Fehler beim oeffnen einer Datei");
 		}
+	}
+	
+	public void start(FiliusFileNode node, String[] param) {
+		
+		if (node != null) displayFile(node.getFiliusFile());		
+	}
+	
+	private void displayFile(FiliusFile file) {		
+
+		if (file == null) return;
+		
+		setTitle(file.getName());
+		
+		String path = Information.getInstance().getTempPath() + file.getName();		
+		Base64.decodeToFile(file.getContent(), path);	
+		
+		ImageIcon icon = new ImageIcon(path);
+		
+		image = icon.getImage(); 
+		imageWidth = icon.getIconWidth();
+		imageHeight = icon.getIconHeight();
+		
+		curWidth = 0;
+		curHeight = 0;
+			
+		updateIcon();	
+	}
+	
+	// Resize the icon so that it doesn't overflows from the backPanel
+	// Scale is 1 or less.
+	private void updateIcon() {
+		
+		int w = imageWidth;
+		int h = imageHeight;
+		
+		if (backPanel.getWidth() < w) {
+			
+			h = h * backPanel.getWidth() / w;
+			w = backPanel.getWidth();
+		}
+		
+		if (backPanel.getHeight() < h) {
+			
+			w = w * backPanel.getHeight() / h;
+			h = backPanel.getHeight();	
+		}
+		
+		if (w == curWidth && h == curHeight) return;
+		
+		curWidth = w;
+		curHeight = h;
+		
+		ImageIcon icon = new ImageIcon(image.getScaledInstance(w, h, Image.SCALE_DEFAULT));		
+		
+		if (container != null) backPanel.remove(container);		
+		container = new JLabel(icon);			
+		backPanel.add(container, BorderLayout.CENTER);
+		
+		backPanel.updateUI();	
 	}
 
 	public void update(Observable arg0, Object arg1) {
-
 	}
 }

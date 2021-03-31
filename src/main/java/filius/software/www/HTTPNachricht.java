@@ -32,6 +32,7 @@ import org.apache.commons.httpclient.util.URIUtil;
 
 import filius.Main;
 import filius.rahmenprogramm.I18n;
+import filius.software.system.FiliusFileSystem.FileType;
 
 public class HTTPNachricht implements I18n {
 
@@ -39,12 +40,15 @@ public class HTTPNachricht implements I18n {
 
     public static final String GET = "GET", POST = "POST";
 
-    public static final String TEXT_HTML = "text/html";
-    public static final String IMAGE_PNG = "image/png";
-    public static final String IMAGE_BMP = "image/bmp";
-    public static final String IMAGE_GIF = "image/gif";
-    public static final String IMAGE_JPG = "image/jpg";
     public static final String TEXT_PLAIN = "text/plain";
+    public static final String TEXT_HTML  = "text/html";
+    public static final String TEXT_CSS   = "text/css";
+    public static final String APP_XML    = "application/xml";
+    public static final String IMAGE_JPG  = "image/jpg";
+    public static final String IMAGE_PNG  = "image/png";    
+    public static final String IMAGE_GIF  = "image/gif";
+    public static final String IMAGE_BMP  = "image/bmp";
+    public static final String APP_OCTET  = "application/octet-stream";  // For unknown types  
 
     private String contentType = null;
 
@@ -301,13 +305,38 @@ public class HTTPNachricht implements I18n {
     public String getContentType() {
         return contentType;
     }
+    
+    /**
+     * @return the FileType corresponding to the content type
+     */
+    public FileType getFileType() {
+    	
+    	if      (contentType.equals(TEXT_PLAIN))    return FileType.TEXT;    	
+    	else if (contentType.equals(TEXT_HTML))     return FileType.HTML;
+    	else if (contentType.equals(TEXT_CSS))      return FileType.CSS;
+    	else if (contentType.equals(APP_XML))       return FileType.XML;   
+    	else if (contentType.equals(IMAGE_PNG))     return FileType.IMAGE_PNG;  
+    	else if (contentType.equals(IMAGE_JPG))     return FileType.IMAGE_JPG;  
+    	else if (contentType.equals(IMAGE_GIF))     return FileType.IMAGE_GIF;  
+    	else if (contentType.equals(IMAGE_BMP))     return FileType.IMAGE_BMP;  
+    	else                                        return FileType.UNKNOWN;
+    }
 
     /**
      * @param contentType
      *            the contentType to set
      */
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setContentType(FileType fileType) {
+    	
+    	if      (fileType == FileType.TEXT)       contentType = TEXT_PLAIN;    	
+    	else if (fileType == FileType.HTML)       contentType = TEXT_HTML;
+    	else if (fileType == FileType.CSS)        contentType = TEXT_CSS;
+    	else if (fileType == FileType.XML)        contentType = APP_XML;
+    	else if (fileType == FileType.IMAGE_PNG)  contentType = IMAGE_PNG;
+    	else if (fileType == FileType.IMAGE_JPG)  contentType = IMAGE_JPG;
+    	else if (fileType == FileType.IMAGE_GIF)  contentType = IMAGE_GIF;
+    	else if (fileType == FileType.IMAGE_BMP)  contentType = IMAGE_BMP;    	
+    	else                                      contentType = APP_OCTET;
     }
 
     /**

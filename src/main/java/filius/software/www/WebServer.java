@@ -41,6 +41,7 @@ import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetNodeOS;
+import filius.software.system.FiliusFileSystem.FileType;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
 
@@ -81,14 +82,14 @@ public class WebServer extends TCPServerAnwendung {
         super.setSystemSoftware(betriebssystem);
         FFS = betriebssystem.getFileSystem();
 
-        erzeugeStandardVerzeichnis();
+        createDefaultDirectory();
     }
 
     public void setzePlugIn(WebServerPlugIn pi) {
         plugins.put(pi.getPfad(), pi);
     }
 
-    public void erzeugeIndexDatei(String dateipfad) {
+    public void createIndexFile(String dateipfad) {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeIndexDatei(" + dateipfad + ")");
         String input;
@@ -99,7 +100,7 @@ public class WebServer extends TCPServerAnwendung {
             while ((input = reader.readLine()) != null) {
                 fullFile.append(input + "\n");
             }
-            erzeugeDatei("index", "html", fullFile.toString());
+            createFile("index", FileType.HTML, "html", fullFile.toString());
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
         }
@@ -127,7 +128,7 @@ public class WebServer extends TCPServerAnwendung {
     /**
      * erzeugt alle Dateien, fuer Fehlermeldungen etc. Die Dateien liegen als Textdateien im realen Ordner /konfig
      */
-    private void erzeugeStandardVerzeichnis() {
+    private void createDefaultDirectory() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeStandardVerzeichnis()");
 
@@ -136,16 +137,15 @@ public class WebServer extends TCPServerAnwendung {
         try {
             if (verzeichnis != null && !verzeichnis.hasChildNamed("index.html")) {
 
-                erzeugeIndexDatei(ResourceUtil
-                        .getResourcePath("tmpl/webserver_index_" + Information.getInstance().getLocale() + ".txt"));
+                createIndexFile(ResourceUtil.getResourcePath("tmpl/webserver_index_" + Information.getInstance().getLocale() + ".txt"));
 
                 // this was used for externally stored file... no longer working
                 // erzeugeDatei("splashscreen-mini", "png", Base64
                 // .encodeFromFile(Information.getInformation().getProgrammPfad()
                 // + "gfx/allgemein/splashscreen-mini.png"));
 
-                erzeugeDatei("splashscreen-mini", "png", Base64.encodeBytes(
-                        inputStreamToBytes(getClass().getResourceAsStream("/gfx/allgemein/splashscreen-mini.png"))));
+                createFile("splashscreen-mini", FileType.IMAGE_PNG, "png", Base64.encodeBytes(
+                           inputStreamToBytes(getClass().getResourceAsStream("/gfx/allgemein/splashscreen-mini.png"))));
             }
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
@@ -156,11 +156,12 @@ public class WebServer extends TCPServerAnwendung {
     /**
      * erzeugt eine Datei fuer das Dateisystem von Filius. Dieses arbeitet mit TreeNodes
      */
-    private void erzeugeDatei(String dateiname, String endung, String quellcode) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebServer), erzeugeDatei(" + dateiname + "," + endung + "," + quellcode + ")");
+    private void createFile(String dateiname, FileType type, String endung, String quellcode) {
+        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() +
+                           " (WebServer), erzeugeDatei(" + dateiname + "," + endung + "," + quellcode + ")");
+        
         String kompletteDateiName = dateiname + "." + endung;
-        FiliusFile datei = new FiliusFile(kompletteDateiName, endung, quellcode);
+        FiliusFile datei = new FiliusFile(kompletteDateiName, type, quellcode);
         verzeichnis.saveFiliusFile(datei);
     }
 

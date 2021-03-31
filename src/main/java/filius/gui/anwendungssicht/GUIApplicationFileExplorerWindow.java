@@ -29,33 +29,39 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.Enumeration;
-import java.util.Observable;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
-import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -63,34 +69,28 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import filius.gui.JDirTree;
+import filius.gui.JFileList;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
+import filius.software.system.FiliusFileSystem.FileType;
 import filius.software.system.FiliusFileSystem.errorCode;
 
 @SuppressWarnings("serial")
-public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
+public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow implements PropertyChangeListener {
     
     private FiliusFileSystem FFS;
     private String importExportPath = null;
     private FileFilter importExportFilter = null;
-
+    private GUIDesktopPanel desktop;
+    
     // Icons
-    private ImageIcon driveIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_drive.png"));
-    private ImageIcon closedDirIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_closedDirectory.png"));
-    private ImageIcon openDirIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_openDirectory.png"));
-    private ImageIcon genericFileIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_genericFile.png"));
-    private ImageIcon textFileIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_textFile.png"));
-    private ImageIcon htmlFileIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_htmlFile.png"));
-    private ImageIcon imageFileIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_imageFile.png"));
-    private ImageIcon soundFileIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_soundFile.png"));
-    private ImageIcon refreshIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_refresh.png"));
-    private ImageIcon newDirIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_newDirectory.png"));
-    private ImageIcon importIcon = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_import.png"));
+    private ImageIcon refreshIcon     = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_refresh.png"));
+    private ImageIcon newDirIcon      = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_newDirectory.png"));
+    private ImageIcon importIcon      = new ImageIcon(getClass().getResource("/gfx/desktop/explorer_import.png"));
     
     // Top components
     private JToolBar toolBar;
@@ -99,119 +99,39 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     private JButton btnNewDirectory;
     private JButton btnImport;
 
-    // Center components
-    private JTree tvDirs;
+    // Center components    
     private FiliusFileNode rootNode;
     private FiliusFileNode currentDirNode;
     private FiliusFileNode selectedNode;
     private FiliusFileNode copySourceNode = null;
     private FiliusFileNode cutSourceNode = null; 
+    
+    private JDirTree dirTree;    
     private JScrollPane tvsp;
-    private JList lvFiles;
-    private DefaultListModel fileList;
+    private JFileList fileList;
     private JScrollPane lvsp;
     private JSplitPane splitter;
 
     // Bottom components
-    private JToolBar statusBar;
-    private JLabel statusLbl;
+    //private JToolBar statusBar;
+    //private JLabel statusLbl;
 
-    // Tree model
-    private class expTreeModel extends DefaultTreeModel {
-		
-	    public expTreeModel(TreeNode root) {
-	       super(root, false);
-	    }
-
-		@Override
-        public boolean isLeaf(Object node) {
-			
-			return (((FiliusFileNode)node).getSubdirectoryCount() == 0);
-        }
-		
-		@Override
-		public int getChildCount(Object parent) {
-			
-			// Only count the subnodes that are subdirectories	 
-			// This relies on the fact that the FiliusFileSystem stores the
-			// subdirectories prior to the files for a given directory node.
-			return ((FiliusFileNode)parent).getSubdirectoryCount();
-	    }
-    }
-
-    // Tree renderer
-    private class expTreeRenderer extends DefaultTreeCellRenderer {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-
-            super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-            
-            if (expanded) setIcon(openDirIcon);
-            else	      setIcon(closedDirIcon);
- 
-            if (((FiliusFileNode) value).isRoot()) setIcon(driveIcon);
-
-            return this;
-        }
-    }
-
-    // List renderer
-    private class expListRenderer extends DefaultListCellRenderer {
-
-    	@Override
-    	public Component getListCellRendererComponent(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-
-    		FiliusFileNode node = (FiliusFileNode) value;
-    		
-    		if (node.isFile()) {
-    			setText(node.getName()+"  ("+String.valueOf(node.getSize())+" o)");
-    		} else {
-    			setText(node.getName());
-    		}
-
-    		switch (node.getType()) {
-    			case "directory": setIcon(closedDirIcon); break;
-    			case "image":     setIcon(imageFileIcon); break;
-    			case "sound":     setIcon(soundFileIcon); break;
-    			case "text":      setIcon(textFileIcon); break;
-    			case "web":       setIcon(htmlFileIcon); break;    			
-    			default:          setIcon(genericFileIcon); break;
-    		}    		
-
-            if (selected) {
-                setBackground(new Color(184, 207, 229));
-                setOpaque(true);
-            } else {
-                setOpaque(false);
-            }
-
-            Border border = null;
-            if (hasFocus) border = BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(99, 130, 191));
-            setBorder(border);
-
-            return this;
-        }
-    }
-
-    //*****************************************************************
-    // FileExplorerWindow
-    //*****************************************************************
     
     public GUIApplicationFileExplorerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
+        
         FFS = getApplication().getSystemSoftware().getFileSystem();
-        FFS.sortTree(); // Only necessary for older versions of the FFS (saved as Dateisystem)    <<< certainly not the best place
+        FFS.sortTree();    // Only required for older versions of the FFS (saved as Dateisystem) ; Move to ProjectManager?
         rootNode = FFS.getRoot();
         currentDirNode = rootNode;
+        this.desktop = desktop;
 
-        createComponents();
+        initComponents();        
         initListeners();
+        registerListeners();
     }
 
-    private void createComponents() {
+    private void initComponents() {
 
 		JPanel contentPane = (JPanel) getContentPane();
 
@@ -227,37 +147,47 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 		toolBar.addSeparator();
 
 		// Tool buttons
-		btnRefresh = new JButton(refreshIcon);
-		btnRefresh.setToolTipText("Refresh the display (F5)");        // << I18n
-		toolBar.add(btnRefresh);
-
+		Dimension d = new Dimension(22,22);
+		
 		btnNewDirectory = new JButton(newDirIcon);
-		btnNewDirectory.setToolTipText("Create a new subdirectory");  // << I18n
+		btnNewDirectory.setPreferredSize(d);
+		btnNewDirectory.setMargin(new Insets(0, 0, 0, 0));
+		btnNewDirectory.setToolTipText(messages.getString("fileexplorer_msg3"));  // New subdirectory
 		toolBar.add(btnNewDirectory);
 
 		btnImport = new JButton(importIcon);
-		btnImport.setToolTipText("Import a file");                    // << I18n  (same string as in popup menu below)
+		btnImport.setPreferredSize(d);
+		btnImport.setMargin(new Insets(0, 0, 0, 0));
+		btnImport.setToolTipText(messages.getString("fileexplorer_msg12"));       // Import a file
 		toolBar.add(btnImport);
+		
+		btnRefresh = new JButton(refreshIcon);
+		btnRefresh.setPreferredSize(d);
+		btnRefresh.setMargin(new Insets(0, 0, 0, 0));
+		btnRefresh.setToolTipText(messages.getString("fileexplorer_msg29"));      // Refresh the display (F5)
+		toolBar.add(btnRefresh);
 
 		contentPane.add(toolBar, BorderLayout.NORTH);
 
-		// Directories' treeview
-		tvDirs = new JTree(rootNode);		
-		tvDirs.setModel(new expTreeModel(rootNode));
-		tvDirs.setCellRenderer(new expTreeRenderer());
-		tvDirs.setSelectionPath(new TreePath(rootNode.getPath()));
-		tvsp = new JScrollPane(tvDirs, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		// Directories' treeview				
+		dirTree = new JDirTree(rootNode);	
+		
+		tvsp = new JScrollPane(dirTree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		tvsp.setMinimumSize(new Dimension(100,0));
-		tvsp.setPreferredSize(new Dimension(200,0));
+		tvsp.setPreferredSize(new Dimension(140,0));
 
 		// Content's listview
-		fileList = new DefaultListModel();
-		lvFiles = new JList(fileList);
-		lvFiles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		lvFiles.setCellRenderer(new expListRenderer());
-    	lvFiles.setFixedCellHeight(16);
-		lvsp = new JScrollPane(lvFiles, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		fileList = new JFileList();
+    	
+		lvsp = new JScrollPane(fileList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		lvsp.setMinimumSize(new Dimension(100,0));
+		
+		// Drag & drop
+		//fileList.setDragEnabled(true);
+		//fileList.setDropMode(DropMode.ON_OR_INSERT);
+		
+		//fileList.setTransferHandler(new lvFilesTransferHandler());
+		//dirTree.setTransferHandler(new ImportTransferHandler());
 
 		// Splitter
 		splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tvsp, lvsp);
@@ -265,20 +195,22 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 		contentPane.add(splitter, BorderLayout.CENTER);
 
 		// Lower status bar
-//		statusBar = new JToolBar();
-//		statusBar.setFloatable(false);
-//
-//		statusLbl = new JLabel("Status bar");
-//		statusBar.add(statusLbl);
-//
-//		contentPane.add(statusBar, BorderLayout.SOUTH);
+		//statusBar = new JToolBar();
+		//statusBar.setFloatable(false);
+
+		//statusLbl = new JLabel("Status bar");
+		//statusBar.add(statusLbl);
+
+		//contentPane.add(statusBar, BorderLayout.SOUTH);
 
 		updateListContent();
 		updatePathLabel();
 
 		pack();
+		
+		centerWindow();
     }
-
+    
     private void initListeners() {
 
     	btnRefresh.addActionListener(new ActionListener() {
@@ -302,10 +234,10 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
             }
         });
 
-    	tvDirs.addTreeSelectionListener(new TreeSelectionListener() {
+    	dirTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-            	FiliusFileNode node = (FiliusFileNode) tvDirs.getLastSelectedPathComponent();
+            	FiliusFileNode node = dirTree.getSelectedNode();
 
                 if (node != null) {
                     currentDirNode = node;
@@ -315,21 +247,21 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
             }
         });
 
-    	lvFiles.addMouseListener(new MouseAdapter() {    		
+    	fileList.addMouseListener(new MouseAdapter() {    		
             @Override
             public void mouseClicked(MouseEvent e) {
             	
             	if (e.getButton() == MouseEvent.BUTTON1) {
                     if (currentDirNode != null) {
-                    	int index = lvFiles.locationToIndex(e.getPoint());
+                    	int index = fileList.locationToIndex(e.getPoint());
                     	if (index > -1) {
-                    		selectedNode = (FiliusFileNode) fileList.getElementAt(index);
+                    		selectedNode = fileList.getElementAt(index);
                     	}                    	
                     }
                     if (e.getClickCount() == 2) {
-                    	int index = locationToRealIndex(lvFiles, e.getPoint());
+                    	int index = locationToRealIndex(fileList, e.getPoint());
                     	if (index > -1) {
-                    		openInApplication((FiliusFileNode) fileList.getElementAt(index));
+                    		openInApplication(fileList.getElementAt(index));
                     	}                    	
                     }
             	}
@@ -338,9 +270,9 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                     if (currentDirNode != null) {
 
                         final JMenuItem miNewDirectory = new JMenuItem(messages.getString("fileexplorer_msg3"));
-                        final JMenuItem miNewFile = new JMenuItem("New text file");                                 // << I18n
-                        final JMenuItem miImportFile = new JMenuItem("Import a file");         						// << I18n
-                        final JMenuItem miExportFile = new JMenuItem("Export");                                     // << I18n
+                        final JMenuItem miNewFile = new JMenuItem(messages.getString("fileexplorer_msg23"));      // New text file
+                        final JMenuItem miImportFile = new JMenuItem(messages.getString("fileexplorer_msg12"));   // Import a file
+                        final JMenuItem miExportFile = new JMenuItem(messages.getString("fileexplorer_msg35"));   // Export a file
                         final JMenuItem miCutFile = new JMenuItem(messages.getString("fileexplorer_msg5"));
                         final JMenuItem miCopyFile = new JMenuItem(messages.getString("fileexplorer_msg6"));
                         final JMenuItem miPasteFile = new JMenuItem(messages.getString("fileexplorer_msg7"));
@@ -373,7 +305,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
                         JPopupMenu popMenu = new JPopupMenu();
 
-                        int index = locationToRealIndex(lvFiles, e.getPoint());
+                        int index = locationToRealIndex(fileList, e.getPoint());
                         if (index == -1) {
                             if (copySourceNode != null || (cutSourceNode != null && !selectedNode.isAncestorOf(cutSourceNode))) {
                             	popMenu.add(miPasteFile);
@@ -385,26 +317,27 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                             popMenu.add(miImportFile);
 
                         } else {
-                            selectedNode = (FiliusFileNode) fileList.getElementAt(index);
-                            lvFiles.setSelectedIndex(index);
+                            selectedNode = fileList.getElementAt(index);
+                            fileList.setSelectedIndex(index);
                             popMenu.add(miCutFile);
                             popMenu.add(miCopyFile);
                             popMenu.addSeparator();
                             popMenu.add(miRenameFile);
                             popMenu.add(miDeleteFile);
-//                            popMenu.addSeparator();
-//                            popMenu.add(miExportFile);
+                            if (selectedNode.isFile()) {
+                            	popMenu.addSeparator();
+                            	popMenu.add(miExportFile);
+                            }
                         }
 
-                        lvFiles.add(popMenu); 
-                        popMenu.show(lvFiles, e.getX(), e.getY());
+                        fileList.add(popMenu); 
+                        popMenu.show(fileList, e.getX(), e.getY());
                     }
-
                 }
             }
         });
     	
-    	lvFiles.addKeyListener(new KeyAdapter() {      		
+    	fileList.addKeyListener(new KeyAdapter() {      		
     		@Override
             public void keyPressed(KeyEvent e) {
     			switch (e.getKeyCode()) {
@@ -424,20 +357,20 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     		}
     	});
 
-    	this.addInternalFrameListener(new InternalFrameAdapter() {    		
+    	addInternalFrameListener(new InternalFrameAdapter() {    		
     		
     		public void internalFrameActivated(InternalFrameEvent e) {
     			
     			// Refresh the display when switching back to the file explorer       			  			
-    			Object node = lvFiles.getSelectedValue();    			
+    			Object node = fileList.getSelectedValue();    			
     			
     			refreshDisplay();
     			
     			// Try to restore the memorized selection if it still exists 		
     			if (node != null) {
-    				for (int i = 0; i < fileList.getSize(); i++) {
+    				for (int i = 0; i < fileList.getCount(); i++) {
     					if (node ==  fileList.getElementAt(i)) {
-    						lvFiles.setSelectedValue(node, true);
+    						fileList.setSelectedValue(node, true);
     						break;
     					}
     				}
@@ -447,8 +380,8 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     }
 
 
-    // Returns the index of the list cell on which the point is located or -1 if the point is below the last cell
-    public int locationToRealIndex(JList list, Point point) {
+    /** Returns the index of the list cell on which the point is located or -1 if the point is below the last cell */
+    public int locationToRealIndex(JFileList list, Point point) {
 
     	int index = list.locationToIndex(point);
         if ((list.indexToLocation(index) != null) && (point.getY() < list.indexToLocation(index).getY() + list.getFixedCellHeight())) {
@@ -458,23 +391,24 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         }
     }
 
-    // Update the JList with the content of the current directory node
+    /** Update the JList with the content of the current directory node */
     public void updateListContent() {
 
     	fileList.clear();
 
-        for (Enumeration e = currentDirNode.children(); e.hasMoreElements();) {        	        	
-        	fileList.addElement(e.nextElement());
+        for (Enumeration<TreeNode> e = currentDirNode.children(); e.hasMoreElements();) {        	        	
+        	fileList.addElement((FiliusFileNode) e.nextElement());
         }
     }
 
+    /** Update the "breadcrumbs" shown above the JTree and the JList */
     public void updatePathLabel() {
 
     	TreeNode[] nodes = currentDirNode.getPath();
 
     	String path = "  ";
     	for (int i=0; i<nodes.length; i++) {
-    		if (i>0)  path = path + " \u25B8 ";
+    		if (i>0)  path = path + " \u25B8 ";  // right full triangle
     		path = path + nodes[i].toString();
     	}
 
@@ -482,26 +416,35 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     }
 
     public void refreshDisplay() {
-        tvDirs.updateUI();
+        dirTree.updateUI();
         updateListContent();
     }
 
     private void createSubdirectory() {
     	
+    	String dirname = "";
+    	
     	while(true) {
-    		String newDir = JOptionPane.showInputDialog(this, "Type in the name of a new subdirectory", "New subdirectory",     // I18n
-    													JOptionPane.QUESTION_MESSAGE);  
-    		if (newDir == null) return;
+    		dirname = OKCancelDialog(messages.getString("fileexplorer_msg19"), // Type in the name of a new subdirectory
+    				                 messages.getString("fileexplorer_msg3"),  // New directory    
+    		                         dirname);
+    		if (dirname == null) return;
     		
-    		if (newDir.isEmpty()) {
-    			JOptionPane.showMessageDialog(this, "A name must be typed in!", "New subdirectory", JOptionPane.WARNING_MESSAGE);    			
-    		} else if (currentDirNode.hasChildNamed(newDir)) {
-    			JOptionPane.showMessageDialog(this, "A file or directory with this name already exists!", "New subdirectory", JOptionPane.WARNING_MESSAGE); 
-    		} else if (! FFS.nameIsValid(newDir)) {
-    			JOptionPane.showMessageDialog(this, "The name typed in contains unallowed characters!"+
-    		                                  "\nUnallowed characters are \\ | / \" : ? * < >", "New subdirectory", JOptionPane.WARNING_MESSAGE);     			
-    		} else {
-    			currentDirNode.addDirectory(newDir);
+    		dirname = dirname.trim();
+    		
+    		if (dirname.isEmpty())  
+    			warningDialog(messages.getString("fileexplorer_msg20"), // The name can't be empty
+    					      messages.getString("fileexplorer_msg3")); // New directory
+    		
+    		else if (currentDirNode.hasChildNamed(dirname))
+    			warningDialog(messages.getString("fileexplorer_msg21"), // This name is already in use.
+    				          messages.getString("fileexplorer_msg3")); // New directory
+    		 
+    		else if (! FFS.nameIsValid(dirname)) 
+    			warningDialog(messages.getString("fileexplorer_msg22"), // The following characters are not allowed...
+				              messages.getString("fileexplorer_msg3")); // New directory    			
+    		else {
+    			currentDirNode.addDirectory(dirname);
     			refreshDisplay();
     			return; 
     		}    		
@@ -510,20 +453,30 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
     private void createFile() {
     	
+    	String filename = "";
+    			
     	while(true) {
-    		String newFile = JOptionPane.showInputDialog(this, "Type in the name of a new text file", "New file",     // I18n
-    													JOptionPane.QUESTION_MESSAGE);  
-    		if (newFile == null) return;
+    		filename = OKCancelDialog(messages.getString("fileexplorer_msg24"), // Type in the name of a new text file
+    				                  messages.getString("fileexplorer_msg23"), // New text file
+    				                  filename);
+    		if (filename == null) return;
     		
-    		if (newFile.isEmpty()) {
-    			JOptionPane.showMessageDialog(this, "A name must be typed in!", "New file", JOptionPane.WARNING_MESSAGE);    			
-    		} else if (currentDirNode.hasChildNamed(newFile)) {
-    			JOptionPane.showMessageDialog(this, "A file or directory with this name already exists!", "New file", JOptionPane.WARNING_MESSAGE); 
-    		} else if (! FFS.nameIsValid(newFile)) {
-    			JOptionPane.showMessageDialog(this, "The name typed in contains unallowed characters!"+
-    		                                  "\nUnallowed characters are \\ | / \" : ? * < >", "New file", JOptionPane.WARNING_MESSAGE); 
-    		} else {
-    			currentDirNode.addFile(newFile, "text", null);   
+    		filename = filename.trim();
+    		
+    		if (filename.isEmpty()) 
+    			warningDialog(messages.getString("fileexplorer_msg20"),  // The name can't be empty
+					          messages.getString("fileexplorer_msg23")); // New text file 
+    			
+    		else if (currentDirNode.hasChildNamed(filename)) 
+    		    warningDialog(messages.getString("fileexplorer_msg21"),  // This name is already in use.
+				              messages.getString("fileexplorer_msg23")); // New text file
+    		
+    		else if (! FFS.nameIsValid(filename)) 
+    			warningDialog(messages.getString("fileexplorer_msg22"),  // The following characters are not allowed...
+			                  messages.getString("fileexplorer_msg23")); // New text file    
+    		
+    		else {
+    			currentDirNode.addFile(filename, FileType.TEXT, null);   
     			refreshDisplay();
     			return; 
     		}    		
@@ -531,16 +484,15 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     }
 
     private void deleteFile() {
+    	
     	if (selectedNode == null) return;
     	
-    	String msg = "Are you sure that you want to delete ' "+ selectedNode.getName() +" ' ?";
-    	if (selectedNode.getChildCount() > 0) {
-    		msg = msg + "\n" + "All the files and subdirectories it contains will also be deleted.";    		
-    	}
-    	
-    	int confirm = JOptionPane.showConfirmDialog(this, msg, "Deletion", JOptionPane.YES_NO_OPTION); // I18n fileexplorer_msg18
-
-        if (confirm == JOptionPane.YES_OPTION) {
+    	String msg = messages.getString("fileexplorer_msg25") + selectedNode.getName() + messages.getString("fileexplorer_msg26");
+    	             // Are you sure you want to delete ' ... '?
+    	if (selectedNode.getChildCount() > 0) msg = msg + "\n" + messages.getString("fileexplorer_msg27");   
+    	                                                         // All the files and subdirectories it contains will also be deleted.
+        	
+        if (yesNoDialog(msg, messages.getString("fileexplorer_msg4"))) { // Delete
             currentDirNode.remove(selectedNode);
             selectedNode = null;
             refreshDisplay();
@@ -548,6 +500,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     }
     
     private void copyFile() {
+    	
     	if (selectedNode == null) return;
     	cutSourceNode = null;
     	
@@ -590,25 +543,32 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     }
 
     private void renameFile() {
+    	
     	if (selectedNode == null) return;
 
     	String currentName = selectedNode.getName();
     	
-    	while(true) {
-    		String newName = (String)JOptionPane.showInputDialog(this, "Type in the new name", "Renaming",            // I18n fileexplorer_msg9
-					                                             JOptionPane.QUESTION_MESSAGE, null, null, currentName);    		
-    		if (newName == null) return;
+    	while (true) {
+    		String newName = OKCancelDialog(messages.getString("fileexplorer_msg28"), // Type in the new name of the file
+    				                        messages.getString("fileexplorer_msg8"),  // Rename
+    				                        currentName);
+    		if (newName == null || newName.equals(currentName)) return;
     		
     		newName = newName.trim();
     		
-    		if (newName.isEmpty()) {
-    			JOptionPane.showMessageDialog(this, "A name must be typed in!", "Renaming", JOptionPane.WARNING_MESSAGE);    			
-    		} else if (currentDirNode.hasChildNamed(newName) && (!currentName.toLowerCase().equals(newName.toLowerCase()))) {
-    			JOptionPane.showMessageDialog(this, "A file or directory with this name already exists!", "Renaming", JOptionPane.WARNING_MESSAGE); 	
-    		} else if (! FFS.nameIsValid(newName)) {
-    			JOptionPane.showMessageDialog(this, "The name typed in contains unallowed characters!"+
-    		                                  "\nUnallowed characters are \\ | / \" : ? * < >", "New file", JOptionPane.WARNING_MESSAGE); 
-    		} else {
+    		if (newName.isEmpty()) 
+    			warningDialog(messages.getString("fileexplorer_msg20"),  // The name can't be empty
+				              messages.getString("fileexplorer_msg8"));  // Rename
+    			
+    		else if (currentDirNode.hasChildNamed(newName) && (!currentName.toLowerCase().equals(newName.toLowerCase()))) 
+    			warningDialog(messages.getString("fileexplorer_msg21"),  // This name is already in use.
+			                  messages.getString("fileexplorer_msg8"));  // Rename
+    			
+    		else if (! FFS.nameIsValid(newName)) 
+    		    warningDialog(messages.getString("fileexplorer_msg22"),  // The following characters are not allowed...
+	                          messages.getString("fileexplorer_msg8"));  // Rename
+    			
+    		else {
     			selectedNode.setName(newName);
     			refreshDisplay();
     			return; 
@@ -618,16 +578,18 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
     public void importFile() {
     	
-    	String dialogTitle  = "Import a file";                       // I18n
-    	String dialogButton = "Import";                              // I18n
+    	String dialogTitle  = messages.getString("fileexplorer_msg12");  // Import a file
+    	String dialogButton = messages.getString("fileexplorer_msg15");  // Import
     	
     	while (true) {
     		JFileChooser fc = new JFileChooser(importExportPath);
         	fc.setDialogTitle(dialogTitle);
-        	fc.addChoosableFileFilter(new FileNameExtensionFilter("Text files", "txt", "ini", "cfg", "xml"));
-        	fc.addChoosableFileFilter(new FileNameExtensionFilter("Web files", "htm", "html", "css", "js"));
-        	fc.addChoosableFileFilter(new FileNameExtensionFilter("Image files", "bmp", "jpeg", "jpg", "png"));
-        	fc.addChoosableFileFilter(new FileNameExtensionFilter("Sound files", "mp2", "mp3", "wav"));
+        	fc.addChoosableFileFilter(new FileNameExtensionFilter(messages.getString("fileexplorer_msg38"), "txt", "ini", "cfg", "conf", "xml"));
+        	                                                      // Text files
+        	fc.addChoosableFileFilter(new FileNameExtensionFilter(messages.getString("fileexplorer_msg39"), "htm", "html"));
+        	                                                      // Html files
+        	fc.addChoosableFileFilter(new FileNameExtensionFilter(messages.getString("fileexplorer_msg40"), "bmp", "jpeg", "jpg", "png"));
+        	                                                      // Images
         	if (importExportFilter != null) fc.setFileFilter(importExportFilter);
          	
         	// File selection
@@ -652,46 +614,117 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         		return;   
         	}
         	
-        	String msg = "The selected file could not be imported.\n";                          // I18n
+        	String msg = messages.getString("fileexplorer_msg30") + "\n";  // The selected file could not be imported
         	switch (erCode) {
         	case FILE_NOT_FOUND:        	
-        		msg += "The file could not be found.";                                          // I18n
+        		msg += messages.getString("fileexplorer_msg31");   // The file could not be found
         		break; 
         	case FILE_TOO_LARGE:          
-        		msg += "The file is too large. The maximum size allowed is 150 KB.";            // I18n
+        		msg += messages.getString("fileexplorer_msg32");   // The file is too large.\nThe maximum size allowed is 150 KB.
         		break;
         	default:   
         	}    
         	
         	// Error message display
-        	JOptionPane.showMessageDialog(this, msg, dialogTitle, JOptionPane.WARNING_MESSAGE);  
+        	warningDialog(msg, dialogTitle); 
     	}
     }
     
     public void exportFile() {
-    	//
+    	
+    	if (selectedNode == null) return;
+
+    	String dialogTitle  = messages.getString("fileexplorer_msg35");  // Export the file
+    	String dialogButton = messages.getString("fileexplorer_msg36");  // Export
+    	
+    	while (true) {
+    		JFileChooser fc = new JFileChooser(importExportPath);
+        	fc.setDialogTitle(dialogTitle);     
+        	fc.setSelectedFile(new File(selectedNode.getName()));
+         	
+        	// File selection
+        	int dlgRes = fc.showDialog(this, dialogButton);
+        	
+        	// Cancel import operation
+        	if (dlgRes == JFileChooser.CANCEL_OPTION) return;
+        	
+        	// Keep path and filter for future imports
+        	importExportPath = fc.getSelectedFile().getParent();  
+        	
+        	if (fc.getSelectedFile().exists()) {
+        		if (! yesNoDialog(messages.getString("fileexplorer_msg37"), messages.getString("fileexplorer_msg36"))) continue;  // Replace ?  // Export
+        	}
+        	
+        	// Split filePath and fileName    	
+        	String filePath = importExportPath;
+        	String fileName = fc.getSelectedFile().getName();
+
+        	errorCode erCode = selectedNode.exportFile(filePath, fileName);
+                	
+        	// File exported with success
+        	if (erCode == errorCode.NO_ERROR) return;   
+    	}
     }
     
+    /** <b>openInApplication</b> opens the file associated to the node in the corresponding application (if it's installed).
+     * If the node corresponds to a directory, this node is opened in the dirTree.
+     * 
+     * */ 
     public void openInApplication(FiliusFileNode node) {
+    	
     	if (node.isDirectory()) {
-    		tvDirs.setSelectionPath(new TreePath(node.getPath()));
+    		dirTree.setSelectionPath(new TreePath(node.getPath()));
     	} else {
-//    		String type = node.getType();
-//    		
-//    		if (type.equals("image")) {
-//        		GUIApplicationFileExplorerImageViewer.gI().preview(this, node);
-//    		}
-//    		
-//    		if (type.equals("text")) {
-//        		
-//    		}
+    		FileType type = node.getType();
+    		
+    		GUIApplicationWindow appWindow = null;
+    		
+            if (type == FileType.TEXT || type == FileType.CSS || type == FileType.XML) {
+    			
+    			appWindow = desktop.startApp("filius.software.lokal.TextEditor", node);
+    		}
+            else if (type == FileType.HTML) {
+            	
+            	appWindow = desktop.startApp("filius.software.www.WebBrowser", node);
+    		}
+            else if (type == FileType.IMAGE_JPG || type == FileType.IMAGE_PNG ||
+    		         type == FileType.IMAGE_GIF || type == FileType.IMAGE_BMP) {
+    			
+    			appWindow = desktop.startApp("filius.software.lokal.ImageViewer", node);        		
+    		} 
+            
+            // Display a message if the associated application is not installed?
+            
+            if (appWindow != null) appWindow.makeActiveWindow();
     	}
     }   
     
-
-    @Override
-    public void update(Observable arg0, Object arg1) {
-        //refreshDisplay();
+    // Event listeners
+    //-----------------
+    
+    private void registerListeners() {    	
+    	
+    	//node.getSystemSoftware().addPropertyChangeListener("message", this);
     }
     
+	/**
+     * <b>propertyChange</b> is called whenever a change in the host must be reflected by the user interface. 
+     *     
+     */
+	public void propertyChange(PropertyChangeEvent evt) { 
+		
+//		String pn = evt.getPropertyName();		
+
+//		if (pn.equals("nodename")) {
+//			                           
+//			// Update the display	
+//			// From: FFS
+//			refreshDisplay();			
+//		} 
+	};    
+    
+//    @Override
+//    public void update(Observable arg0, Object arg1) {
+//        //refreshDisplay();
+//    }    
 }

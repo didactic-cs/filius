@@ -43,6 +43,7 @@ import filius.hardware.Cable;
 import filius.hardware.NetworkInterface;
 import filius.hardware.Port;
 import filius.hardware.knoten.Computer;
+import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetNode;
 import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Node;
@@ -281,8 +282,8 @@ public class GUIEvents implements I18n {
         else if (!dragPreviewVisible) {
             // Drag all selected items in marquee
             if ((mouseTarget == MouseTarget.marquee) &&  
-               (0 <= e.getX()) && (e.getX() <= container.getWidth()) && 
-               (0 <= e.getY()) && (e.getY() <= container.getHeight())) {
+                (0 <= e.getX()) && (e.getX() <= container.getWidth()) && 
+                (0 <= e.getY()) && (e.getY() <= container.getHeight())) {
 
                 int Xshift = marqueeStartDragX - e.getX();
                 marqueeStartDragX = e.getX();
@@ -823,9 +824,11 @@ public class GUIEvents implements I18n {
     	
         if (nodeItem != null) {
         	
-        	if (nodeItem.getNode() instanceof Switch) {
+        	Node node = nodeItem.getNode();
+        	
+        	if (node instanceof Switch) {
 
-            	Switch sw = (Switch) nodeItem.getNode();
+            	Switch sw = (Switch) node;
             	
                 JPopupMenu menu = new JPopupMenu();
 
@@ -834,7 +837,6 @@ public class GUIEvents implements I18n {
                     public void actionPerformed(ActionEvent e) {
                     	
                         if (e.getActionCommand().equals("satanzeigen")) {
-                        	container.showDesktop(nodeItem);
                         	SatViewerControl.getInstance().addOrShowViewer(sw);
                         }
                     }
@@ -849,9 +851,9 @@ public class GUIEvents implements I18n {
                 menu.setVisible(true);                
                 menu.show(nodeItem.getNodeLabel(), posX, posY);
             }
-        	else if (nodeItem.getNode() instanceof InternetNode) {
+        	else if (node instanceof InternetNode) {
 
-            	InternetNode node = (InternetNode) nodeItem.getNode();
+            	InternetNode iNode = (InternetNode) node;
             	
                 JPopupMenu menu = new JPopupMenu();
 
@@ -859,11 +861,10 @@ public class GUIEvents implements I18n {
                 	
                     public void actionPerformed(ActionEvent e) {
                     	
-                        if (e.getActionCommand().equals("desktopanzeigen")) {
-                        	container.showDesktop(nodeItem);
-                        }
-
-                        if (e.getActionCommand().startsWith("datenaustausch")) {
+                        if (e.getActionCommand().equals("desktopanzeigen")) {                     
+                        	container.showDesktop((Host) node);
+                        } 
+                        else if (e.getActionCommand().startsWith("datenaustausch")) {
                             String macAddress = e.getActionCommand().substring(15);
                             container.displayInPacketsAnalyzerDialog(nodeItem, macAddress);
                         }
@@ -874,14 +875,14 @@ public class GUIEvents implements I18n {
                 pmVROUTKonf.setActionCommand("vroutkonf");
                 pmVROUTKonf.addActionListener(al);
                 
-                if (node instanceof Computer || node instanceof Notebook) {                               
+                if (iNode instanceof Host) {                               
                 	JMenuItem pmDesktopAnzeigen = new JMenuItem(messages.getString("guievents_msg3"));
                     pmDesktopAnzeigen.setActionCommand("desktopanzeigen");
                     pmDesktopAnzeigen.addActionListener(al);
                     menu.add(pmDesktopAnzeigen);
                 }
                 
-                for (NetworkInterface nic : node.getNICList()) {
+                for (NetworkInterface nic : iNode.getNICList()) {
                 	if (nic.getPort().isConnected()) {
                 		// Display only the connected nic
                 		JMenuItem pmDatenAustauschAnzeigen = new JMenuItem(messages.getString("guievents_msg4") + " (" + nic.getIp() + ")");

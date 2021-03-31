@@ -39,11 +39,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import javax.swing.JFileChooser;
 
@@ -62,7 +64,6 @@ public class Information implements Serializable {
     public enum FeatureMode {
         FORCE_DISABLE, FORCE_ENABLE, AUTO
     }
-
     
     /** Zur Implementierung des Singleton */
     private static Information information = null;
@@ -98,31 +99,31 @@ public class Information implements Serializable {
     /**
      * Die MAC-Adressen werden zentral verwaltet, um zu gewaehrleisten, dass keine Adresse mehrfach vergeben wird.
      */
-    private Vector<String> macAdressen = new Vector<String>();
+    private Vector<String> macAddresses = new Vector<String>();
 
     /**
      * Die maximale Anzahl von Vermittlungsstellen wird zur Berechnung des Time-Outs fuer eine TCP-Verbindung genutzt.
      */
-    private int maxVermittlungsStellen;
+//    private int maxVermittlungsStellen;   // <<-- No longer used?
 
     /**
      * Pfad zum Verzeichnis, in dem das Programm ausgefuehrt wird (in dem sich die ausfuehrbare Jar-Datei befindet);
      * <br />
      * der Pfad schliesst mit dem Pfad-Trennzeichen (unter UNIX "/")
      */
-    private String programmPfad = null;
+    private String programPath = null;
 
     /**
      * Pfad zum Verzeichnis, in dem die benutzerspezifischen Daten abgelegt werden; <br />
      * der Pfad schliesst mit dem Pfad-Trennzeichen (unter UNIX "/")
      */
-    public static String initArbeitsbereichPfad = getHomeDir() // System.getProperty("user.home")
-            + System.getProperty("file.separator");
+    public static String initWorkingDirectory = getHomeDir() + // System.getProperty("user.home")
+                                                System.getProperty("file.separator");
 
     // actually used working directory, i.e., path to be used after initial
     // tests
-    private String arbeitsbereichPfad = getHomeDir() // System.getProperty("user.home")
-            + System.getProperty("file.separator") + ".filius" + System.getProperty("file.separator");
+    private String workingDirectory = getHomeDir() + // System.getProperty("user.home")
+                                      System.getProperty("file.separator") + ".filius" + System.getProperty("file.separator");
 
     /** Lokalisierungsobjekt fuer Standard-Spracheinstellung */
     private Locale locale;
@@ -130,7 +131,7 @@ public class Information implements Serializable {
 
     private boolean oldPacketsAnalyzerDialog = true;
 
-    private FeatureMode softwareWizardMode = FeatureMode.FORCE_ENABLE;
+    private FeatureMode softwareWizardMode = FeatureMode.FORCE_ENABLE;    
 
     // private Locale locale = new Locale("en", "GB");
 
@@ -163,7 +164,7 @@ public class Information implements Serializable {
     /**
      * ensure a correct and well functioning path to write all necessary data
      */
-    private boolean checkWD(String currPath) {
+    private boolean checkWorkingDirectory(String currPath) {
         boolean nowrite = true;
         String directoryPath;
         java.util.Random rnd = new java.util.Random();
@@ -174,16 +175,13 @@ public class Information implements Serializable {
             directoryPath = currPath + ".filius" + System.getProperty("file.separator");
             try {
                 testFile = new java.io.File(directoryPath);
-                //
-                // write check, i.e., create random directory and delete it
-                // again
+                // write check, i.e., create random directory and delete it again
                 testFile.mkdirs();
                 testFile = new java.io.File(directoryPath + randomString);
                 testFile.createNewFile();
                 if (!testFile.delete()) {
                     throw new Exception("EXCEPTION: Error on deleting test file in write-check");
                 }
-
                 nowrite = false;
             } catch (Exception e) {
                 // open dialog to choose another directory
@@ -201,9 +199,9 @@ public class Information implements Serializable {
                     return false;
             }
         } while (nowrite);
-        arbeitsbereichPfad = currPath + ".filius" + System.getProperty("file.separator"); // set
-                                                                                          // correct
-                                                                                          // path
+        
+        workingDirectory = currPath + ".filius" + System.getProperty("file.separator");  // set correct path
+        
         return true;
     }
 
@@ -211,14 +209,14 @@ public class Information implements Serializable {
      * nicht oeffentlich zugaenglicher Konstruktor, wird aus getInformation() aufgerufen
      */
     private Information() {
-        if (checkWD(initArbeitsbereichPfad)) {
+        if (checkWorkingDirectory(initWorkingDirectory)) {
             init();
             initOk = true;
         }
     }
 
     private Information(String path) {
-        if (checkWD(path)) {
+        if (checkWorkingDirectory(path)) {
             init();
             initOk = true;
         }
@@ -287,17 +285,17 @@ public class Information implements Serializable {
      * Daten.
      */
     public void reset() {
-        macAdressen.clear();
+        macAddresses.clear();
 
         GUIContainer.getInstance().getPacketsAnalyzerDialog().reset();
         init();
     }
 
     private void init() {
-        maxVermittlungsStellen = 48;
+//        maxVermittlungsStellen = 48;
 
         try {
-            initialisiereVerzeichnisse();
+            initDirectories();
         } catch (Exception e) {
             e.printStackTrace(Main.debug);
         }
@@ -316,10 +314,10 @@ public class Information implements Serializable {
      * <li>Datei, in der die Einstellungen zu eigenen Anwendungen gespeichert werden</li>
      * </ul>
      */
-    private void initialisiereVerzeichnisse() throws FileNotFoundException, IOException {
+    private void initDirectories() throws FileNotFoundException, IOException {
         String pfad;
 
-        pfad = getArbeitsbereichPfad();
+        pfad = getWorkingDirectory();
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
                 Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
@@ -355,45 +353,45 @@ public class Information implements Serializable {
         if (!(new java.io.File(pfad)).exists())
             (new java.io.File(getApplicationsPath() + "EigeneAnwendungen.txt")).createNewFile();
     }
+    
+    private List<HashMap<String, String>> installableSoftwareList = null;
 
-    /**
-     * Methode zum lesen der Verfuegbaren Programme aus den Konfigurationsdateien.
-     * 
-     * @return
-     * @throws IOException
-     */
-    public List<HashMap<String, String>> ladeProgrammListe() throws IOException {                           // < Replaced Map by HashMap
-        List<HashMap<String, String>> tmpList = new LinkedList<HashMap<String, String>>();                  // < Replaced Map by HashMap
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(holeAnwendungenDateipfad()), Charset.forName("UTF-8")))) {
+    private void loadInstallableSoftwares() {
+    	
+    	installableSoftwareList = new LinkedList<HashMap<String, String>>();
+    	
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(getAppFilepath()), Charset.forName("UTF-8")))) {
+        	
             for (String line; (line = reader.readLine()) != null;) {
                 if (!line.trim().startsWith("#") && !line.trim().equals("")) {
                     HashMap<String, String> tmpMap = new HashMap<String, String>();
                     StringTokenizer st = new StringTokenizer(line, ";");
 
-                    tmpMap.put("Anwendung", st.nextToken());
-                    tmpMap.put("Klasse", st.nextToken());
-                    tmpMap.put("GUI-Klasse", st.nextToken());
-                    tmpMap.put("gfxFile", st.nextToken());
+                    tmpMap.put("Anwendung", st.nextToken());   // Title of the application (localized)
+                    tmpMap.put("Klasse", st.nextToken());      // Java class of the application
+                    tmpMap.put("GUI-Klasse", st.nextToken());  // Java class of the application's window
+                    tmpMap.put("gfxFile", st.nextToken());     // Path to the icon file
 
-                    tmpList.add(tmpMap);
+                    installableSoftwareList.add(tmpMap);
                 }
             }
-        }
+        } catch (FileNotFoundException e) {
+			e.printStackTrace(Main.debug);
+		} catch (IOException e) {
+			e.printStackTrace(Main.debug);
+		}
 
-        tmpList.addAll(ladePersoenlicheProgrammListe());
-
-        return tmpList;
+        installableSoftwareList.addAll(loadCustomInstallableSoftwares());
     }
-
-    public LinkedList<HashMap<String, String>> ladePersoenlicheProgrammListe() throws IOException {
+    
+    public LinkedList<HashMap<String, String>> loadCustomInstallableSoftwares() {
+    	
         LinkedList<HashMap<String, String>> tmpList;
         RandomAccessFile desktopFile = null;
 
         tmpList = new LinkedList<HashMap<String, String>>();
-        try {
-            desktopFile = new RandomAccessFile(
-                    Information.getInstance().getApplicationsPath() + "EigeneAnwendungen.txt", "r");
+        try {desktopFile = new RandomAccessFile(Information.getInstance().getApplicationsPath() + "EigeneAnwendungen.txt", "r");
+            
             for (String line; (line = desktopFile.readLine()) != null;) {
                 HashMap<String, String> tmpMap = new HashMap<String, String>();
                 if (!line.trim().equals("")) {
@@ -408,17 +406,50 @@ public class Information implements Serializable {
                 }
             }
 
-        } catch (FileNotFoundException e) {
-
-        } finally {
-            if (desktopFile != null)
-                desktopFile.close();
+        }
+        catch (FileNotFoundException e) {}
+        catch (IOException e) {}
+        finally {
+            if (desktopFile != null) {
+            	try {
+					desktopFile.close();
+				}
+            	catch (IOException e) {}
+            }				
         }
 
         return tmpList;
     }
+    
+    public List<HashMap<String, String>> getInstallableSoftwareList() {
+    	
+    	if (installableSoftwareList == null)  loadInstallableSoftwares();
+    	return installableSoftwareList;
+    }
+    
+    /** <b>getAppInfo</b> returns the application's entry corresponding to the class name.
+     *  The return value is a HashMap with the following keys:<br>
+     *  <b>Anwendung</b>: The displayed name of the application (localized)<br>
+     *  <b>Klasse</b>: The Java class of the application<br>
+     *  <b>GUI-Klasse</b>: The Java class of the application's window<br>
+     *  <b>gfxFile</b>: The path and file name to the application's icon
+     * @param appClassName
+     * @return
+     */
+    public HashMap<String, String> getAppInfo(String appClassName) {
+    	
+    	if (installableSoftwareList == null)  loadInstallableSoftwares();
+    	if (installableSoftwareList == null)  return null;
+    	   
+    	for (int i=0; i < installableSoftwareList.size(); i++) {
+    		
+    		HashMap<String, String> appInfo = installableSoftwareList.get(i);
+    		if (appInfo.get("Klasse").equals(appClassName))  return appInfo;	
+    	}       	
+    	return null;
+    }
 
-    private String holeAnwendungenDateipfad() {
+    private String getAppFilepath() {
         String pfad = "config/Desktop";
         File desktopResource = ResourceUtil.getResourceFile(pfad + "_" + locale.toString() + ".txt");
         return desktopResource.getAbsolutePath();
@@ -430,24 +461,24 @@ public class Information implements Serializable {
      * der Pfad schliesst mit dem Pfad-Trennzeichen (unter UNIX "/")
      */
     public String getProgramPath() {
-        if (programmPfad != null) {
-            return programmPfad;
+        if (programPath != null) {
+            return programPath;
         } else {
             String str = System.getProperty("java.class.path");
-            programmPfad = System.getProperty("user.dir") + System.getProperty("file.separator");
+            programPath = System.getProperty("user.dir") + System.getProperty("file.separator");
             if (str.indexOf("filius.jar") >= 0) { // run from jar file
                 if ((new File(str)).isAbsolute())
-                    programmPfad = ""; // in case of absolute path, delete
+                    programPath = ""; // in case of absolute path, delete
                                        // "user.dir" entry
                 // da Java beim Aufruf verschiedene Separatoren unterstützt,
                 // wird hier getrennt abgefragt...
                 if (str.indexOf("/") >= 0) {
-                    programmPfad += str.substring(0, str.lastIndexOf("/")) + System.getProperty("file.separator");
+                    programPath += str.substring(0, str.lastIndexOf("/")) + System.getProperty("file.separator");
                 } else if (str.indexOf("\\") >= 0) {
-                    programmPfad += str.substring(0, str.lastIndexOf("\\")) + System.getProperty("file.separator");
+                    programPath += str.substring(0, str.lastIndexOf("\\")) + System.getProperty("file.separator");
                 }
             }
-            return programmPfad;
+            return programPath;
         }
     }
 
@@ -512,39 +543,39 @@ public class Information implements Serializable {
     }
 
     /** Arbeitsbereich: Verzeichnis, in dem alle benutzerspezifischen */
-    public String getArbeitsbereichPfad() {
-        return arbeitsbereichPfad;
+    public String getWorkingDirectory() {
+        return workingDirectory;
     }
 
-    public void setArbeitsbereichPfad(String otherWD) {
+    public void setWorkingDirectory(String directory) {
         StringTokenizer tokenizer = null;
         String token = null;
-        if (otherWD.indexOf("/") >= 0) {
-            tokenizer = new StringTokenizer(otherWD, "/");
-        } else if (otherWD.indexOf("\\\\") >= 0) {
-            tokenizer = new StringTokenizer(otherWD, "\\\\");
+        if (directory.indexOf("/") >= 0) {
+            tokenizer = new StringTokenizer(directory, "/");
+        } else if (directory.indexOf("\\\\") >= 0) {
+            tokenizer = new StringTokenizer(directory, "\\\\");
         }
-        if (otherWD.startsWith("/") || otherWD.startsWith("\\\\")) {
-            arbeitsbereichPfad = System.getProperty("file.separator");
+        if (directory.startsWith("/") || directory.startsWith("\\\\")) {
+            workingDirectory = System.getProperty("file.separator");
         } else
-            arbeitsbereichPfad = "";
+            workingDirectory = "";
         if (tokenizer != null) {
             while (tokenizer.hasMoreTokens()) {
                 token = tokenizer.nextToken().trim();
                 if (!token.isEmpty())
-                    arbeitsbereichPfad += token + System.getProperty("file.separator");
+                    workingDirectory += token + System.getProperty("file.separator");
             }
         } else {
-            arbeitsbereichPfad = otherWD + System.getProperty("file.separator");
+            workingDirectory = directory + System.getProperty("file.separator");
         }
-        arbeitsbereichPfad += ".filius" + System.getProperty("file.separator");
+        workingDirectory += ".filius" + System.getProperty("file.separator");
     }
 
     /**
      * Temp: Verzeichnis, in dem zur Laufzeit temporaere Dateien gespeichert werden
      */
     public String getTempPath() {
-        return getArbeitsbereichPfad() + "temp" + System.getProperty("file.separator");
+        return getWorkingDirectory() + "temp" + System.getProperty("file.separator");
     }
 
     /**
@@ -552,7 +583,7 @@ public class Information implements Serializable {
      * software/clientserver/ und gui/anwendungssicht/
      */
     public String getApplicationsPath() {
-        return getArbeitsbereichPfad() + "anwendungen" + System.getProperty("file.separator");
+        return getWorkingDirectory() + "anwendungen" + System.getProperty("file.separator");
     }
 
     /**
@@ -561,7 +592,7 @@ public class Information implements Serializable {
     public String getFreeMAC() {
         Random r = new Random();
         String[] mac;
-        String neueMac;
+        String newMac;
 
         mac = new String[6];
         for (int i = 0; i < mac.length; i++) {
@@ -569,10 +600,10 @@ public class Information implements Serializable {
             if (mac[i].length() == 1)
                 mac[i] = "0" + mac[i];
         }
-        neueMac = mac[0] + ":" + mac[1] + ":" + mac[2] + ":" + mac[3] + ":" + mac[4] + ":" + mac[5];
+        newMac = mac[0] + ":" + mac[1] + ":" + mac[2] + ":" + mac[3] + ":" + mac[4] + ":" + mac[5];
 
-        if (checkMAC(neueMac)) {
-            return neueMac;
+        if (checkMAC(newMac)) {
+            return newMac;
         } else {
             return getFreeMAC();
         }
@@ -580,15 +611,15 @@ public class Information implements Serializable {
 
     /** Eintragen einer verwendeten MAC-Adresse */
     public void addMAC(String mac) {
-        macAdressen.addElement(mac);
+        macAddresses.addElement(mac);
     }
 
     /** Pruefen, ob es sich um eine verfuegbare, gueltige MAC-Adresse handelt. */
     private boolean checkMAC(String mac) {
         boolean macOK = true;
 
-        for (int i = 0; i < macAdressen.size(); i++) {
-            if (mac.equals((String) macAdressen.elementAt(i)))
+        for (int i = 0; i < macAddresses.size(); i++) {
+            if (mac.equals((String) macAddresses.elementAt(i)))
                 macOK = false;
         }
 
@@ -599,13 +630,13 @@ public class Information implements Serializable {
         return macOK;
     }
 
-    public int getMaxVermittlungsStellen() {
-        return maxVermittlungsStellen;
-    }
+//    public int getMaxVermittlungsStellen() {
+//        return maxVermittlungsStellen;
+//    }
 
-    public void setMaxVermittlungsStellen(int maxVermittlungsStellen) {
-        this.maxVermittlungsStellen = maxVermittlungsStellen;
-    }
+//    public void setMaxVermittlungsStellen(int maxVermittlungsStellen) {
+//        this.maxVermittlungsStellen = maxVermittlungsStellen;
+//    }
 
     public void loadIni() throws IOException {
         File tmpFile = ResourceUtil.getResourceFile("config/filius.ini");

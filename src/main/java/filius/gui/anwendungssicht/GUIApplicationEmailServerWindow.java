@@ -247,19 +247,19 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
                                         (new String(passwortField.getPassword())),
                                         messages.getString("emailserver_msg20"),
                                         messages.getString("emailserver_msg21"));
-                                showMessageDialog(messages.getString("emailserver_msg22") + " "
-                                        + benutzernameField.getText() + " " + messages.getString("emailserver_msg23"));
+                                infoDialog(messages.getString("emailserver_msg22") + " " +
+                                           benutzernameField.getText() + " " + messages.getString("emailserver_msg23"), "");
                                 benutzernameField.setText("");
                                 passwortField.setText("");
                             } catch (CreateAccountException e1) {
                                 e1.printStackTrace(Main.debug);
                             }
                         } else {
-                            showMessageDialog(messages.getString("emailserver_msg24"));
+                        	infoDialog(messages.getString("emailserver_msg24"), "");
                         }
 
                     } else {
-                        showMessageDialog(messages.getString("emailserver_msg25"));
+                    	infoDialog(messages.getString("emailserver_msg25"), "");
                     }
                 }
             }

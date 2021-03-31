@@ -30,6 +30,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import filius.rahmenprogramm.Base64;
 import filius.software.system.FiliusFileListener.ChangeType;
+import filius.software.system.FiliusFileSystem.FileType;
 
 /**
  * The class <b>FiliusFile</b> is used to model a file in Filius.
@@ -48,7 +49,7 @@ public class FiliusFile implements Serializable {
 	private String name;
 
 	// File's type: text, web, image, sound, binary
-	private String type;
+	private FileType type = FileType.UNKNOWN;
 
 	// File's content as String (binary data is Base64 encoded)
 	private String content;	
@@ -75,7 +76,7 @@ public class FiliusFile implements Serializable {
 	 * @param content
 	 *            String containing the content of the file. Binary content is Base64 encoded.
 	 */
-	public FiliusFile(String name, String type, String content) {		
+	public FiliusFile(String name, FileType type, String content) {		
 		this.name = name;
 		this.type = type;
 		this.content = content;
@@ -101,13 +102,12 @@ public class FiliusFile implements Serializable {
 	}
 	
 	/**
-	 * <b>getType</b> returns a String containing the type of the file.
+	 * <b>getType</b> returns the type of the file.
 	 *
-	 * @return A String containing the file's type.
+	 * @return A FileType value.
 	 */
-	public String getType() {
-		if (type != null) return type;
-		else return "";
+	public FileType getType() {
+		return type;
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class FiliusFile implements Serializable {
 	 *
 	 * @param type A String containing the type.
 	 */
-	public void setType(String type) {
+	public void setType(FileType type) {
 		this.type = type;
 		fireFiletypeChange();
 	}

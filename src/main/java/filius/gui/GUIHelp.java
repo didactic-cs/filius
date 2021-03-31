@@ -66,7 +66,7 @@ public class GUIHelp implements I18n {
         ImageIcon frameIcon = new ImageIcon(getClass().getResource("/gfx/allgemein/hilfe.png"));
         jf.setIconImage(frameIcon.getImage());
 
-        epHtml = new JEditorPane("text/html;charset=UTF-8", null);                         // << essayer JTextPane à la place
+        epHtml = new JEditorPane("text/html;charset=UTF-8", null);
         epHtml.setEditorKit(JEditorPane.createEditorKitForContentType("text/html"));
         epHtml.setEditable(false);
         epHtml.setBorder(BorderFactory.createEmptyBorder());
@@ -136,8 +136,26 @@ public class GUIHelp implements I18n {
         File file = ResourceUtil.getResourceFile("hilfe/" + langDir + "/" + pageName);
         if (file == null) return;
         
+        // Real path to the pictures
         String gfxPath = "file:" + file.getParentFile().getParentFile().getAbsolutePath() + "/gfx/";        
         if (File.separator.equals("\\"))  gfxPath = gfxPath.replace('\\', '/');
+        
+        // Stylesheet content        
+        String css = "";
+        File cssfile = ResourceUtil.getResourceFile("hilfe/css/style.css");
+        if (cssfile != null) {
+        	try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(cssfile), Charset.forName("UTF-8")))) {
+        		StringBuffer sb = new StringBuffer();
+        		for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+        			sb.append(line);
+        		}
+        		css = sb.toString();        	
+        	} catch (FileNotFoundException e) {
+        		e.printStackTrace(Main.debug);
+        	} catch (IOException e) {
+        		e.printStackTrace(Main.debug);
+        	}
+        }        
         
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
         	StringBuffer sb = new StringBuffer();
@@ -145,7 +163,11 @@ public class GUIHelp implements I18n {
         		sb.append(line);
         	}
         	String newText = sb.toString();
+        	
         	newText = newText.replaceAll("hilfe/gfx/", gfxPath);
+        	
+        	if (!css.isEmpty()) newText = newText.replaceAll("<style type=\"text/css\"></style>", "<style type=\"text/css\">"+css+"</style>");  
+        	
         	//System.out.println(newText);
         	epHtml.read(new java.io.StringReader(newText), null);
         	epHtml.setCaretPosition(0);

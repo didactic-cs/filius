@@ -549,23 +549,20 @@ public class PanelVerwaltung extends JPanel implements I18n {
 
         dtm = (DefaultTableModel) tabelle.getModel();
         dtm.setRowCount(0);
-        try {
-            it = Information.getInstance().ladePersoenlicheProgrammListe().listIterator();
 
-            while (it.hasNext()) {
-                map = it.next();
+        it = Information.getInstance().loadCustomInstallableSoftwares().listIterator();
 
-                zeile = new Vector<String>();
-                zeile.addElement(map.get("Anwendung"));
-                zeile.addElement(map.get("Klasse"));
-                zeile.addElement(map.get("GUI-Klasse"));
-                zeile.addElement(map.get("gfxFile"));
+        while (it.hasNext()) {
+        	map = it.next();
 
-                dtm.addRow(zeile);
-            }
-        } catch (IOException e) {
-            e.printStackTrace(Main.debug);
-        }
+        	zeile = new Vector<String>();
+        	zeile.addElement(map.get("Anwendung"));
+        	zeile.addElement(map.get("Klasse"));
+        	zeile.addElement(map.get("GUI-Klasse"));
+        	zeile.addElement(map.get("gfxFile"));
+
+        	dtm.addRow(zeile);
+        }        
 
         tabelle.updateUI();
     }

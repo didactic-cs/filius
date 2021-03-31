@@ -348,7 +348,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
 
     /**
      * Diese Funktion erstellt die Tabelle mit den von der P2P Anwendung "verwalteten" Dateien zur Verfuegung. Sie wird
-     * ï¿½ber das Beobachtermuster ausgeloest.
+     * über das Beobachtermuster ausgeloest.
      * 
      * @author Thomas Gerding & Johannes Bade
      * 
@@ -362,7 +362,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
         for (FiliusFile tmpDatei : tempListe) {
             Vector<String> v = new Vector<>();
             v.add(tmpDatei.getName());
-            v.add(tmpDatei.getType());
+            v.add(""); //v.add(tmpDatei.getType());    // <- needs to be fixed
             tabellenModell.addRow(v);
         }
     }

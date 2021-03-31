@@ -28,6 +28,7 @@ package filius.software.www;
 import filius.Main;
 import filius.software.clientserver.ServerMitarbeiter;
 import filius.software.system.FiliusFile;
+import filius.software.system.FiliusFileSystem.FileType;
 import filius.software.transportschicht.TCPSocket;
 
 /*
@@ -80,7 +81,7 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
 
             if (tmp != null) {
                 antwort.setDaten(tmp);
-                antwort.setContentType(HTTPNachricht.TEXT_HTML);
+                antwort.setContentType(FileType.HTML);
                 antwort.setStatusCode(200);
             } else {
                 antwort.setStatusCode(500);
@@ -90,22 +91,22 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
             if (datei != null) {
                 antwort.setDaten(datei.getContent());
                 if (datei.getName().endsWith("html") || datei.getName().endsWith("htm")) {
-                    antwort.setContentType(HTTPNachricht.TEXT_HTML);
+                    antwort.setContentType(FileType.HTML);
                     antwort.setStatusCode(200);
                 } else if (datei.getName().endsWith("png")) {
-                    antwort.setContentType(HTTPNachricht.IMAGE_PNG);
+                    antwort.setContentType(FileType.IMAGE_PNG);
                     antwort.setStatusCode(200);
                 } else if (datei.getName().endsWith("bmp")) {
-                    antwort.setContentType(HTTPNachricht.IMAGE_BMP);
+                    antwort.setContentType(FileType.IMAGE_BMP);
                     antwort.setStatusCode(200);
                 } else if (datei.getName().endsWith("gif")) {
-                    antwort.setContentType(HTTPNachricht.IMAGE_GIF);
+                    antwort.setContentType(FileType.IMAGE_GIF);
                     antwort.setStatusCode(200);
                 } else if (datei.getName().endsWith("jpg")) {
-                    antwort.setContentType(HTTPNachricht.IMAGE_JPG);
+                    antwort.setContentType(FileType.IMAGE_JPG);
                     antwort.setStatusCode(200);
                 } else {
-                    antwort.setContentType(HTTPNachricht.TEXT_PLAIN);
+                    antwort.setContentType(FileType.TEXT);
                     antwort.setStatusCode(200);
                 }
             } else {

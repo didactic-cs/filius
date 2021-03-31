@@ -42,6 +42,7 @@ import filius.software.system.FiliusFile;
 import filius.software.system.FiliusFileNode;
 import filius.software.system.FiliusFileSystem;
 import filius.software.system.InternetNodeOS;
+import filius.software.system.FiliusFileSystem.FileType;
 
 /**
  * 
@@ -51,7 +52,9 @@ import filius.software.system.InternetNodeOS;
  *         POP3- und SMTPServer realisiert. Daher wird der nun überarbeitet. 13.12.2006
  */
 public class EmailServer extends Application implements I18n {
+	
     public static final String LINE_SEPARATOR = "----";
+    public final String accountsFile = "accounts.txt";
 
     private List<EmailKonto> listeBenutzerkonten = new LinkedList<EmailKonto>();
     private String mailDomain = "filius.de";
@@ -121,9 +124,9 @@ public class EmailServer extends Application implements I18n {
                 + " (EmailServer), starten()");
         super.startThread();
 
-        FiliusFile konten = verzeichnis.getFiliusFile("konten.txt");
+        FiliusFile konten = verzeichnis.getFiliusFile(accountsFile);
         if (konten == null) {
-            konten = new FiliusFile("konten.txt", "txt", "");
+            konten = new FiliusFile(accountsFile, FileType.TEXT, "");
             verzeichnis.saveFiliusFile(konten);
         }
         kontenLaden();
@@ -285,7 +288,7 @@ public class EmailServer extends Application implements I18n {
                 + " (EmailServer), kontenSpeichern()");
 
         String tmp = listeBenutzerkontenZuString(listeBenutzerkonten);
-        FiliusFile konten = verzeichnis.getFiliusFile("konten.txt");
+        FiliusFile konten = verzeichnis.getFiliusFile(accountsFile);
         konten.setContent(tmp);
     }
 
@@ -402,7 +405,7 @@ public class EmailServer extends Application implements I18n {
     public void kontenLaden() {
         Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), kontenLaden()");
-        FiliusFile konten = verzeichnis.getFiliusFile("konten.txt");
+        FiliusFile konten = verzeichnis.getFiliusFile(accountsFile);
 
         if (konten != null) {
             setListeBenutzerkonten(stringZuListeBenutzerkonten(konten.getContent()));

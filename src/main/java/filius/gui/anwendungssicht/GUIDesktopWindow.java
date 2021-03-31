@@ -67,6 +67,7 @@ public class GUIDesktopWindow extends JFrame implements PropertyChangeListener {
 	
 
 	public GUIDesktopWindow(HostOS hostOS) {
+		
 		super();
 		JFrameList.getInstance().add(this);
 		
@@ -78,28 +79,25 @@ public class GUIDesktopWindow extends JFrame implements PropertyChangeListener {
 		else                          iconFile = GUIDesignSidebar.NOTEBOOK;
 		ImageIcon icon = new ImageIcon(getClass().getResource("/" + iconFile));
 		setIconImage(icon.getImage());
-
-		setSize(640, 480);
+		
 		setResizable(false);
-
 		desktopPanel = new GUIDesktopPanel(hostOS);
 		getContentPane().add(desktopPanel);	
+		pack();    // <- The inner size of the desktop will be 640x480
 		
 		registerListeners();
 	}
 	
 	public HostOS getOS() {
+		
 		return desktopPanel.getOS();
 	}
 
 	public void setVisible(boolean flag) {
+		
 		super.setVisible(flag);
-
 		updateTitle();
-
-		if (flag) {
-			toFront();
-		}
+		if (flag) toFront();
 	}
 
 	private void updateTitle() {

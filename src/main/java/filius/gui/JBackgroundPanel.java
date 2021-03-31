@@ -41,42 +41,40 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 /**
- * 
  * @author Johannes Bade
  */
 @SuppressWarnings("serial")
 public class JBackgroundPanel extends JPanel {
 
 	private ImageIcon backgroundImage;
-
 	private boolean repeatBG = true;
 
 	/**
 	 * Setzt ein neues Hintergrundbild
 	 * 
-	 * @author Johannes Bade
-	 * @param dateiname
-	 *            String
+	 * @param filename String
 	 */
-	public void setBackgroundImage(String dateiname) {
-		backgroundImage = new ImageIcon(getClass().getResource("/" + dateiname));
+	public void setBackgroundImage(String filename) {
+		
+		backgroundImage = new ImageIcon(getClass().getResource("/" + filename));
 	}
 
 	/**
 	 * Immer wenn die Komponente gezeichnet wird, malt diese Methode auf der
 	 * Komponentenflaeche ein vorher bestimmtes Hintergrundbild
 	 * 
-	 * @author Johannes Bade
 	 */
 	protected void paintComponent(Graphics g) {
+		
 		super.paintComponent(g);
+		
 		Insets ins = getInsets();
 		if (backgroundImage != null) {
 			if (repeatBG) {
-				for (int a = 0; a <= this.getHeight() / backgroundImage.getIconHeight(); a++) {
-					for (int i = 0; i <= this.getWidth() / backgroundImage.getIconWidth(); i++) {
-						backgroundImage.paintIcon(this, g, ins.left + i * backgroundImage.getIconWidth(), ins.top + a
-						        * backgroundImage.getIconHeight());
+				for (int a = 0; a <= getHeight() / backgroundImage.getIconHeight(); a++) {
+					for (int i = 0; i <= getWidth() / backgroundImage.getIconWidth(); i++) {
+						backgroundImage.paintIcon(this, g, ins.left + i * backgroundImage.getIconWidth(), 
+								                           ins.top + a * backgroundImage.getIconHeight());
 					}
 				}
 			} else {

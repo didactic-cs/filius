@@ -219,7 +219,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 					aIpField.setText("");
 					updateARecordsTable();
 				} else {
-					GUIApplicationDNSServerWindow.this.showMessageDialog(messages.getString("dnsserver_msg21"));
+					infoDialog(messages.getString("dnsserver_msg21"), "");
 				}
 			}
 		});
@@ -330,7 +330,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 					mxURLField.setText("");
 					updateMXRecordsTable();
 				} else {
-					GUIApplicationDNSServerWindow.this.showMessageDialog(messages.getString("dnsserver_msg23"));
+					infoDialog(messages.getString("dnsserver_msg23"), "");
 				}
 			}
 		});
@@ -440,7 +440,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 					nsDomainServerField.setText("");
 					updateNSRecordsTable();
 				} else {
-					GUIApplicationDNSServerWindow.this.showMessageDialog(messages.getString("dnsserver_msg22"));
+					infoDialog(messages.getString("dnsserver_msg22"), "");
 				}
 			}
 		});

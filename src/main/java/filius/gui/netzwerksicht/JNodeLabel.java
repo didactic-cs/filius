@@ -283,7 +283,8 @@ public class JNodeLabel extends JLabel implements I18n, PropertyChangeListener {
                     	if (e.getClickCount() == 2) {
                     		if (type.equals(Computer.TYPE) || type.equals(Notebook.TYPE)) {
 
-                    			GUIContainer.getInstance().showDesktop(nodeItem);
+                    			Host host = (Host) nodeItem.getNode();
+                    			GUIContainer.getInstance().showDesktop(host);
                     			ProjectManager.getInstance().setModified();
 
                     		} else if (type.equals(Switch.TYPE)) {

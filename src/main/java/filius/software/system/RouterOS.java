@@ -80,8 +80,8 @@ public class RouterOS extends InternetNodeOS {
         Firewall firewall = null;
 
         // Installation von Firewall und Webserver
-        installSoftware("filius.software.firewall.Firewall");
-        installSoftware("filius.software.www.WebServer");
+        installApp("filius.software.firewall.Firewall");
+        installApp("filius.software.www.WebServer");
         firewall = this.getFirewall();
         server = this.getWebServer();
         firewall.setModus(Firewall.GATEWAY);
@@ -103,7 +103,7 @@ public class RouterOS extends InternetNodeOS {
         webkonfig.setPfad("konfig");
         server.setzePlugIn(webkonfig);
 
-        server.erzeugeIndexDatei(ResourceUtil.getResourcePath("tmpl/vermittlung_index_"
+        server.createIndexFile(ResourceUtil.getResourcePath("tmpl/vermittlung_index_"
                 + Information.getInstance().getLocale() + ".txt"));
 
         // ------------- RIP ------------------
@@ -173,7 +173,7 @@ public class RouterOS extends InternetNodeOS {
      * Firewall als eine Anwendung durch die Oberklasse erfolgt.
      */
     public Firewall getFirewall() {
-        return (Firewall) getSoftware("filius.software.firewall.Firewall");
+        return (Firewall) getApp("filius.software.firewall.Firewall");
     }
 
     /**
@@ -181,6 +181,6 @@ public class RouterOS extends InternetNodeOS {
      * Webservers als eine Anwendung durch die Oberklasse erfolgt.
      */
     public WebServer getWebServer() {
-        return (WebServer) getSoftware("filius.software.www.WebServer");
+        return (WebServer) getApp("filius.software.www.WebServer");
     }
 }

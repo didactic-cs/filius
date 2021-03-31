@@ -123,16 +123,13 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
 		HashMap<String, String> map;
 
 		if (fehlerfreiKompiliert) {
-			try {
-				it = Information.getInstance().ladeProgrammListe().listIterator();
-				while (it.hasNext() && !vorhanden) {
-					map = it.next();
-					if (map.get("Klasse").equals("filius.software.clientserver." + anwendungsKlasse)) {
-						vorhanden = true;
-					}
+			
+			it = Information.getInstance().getInstallableSoftwareList().listIterator();
+			while (it.hasNext() && !vorhanden) {
+				map = it.next();
+				if (map.get("Klasse").equals("filius.software.clientserver." + anwendungsKlasse)) {
+					vorhanden = true;
 				}
-			} catch (IOException e1) {
-				e1.printStackTrace(Main.debug);
 			}
 
 			if (!vorhanden) {
