@@ -757,7 +757,7 @@ public class TCPSocket extends Socket implements Runnable {
 
     static long nextSequenceNumber(TcpSegment segment) {
         long nextNumber = segment.getSeqNummer();
-        if (segment.isSyn()) {
+        if (segment.isSyn() || segment.isFin()) {
             nextNumber++;
         }
         nextNumber += StringUtils.length(segment.getDaten());
