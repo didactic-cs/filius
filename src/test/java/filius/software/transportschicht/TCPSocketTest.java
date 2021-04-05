@@ -19,6 +19,17 @@ public class TCPSocketTest {
     }
 
     @Test
+    public void testNextSequenceNumberTcpSegment_FIN() throws Exception {
+        TcpSegment segment = new TcpSegment();
+        segment.setFin(true);
+        segment.setSeqNummer(42);
+
+        long newSequenceNumber = TCPSocket.nextSequenceNumber(segment);
+
+        assertThat(newSequenceNumber, is(segment.getSeqNummer() + 1));
+    }
+
+    @Test
     public void testNextSequenceNumberTcpSegment_NoSYNAndNoData() throws Exception {
         TcpSegment segment = new TcpSegment();
         segment.setSyn(false);
