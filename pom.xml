@@ -248,6 +248,12 @@
 									</classPath>
 									<chdir>.</chdir>
 									<jre>
+										<!-- If the runtime is not bundled, launch4j will start with the 
+											available JRE. -->
+										<path>java-runtime</path>
+										<bundledJre64Bit>true</bundledJre64Bit>
+										<bundledJreAsFallback>false</bundledJreAsFallback>
+										<runtimeBits>64</runtimeBits>
 										<minVersion>${execJre.version}</minVersion>
 										<jdkPreference>preferJdk</jdkPreference>
 									</jre>
@@ -302,6 +308,19 @@
 									<executable>nsis/makensis</executable>
 									<arguments>
 										<argument>target/filius.nsi</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>create installer with built-in JRE</id>
+								<phase>install</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>nsis/makensis</executable>
+									<arguments>
+										<argument>target/filius-with-jre.nsi</argument>
 									</arguments>
 								</configuration>
 							</execution>
