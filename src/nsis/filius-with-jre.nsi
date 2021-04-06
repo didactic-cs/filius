@@ -41,7 +41,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "Filius-Setup-${PRODUCT_VERSION}-with-JRE.exe"
+OutFile "Filius-Setup_with-JRE-${PRODUCT_VERSION}.exe"
 InstallDir "$PROGRAMFILES64\Filius"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
