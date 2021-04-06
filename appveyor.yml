@@ -14,8 +14,10 @@ build_script:
 
     mvn clean install -Plinux -DskipTests
 artifacts:
-- path: target\Filius-Setup*.exe
+- path: target\Filius-Setup-*.exe
   name: Windows Installer
+- path: target\Filius-Setup_with-JRE*.exe
+  name: Windows Installer with Bundled JRE
 - path: target\*.zip
   name: Zip Archive
 - path: target\*.deb
