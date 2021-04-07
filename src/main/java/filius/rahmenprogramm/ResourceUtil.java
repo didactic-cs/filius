@@ -19,18 +19,29 @@ public class ResourceUtil {
     }
 
     public static String getResourcePath(String relativePath) {
+        String urlEncodedPath = getResourceUrlEncodedPath(relativePath);
+        String path = null;
+        if (urlEncodedPath != null) {
+            try {
+                Main.debug.println(urlEncodedPath);
+                path = URIUtil.decode(urlEncodedPath);
+                Main.debug.println("Resolved path: " + path);
+            } catch (URIException e) {
+                Main.debug.println("Resource " + relativePath + " could not be resolved (" + urlEncodedPath + ")");
+            }
+        }
+        return path;
+    }
+
+    public static String getResourceUrlEncodedPath(String relativePath) {
+        String urlEncodedPath = null;
         URL systemResource = ClassLoader.getSystemResource(relativePath);
         if (null == systemResource) {
             Main.debug.println("Resource " + relativePath + " could not be found!");
-            return null;
+        } else {
+            Main.debug.println("Resource " + systemResource);
+            urlEncodedPath = systemResource.getPath().replace("+", "%2b");
         }
-        String urlEncodedPath = systemResource.getPath();
-        String path = null;
-        try {
-            path = URIUtil.decode(urlEncodedPath);
-        } catch (URIException e) {
-            Main.debug.println("Resource " + relativePath + " could not be resolved (" + urlEncodedPath + ")");
-        }
-        return path;
+        return urlEncodedPath;
     }
 }

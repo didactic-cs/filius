@@ -184,8 +184,9 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         emailVorschau.setContentType("text/html");
         emailVorschau.setEditable(false);
         emailVorschau.setText("<html><head><base href=\"file:bilder\"></head><body>" + "<img src=\"file:"
-                + ResourceUtil.getResourceFile("img/email_icon.png") + "\" align=\"top\">" + "<font face=arial>"
-                + messages.getString("emailanwendung_msg4") + "!<br /></font>" + "</body></html>");
+                + ResourceUtil.getResourceUrlEncodedPath("img/email_icon.png") + "\" align=\"top\">"
+                + "<font face=arial>" + messages.getString("emailanwendung_msg4") + "!<br /></font>"
+                + "</body></html>");
         JScrollPane vorschauScrollPane = new JScrollPane(emailVorschau);
         vorschauScrollPane.setPreferredSize(new Dimension(300, 200));
         vorschauBox.add(vorschauScrollPane);

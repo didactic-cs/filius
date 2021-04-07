@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -114,10 +115,8 @@ public class GUIHilfe implements I18n {
         } else {
             file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_simulation"));
         }
-        String gfxPath = "file:" + file.getParentFile().getAbsolutePath() + "/gfx/";
-        if (File.separator.equals("\\")) {
-            gfxPath = gfxPath.replace('\\', '/');
-        }
+        Main.debug.println("Help file: " + file.getAbsolutePath());
+        String gfxBaseUrl = "file:" + ResourceUtil.getResourceUrlEncodedPath("hilfe/gfx/");
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
             StringBuffer sb = new StringBuffer();
@@ -125,8 +124,8 @@ public class GUIHilfe implements I18n {
                 sb.append(line);
             }
             String newText = sb.toString();
-            newText = newText.replaceAll("hilfe/gfx/", gfxPath);
-            // System.out.println(newText);
+            String escapedGfxBaseUrl = Matcher.quoteReplacement(gfxBaseUrl);
+            newText = newText.replaceAll("hilfe/gfx/", escapedGfxBaseUrl);
             epHtml.read(new java.io.StringReader(newText), null);
             epHtml.setCaretPosition(0);
         } catch (FileNotFoundException e) {
