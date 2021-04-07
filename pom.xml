@@ -311,6 +311,21 @@
 									</arguments>
 								</configuration>
 							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>windows-with-jre</id>
+			<!-- use only with windows profile!  -->
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.2</version>
+						<executions>
 							<execution>
 								<id>create installer with built-in JRE</id>
 								<phase>install</phase>
