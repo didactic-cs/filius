@@ -27,7 +27,6 @@ package filius.software.transportschicht;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -159,12 +158,13 @@ public class TCPSocket extends Socket implements Runnable {
     /** Puffer fuer eingegangene Segmente. */
     private LinkedList<TcpSegment> puffer = new LinkedList<TcpSegment>();
 
+    private static long synInitValue = 1l;
     /**
      * dieses Attribut ist immer die Sequenznummer des als naechstes zu sendenden Segments. Die Sequenznummer wird
      * waehrend des Veringudngsaufbaus erhoeht, wenn das SYN-Flag gesetzt ist und wenn die Verbindung hergestellt ist,
      * wenn in dem Segment Nutzdaten verschickt werden.
      */
-    private long nextSendSequenceNumber = Math.abs((new Random()).nextLong()) % (long) (Math.pow(2, 32));
+    private long nextSendSequenceNumber = synInitValue++ % (long) Math.pow(2, 32) * 1_000_000l;
     private long lastSentSequenceNumber;
 
     /**

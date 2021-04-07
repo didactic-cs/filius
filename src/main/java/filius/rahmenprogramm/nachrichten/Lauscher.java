@@ -25,6 +25,7 @@
  */
 package filius.rahmenprogramm.nachrichten;
 
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -36,6 +37,7 @@ import java.util.Vector;
 
 import filius.Main;
 import filius.rahmenprogramm.I18n;
+import filius.rahmenprogramm.Information;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.transportschicht.TcpSegment;
 import filius.software.transportschicht.UdpSegment;
@@ -58,6 +60,8 @@ public class Lauscher implements I18n {
             messages.getString("rp_lauscher_msg9"), messages.getString("rp_lauscher_msg10"),
             messages.getString("rp_lauscher_msg11") };
 
+    private NumberFormat numberFormatter = NumberFormat.getInstance(Information.getInformation().getLocale());
+
     /** Singleton */
     private static Lauscher lauscher = null;
 
@@ -68,6 +72,7 @@ public class Lauscher implements I18n {
     private Lauscher() {
         Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: Lauscher()");
         beobachter = new HashMap<String, LinkedList<LauscherBeobachter>>();
+
         reset();
     }
 
@@ -293,9 +298,10 @@ public class Lauscher implements I18n {
                                 neuerEintrag[6] = "FIN";
                             }
                             neuerEintrag[6] = ((neuerEintrag[6] == null) ? "" : neuerEintrag[6] + ", ") + "SEQ: "
-                                    + tcpSeg.getSeqNummer();
+                                    + numberFormatter.format(tcpSeg.getSeqNummer());
                             if (tcpSeg.isAck()) {
-                                neuerEintrag[6] = neuerEintrag[6] + ", ACK:" + tcpSeg.getAckNummer();
+                                neuerEintrag[6] = neuerEintrag[6] + ", ACK: "
+                                        + numberFormatter.format(tcpSeg.getAckNummer());
                             }
                         } else if (ipPaket.getProtocol() == IpPaket.UDP) {
                             udpSeg = (UdpSegment) ipPaket.getSegment();
