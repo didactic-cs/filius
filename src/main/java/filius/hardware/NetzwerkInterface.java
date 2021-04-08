@@ -29,6 +29,7 @@ import java.io.Serializable;
 
 import filius.Main;
 import filius.rahmenprogramm.Information;
+import filius.software.vermittlungsschicht.IP;
 
 public class NetzwerkInterface implements Serializable {
 
@@ -113,7 +114,7 @@ public class NetzwerkInterface implements Serializable {
     }
 
     public void setIp(String ip) {
-        this.ip = ip;
+        this.ip = IP.ipCheck(ip);
     }
 
     public String getMac() {
@@ -132,7 +133,7 @@ public class NetzwerkInterface implements Serializable {
     }
 
     public void setSubnetzMaske(String subnetzMaske) {
-        this.subnetzMaske = subnetzMaske;
+        this.subnetzMaske = IP.ipCheck(subnetzMaske);
     }
 
     /**

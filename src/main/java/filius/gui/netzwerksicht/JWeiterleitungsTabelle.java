@@ -149,7 +149,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
                         pattern = EingabenUeberpruefung.musterIpAdresse;
                         break;
                     }
-                    if (EingabenUeberpruefung.isGueltig(tmpString, pattern)) {
+                    if (null != tmpString && EingabenUeberpruefung.isGueltig(tmpString, pattern)) {
                         routingEintrag[j] = tmpString;
                     } else {
                         routingEintrag[j] = "";
