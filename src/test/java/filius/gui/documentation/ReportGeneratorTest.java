@@ -36,8 +36,8 @@ public class ReportGeneratorTest {
     private Lauscher lauscherMock;
 
     @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    public void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this).close();
     }
 
     @BeforeClass

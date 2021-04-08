@@ -40,6 +40,7 @@ import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
@@ -104,7 +105,7 @@ public class ReportGenerator {
     }
 
     void addOverviewSection(Document document) throws BadElementException, IOException, DocumentException {
-        createSection(document, "Overview", 1);
+        createSection(document, I18n.messages.getString("report_overview"), 1);
 
         Image img = Image.getInstance(GUIContainer.getGUIContainer().createNetworkImage(), null);
         float percent = (document.right() - document.left()) / img.getWidth() * 100;
@@ -113,17 +114,19 @@ public class ReportGenerator {
     }
 
     void addComponentConfigSection(Document document) throws BadElementException, IOException, DocumentException {
-        createSection(document, "Component Configuration", 1);
+        createSection(document, I18n.messages.getString("report_component_config"), 1);
 
         List<GUIKnotenItem> components = GUIContainer.getGUIContainer().getKnotenItems();
         for (GUIKnotenItem item : components) {
             if (item.getKnoten() instanceof InternetKnoten) {
-                createSection(document, item.getKnoten().holeAnzeigeName(), 2);
                 InternetKnotenBetriebssystem systemSoftware = (InternetKnotenBetriebssystem) item.getKnoten()
                         .getSystemSoftware();
 
-                document.add(Chunk.NEWLINE);
+                createSection(document, item.getKnoten().holeAnzeigeName(), 2);
+                createSection(document, I18n.messages.getString("report_base_config"), 3);
+
                 PdfPTable configTable = new PdfPTable(2);
+                configTable.setHorizontalAlignment(Element.ALIGN_LEFT);
                 configTable.setTotalWidth(new float[] { 180, 360 });
                 configTable.setLockedWidth(false);
 
@@ -140,12 +143,14 @@ public class ReportGenerator {
 
                 InternetKnoten node = (InternetKnoten) item.getKnoten();
                 PdfPTable interfaceTable = new PdfPTable(3);
+                interfaceTable.setHorizontalAlignment(Element.ALIGN_LEFT);
                 interfaceTable.setTotalWidth(new float[] { 180, 180, 180 });
                 interfaceTable.setLockedWidth(false);
                 addHeaderCell(I18n.messages.getString("jhostkonfiguration_msg9"), interfaceTable);
                 addHeaderCell(I18n.messages.getString("jhostkonfiguration_msg3"), interfaceTable);
                 addHeaderCell(I18n.messages.getString("jhostkonfiguration_msg4"), interfaceTable);
 
+                createSection(document, I18n.messages.getString("report_nics"), 3);
                 for (NetzwerkInterface networkInterface : node.getNetzwerkInterfaces()) {
                     addCell(networkInterface.getMac(), interfaceTable);
                     addCell(networkInterface.getIp(), interfaceTable);
@@ -156,6 +161,7 @@ public class ReportGenerator {
                 document.add(Chunk.NEWLINE);
 
                 if (systemSoftware instanceof Betriebssystem) {
+                    createSection(document, I18n.messages.getString("report_apps"), 3);
                     Chunk chunk = new Chunk(I18n.messages.getString("installationsdialog_msg3") + " ", BOLD_FONT);
                     document.add(chunk);
                     Anwendung[] apps = ((Betriebssystem) systemSoftware).holeArrayInstallierteSoftware();
@@ -169,6 +175,25 @@ public class ReportGenerator {
                     document.add(Chunk.NEWLINE);
                     document.add(Chunk.NEWLINE);
                 }
+
+                createSection(document, I18n.messages.getString("report_routing_table"), 3);
+                PdfPTable forwardingTable = new PdfPTable(4);
+                forwardingTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+                forwardingTable.setTotalWidth(new float[] { 180, 180, 180, 180 });
+                forwardingTable.setLockedWidth(false);
+
+                addHeaderCell(I18n.messages.getString("jweiterleitungstabelle_msg3"), forwardingTable);
+                addHeaderCell(I18n.messages.getString("jweiterleitungstabelle_msg4"), forwardingTable);
+                addHeaderCell(I18n.messages.getString("jweiterleitungstabelle_msg5"), forwardingTable);
+                addHeaderCell(I18n.messages.getString("jweiterleitungstabelle_msg6"), forwardingTable);
+
+                for (String[] routeEntry : systemSoftware.getWeiterleitungstabelle().holeTabelle()) {
+                    for (int i = 0; i < routeEntry.length; i++) {
+                        addCell(routeEntry[i], forwardingTable);
+                    }
+                }
+                document.add(forwardingTable);
+                document.add(Chunk.NEWLINE);
             }
         }
     }
@@ -195,7 +220,7 @@ public class ReportGenerator {
         String[] columnHeader = lauscher.getHeader();
         Collection<String> interfaceIDs = lauscher.getInterfaceIDs();
         if (interfaceIDs.size() > 0) {
-            createSection(document, "Network Traffic", 1);
+            createSection(document, I18n.messages.getString("report_network_traffic"), 1);
         }
         for (String interfaceId : interfaceIDs) {
             String hostname = "Unknown";
@@ -212,7 +237,6 @@ public class ReportGenerator {
                 }
             }
             createSection(document, hostname + " - " + ipAddress, 2);
-            document.add(Chunk.NEWLINE);
 
             PdfPTable table = new PdfPTable(columnHeader.length);
             table.setTotalWidth(new float[] { 20, 60, 80, 80, 40, 50, 180 });
@@ -275,9 +299,9 @@ public class ReportGenerator {
             if (filename.contains(".")) {
                 filename = filename.substring(0, filename.lastIndexOf('.'));
             }
-            title = "Filius Documentation: " + filename;
+            title = I18n.messages.getString("report_title") + ": " + filename;
         } else {
-            title = "Filius Documentation";
+            title = I18n.messages.getString("report_title");
         }
         document.addTitle(title);
         document.addCreator("Filius (www.lernsoftware-filius.de)");
