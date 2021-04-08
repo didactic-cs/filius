@@ -61,6 +61,8 @@ import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.Anwendung;
+import filius.software.dns.DNSServer;
+import filius.software.dns.ResourceRecord;
 import filius.software.system.Betriebssystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 
@@ -173,6 +175,27 @@ public class ReportGenerator {
                     chunk = new Chunk(StringUtils.isBlank(appList) ? "-" : appList, DEFAULT_FONT);
                     document.add(chunk);
                     document.add(Chunk.NEWLINE);
+                    document.add(Chunk.NEWLINE);
+                }
+
+                DNSServer dnsServer = (DNSServer) systemSoftware.holeSoftware("filius.software.dns.DNSServer");
+                if (dnsServer != null) {
+                    createSection(document, I18n.messages.getString("report_dns_rr"), 3);
+                    PdfPTable dnsTable = new PdfPTable(3);
+                    dnsTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+                    dnsTable.setTotalWidth(new float[] { 180, 60, 260 });
+                    dnsTable.setLockedWidth(false);
+
+                    addHeaderCell(I18n.messages.getString("report_domain"), dnsTable);
+                    addHeaderCell(I18n.messages.getString("report_type"), dnsTable);
+                    addHeaderCell(I18n.messages.getString("report_data"), dnsTable);
+
+                    for (ResourceRecord resourceRecord : dnsServer.holeResourceRecords()) {
+                        addCell(resourceRecord.getDomainname(), dnsTable);
+                        addCell(resourceRecord.getType(), dnsTable);
+                        addCell(resourceRecord.getRdata(), dnsTable);
+                    }
+                    document.add(dnsTable);
                     document.add(Chunk.NEWLINE);
                 }
 
