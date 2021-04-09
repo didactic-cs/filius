@@ -1,7 +1,11 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Contact: Stefan Freischlad <kontakt@lernsoftware-filius.de>
-Source: https://www.lernsoftware-filius.de
+Source: https://gitlab.com/filius1/filius
+Copyright: 2007-2021
+License: GPL-2 or GPL-3
 
-Copyright: 2007-2020
+Files: filius.jar
+Copyright: 2007-2021
 License: GPL-2 or GPL-3
 
 On Debian GNU/Linux systems, the complete text of the GNU General
