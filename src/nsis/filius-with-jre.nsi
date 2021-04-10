@@ -71,9 +71,10 @@ Section "Filius" SEC01
   SetOutPath "$INSTDIR"
   File "Einfuehrung_Filius.pdf"
   CreateDirectory "$SMPROGRAMS\Filius"
-  CreateShortCut "$SMPROGRAMS\Filius\Filius.pdf.lnk" "$INSTDIR\Einfuehrung_Filius.pdf" 
+  CreateShortCut "$SMPROGRAMS\Filius\Filius Einfuehrung.lnk" "$INSTDIR\Einfuehrung_Filius.pdf" 
   File "Filius.exe"
   CreateShortCut "$SMPROGRAMS\Filius\Filius.lnk" "$INSTDIR\Filius.exe"
+  CreateShortCut "$SMPROGRAMS\Filius\Filius Info.lnk" "$INSTDIR\project-info.html"
   File "filius.jar"
   File "Filius.sh"
   File "Filius.command"
@@ -84,6 +85,7 @@ Section "Filius" SEC01
   File /r "classes\img"
   File /r "lib"
   File /r "classes\tmpl"
+  File /r "site\*"
   File /r "..\java-runtime"
   ; Dateityp '.fls' zuordnen
   WriteRegStr HKLM "SOFTWARE\Classes\.fls\shell\open\command" "" '"$INSTDIR\Filius.exe" "%1"'

@@ -28,6 +28,12 @@
 	<name>Filius</name>
 	<description>Lernsoftware zu Rechnernetzen</description>
 	<url>https://www.lernsoftware-filius.de</url>
+	<licenses>
+		<license>
+			<name>GNU General Public License v3 (GPLv3)</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+		</license>
+	</licenses>
 
 	<dependencies>
 		<dependency>
@@ -215,8 +221,30 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.9.1</version>
+			</plugin>
 		</plugins>
 	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>3.1.1</version>
+				<reportSets>
+					<reportSet>
+						<reports><!-- select reports -->
+							<report>dependencies</report>
+							<report>licenses</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
 	<profiles>
 		<profile>
 			<id>windows</id>
@@ -554,6 +582,16 @@
 												<type>perm</type>
 												<strip>1</strip>
 												<prefix>/usr/share/filius/lib</prefix>
+											</mapper>
+										</data>
+										<data>
+											<src>${project.build.directory}/site</src>
+											<type>directory</type>
+											<includes>**/*</includes>
+											<mapper>
+												<type>perm</type>
+												<strip>1</strip>
+												<prefix>/usr/share/doc/filius</prefix>
 											</mapper>
 										</data>
 									</dataSet>
