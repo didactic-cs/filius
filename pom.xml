@@ -494,7 +494,6 @@
 										<data>
 											<src>${project.basedir}/src/info</src>
 											<type>directory</type>
-											<excludes>.svn</excludes>
 											<includes>*.*</includes>
 											<mapper>
 												<type>perm</type>
@@ -505,11 +504,9 @@
 										<data>
 											<src>${project.basedir}/src/main/resources/config</src>
 											<type>directory</type>
-											<excludes>.svn</excludes>
 											<includes>*.*</includes>
 											<mapper>
 												<type>perm</type>
-												<strip>1</strip>
 												<prefix>/usr/share/filius/config</prefix>
 											</mapper>
 										</data>
@@ -522,55 +519,35 @@
 										<data>
 											<src>${project.basedir}/src/main/resources/tmpl</src>
 											<type>directory</type>
-											<excludes>**/.svn</excludes>
-											<includes>*.*</includes>
 											<mapper>
 												<type>perm</type>
-												<strip>1</strip>
 												<prefix>/usr/share/filius/tmpl</prefix>
-											</mapper>
-										</data>
-										<data>
-											<src>${project.basedir}/src/main/resources/tmpl/quelltext_vorlagen</src>
-											<type>directory</type>
-											<excludes>**/.svn</excludes>
-											<includes>*.*</includes>
-											<mapper>
-												<type>perm</type>
-												<strip>1</strip>
-												<prefix>/usr/share/filius/tmpl/quelltext_vorlagen</prefix>
 											</mapper>
 										</data>
 										<data>
 											<src>${project.basedir}/src/main/resources/img</src>
 											<type>directory</type>
-											<excludes>**/.svn</excludes>
 											<includes>*.*</includes>
 											<mapper>
 												<type>perm</type>
-												<strip>1</strip>
 												<prefix>/usr/share/filius/img</prefix>
 											</mapper>
 										</data>
 										<data>
 											<src>${project.basedir}/src/main/resources/hilfe</src>
 											<type>directory</type>
-											<excludes>**/.svn</excludes>
 											<includes>*.*</includes>
 											<mapper>
 												<type>perm</type>
-												<strip>1</strip>
 												<prefix>/usr/share/filius/hilfe</prefix>
 											</mapper>
 										</data>
 										<data>
 											<src>${project.basedir}/src/main/resources/hilfe/gfx</src>
 											<type>directory</type>
-											<excludes>**/.svn</excludes>
 											<includes>*.*</includes>
 											<mapper>
 												<type>perm</type>
-												<strip>1</strip>
 												<prefix>/usr/share/filius/hilfe/gfx</prefix>
 											</mapper>
 										</data>
@@ -580,17 +557,14 @@
 											<includes>*.jar</includes>
 											<mapper>
 												<type>perm</type>
-												<strip>1</strip>
 												<prefix>/usr/share/filius/lib</prefix>
 											</mapper>
 										</data>
 										<data>
 											<src>${project.build.directory}/site</src>
 											<type>directory</type>
-											<includes>**/*</includes>
 											<mapper>
 												<type>perm</type>
-												<strip>1</strip>
 												<prefix>/usr/share/doc/filius</prefix>
 											</mapper>
 										</data>
