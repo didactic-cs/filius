@@ -1,5 +1,21 @@
 # Changelog Filius
 
+## [1.12.0] - 2021-04-10
+### Added
+ * Detailed license information added
+ * Report contains now the forwarding table of network nodes and - if available - DNS server configuration
+ * Provide an installer with bundled JRE for Windows
+ 
+### Changed
+ * IP addresses for router config as well as forwarding table entries are now validated after input
+ * SEQ and ACK numbers are now initialized with trailing zeros and formatted as decimal numbers for better readability
+
+### Fixed
+ * Version comparison (only visible in log outpug)
+ * Filius can know be installed in directories that contain '+' or '$'
+ * SEQ number is now incremented after FIN reception
+ * Help contents are now available from the start
+
 ## [1.11.0] - 2021-01-23
 ### Added
  * The personal firewall supports now filtering of UDP traffic.
