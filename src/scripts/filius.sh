@@ -9,4 +9,4 @@ script_path=`readlink -f $0`
 installation_path=${script_path%`basename ${script_path}`}
 
 # start filius
-java -jar ${installation_path}filius.jar $@
+java -jar ${installation_path}filius.jar "$@"

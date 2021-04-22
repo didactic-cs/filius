@@ -42,11 +42,14 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.cli.ParseException;
+
 import filius.gui.GUIContainer;
 import filius.gui.GUIMainMenu;
 import filius.gui.JMainFrame;
 import filius.gui.SplashScreen;
 import filius.hardware.Verbindung;
+import filius.rahmenprogramm.FiliusArgs;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
@@ -261,125 +264,53 @@ public class Main implements I18n {
      * zum Start geladen werden soll.
      */
     public static void main(String[] args) {
-        String currWD = Information.initArbeitsbereichPfad;
-        File file;
-        boolean log = false;
-        String newWD = null;
-        String argsString = "";
-        boolean nativeLookAndFeel = false;
-        boolean verbose = false;
+        FiliusArgs filiusArgs = new FiliusArgs();
+        try {
+            filiusArgs.parseCommandLine(args);
 
-        if (args != null && args.length >= 1) {
-            for (int i = 0; i < args.length; i++) {
-                argsString += args[i] + " ";
-                // Protokollieren in Datei?
-                if (args[i].equals("-l")) {
-                    log = true;
-                }
-                if (args[i].equals("-wd")) {
-                    if (args.length > i + 1 && !args[i + 1].startsWith("-")) {
-                        newWD = args[++i].trim();
-                        currWD = newWD; // set working directory (not yet set in
-                        // Information class, otherwise an
-                        // Exception would emerge!)
-                        // Information.getInformation().setArbeitsbereichPfad(newWD);
-                    } else {
-                        System.err.println(
-                                "Parameter '-wd' ohne Argument verwendet! Korrekte Verwendung (Beispiel):  '-wd /home/user'\n");
-                        System.err.println(
-                                "Parameter '-wd' without content! Correct usage (example):  '-wd /home/user'\n");
-                        showUsageInformation();
-                        System.exit(1);
-                    }
-                }
-                if (args[i].equals("-n")) {
-                    nativeLookAndFeel = true;
-                }
-                if (args[i].equals("-h")) {
-                    showUsageInformation();
-                    System.exit(0);
-                }
-                if (args[i].equals("-s")) {
-                    Information.setLowResolution(true);
-                }
-                if (args[i].equals("-v")) {
-                    verbose = true;
-                }
-                if (args[i].equals("-r")) {
-                    if (args.length > i + 1 && !args[i + 1].startsWith("-")) {
-                        try {
-                            int rtt = Integer.parseInt(args[++i]);
-                            Verbindung.setRTTfactor(rtt);
-                        } catch (NumberFormatException e) {
-                            System.err.println("Ungueltige Round-Trip-Time " + args[i] + ". Ganzzahl erwartet.\n");
-                            showUsageInformation();
-
-                            System.exit(1);
-                        }
-
-                    } else {
-                        System.err.println(
-                                "Parameter '-r' ohne Argument verwendet! Korrekte Verwendung (Beispiel):  '-r 2'\n");
-                        showUsageInformation();
-                        System.exit(1);
-                    }
-                }
-            }
-            if (currWD.isEmpty()
-                    || (!currWD.substring(currWD.length() - 1).equals(System.getProperty("file.separator")))) {
+            if (filiusArgs.currWD.isEmpty() || (!filiusArgs.currWD.substring(filiusArgs.currWD.length() - 1)
+                    .equals(System.getProperty("file.separator")))) {
                 // check, whether working directory is
                 // usable... else provide dialog for correct
                 // paths
-                if (Information.getInformation(currWD + System.getProperty("file.separator")) == null)
+                if (Information.getInformation(filiusArgs.currWD + System.getProperty("file.separator")) == null)
                     System.exit(6);
-                else if (Information.getInformation(currWD) == null)
+                else if (Information.getInformation(filiusArgs.currWD) == null)
                     System.exit(6);
             }
-            // if no logging specified on command line or logging to file
-            // fails, then set logging to null
-            if (log) {
-                log = loggen(Information.getInformation().getArbeitsbereichPfad() + "filius.log", verbose);
+            if (filiusArgs.log) {
+                filiusArgs.log = loggen(Information.getInformation().getArbeitsbereichPfad() + "filius.log",
+                        filiusArgs.verbose);
             } else {
-                loggen(null, verbose);
+                loggen(null, filiusArgs.verbose);
             }
-        } else {
-            if (Information.getInformation(currWD) == null) {
+            if (Information.getInformation(filiusArgs.currWD) == null) {
                 System.exit(6);
             }
-            loggen(null, false);
+            Verbindung.setRTTfactor(filiusArgs.rtt);
+            Information.setLowResolution(filiusArgs.lowResolution);
+
+            if (filiusArgs.nativeLookAndFeel) {
+                activateNativeLookAndFeel();
+            }
+            if (filiusArgs.help) {
+                filiusArgs.showUsageInformation();
+            } else {
+                starten(filiusArgs.projectFile);
+            }
+        } catch (ParseException e) {
+            filiusArgs.showUsageInformation();
         }
-
-        showUsageInformation();
-
         Main.debug.println("------------------------------------------------------");
         Main.debug.println("\tJava Version: " + System.getProperty("java.version"));
         Main.debug.println("\tJava Directory: " + System.getProperty("java.home"));
         Main.debug.println("\tFILIUS Version: " + Information.getVersion());
-        Main.debug.println("\tParameters: '" + argsString.trim() + "'");
+        Main.debug.println("\tParameters: '" + filiusArgs.argsString.trim() + "'");
         // +"\n\tWD Base: "+newWD
         Main.debug.println("\tFILIUS Installation: " + Information.getInformation().getProgrammPfad());
         Main.debug.println("\tFILIUS Working Directory: " + Information.getInformation().getArbeitsbereichPfad());
         Main.debug.println("\tFILIUS Temp Directory: " + Information.getInformation().getTempPfad());
         Main.debug.println("------------------------------------------------------\n");
-
-        if (nativeLookAndFeel) {
-            activateNativeLookAndFeel();
-        }
-        if (args != null && ((args.length >= 1 && !log) || (args.length >= 2 && log))) {
-            // Projekt-Datei als letztes Argument uebergeben?
-            try {
-                file = new File(args[args.length - 1]);
-                if (file.exists()) {
-                    starten(file.getAbsolutePath());
-                } else
-                    starten(null);
-            } catch (Exception e) {
-                e.printStackTrace();
-                starten(null);
-            }
-        } else {
-            starten(null);
-        }
     }
 
     public static void activateNativeLookAndFeel() {
@@ -395,29 +326,6 @@ public class Main implements I18n {
         } catch (IllegalAccessException e) {
             // handle exception
         }
-    }
-
-    private static void showUsageInformation() {
-        StringBuffer usage = new StringBuffer();
-
-        usage.append("\nAufruf:\n");
-        usage.append("\tfilius [Optionen] [Pfad zu Projektdatei]\n\n");
-
-        usage.append("Verwenden Sie Filius mit folgenden Optionen:\n");
-        usage.append("\t-h   Anzeige dieser Hilfe-Information\n");
-        usage.append("\t-v   Ausgabe detaillierter Informationen zu Programmausfuehrung\n");
-        usage.append("\t-wd  Pfad zu Arbeitsverzeichnis, in dem durch das Programm Daten\n"
-                + "\t     zur Laufzeit abgelegt werden koennen\n");
-        usage.append("\t-l   Loggen der Programmausgabe in Datei (filius.log)\n");
-        usage.append("\t-r   Setzen eines Faktors zur Erhoehung der erlaubten\n"
-                + "\t     Round-Trip-Time in Filius (kann erforderlich sein, um Fehler\n"
-                + "\t     bei Ausfuehrung auf langsamer Hardware zu vermeiden)\n"
-                + "\t     Gueltige Werte sind 1 (Vorgabe) bis 5.\n");
-        usage.append("\t-n   Darstellung mit betriebssystemspezifischem Look & Feel\n");
-        usage.append(
-                "\t-s   Darstellung fuer niedrige Bildschirmaufloesung (kleiner\n" + "\t     1024x768) anpassen\n");
-
-        System.out.println(usage.toString());
     }
 
 }
