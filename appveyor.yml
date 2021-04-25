@@ -12,12 +12,14 @@ build_script:
 
     mvn --version
 
-    mvn clean site install -Pwindows -DskipTests
+    mvn clean site install -Plinux -Pwindows-with-jre -DskipTests
 artifacts:
-- path: target\Filius-Setup-*.exe
-  name: Windows Installer
+- path: target\Filius-Setup_with-JRE*.exe
+  name: Windows Installer with Bundled JRE
 - path: target\*.zip
   name: Zip Archive
+- path: target\*.deb
+  name: Debian Package
 deploy:
 - provider: Webhook
   url: https://app.signpath.io/API/v1/15baf9fe-557e-4a33-92a1-afc9246f41d2/Integrations/AppVeyor?ProjectSlug=filius&SigningPolicySlug=release-signing
