@@ -1,5 +1,11 @@
 # Changelog Filius
 
+## [1.12.1] - 2021-04-25
+### Fixed
+* Fix command line arg handling (some combinations were not possible)
+* Fix spaces in filename when starting via command line under linux
+* Ensure that during visual alignment of components in design mode, the dragged component is always in foreground
+
 ## [1.12.0] - 2021-04-10
 ### Added
  * Detailed license information added
