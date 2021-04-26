@@ -1,5 +1,9 @@
 # Changelog Filius
 
+## [1.12.2] - 2021-04-26
+### Fixed
+* Fix exception after one node was deleted
+
 ## [1.12.1] - 2021-04-25
 ### Fixed
 * Fix command line arg handling (some combinations were not possible)
