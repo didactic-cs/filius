@@ -27,7 +27,9 @@ package filius.software.dateiaustausch;
 
 import java.util.List;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.ServerMitarbeiter;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
@@ -38,6 +40,7 @@ import filius.software.www.HTTPNachricht;
  * In dieser Klasse wird ein Thread implementiert, der eingehende Anfragen an eine Peer-to-Peer-Anwendung verarbeitet.
  */
 public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
+    private static Logger LOG = LoggerFactory.getLogger(PeerToPeerServerMitarbeiter.class);
 
     private PeerToPeerAnwendung peerToPeerAnwendung;
 
@@ -53,7 +56,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
      */
     PeerToPeerServerMitarbeiter(PeerToPeerServer server, Socket socket, PeerToPeerAnwendung peerToPeerAnwendung) {
         super(server, socket);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServerMitarbeiter), constr: PeerToPeerServerMitarbeiter(" + server + "," + socket + ","
                 + peerToPeerAnwendung + ")");
 
@@ -62,13 +65,13 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
 
     /** Methode zum versenden von Antwortnachrichten */
     void senden(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServerMitarbeiter), senden(" + nachricht + ")");
         if (socket != null && socket.istVerbunden()) {
             try {
                 socket.senden(nachricht);
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         }
     }
@@ -95,7 +98,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
      *            die zu verarbeitende HTTP Anfrage in Form eines TcpPufferElements
      */
     private void httpAnfrageVerarbeiten(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServerMitarbeiter), httpAnfrageVerarbeiten(" + nachricht + ")");
         HTTPNachricht http, antwort;
         Datei datei;
@@ -115,7 +118,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
         try {
             socket.senden(antwort.toString());
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
     }
 
@@ -132,7 +135,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
      * @param pingPaket
      */
     private void verarbeitePing(PingPaket pingPaket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServerMitarbeiter), verarbeitePing(" + pingPaket + ")");
         String pongNachricht;
 
@@ -143,7 +146,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
             try {
                 socket.senden(pongNachricht);
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         }
 
@@ -171,7 +174,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
      * @param queryPaket
      */
     private void verarbeiteQuery(QueryPaket queryPaket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServerMitarbeiter), verarbeiteQuery(" + queryPaket + ")");
         List<Datei> dateien;
         Betriebssystem bs;
@@ -194,7 +197,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
                 try {
                     socket.senden(antwortPaket.toString());
                 } catch (Exception e) {
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
             }
             socket.schliessen();
@@ -207,7 +210,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
      * Unterschieden wird eine HTTP-GET-Anfrage, eine eingehende Ping-Nachricht und eine eingehende Suchanfrage (Query).
      */
     protected void verarbeiteNachricht(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServerMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
         PeerToPeerPaket paket;
         PingPaket pingPaket;

@@ -45,14 +45,18 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.knoten.Knoten;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.Weiterleitungstabelle;
 
+@SuppressWarnings("serial")
 public class JWeiterleitungsTabelle extends JTable implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(JWeiterleitungsTabelle.class);
 
     private LinkedList<Boolean> editableRows = null;
     private JVermittlungsrechnerKonfiguration konfig;
@@ -60,8 +64,8 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
 
     public JWeiterleitungsTabelle(JVermittlungsrechnerKonfiguration konfig) {
         super(new DefaultTableModel(1, 4));
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JWeiterleitungsTabelle("
-                + konfig + ")");
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JWeiterleitungsTabelle(" + konfig
+                + ")");
 
         this.konfig = konfig;
 
@@ -114,7 +118,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     }
 
     public void aenderungenAnnehmen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", aenderungenAnnehmen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", aenderungenAnnehmen()");
         Vector<Object> rowData;
         Vector<Vector> tableData;
         Weiterleitungstabelle tabelle;
@@ -196,7 +200,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     }
 
     public void neuerEintrag() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", neuerEintrag()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", neuerEintrag()");
         Vector<String> eintrag = new Vector<String>();
         eintrag.add("");
         eintrag.add("");
@@ -204,7 +208,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
         eintrag.add("");
 
         ((DefaultTableModel) getModel()).addRow(eintrag);
-        // Main.debug.println("JWeiterleitungsTabelle: neuer Eintrag, insgesamt "+getModel().getRowCount()+" Zeilen");
+        // LOG.debug("JWeiterleitungsTabelle: neuer Eintrag, insgesamt "+getModel().getRowCount()+" Zeilen");
         editableRows.add(new Boolean(true));
         aenderungenAnnehmen();
     }
@@ -247,7 +251,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     }
 
     public void updateAttribute() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateAttribute()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateAttribute()");
         ListIterator it, editableIt;
         Weiterleitungstabelle tabelle;
         LinkedList<String[]> routingTabelle;

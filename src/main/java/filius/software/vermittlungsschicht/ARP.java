@@ -29,7 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Verbindung;
 import filius.hardware.knoten.InternetKnoten;
@@ -42,6 +44,7 @@ import filius.software.system.SystemSoftware;
  * Eintraegen, die aus einer IP-Adresse und einem Paar aus MAC-Adresse und Zeitpunkt der Eintragerstellung besteht.
  */
 public class ARP extends VermittlungsProtokoll {
+    private static Logger LOG = LoggerFactory.getLogger(ARP.class);
 
     /**
      * Die ARP-Tabelle als Hashtabelle. Als Schluessel wird die IP-Adresse verwendet. Der zugehoerige Wert ist ein
@@ -61,12 +64,11 @@ public class ARP extends VermittlungsProtokoll {
      */
     public ARP(SystemSoftware systemAnwendung) {
         super(systemAnwendung);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ARP), constr: ARP("
-                + systemAnwendung + ")");
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ARP), constr: ARP(" + systemAnwendung + ")");
     }
 
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), starten()");
         arpTabelle = new HashMap<String, String[]>();
         hinzuARPTabellenEintrag("255.255.255.255", "FF:FF:FF:FF:FF:FF");
         thread = new ARPThread(this);
@@ -74,7 +76,7 @@ public class ARP extends VermittlungsProtokoll {
     }
 
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), beenden()");
         if (thread != null)
             thread.beenden();
     }
@@ -88,8 +90,8 @@ public class ARP extends VermittlungsProtokoll {
      * @param macAdresse
      */
     public void hinzuARPTabellenEintrag(String ipAdresse, String macAdresse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), hinzuARPTabellenEintrag("
-                + ipAdresse + "," + macAdresse + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), hinzuARPTabellenEintrag(" + ipAdresse
+                + "," + macAdresse + ")");
         String tmpTime = "" + System.currentTimeMillis();
         String[] tmpString = { macAdresse, tmpTime };
 
@@ -127,8 +129,7 @@ public class ARP extends VermittlungsProtokoll {
      * @return MAC Adresse, zu der die IP Adresse gehoert, oder null, wenn keine MAC-Adresse bestimmt werden konnte
      */
     public String holeARPTabellenEintrag(String zielIp) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag("
-                + zielIp + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag(" + zielIp + ")");
         if (zielIp.equals("127.0.0.1")) {
             return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
         }
@@ -148,9 +149,9 @@ public class ARP extends VermittlungsProtokoll {
                     try {
                         arpTabelle.wait(Verbindung.holeRTT() / 2);
                     } catch (InterruptedException e) {
-                        Main.debug.println("EXCEPTION (" + this.hashCode()
-                                + "): keine Anwort auf ARP-Broadcast fuer IP-Adresse " + zielIp + " eingegangen!");
-                        e.printStackTrace(Main.debug);
+                        LOG.debug("EXCEPTION (" + this.hashCode() + "): keine Anwort auf ARP-Broadcast fuer IP-Adresse "
+                                + zielIp + " eingegangen!");
+                        LOG.debug("", e);
                     }
                 }
             }
@@ -161,7 +162,7 @@ public class ARP extends VermittlungsProtokoll {
             }
         }
 
-        Main.debug.println("ERROR (" + this.hashCode() + "): kein ARP-Tabellen-Eintrag fuer " + zielIp);
+        LOG.debug("ERROR (" + this.hashCode() + "): kein ARP-Tabellen-Eintrag fuer " + zielIp);
         return null;
     }
 

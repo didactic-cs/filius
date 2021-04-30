@@ -29,17 +29,20 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.Port;
 import filius.hardware.Verbindung;
 
 @SuppressWarnings("serial")
 public abstract class LokalerKnoten extends Knoten {
+    private static Logger LOG = LoggerFactory.getLogger(LokalerKnoten.class);
 
     private LinkedList<Port> anschluesse = new LinkedList<Port>();
 
     public Port holeFreienPort() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (LokalerKnoten), holeFreienPort()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (LokalerKnoten), holeFreienPort()");
         for (Port anschluss : anschluesse) {
             if (anschluss.isPortFrei()) {
                 return anschluss;
@@ -56,7 +59,7 @@ public abstract class LokalerKnoten extends Knoten {
                 try {
                     connectedPorts.add(connection.findConnectedPort(port));
                 } catch (Exception e) {
-                    Main.debug.println(e.getMessage());
+                    LOG.debug(e.getMessage());
                 }
             }
         }
@@ -97,8 +100,8 @@ public abstract class LokalerKnoten extends Knoten {
     }
 
     public void setzeAnzahlAnschluesse(int anzahlAnschluesse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (LokalerKnoten), setzeAnzahlAnschluesse(" + anzahlAnschluesse + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (LokalerKnoten), setzeAnzahlAnschluesse("
+                + anzahlAnschluesse + ")");
         LinkedList<Port> anschluesse;
 
         anschluesse = new LinkedList<Port>();

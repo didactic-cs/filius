@@ -48,13 +48,16 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.ComboBoxTableCellEditor;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
 import filius.software.firewall.FirewallRule;
 
 public class JFirewallDialog extends JDialog implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(JFirewallDialog.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -78,8 +81,8 @@ public class JFirewallDialog extends JDialog implements I18n {
 
     public JFirewallDialog(Firewall firewall, JFrame dummyFrame) {
         super(dummyFrame, messages.getString("jfirewalldialog_msg1"), true);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JFirewallDialog(" + firewall
-                + "," + dummyFrame + ")");
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JFirewallDialog(" + firewall + ","
+                + dummyFrame + ")");
         this.firewall = firewall;
         jfd = this;
         erzeugeFenster();
@@ -196,7 +199,7 @@ public class JFirewallDialog extends JDialog implements I18n {
     }
 
     private Box firewallRuleBox() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", firewallRuleBox()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", firewallRuleBox()");
         JScrollPane scrollPane;
         Box vBox, hBox;
         DefaultTableModel model;
@@ -362,8 +365,8 @@ public class JFirewallDialog extends JDialog implements I18n {
                     if (ruleTable.getSelectedRowCount() == 1) {
                         rowSel = ruleTable.getSelectedRow();
                         String idStr = (String) ruleTable.getValueAt(rowSel, 0);
-                        Main.debug.println("DEBUG (" + this.hashCode() + ") " + getClass() + ", del action: rowSel="
-                                + rowSel + ", rows count=" + firewall.getRuleset().size());
+                        LOG.debug("DEBUG (" + this.hashCode() + ") " + getClass() + ", del action: rowSel=" + rowSel
+                                + ", rows count=" + firewall.getRuleset().size());
                         firewall.deleteRule(Integer.parseInt(idStr) - 1);
                     }
                 } catch (Exception ex) {
@@ -413,7 +416,7 @@ public class JFirewallDialog extends JDialog implements I18n {
      * @author Weyer hier wird das ganze Fenster bestückt
      */
     private void erzeugeFenster() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", erzeugeFenster()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", erzeugeFenster()");
         JTabbedPane tp;
         JPanel hauptPanel;
 
@@ -433,7 +436,7 @@ public class JFirewallDialog extends JDialog implements I18n {
     }
 
     public void updateRuleTable() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateRuleTable()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateRuleTable()");
 
         DefaultTableModel model;
         Vector<FirewallRule> ruleset = firewall.getRuleset();
@@ -441,7 +444,7 @@ public class JFirewallDialog extends JDialog implements I18n {
         model = (DefaultTableModel) this.ruleTable.getModel();
         model.setRowCount(0);
         for (int i = 0; i < ruleset.size(); i++) {
-            Main.debug.println("DEBUG Rule #" + (i + 1) + ": " + ruleset.get(i).toString());
+            LOG.debug("DEBUG Rule #" + (i + 1) + ": " + ruleset.get(i).toString());
             Vector<String> row = ruleAsVector(i + 1, ruleset.get(i));
             model.addRow(row);
         }

@@ -31,7 +31,9 @@ import java.util.StringTokenizer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.Anwendung;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
@@ -52,6 +54,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  */
 
 public class PeerToPeerAnwendung extends Anwendung {
+    private static Logger LOG = LoggerFactory.getLogger(PeerToPeerAnwendung.class);
 
     /**
      * Liste der Teilnehmer im Peer-to-Peer-Netzwerk, die dem Prozess bekannt sind. Die Liste enthaelt die
@@ -104,7 +107,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      */
     public PeerToPeerAnwendung() {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), constr: PeerToPeerAnwendung()");
 
         // maximale Teilnehmerzahl mit einem Zufallswert 3, 4 oder 5 belegen
@@ -116,7 +119,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * erstellt
      */
     public void setSystemSoftware(InternetKnotenBetriebssystem betriebssystem) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
 
@@ -131,7 +134,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Starten der Anwendung
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), starten()");
         super.starten();
 
@@ -151,7 +154,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Beenden der Anwendung
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), beenden()");
         super.beenden();
 
@@ -168,7 +171,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @return
      */
     PongPaket erstellePong(PingPaket ping) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), erstellePong(" + ping + ")");
         List<Datei> dateien;
         Datei aktuelle;
@@ -205,7 +208,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @param absender
      */
     void sendePing(PingPaket ping, String absender) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), sendePing(" + ping + "," + absender + ")");
         if (ping.getTtl() > 0 && !schonmalVerschicktListe.contains(ping.getGuid())) {
             schonmalVerschicktListe.add(ping.getGuid());
@@ -222,7 +225,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            die ampfangene Anfrage
      */
     LinkedList<Datei> verarbeiteAnfrage(String absender, QueryPaket anfrage) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeiteAnfrage(" + absender + "," + anfrage + ")");
         LinkedList<Datei> ergebnisListe;
         Datei ergebnis = null;
@@ -271,7 +274,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            Die IP des Servants, an den das Ping-Paket zuerst geschickt wird
      */
     public void beitretenNetzwerk(String teilnehmerIP) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), beitretenNetzwerk(" + teilnehmerIP + ")");
         Betriebssystem bs;
         PingPaket pingPaket;
@@ -299,7 +302,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            Der Index der angebotenen Datei in der Liste der Ergebnisse (Attribut 'ergebnisse').
      */
     public void herunterladenDatei(int ergebnisIndex) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), herunterladenDatei(" + ergebnisIndex + ")");
         StringTokenizer tempTokenizer;
         String tmpBesitzer;
@@ -323,7 +326,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            der Dateiname der zu suchenden Datei
      */
     public void sucheDatei(String datei) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), sucheDatei(" + datei + ")");
         Betriebssystem bs;
         QueryPaket anfragePaket;
@@ -338,14 +341,14 @@ public class PeerToPeerAnwendung extends Anwendung {
 
     /** Zum Abbruch aller Suchanfragen, die zuvor gestartet worden sind. */
     public void abbrechenSuche() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), abbrechenSuche()");
         peerToPeerClient.abbrechenSuche();
     }
 
     /** Methode zum Zuruecksetzen der Liste mit Suchergebnissen */
     public void loescheSuchergebnisse() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), loescheSuchergebnisse()");
         ergebnisse.clear();
     }
@@ -354,7 +357,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Hilfsmethode fuer den lesenden Zugriff auf die Dateien im Peer-To-Peer-Verzeichnis des eigenen Rechners.
      */
     Datei holeDatei(String dateiName) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), holeDatei()");
         Datei datei;
 
@@ -366,7 +369,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Hilfsmethode fuer den schreibenden Zugriff auf die Dateien im Peer-To-Peer-Verzeichnis des eigenen Rechners.
      */
     void speicherDatei(Datei datei) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), speicherDatei(" + datei + ")");
         getSystemSoftware().getDateisystem().speicherDatei(verzeichnis, datei);
     }
@@ -379,7 +382,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            das eingegangene Antwortpaket
      */
     void verarbeiteQueryHit(QueryHitPaket antwortPaket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeiteQueryHit(" + antwortPaket + ")");
         // warte ich selbst auf diese Antwort?
         if (eigeneAnfragen.contains(antwortPaket.getGuid())) {
@@ -403,7 +406,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * das Pong-Paket mit dekrementierter TTL und inkrementierter Hop-Zahl weitergeleitet.
      */
     void verarbeitePong(PongPaket pongPaket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeitePong(" + pongPaket + ")" + "\n\tPong-Nachricht bei '"
                 + getSystemSoftware().getKnoten().holeAnzeigeName() + "' eingetroffen: " + pongPaket.toString());
 
@@ -448,7 +451,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @param ergebnis
      */
     void hinzuErgebnis(QueryHitPaket ergebnis) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), hinzuErgebnis(" + ergebnis + ")");
         String neuesErgebnis;
 
@@ -467,10 +470,10 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @param ipAdresse
      */
     void hinzuTeilnehmer(String ipAdresse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), hinzuTeilnehmer(" + ipAdresse + ")");
         if (bekanntePeerToPeerTeilnehmer.contains(ipAdresse)) {
-            // Main.debug.println(getClass() + "\n\tAn Rechner "
+            // LOG.debug(getClass() + "\n\tAn Rechner "
             // + getSystemSoftware().getKnoten().getName()
             // + " ist bereits der Teilnehmer " + ipAdresse
             // + " eingetragen");

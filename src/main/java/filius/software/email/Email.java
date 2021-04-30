@@ -29,14 +29,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author Andre Asschoff
  * 
  */
+@SuppressWarnings("serial")
 public class Email implements Serializable {
+    private static Logger LOG = LoggerFactory.getLogger(Email.class);
+
     private AddressEntry absender;
     private List<AddressEntry> empfaenger = new ArrayList<AddressEntry>();
     private List<AddressEntry> cc = new ArrayList<AddressEntry>();
@@ -145,7 +149,7 @@ public class Email implements Serializable {
      * </code>
      */
     public String toString() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Email), toString()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Email), toString()");
         String ergebnis;
         String toListe = "", ccListe = "";
 

@@ -29,7 +29,8 @@ import java.awt.Color;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -41,6 +42,7 @@ import filius.Main;
  * 
  */
 public class EingabenUeberpruefung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(EingabenUeberpruefung.class);
 
     // NOTE: include *.*.*.0 to be able to still use this pattern for routing
     // table configuration as network identifier
@@ -81,16 +83,16 @@ public class EingabenUeberpruefung implements I18n {
      * @return
      */
     public static boolean isGueltig(String zuPruefen, Pattern muster) {
-        Main.debug.println("INVOKED (EingabenUeberpruefung), isGueltig(" + zuPruefen + "," + muster + ")");
+        LOG.debug("INVOKED (EingabenUeberpruefung), isGueltig(" + zuPruefen + "," + muster + ")");
         Matcher m = muster.matcher(zuPruefen);
         return m.matches();
     }
 
     public static boolean isValidSubnetmask(String subnet) {
-        Main.debug.println("INVOKED (EingabenUeberpruefung), isValidSubnetmask(" + subnet + ")");
+        LOG.debug("INVOKED (EingabenUeberpruefung), isValidSubnetmask(" + subnet + ")");
         String[] token = subnet.split("\\.");
         String binary = "";
-        Main.debug.println("DEBUG (EingabenUeberpruefung), '" + token + "', length=" + token.length);
+        LOG.debug("DEBUG (EingabenUeberpruefung), '" + token + "', length=" + token.length);
         if (token.length != 4)
             return false;
         try {
@@ -99,7 +101,7 @@ public class EingabenUeberpruefung implements I18n {
                 while (currBin.length() < 8)
                     currBin = "0" + currBin;
                 binary += currBin;
-                Main.debug.println(
+                LOG.debug(
                         "DEBUG (EingabenUeberpruefung), '" + token[i] + "' ~~> binary (" + i + ") = '" + binary + "'");
             }
         } catch (Exception e) {

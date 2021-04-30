@@ -25,7 +25,9 @@
  */
 package filius.software.netzzugangsschicht;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.Port;
 import filius.hardware.knoten.Switch;
 import filius.software.ProtokollThread;
@@ -36,6 +38,7 @@ import filius.software.system.SwitchFirmware;
  * Anschluss weiterzuleiten.
  */
 public class SwitchPortBeobachter extends ProtokollThread<EthernetFrame> {
+    private static Logger LOG = LoggerFactory.getLogger(SwitchPortBeobachter.class);
 
     /** Die Switch-Firmware */
     private SwitchFirmware switchFirmware;
@@ -51,7 +54,7 @@ public class SwitchPortBeobachter extends ProtokollThread<EthernetFrame> {
      */
     public SwitchPortBeobachter(SwitchFirmware switchFirmware, Port anschluss) {
         super(anschluss.holeEingangsPuffer());
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SwitchPortBeobachter), constr: SwitchPortBeobachter(" + switchFirmware + "," + anschluss + ")");
 
         this.switchFirmware = switchFirmware;
@@ -72,7 +75,7 @@ public class SwitchPortBeobachter extends ProtokollThread<EthernetFrame> {
      * </ol>
      */
     public void verarbeiteDatenEinheit(EthernetFrame etp) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SwitchPortBeobachter), verarbeiteDatenEinheit(" + etp.toString() + ")");
 
         if (!switchFirmware.holeDurchgelaufeneFrames().contains(etp)) {

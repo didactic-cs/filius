@@ -25,93 +25,96 @@
  */
 package filius.software.email;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Kontakt {
-	// Attribute
-	private String name;
-	private String vorname;
-	private String strasse;
-	private int hausnr;
-	private int plz;
-	private String wohnort;
-	private String email;
-	private String telefon;
+    private static Logger LOG = LoggerFactory.getLogger(Kontakt.class);
 
-	// Konstruktor(en)
-	public Kontakt() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt()");
-	}
+    // Attribute
+    private String name;
+    private String vorname;
+    private String strasse;
+    private int hausnr;
+    private int plz;
+    private String wohnort;
+    private String email;
+    private String telefon;
 
-	public Kontakt(String emailAdresse) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt("
-		        + emailAdresse + ")");
-		this.email = emailAdresse;
-	}
+    // Konstruktor(en)
+    public Kontakt() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt()");
+    }
 
-	// Methoden
+    public Kontakt(String emailAdresse) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt(" + emailAdresse
+                + ")");
+        this.email = emailAdresse;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    // Methoden
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public int getHausnr() {
-		return hausnr;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setHausnr(int hausnr) {
-		this.hausnr = hausnr;
-	}
+    public int getHausnr() {
+        return hausnr;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setHausnr(int hausnr) {
+        this.hausnr = hausnr;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public int getPlz() {
-		return plz;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setPlz(int plz) {
-		this.plz = plz;
-	}
+    public int getPlz() {
+        return plz;
+    }
 
-	public String getStrasse() {
-		return strasse;
-	}
+    public void setPlz(int plz) {
+        this.plz = plz;
+    }
 
-	public void setStrasse(String strasse) {
-		this.strasse = strasse;
-	}
+    public String getStrasse() {
+        return strasse;
+    }
 
-	public String getTelefon() {
-		return telefon;
-	}
+    public void setStrasse(String strasse) {
+        this.strasse = strasse;
+    }
 
-	public void setTelefon(String telefon) {
-		this.telefon = telefon;
-	}
+    public String getTelefon() {
+        return telefon;
+    }
 
-	public String getVorname() {
-		return vorname;
-	}
+    public void setTelefon(String telefon) {
+        this.telefon = telefon;
+    }
 
-	public void setVorname(String vorname) {
-		this.vorname = vorname;
-	}
+    public String getVorname() {
+        return vorname;
+    }
 
-	public String getWohnort() {
-		return wohnort;
-	}
+    public void setVorname(String vorname) {
+        this.vorname = vorname;
+    }
 
-	public void setWohnort(String wohnort) {
-		this.wohnort = wohnort;
-	}
+    public String getWohnort() {
+        return wohnort;
+    }
+
+    public void setWohnort(String wohnort) {
+        this.wohnort = wohnort;
+    }
 }

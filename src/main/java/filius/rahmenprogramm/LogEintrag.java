@@ -28,67 +28,67 @@ package filius.rahmenprogramm;
 import java.util.Calendar;
 import java.util.Date;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.netzwerksicht.GUIKnotenItem;
 
 /**
- * Klasse für LogEinträge. Diese wird benötigt um Einträge sortierbar und
- * filterbar zu machen.
+ * Klasse für LogEinträge. Diese wird benötigt um Einträge sortierbar und filterbar zu machen.
  * 
  * @author Thomas Gerding & Johannes Bade
  * 
  */
 public class LogEintrag {
+    private static Logger LOG = LoggerFactory.getLogger(LogEintrag.class);
 
-	private String logNachricht; // Text des LogEintrags
-	private Calendar timestamp; // Zeitpunkt der Aktion in Form eines Calendar
-	                            // Objekts zur besseren Konvertierbarkeit (gibts
-	                            // das Wort?)
-	private int schicht; // Netzwerkschicht zu der die Meldung gehört
-	/*
-	 * Schichten: 1 - Vermittlungsschicht 2 - Transportschicht 3 -
-	 * Anwendungsschicht
-	 */
-	private GUIKnotenItem ausloesendesItem; // GUIItem zu dem der LogEintrag
-	                                        // gehört (auslösende Stelle, wenn
-	                                        // möglich?!)
+    private String logNachricht; // Text des LogEintrags
+    private Calendar timestamp; // Zeitpunkt der Aktion in Form eines Calendar
+                                // Objekts zur besseren Konvertierbarkeit (gibts
+                                // das Wort?)
+    private int schicht; // Netzwerkschicht zu der die Meldung gehört
+    /*
+     * Schichten: 1 - Vermittlungsschicht 2 - Transportschicht 3 - Anwendungsschicht
+     */
+    private GUIKnotenItem ausloesendesItem; // GUIItem zu dem der LogEintrag
+                                            // gehört (auslösende Stelle, wenn
+                                            // möglich?!)
 
-	// FIXME: Diese GUIItem Geschichte erscheint noch nicht wirklich ideal, da
-	// muss nochmal richtig drüber nachgedacht werden!
+    // FIXME: Diese GUIItem Geschichte erscheint noch nicht wirklich ideal, da
+    // muss nochmal richtig drüber nachgedacht werden!
 
-	/**
-	 * Konstruktor der LogEintrag Klasse.
-	 * 
-	 * @author Thomas Gerding & Johannes Bade
-	 * @param Aktion
-	 * @param schicht
-	 */
-	public LogEintrag(String Aktion, int schicht) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", LogEintrag(" + Aktion + "," + schicht
-		        + ")");
-		timestamp = Calendar.getInstance();
-		timestamp.setTimeInMillis(new Date().getTime());
-		logNachricht = Aktion;
-		this.schicht = schicht;
-	}
+    /**
+     * Konstruktor der LogEintrag Klasse.
+     * 
+     * @author Thomas Gerding & Johannes Bade
+     * @param Aktion
+     * @param schicht
+     */
+    public LogEintrag(String Aktion, int schicht) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", LogEintrag(" + Aktion + "," + schicht + ")");
+        timestamp = Calendar.getInstance();
+        timestamp.setTimeInMillis(new Date().getTime());
+        logNachricht = Aktion;
+        this.schicht = schicht;
+    }
 
-	public String getLogNachricht() {
-		return logNachricht;
-	}
+    public String getLogNachricht() {
+        return logNachricht;
+    }
 
-	public void setLogNachricht(String logNachricht) {
-		this.logNachricht = logNachricht;
-	}
+    public void setLogNachricht(String logNachricht) {
+        this.logNachricht = logNachricht;
+    }
 
-	public int getSchicht() {
-		return schicht;
-	}
+    public int getSchicht() {
+        return schicht;
+    }
 
-	public void setSchicht(int schicht) {
-		this.schicht = schicht;
-	}
+    public void setSchicht(int schicht) {
+        this.schicht = schicht;
+    }
 
-	public Calendar getTimestamp() {
-		return timestamp;
-	}
+    public Calendar getTimestamp() {
+        return timestamp;
+    }
 }

@@ -25,59 +25,54 @@
  */
 package filius.software.clientserver;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
 
 /**
  * <p>
- * In dieser Klasse wird das Server-Programm einer einfachen
- * Client-Server-Anwendung implementiert. Nachrichten an die graphische
- * Benutzungsoberflaeche werden durch den Aufruf
- * banachrichtigeBeobachter(Object) versendet.
+ * In dieser Klasse wird das Server-Programm einer einfachen Client-Server-Anwendung implementiert. Nachrichten an die
+ * graphische Benutzungsoberflaeche werden durch den Aufruf banachrichtigeBeobachter(Object) versendet.
  * </p>
  * <p>
- * In dieser Klasse wird mit einem eigenen Thread der Server-Socket auf
- * eingehende Verbindungen gewartet. Die Verarbeitung der eingehenden
- * Nachrichten erfolgt durch einen Mitarbeiter, der in der Methode
+ * In dieser Klasse wird mit einem eigenen Thread der Server-Socket auf eingehende Verbindungen gewartet. Die
+ * Verarbeitung der eingehenden Nachrichten erfolgt durch einen Mitarbeiter, der in der Methode
  * <code>neuerMitarbeiter(Socket)</code> erzeugt wird.
  * </p>
  * <p>
- * Die Verarbeitung eingehender Nachrichten wird von einem Mitarbeiter
- * uebernommen, der erzeugt wird, sobald eine neue Verbindungsanfrage vom
- * Server-Socket empfangen wurde.
+ * Die Verarbeitung eingehender Nachrichten wird von einem Mitarbeiter uebernommen, der erzeugt wird, sobald eine neue
+ * Verbindungsanfrage vom Server-Socket empfangen wurde.
  * </p>
  * <p>
- * Einstellungen, die in einer Projektdatei gespeichert werden sollen, muessen
- * in dieser Klasse als Attribute verwaltet werden und mit Getter- und
- * Setter-Methoden zugaenglich sein (z. B. fuer das Attribut
- * <code>int bspAttr</code> mit <code>
+ * Einstellungen, die in einer Projektdatei gespeichert werden sollen, muessen in dieser Klasse als Attribute verwaltet
+ * werden und mit Getter- und Setter-Methoden zugaenglich sein (z. B. fuer das Attribut <code>int bspAttr</code> mit
+ * <code>
  * public int getBspAttr()</code> und <code>public void setBspAttr(int)
- * </code>). Attribute, die in der Mitarbeiterklasse vorhanden sind, werden
- * nicht gespeichert!
+ * </code>). Attribute, die in der Mitarbeiterklasse vorhanden sind, werden nicht gespeichert!
  * </p>
  * <p>
- * Das Server-Programm wird durch Aufruf der Methode der Oberklasse
- * <code>setAktiv(boolean)</code> aktiviert bzw. deaktiviert (d. h. die
- * Verbindungsannahme wird aktiviert bzw. deaktiviert).
+ * Das Server-Programm wird durch Aufruf der Methode der Oberklasse <code>setAktiv(boolean)</code> aktiviert bzw.
+ * deaktiviert (d. h. die Verbindungsannahme wird aktiviert bzw. deaktiviert).
  * </p>
  */
 public class ServerBaustein extends TCPServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(ServerBaustein.class);
 
-	/**
-	 * In dieser Methode wird ein neuer Mitarbeiter zur Verarbeitung von
-	 * eingehenden Nachrichten erzeugt und der Liste der zu verwaltenden
-	 * Mitarbeiter hinzugefuegt.
-	 */
-	protected void neuerMitarbeiter(Socket socket) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ServerBaustein), neuerMitarbeiter(" + socket + ")");
-		ServerMitarbeiter mitarbeiter;
+    /**
+     * In dieser Methode wird ein neuer Mitarbeiter zur Verarbeitung von eingehenden Nachrichten erzeugt und der Liste
+     * der zu verwaltenden Mitarbeiter hinzugefuegt.
+     */
+    protected void neuerMitarbeiter(Socket socket) {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ServerBaustein), neuerMitarbeiter(" + socket + ")");
+        ServerMitarbeiter mitarbeiter;
 
-		if (socket instanceof TCPSocket) {
-			mitarbeiter = new ServerBausteinMitarbeiter(this, (TCPSocket) socket);
-			this.mitarbeiter.add(mitarbeiter);
-			mitarbeiter.starten();
-		}
-	}
+        if (socket instanceof TCPSocket) {
+            mitarbeiter = new ServerBausteinMitarbeiter(this, (TCPSocket) socket);
+            this.mitarbeiter.add(mitarbeiter);
+            mitarbeiter.starten();
+        }
+    }
 }

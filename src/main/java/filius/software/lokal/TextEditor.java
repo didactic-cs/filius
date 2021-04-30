@@ -25,7 +25,9 @@
  */
 package filius.software.lokal;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.Anwendung;
 
 /**
@@ -35,18 +37,17 @@ import filius.software.Anwendung;
  * 
  */
 public class TextEditor extends Anwendung {
+    private static Logger LOG = LoggerFactory.getLogger(TextEditor.class);
 
-	// Betriebssystem betriebssystem;
-	boolean abfrageVar;
+    // Betriebssystem betriebssystem;
+    boolean abfrageVar;
 
-	public void beenden() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-		        + " (TextEditor), beenden()");
-	}
+    public void beenden() {
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (TextEditor), beenden()");
+    }
 
-	public void starten() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-		        + " (TextEditor), starten()");
-	}
+    public void starten() {
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (TextEditor), starten()");
+    }
 
 }

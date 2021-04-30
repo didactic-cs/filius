@@ -132,7 +132,7 @@ public class ClientBaustein extends ClientAnwendung {
 	 * Aufruf von <code>schliesseSocket</code> in einem anderen Thread.
 	 */
 	public void trennen() {
-		Main.debug.println(getClass().toString()
+		LOG.debug(getClass().toString()
 				+ "\n\ttrennen() wurde aufgerufen");
 
 		ausfuehren("schliesseSocket", null);
@@ -155,7 +155,7 @@ public class ClientBaustein extends ClientAnwendung {
 	 * aufgerufen werden.
 	 */
 	public void versendeNachricht(String nachricht) {
-		Main.debug.println(getClass() + "\n\tversendeNachricht()" + "\n>>>>>\n"
+		LOG.debug(getClass() + "\n\tversendeNachricht()" + "\n>>>>>\n"
 				+ nachricht + "\n<<<<<");
 
 		if (socket != null && socket.istVerbunden()) {
@@ -182,7 +182,7 @@ public class ClientBaustein extends ClientAnwendung {
 	public void empfangeNachricht() {
 		String nachricht;
 
-		Main.debug.println(getClass() + "\n\tempfangeNachricht()");
+		LOG.debug(getClass() + "\n\tempfangeNachricht()");
 
 		if (socket != null && socket.istVerbunden()) {
 			try {

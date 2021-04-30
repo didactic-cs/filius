@@ -31,7 +31,9 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.VerbindungsException;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
@@ -46,6 +48,7 @@ import filius.software.transportschicht.UdpSegment;
  * weitergeleitet werden und eingehende Segmente an die Transportschicht weitergeleitet werden.
  */
 public class IP extends VermittlungsProtokoll implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(IP.class);
 
     private static final String CURRENT_NETWORK = "0.0.0.0";
 
@@ -70,8 +73,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      */
     public IP(InternetKnotenBetriebssystem systemsoftware) {
         super(systemsoftware);
-        Main.debug.println(
-                "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware + ")");
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware + ")");
     }
 
     public static long inetAton(String ipStr) {
@@ -127,8 +129,8 @@ public class IP extends VermittlungsProtokoll implements I18n {
 
     /** Hilfsmethode zum Versenden eines Broadcast-Pakets */
     private void sendeBroadcast(IpPaket ipPaket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), sendeBroadcast("
-                + ipPaket.toString() + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), sendeBroadcast(" + ipPaket.toString()
+                + ")");
 
         InternetKnoten knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
         for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
@@ -158,7 +160,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      *            das zu verarbeitende Segment
      */
     void benachrichtigeTransportschicht(IpPaket paket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), benachrichtigeTransportschicht("
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), benachrichtigeTransportschicht("
                 + paket.toString() + ")");
         if (paket.getSegment() instanceof TcpSegment) {
             synchronized (ipPaketListeTCP) {
@@ -287,8 +289,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @return die Liste mit Segmenten fuer UDP- oder TCP-Segmente
      */
     public LinkedList<IpPaket> holePaketListe(int protokollTyp) {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), holePaketListe(" + protokollTyp + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), holePaketListe(" + protokollTyp + ")");
         if (protokollTyp == IpPaket.TCP) {
             return ipPaketListeTCP;
         } else if (protokollTyp == IpPaket.UDP) {
@@ -301,7 +302,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * Hier wird der Thread zur Ueberwachung des Puffers fuer eingehende IP-Pakete der Netzzugangsschicht
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), starten()");
 
         thread = new IPThread(this);
         thread.starten();
@@ -309,7 +310,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
 
     /** Der Thread zur Ueberwachung des IP-Pakete-Puffers */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), beenden()");
         thread.beenden();
     }
 

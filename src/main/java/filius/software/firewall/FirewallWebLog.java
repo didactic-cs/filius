@@ -28,7 +28,9 @@ package filius.software.firewall;
 import java.util.Observable;
 import java.util.Observer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.software.www.WebServerPlugIn;
 
@@ -39,6 +41,7 @@ import filius.software.www.WebServerPlugIn;
  * 
  */
 public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(FirewallWebLog.class);
 
     private StringBuffer logDaten = new StringBuffer();
 
@@ -50,8 +53,8 @@ public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
      * Diese Methode muss die HTML-Seite mit den Log-Informationen zurück liefern
      */
     public String holeHtmlSeite(String postDaten) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), holehtmlSeite("
-                + postDaten + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), holehtmlSeite(" + postDaten
+                + ")");
         StringBuffer logSeite = new StringBuffer();
 
         logSeite.append(messages.getString("sw_firewallweblog_msg1"));
@@ -63,8 +66,8 @@ public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
     }
 
     public void update(Observable arg0, Object arg1) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), update(" + arg0 + ","
-                + arg1 + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), update(" + arg0 + "," + arg1
+                + ")");
         if (arg1 instanceof Object[]) {
             logDaten.append("<br /> \n").append(((Object[]) arg1)[0]);
         } else {

@@ -37,7 +37,9 @@ import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.nachrichtensicht.ExchangeDialog;
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
@@ -61,6 +63,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.system.SwitchFirmware;
 
 public class GUIEvents implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(GUIEvents.class);
 
     private int auswahlx, auswahly, auswahlx2, auswahly2, mausposx, mausposy;
 
@@ -221,7 +224,7 @@ public class GUIEvents implements I18n {
 
                 c.moveMarker(-verschiebungx, -verschiebungy, markedlist);
             } else {
-                Main.debug.println("Out of Boundaries!");
+                LOG.debug("Out of Boundaries!");
             }
         }
     }
@@ -353,7 +356,7 @@ public class GUIEvents implements I18n {
     }
 
     private void connectCableToFirstComponent(int currentPosX, int currentPosY) {
-        // Main.debug.println("\tmausPressed: IF-2.2.1.2.1");
+        // LOG.debug("\tmausPressed: IF-2.2.1.2.1");
         neuesKabel.getKabelpanel().setZiel1(aktivesItem);
         GUIContainer.getGUIContainer().getKabelvorschau()
                 .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel2.png")));
@@ -371,7 +374,7 @@ public class GUIEvents implements I18n {
     }
 
     private GUIKabelItem findClickedCable(MouseEvent e) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", clickedCable(" + e + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", clickedCable(" + e + ")");
         // Falls kein neues Objekt erstellt werden soll
         int xPos = e.getX() + GUIContainer.getGUIContainer().getXOffset();
         int yPos = e.getY() + GUIContainer.getGUIContainer().getYOffset();
@@ -702,7 +705,7 @@ public class GUIEvents implements I18n {
 
     // remove a single cable without using touching the connected node
     private void removeSingleCable(GUIKabelItem cable) {
-        Main.debug.println("INVOKED filius.gui.GUIEvents, removeSingleCable(" + cable + ")");
+        LOG.debug("INVOKED filius.gui.GUIEvents, removeSingleCable(" + cable + ")");
         if (cable == null)
             return; // no cable to be removed (this variable should be set in
                     // contextMenuCable)
@@ -712,14 +715,14 @@ public class GUIEvents implements I18n {
 
         if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel1()
                 .getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
+            // LOG.debug("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
             // JVermittlungsrechnerKonfiguration");
             ziel1konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
                     .getInstance(cable.getKabelpanel().getZiel1().getKnoten()));
         }
         if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel2()
                 .getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // Main.debug.println("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
+            // LOG.debug("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
             // JVermittlungsrechnerKonfiguration");
             ziel2konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
                     .getInstance(cable.getKabelpanel().getZiel2().getKnoten()));

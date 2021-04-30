@@ -32,8 +32,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import filius.Main;
 import filius.exception.AddressRequestNotAcceptedException;
 import filius.exception.NoAvailableAddressException;
 import filius.hardware.Verbindung;
@@ -49,6 +50,7 @@ import filius.software.transportschicht.Socket;
  */
 
 public class DHCPServer extends UDPServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(DHCPServer.class);
 
     private static final String DEFAULT_IP_ADDRESS = "0.0.0.0";
     /** wie lange ein DHCP-Eintrag gueltig sein soll bzw. die IP-Adresse einer MAC zugewiesen bleibt (Standardwert) */
@@ -254,7 +256,7 @@ public class DHCPServer extends UDPServerAnwendung {
     }
 
     public void starten() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DHCPServer), starten()");
         dynamicAssignedAddresses.clear();
         lastOfferedAddress = null;
@@ -266,7 +268,7 @@ public class DHCPServer extends UDPServerAnwendung {
      * ueber einen Mitarbeiter, weil es nur einen Port mit der Gegenstelle "0.0.0.0:68" gibt.
      */
     protected void neuerMitarbeiter(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DHCPServer), neuerMitarbeiter(" + socket + ")");
         DHCPServerMitarbeiter dhcpMitarbeiter;
 

@@ -28,7 +28,8 @@ package filius.software.email;
 import java.util.LinkedList;
 import java.util.List;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -36,6 +37,8 @@ import filius.Main;
  * 
  */
 public class EmailKonto {
+    private static Logger LOG = LoggerFactory.getLogger(EmailKonto.class);
+
     private String benutzername;
     private String passwort;
     private String nachname = "";
@@ -49,8 +52,8 @@ public class EmailKonto {
 
     /* Liest durch Semicolon getrennte Werte ein */
     public EmailKonto(String kontoString) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), constr: EmailKonto("
-                + kontoString + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), constr: EmailKonto(" + kontoString
+                + ")");
         String[] teile = kontoString.split(";");
         if (teile.length > 8) {
             pop3server = teile[0];
@@ -66,7 +69,7 @@ public class EmailKonto {
     }
 
     public String toString() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), toString()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), toString()");
         String ergebnis = "" + pop3server + ";" + smtpserver + ";" + pop3port + ";" + smtpport + ";" + benutzername
                 + ";" + passwort + ";" + nachname + ";" + vorname + ";" + emailAdresse;
         return ergebnis;

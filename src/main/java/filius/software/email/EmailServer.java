@@ -34,7 +34,9 @@ import java.util.StringTokenizer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.CreateAccountException;
 import filius.exception.DeleteAccountException;
 import filius.rahmenprogramm.EingabenUeberpruefung;
@@ -52,6 +54,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  *         POP3- und SMTPServer realisiert. Daher wird der nun überarbeitet. 13.12.2006
  */
 public class EmailServer extends Anwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(EmailServer.class);
     public static final String LINE_SEPARATOR = "----";
 
     private List<EmailKonto> listeBenutzerkonten = new LinkedList<EmailKonto>();
@@ -95,7 +98,7 @@ public class EmailServer extends Anwendung implements I18n {
      * SMTPServer beendet.
      */
     public void beenden() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (EmailServer), beenden()");
         super.beenden();
 
@@ -115,7 +118,7 @@ public class EmailServer extends Anwendung implements I18n {
      * Verbindungsanfragen wartet.
      */
     public void starten() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (EmailServer), starten()");
         super.starten();
 
@@ -158,7 +161,7 @@ public class EmailServer extends Anwendung implements I18n {
      */
     public boolean benutzerHinzufuegen(String benutzername, String passwort, String nachname, String vorname)
             throws CreateAccountException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), benutzerHinzufuegen(" + benutzername + "," + passwort + "," + nachname + ","
                 + vorname + ")");
         try {
@@ -207,7 +210,7 @@ public class EmailServer extends Anwendung implements I18n {
      * @throws DeleteAccountException
      */
     public boolean kontoLoeschen(String benutzername, String passwort) throws DeleteAccountException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), kontoLoeschen(" + benutzername + "," + passwort + ")");
         try {
             for (EmailKonto konto : getListeBenutzerkonten()) {
@@ -245,7 +248,7 @@ public class EmailServer extends Anwendung implements I18n {
      * @return EmailKonto
      */
     public EmailKonto sucheKonto(String benName, String passwd) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), sucheKonto(" + benName + "," + passwd + ")");
         for (EmailKonto konto : getListeBenutzerkonten()) {
             if (konto.getBenutzername().equalsIgnoreCase(benName) && konto.getPasswort().equals(passwd)) {
@@ -262,7 +265,7 @@ public class EmailServer extends Anwendung implements I18n {
      * @return
      */
     public EmailKonto sucheKonto(String benName) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), sucheKonto(" + benName + ")");
         for (EmailKonto tempKonto : listeBenutzerkonten) {
             if (tempKonto.getBenutzername().equalsIgnoreCase(benName)) {
@@ -279,7 +282,7 @@ public class EmailServer extends Anwendung implements I18n {
      * 
      */
     public void kontenSpeichern() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), kontenSpeichern()");
 
         String tmp = listeBenutzerkontenZuString(listeBenutzerkonten);
@@ -320,7 +323,7 @@ public class EmailServer extends Anwendung implements I18n {
      * @return
      */
     private String listeBenutzerkontenZuString(List<EmailKonto> benutzerkonten) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), listeBenutzerkontenZuString(" + benutzerkonten + ")");
         String ergebnis = "";
 
@@ -349,7 +352,7 @@ public class EmailServer extends Anwendung implements I18n {
      * @return
      */
     private List<EmailKonto> stringZuListeBenutzerkonten(String speicherung) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), stringZuListeBenutzerkonten(" + speicherung + ")");
         List<EmailKonto> temp = new LinkedList<EmailKonto>();
         String[] strArray;
@@ -387,7 +390,7 @@ public class EmailServer extends Anwendung implements I18n {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
             }
             temp.add(konto);
@@ -398,19 +401,19 @@ public class EmailServer extends Anwendung implements I18n {
 
     /** Hier werden die Benutzerkonten wieder geladen */
     public void kontenLaden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), kontenLaden()");
         Datei konten = getSystemSoftware().getDateisystem().holeDatei(verzeichnis, "konten.txt");
 
         if (konten != null) {
             setListeBenutzerkonten(stringZuListeBenutzerkonten(konten.getDateiInhalt()));
         } else {
-            Main.debug.println("ERROR (" + this.hashCode() + "): Konten laden fehlgeschlagen");
+            LOG.debug("ERROR (" + this.hashCode() + "): Konten laden fehlgeschlagen");
         }
     }
 
     public void setSystemSoftware(InternetKnotenBetriebssystem bs) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), setSystemSoftware(" + bs + ")");
         super.setSystemSoftware(bs);
         getSystemSoftware().getDateisystem().erstelleVerzeichnis(getSystemSoftware().getDateisystem().getRoot(),
@@ -461,7 +464,7 @@ public class EmailServer extends Anwendung implements I18n {
     }
 
     public void emailWeiterleiten(Email email, String absender, String rcpt) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), emailWeiterleiten(" + email + "," + absender + "," + rcpt + ")");
         Object[] args;
 
@@ -484,7 +487,7 @@ public class EmailServer extends Anwendung implements I18n {
      * @param rcpt
      */
     public void weiterleiten(Email email, String absender, String rcpt) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailServer), weiterleiten(" + email + "," + absender + "," + rcpt + ")");
         SMTPClient clientFuerWeiterleitung = new SMTPClient(this);
         clientFuerWeiterleitung.starten();
@@ -529,8 +532,8 @@ public class EmailServer extends Anwendung implements I18n {
      * @return boolean
      */
     public boolean pruefeAufSelbeDomain(String str) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + ", pruefeAufSelbeDomain(" + str + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", pruefeAufSelbeDomain("
+                + str + ")");
         String[] emailAdresse = str.split("@");
         String pruefdomain = emailAdresse[1].substring(0, emailAdresse[1].length());
         if (mailDomain.equals(pruefdomain)) {

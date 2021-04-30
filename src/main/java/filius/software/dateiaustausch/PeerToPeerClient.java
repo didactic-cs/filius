@@ -28,7 +28,9 @@ package filius.software.dateiaustausch;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.Anwendung;
 
 /**
@@ -38,6 +40,7 @@ import filius.software.Anwendung;
  * 
  */
 class PeerToPeerClient extends Anwendung {
+    private static Logger LOG = LoggerFactory.getLogger(PeerToPeerClient.class);
 
     /**
      * Die zugehoerige PeerToPeerAnwendung, die diesen Client zur Verarbeitung von eigenen Anfragen verwendet.
@@ -64,7 +67,7 @@ class PeerToPeerClient extends Anwendung {
      */
     PeerToPeerClient(PeerToPeerAnwendung peerToPeerAnwendung) {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClient), constr: PeerToPeerClient(" + peerToPeerAnwendung + ")");
 
         this.peerToPeerAnwendung = peerToPeerAnwendung;
@@ -72,7 +75,7 @@ class PeerToPeerClient extends Anwendung {
 
     /** Zum beenden der Threads, die durch diesen Client gestartet wurden. */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClient), beenden()");
         ListIterator<?> it;
         PeerToPeerClientMitarbeiter m;
@@ -107,7 +110,7 @@ class PeerToPeerClient extends Anwendung {
      *            die IP, an die das Paket nicht weitergeleitet werden darf (weil es daher kommt)
      */
     void sendePing(String wohinZuerst, PingPaket pingPaket, String nichtIP) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClient), sendePing(" + wohinZuerst + "," + pingPaket + "," + nichtIP + ")");
         // der erste Schritt => nur an den senden, den man angegeben hat, der
         // kuemmert sich um das weitere fluten
@@ -138,7 +141,7 @@ class PeerToPeerClient extends Anwendung {
      * eine Suchanfrage warten, beendet werden.
      */
     void abbrechenSuche() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClient), abbrechenSuche()");
         ListIterator<?> it;
         PeerToPeerClientMitarbeiter mitarbeiter;
@@ -160,7 +163,7 @@ class PeerToPeerClient extends Anwendung {
      *            der Name der gesuchten Datei
      */
     void dateiVomTeilnehmerAnfordern(String teilnehmerIp, String dateiName) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClient), dateiVomTeilnehmerAnfordern(" + teilnehmerIp + "," + dateiName + ")");
         PeerToPeerClientMitarbeiter m;
 
@@ -183,7 +186,7 @@ class PeerToPeerClient extends Anwendung {
      *            der PeerToPeerServermitarbeiter, an den moegliche Antworten zurueck uebergeben werden muessen
      */
     void sendeAnfrage(QueryPaket anfragePaket, String absenderIP) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClient), sendeAnfrage(" + anfragePaket + "," + absenderIP + ")");
         LinkedList<String> dieNachbarn;
         PeerToPeerClientMitarbeiter lauscher;

@@ -30,7 +30,9 @@ import static filius.software.netzzugangsschicht.Ethernet.ETHERNET_BROADCAST;
 import java.util.LinkedList;
 import java.util.concurrent.TimeoutException;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.VerbindungsException;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
@@ -43,6 +45,7 @@ import filius.software.system.SystemSoftware;
  * This class implements the ICMP protocol -- at least for echo request/response.
  */
 public class ICMP extends VermittlungsProtokoll implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(ICMP.class);
 
     public static final int TYPE_ECHO_REPLY = 0;
     public static final int TYPE_ECHO_REQUEST = 8;
@@ -63,24 +66,24 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      */
     public ICMP(SystemSoftware systemAnwendung) {
         super(systemAnwendung);
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ICMP), constr: ICMP(" + systemAnwendung + ")");
     }
 
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), starten()");
         thread = new ICMPThread(this);
         thread.starten();
     }
 
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), beenden()");
         if (thread != null)
             thread.beenden();
     }
 
     private void placeLocalICMPPacket(IcmpPaket icmpPacket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), placeLocalICMPPacket("
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), placeLocalICMPPacket("
                 + icmpPacket.toString() + ")");
         LinkedList<IcmpPaket> icmpPakete = ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeEthernet()
                 .holeICMPPuffer();

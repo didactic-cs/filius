@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.ResourceUtil;
 
 /**
@@ -40,6 +42,7 @@ import filius.rahmenprogramm.ResourceUtil;
  * @author Michell wird vom den Klassen FirewallWebKonfig und FirewallWebLog benutzt
  */
 public abstract class WebServerPlugIn {
+    private static Logger LOG = LoggerFactory.getLogger(WebServerPlugIn.class);
 
     private String pfad;
 
@@ -57,8 +60,8 @@ public abstract class WebServerPlugIn {
      * liest eine reale Textdatei vom Format .txt ein. Diese befinden sich im Ordner /config
      */
     protected String textDateiEinlesen(String datei) throws FileNotFoundException, IOException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (FirewallWebKonfig), textDateiEinlesen(" + datei + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), textDateiEinlesen(" + datei
+                + ")");
         StringBuffer fullFile = new StringBuffer();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new FileInputStream(ResourceUtil.getResourcePath(datei)), Charset.forName("UTF-8")))) {

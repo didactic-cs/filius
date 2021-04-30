@@ -16,7 +16,9 @@
  */
 package filius.software.netzzugangsschicht;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.ProtokollThread;
@@ -28,6 +30,7 @@ import filius.software.vermittlungsschicht.IpPaket;
  * Diese Klasse ueberwacht die Eingangspuffer von Netzwerkkarten.
  */
 public class EthernetThread extends ProtokollThread<EthernetFrame> {
+    private static Logger LOG = LoggerFactory.getLogger(EthernetThread.class);
 
     /** die Netzwerkkarte, deren Anschluss ueberwacht wird */
     private NetzwerkInterface netzwerkInterface;
@@ -40,7 +43,7 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
      */
     public EthernetThread(Ethernet ethernet, NetzwerkInterface nic) {
         super(nic.getPort().holeEingangsPuffer());
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EthernetThread), constr: EthernetThread(" + ethernet + "," + nic + ")");
 
         this.ethernet = ethernet;
@@ -52,7 +55,7 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
      * geschrieben.
      */
     protected void verarbeiteDatenEinheit(EthernetFrame etp) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EthernetThread), verarbeiteDateneinheit(" + etp.toString() + ")");
         // record receipt (independent of further processing)
         Lauscher.getLauscher().addDatenEinheit(netzwerkInterface.getMac(), etp);
@@ -89,7 +92,7 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
             // i.e., without physical connection)
             String zielIp = ((ArpPaket) etp.getDaten()).getZielIp();
             if (!zielIp.equals(netzwerkInterface.getIp()) && !"0.0.0.0".equals(netzwerkInterface.getIp())) {
-                Main.debug.println("ERROR (" + this.hashCode() + "):  ARP packet seems to be sent from a NIC ("
+                LOG.debug("ERROR (" + this.hashCode() + "):  ARP packet seems to be sent from a NIC ("
                         + ((ArpPaket) etp.getDaten()).getQuellIp() + ","
                         + ((ArpPaket) etp.getDaten()).getQuellMacAdresse()
                         + ") not connected to the currently considered NIC (" + netzwerkInterface.getIp() + ","
@@ -102,7 +105,7 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
                 ethernet.holeARPPuffer().notify();
             }
         } else {
-            Main.debug.println("ERROR (" + this.hashCode() + "): Paket konnte nicht zugeordnet werden");
+            LOG.debug("ERROR (" + this.hashCode() + "): Paket konnte nicht zugeordnet werden");
         }
     }
 

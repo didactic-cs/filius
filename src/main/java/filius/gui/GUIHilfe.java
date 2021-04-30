@@ -44,11 +44,15 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.Main;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.ResourceUtil;
 
 public class GUIHilfe implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(GUIHilfe.class);
 
     private JDialog jf;
     private static GUIHilfe ref = null;
@@ -115,7 +119,7 @@ public class GUIHilfe implements I18n {
         } else {
             file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_simulation"));
         }
-        Main.debug.println("Help file: " + file.getAbsolutePath());
+        LOG.debug("Help file: " + file.getAbsolutePath());
         String gfxBaseUrl = "file:" + ResourceUtil.getResourceUrlEncodedPath("hilfe/gfx/");
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
@@ -129,9 +133,9 @@ public class GUIHilfe implements I18n {
             epHtml.read(new java.io.StringReader(newText), null);
             epHtml.setCaretPosition(0);
         } catch (FileNotFoundException e) {
-            e.printStackTrace(Main.debug);
+LOG.debug("",e);
         } catch (IOException e) {
-            e.printStackTrace(Main.debug);
+LOG.debug("",e);
         }
     }
 }

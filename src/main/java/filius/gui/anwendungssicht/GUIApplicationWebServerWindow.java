@@ -42,10 +42,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.www.WebServer;
 
 public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationWebServerWindow.class);
 
     private static final int VHOST_NUMBER = 5;
 
@@ -63,8 +66,8 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
     public GUIApplicationWebServerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
-                + ", constr: GUIApplicationWebServerWindow(" + desktop + "," + appName + ")");
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: GUIApplicationWebServerWindow("
+                + desktop + "," + appName + ")");
         this.setResizable(true);
         this.setMaximizable(false);
 
@@ -114,10 +117,10 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
         JScrollPane tableScrollPane = new JScrollPane(vHostTable);
         tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        Main.debug.println("DEBUG message webserver_msg4='" + messages.getString("webserver_msg4") + "'");
+        LOG.debug("DEBUG message webserver_msg4='" + messages.getString("webserver_msg4") + "'");
         vHostTable.getColumnModel().getColumn(0).setHeaderValue(messages.getString("webserver_msg4"));
         vHostTable.getColumnModel().getColumn(1).setHeaderValue(messages.getString("webserver_msg5"));
-        Main.debug.println("DEBUG header value: '" + vHostTable.getColumnModel().getColumn(0).getHeaderValue() + "'");
+        LOG.debug("DEBUG header value: '" + vHostTable.getColumnModel().getColumn(0).getHeaderValue() + "'");
         vHostTable.setIntercellSpacing(new java.awt.Dimension(5, 5));
         vHostTable.setRowHeight(26);
         vHostTable.setShowGrid(true);
@@ -169,7 +172,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
     }
 
     public void updateTable() {
-        Main.debug.println("DEBUG GUIApplicationWebServerWindow, updateTable; vHostArray:\n"
+        LOG.debug("DEBUG GUIApplicationWebServerWindow, updateTable; vHostArray:\n"
                 + ((WebServer) holeAnwendung()).printVHostTable());
         String[][] vhosts = ((WebServer) holeAnwendung()).getVHostArray();
         DefaultTableModel tablemodel = (DefaultTableModel) vHostTable.getModel();
@@ -206,8 +209,8 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
     }
 
     public void update(Observable arg0, Object arg1) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (GUIApplicationWebServerWindow), update(" + arg0 + "," + arg1 + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationWebServerWindow), update(" + arg0
+                + "," + arg1 + ")");
         if (logArea != null && arg1 != null) {
             logArea.append(arg1.toString() + "\n");
         }
@@ -215,9 +218,9 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
         try {
             aktualisieren();
         } catch (Exception e) {
-            Main.debug.println("GUIApplicationWebServerWindow: update() Exception: " + e.getMessage());
+            LOG.debug("GUIApplicationWebServerWindow: update() Exception: " + e.getMessage());
         }
 
-        Main.debug.println("GUIApplicationWebServerWindow: update() aufgerufen.");
+        LOG.debug("GUIApplicationWebServerWindow: update() aufgerufen.");
     }
 }

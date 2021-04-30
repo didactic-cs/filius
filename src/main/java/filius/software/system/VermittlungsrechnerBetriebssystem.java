@@ -25,8 +25,9 @@
  */
 package filius.software.system;
 
-//Netzwerkziel, Netzwerkmaske, ZielIp(Gateway), Schnittstelle
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
 import filius.rahmenprogramm.Information;
@@ -47,6 +48,7 @@ import filius.software.www.WebServer;
  * Firewall. Die weitere Funktionalitaet wird von der Oberklasse (InternetKnotenBetriebssystem) zur Verfuegung gestellt.
  */
 public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssystem {
+    private static Logger LOG = LoggerFactory.getLogger(VermittlungsrechnerBetriebssystem.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -59,7 +61,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
     /** Konstruktor mit Initialisierung von Firewall und Webserver */
     public VermittlungsrechnerBetriebssystem() {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (VermittlungsrechnerBetriebssystem), constr: VermittlungsrechnerBetriebssystem()");
 
         initialisiereAnwendungen();
@@ -74,7 +76,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
      * Firewall ueber eine Web-Schnittstelle
      */
     private void initialisiereAnwendungen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (VermittlungsrechnerBetriebssystem), initialisiereFirewallUndWebserver()");
         FirewallWebLog weblog;
         FirewallWebKonfig webkonfig;
@@ -125,7 +127,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
      * @see filius.software.system.InternetKnotenBetriebssystem.starten()
      */
     public void starten() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (VermittlungsrechnerBetriebssystem), starten()");
 
         super.starten();

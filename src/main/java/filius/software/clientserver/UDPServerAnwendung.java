@@ -25,15 +25,18 @@
  */
 package filius.software.clientserver;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.vermittlungsschicht.IpPaket;
 
 public abstract class UDPServerAnwendung extends ServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(UDPServerAnwendung.class);
 
-	public UDPServerAnwendung() {
-		super(IpPaket.UDP);
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + ", constr: UDPServerAnwendung()");
-	}
+    public UDPServerAnwendung() {
+        super(IpPaket.UDP);
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + ", constr: UDPServerAnwendung()");
+    }
 
 }

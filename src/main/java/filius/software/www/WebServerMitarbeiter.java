@@ -25,7 +25,9 @@
  */
 package filius.software.www;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.ServerMitarbeiter;
 import filius.software.system.Datei;
 import filius.software.transportschicht.TCPSocket;
@@ -34,6 +36,7 @@ import filius.software.transportschicht.TCPSocket;
  *
  */
 public class WebServerMitarbeiter extends ServerMitarbeiter {
+    private static Logger LOG = LoggerFactory.getLogger(WebServerMitarbeiter.class);
 
     /**
      * Konstruktor: setzt den webserver, socket und webkonfig. startet anschließend den Thread
@@ -43,7 +46,7 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
     }
 
     private HTTPNachricht verarbeiteAnfrage(HTTPNachricht anfrage) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServerMitarbeiter), verarbeiteAnfrage(" + anfrage + ")");
         HTTPNachricht antwort;
         WebServerPlugIn plugin;
@@ -117,7 +120,7 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
     }
 
     protected void verarbeiteNachricht(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServerMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
         HTTPNachricht anfrage, antwort;
 

@@ -33,153 +33,151 @@ import java.util.StringTokenizer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
 import filius.software.Anwendung;
 import filius.software.system.Datei;
 
 /**
- * Diese Klasse stellt Funktionen bereit um reale Dateien auf Rechnerrechner der
- * Internetworking Anwendung zu importieren.
+ * Diese Klasse stellt Funktionen bereit um reale Dateien auf Rechnerrechner der Internetworking Anwendung zu
+ * importieren.
  * 
  * @author Thomas Gerding & Johannes Bade
  * 
  */
 public class FileImporter extends Anwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(FileImporter.class);
 
-	private HashMap<String, String> fileTypeMap;
+    private HashMap<String, String> fileTypeMap;
 
-	public FileImporter() {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileImporter), constr: FileImporter()");
-		this.getFileTypeMap();
-	}
+    public FileImporter() {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileImporter), constr: FileImporter()");
+        this.getFileTypeMap();
+    }
 
-	public void starten() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileImporter), starten()");
-	}
+    public void starten() {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileImporter), starten()");
+    }
 
-	public void beenden() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileImporter), beenden()");
-	}
+    public void beenden() {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileImporter), beenden()");
+    }
 
-	/**
-	 * Diese Funktion importiert die ausgewaehlte Datei in das Betriebssystem
-	 * des Rechners. Dabei wird die Datei Base64 kodiert, um sie als String
-	 * verarbeiten zu koennen!
-	 * 
-	 * @param dateiname
-	 * @return
-	 */
-	public String addFile(String pfadname, String dateiname, DefaultMutableTreeNode ordner, String neuerName) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileImporter), addFile(" + pfadname + "," + dateiname + "," + ordner + "," + neuerName + ")");
-		Datei tempDatei;
-		String dateityp;
+    /**
+     * Diese Funktion importiert die ausgewaehlte Datei in das Betriebssystem des Rechners. Dabei wird die Datei Base64
+     * kodiert, um sie als String verarbeiten zu koennen!
+     * 
+     * @param dateiname
+     * @return
+     */
+    public String addFile(String pfadname, String dateiname, DefaultMutableTreeNode ordner, String neuerName) {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (FileImporter), addFile("
+                + pfadname + "," + dateiname + "," + ordner + "," + neuerName + ")");
+        Datei tempDatei;
+        String dateityp;
 
-		String ergebnis = messages.getString("sw_fileimporter_msg1");
-		// Main.debug.println("#################################################");
+        String ergebnis = messages.getString("sw_fileimporter_msg1");
+        // LOG.debug("#################################################");
 
-		try {
-			if (ordner.getUserObject().getClass().equals(Datei.class)) {
-				// Main.debug
-				// .println("Es können Keine Dateien in Dateien angeleget werden!");
-			} else {
-				if (dateiname.equals("")) {
-					dateityp = this.getFileType(dateiname);
-					tempDatei = new Datei("noName", this.getFileType(dateiname), Base64.encodeFromFile(pfadname
-					        + dateiname));
-					if (dateityp.equals("text")) {
-						tempDatei.setDateiInhalt(Base64.decodeToObject(tempDatei.getDateiInhalt()).toString());
-					}
-					getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
-				} else {
-					dateityp = this.getFileType(dateiname);
-					tempDatei = new Datei(dateiname, dateityp, Base64.encodeFromFile(pfadname + dateiname));
-					if (dateityp.equals("text")) {
-						tempDatei.setDateiInhalt(Base64.decodeToObject(tempDatei.getDateiInhalt()).toString());
-					}
-					getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
-				}
-				ergebnis = messages.getString("sw_fileimporter_msg2") + "\n\t" + pfadname + dateiname;
-			}
-		} catch (Exception e) {
-		}
+        try {
+            if (ordner.getUserObject().getClass().equals(Datei.class)) {
+                // Main.debug
+                // .println("Es können Keine Dateien in Dateien angeleget werden!");
+            } else {
+                if (dateiname.equals("")) {
+                    dateityp = this.getFileType(dateiname);
+                    tempDatei = new Datei("noName", this.getFileType(dateiname),
+                            Base64.encodeFromFile(pfadname + dateiname));
+                    if (dateityp.equals("text")) {
+                        tempDatei.setDateiInhalt(Base64.decodeToObject(tempDatei.getDateiInhalt()).toString());
+                    }
+                    getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
+                } else {
+                    dateityp = this.getFileType(dateiname);
+                    tempDatei = new Datei(dateiname, dateityp, Base64.encodeFromFile(pfadname + dateiname));
+                    if (dateityp.equals("text")) {
+                        tempDatei.setDateiInhalt(Base64.decodeToObject(tempDatei.getDateiInhalt()).toString());
+                    }
+                    getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
+                }
+                ergebnis = messages.getString("sw_fileimporter_msg2") + "\n\t" + pfadname + dateiname;
+            }
+        } catch (Exception e) {}
 
-		return ergebnis;
-	}
+        return ergebnis;
+    }
 
-	/**
-	 * Ermittelt an Hand der Dateiendung den Dateitypen, damit dieser im
-	 * Dateikonstruktor gesetzt werden kann. Es werden folgende Typen
-	 * unterstuetzt und entsprechend gesetzt. Die Dateitypen werden in der
-	 * Konfigurationsdate filetypes.txt festgelegt.
-	 * 
-	 * @param dateiname
-	 *            Der zu ueberpruefende Dateiname
-	 * @return Typ der Datei als String
-	 */
-	public String getFileType(String dateiname) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileImporter), getFileType(" + dateiname + ")");
-		String tmpType = "";
-		/*
-		 * Schritt 1: Die Datei wird in LowerCase konvertiert und der letzte
-		 * Token wird gesucht
-		 */
-		dateiname = dateiname.toLowerCase();
-		StringTokenizer st = new StringTokenizer(dateiname, ".");
-		// Main.debug.println("Die Datei hat " + st.countTokens() + " Tokens!");
-		int counting = st.countTokens();
-		if (counting > 1) {
-			for (int i = 1; i < counting; i++) {
-				st.nextToken();
-			}
-			String a = st.nextToken();
-			tmpType = fileTypeMap.get(a);
+    /**
+     * Ermittelt an Hand der Dateiendung den Dateitypen, damit dieser im Dateikonstruktor gesetzt werden kann. Es werden
+     * folgende Typen unterstuetzt und entsprechend gesetzt. Die Dateitypen werden in der Konfigurationsdate
+     * filetypes.txt festgelegt.
+     * 
+     * @param dateiname
+     *            Der zu ueberpruefende Dateiname
+     * @return Typ der Datei als String
+     */
+    public String getFileType(String dateiname) {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileImporter), getFileType(" + dateiname + ")");
+        String tmpType = "";
+        /*
+         * Schritt 1: Die Datei wird in LowerCase konvertiert und der letzte Token wird gesucht
+         */
+        dateiname = dateiname.toLowerCase();
+        StringTokenizer st = new StringTokenizer(dateiname, ".");
+        // LOG.debug("Die Datei hat " + st.countTokens() + " Tokens!");
+        int counting = st.countTokens();
+        if (counting > 1) {
+            for (int i = 1; i < counting; i++) {
+                st.nextToken();
+            }
+            String a = st.nextToken();
+            tmpType = fileTypeMap.get(a);
 
-		} else {
-			tmpType = "text";
-		}
-		// Main.debug.println("Der Dateityp ist: " + tmpType);
-		return tmpType;
-	}
+        } else {
+            tmpType = "text";
+        }
+        // LOG.debug("Der Dateityp ist: " + tmpType);
+        return tmpType;
+    }
 
-	/**
-	 * Liest einmalig die definierten Filetypen ein, damit diese beim
-	 * Importieren der Dateien passend zugewiesen werden koennen. Wird einmalig
-	 * im Konstruktor des FileImporters aufgerufen.
-	 * 
-	 * @author Johannes Bade & Thomas Gerding
-	 * 
-	 */
-	public void getFileTypeMap() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileImporter), getFileTypeMap()");
-		fileTypeMap = new HashMap<String, String>();
-		RandomAccessFile configFile;
-		try {
-			configFile = new RandomAccessFile("config/filetypes.txt", "r");
-			for (String line; (line = configFile.readLine()) != null;) {
-				StringTokenizer stx = new StringTokenizer(line, ";");
-				String tmpType = stx.nextToken();
-				StringTokenizer sty = new StringTokenizer(stx.nextToken(), ",");
+    /**
+     * Liest einmalig die definierten Filetypen ein, damit diese beim Importieren der Dateien passend zugewiesen werden
+     * koennen. Wird einmalig im Konstruktor des FileImporters aufgerufen.
+     * 
+     * @author Johannes Bade & Thomas Gerding
+     * 
+     */
+    public void getFileTypeMap() {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileImporter), getFileTypeMap()");
+        fileTypeMap = new HashMap<String, String>();
+        RandomAccessFile configFile;
+        try {
+            configFile = new RandomAccessFile("config/filetypes.txt", "r");
+            for (String line; (line = configFile.readLine()) != null;) {
+                StringTokenizer stx = new StringTokenizer(line, ";");
+                String tmpType = stx.nextToken();
+                StringTokenizer sty = new StringTokenizer(stx.nextToken(), ",");
 
-				while (sty.hasMoreElements()) {
-					fileTypeMap.put(sty.nextToken(), tmpType);
-				}
+                while (sty.hasMoreElements()) {
+                    fileTypeMap.put(sty.nextToken(), tmpType);
+                }
 
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace(Main.debug);
-		} catch (IOException e) {
-			e.printStackTrace(Main.debug);
-		}
+            }
+        } catch (FileNotFoundException e) {
+            LOG.debug("", e);
+        } catch (IOException e) {
+            LOG.debug("", e);
+        }
 
-		// Main.debug.println(fileTypeMap);
-	}
+        // LOG.debug(fileTypeMap);
+    }
 }

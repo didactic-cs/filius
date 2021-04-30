@@ -28,31 +28,34 @@ package filius.rahmenprogramm;
 import java.beans.DefaultPersistenceDelegate;
 import java.beans.Encoder;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 
 public class KnotenPersistenceDelegate extends DefaultPersistenceDelegate {
+    private static Logger LOG = LoggerFactory.getLogger(KnotenPersistenceDelegate.class);
 
-	public void writeObject(Object oldInstance, Encoder out) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", writeObject()");
-		if (oldInstance instanceof Host) {
-			// Main.debug.println("\tObjekt der Klasse Host");
-			super.writeObject((Host) oldInstance, out);
-		} else if (oldInstance instanceof Vermittlungsrechner) {
-			// Main.debug.println("\tObjekt der Klasse Vermittlungsrechner");
-			super.writeObject((Vermittlungsrechner) oldInstance, out);
-		} else if (oldInstance instanceof Modem) {
-			// Main.debug.println("\tObjekt der Klasse Modem");
-			super.writeObject((Modem) oldInstance, out);
-		} else if (oldInstance instanceof Switch) {
-			// Main.debug.println("\tObjekt der Klasse Switch");
-			super.writeObject((Switch) oldInstance, out);
-		} else {
-			// Main.debug.println("\tObjekt der Klasse 'unbekannt'");
-			super.writeObject(oldInstance, out);
-		}
-	}
+    public void writeObject(Object oldInstance, Encoder out) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", writeObject()");
+        if (oldInstance instanceof Host) {
+            // LOG.debug("\tObjekt der Klasse Host");
+            super.writeObject((Host) oldInstance, out);
+        } else if (oldInstance instanceof Vermittlungsrechner) {
+            // LOG.debug("\tObjekt der Klasse Vermittlungsrechner");
+            super.writeObject((Vermittlungsrechner) oldInstance, out);
+        } else if (oldInstance instanceof Modem) {
+            // LOG.debug("\tObjekt der Klasse Modem");
+            super.writeObject((Modem) oldInstance, out);
+        } else if (oldInstance instanceof Switch) {
+            // LOG.debug("\tObjekt der Klasse Switch");
+            super.writeObject((Switch) oldInstance, out);
+        } else {
+            // LOG.debug("\tObjekt der Klasse 'unbekannt'");
+            super.writeObject(oldInstance, out);
+        }
+    }
 }

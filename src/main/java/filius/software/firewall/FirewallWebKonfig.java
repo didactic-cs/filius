@@ -29,7 +29,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Vector;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
@@ -37,6 +39,7 @@ import filius.software.www.WebServer;
 import filius.software.www.WebServerPlugIn;
 
 public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(FirewallWebKonfig.class);
 
     private WebServer webserver;
     private Firewall firewall;
@@ -72,15 +75,15 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      * bestuecken, und anschließend eine HTML-Seite zurueckliefern
      */
     public String holeHtmlSeite(String postDaten) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), holeHtmlSeite("
-                + postDaten + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), holeHtmlSeite(" + postDaten
+                + ")");
         String seite = "";
         if (postDaten != null && !postDaten.isEmpty()) {
             // firewallBestuecken(postDaten); // Dort wird die Methode
             // postStringZerlegen() ausgefuehrt
             this.processParameters(postDaten); // process parameters for new firewall format
         }
-        // Main.debug.println("FirewallWebKonfig: Seite liefern= \n"+seite);
+        // LOG.debug("FirewallWebKonfig: Seite liefern= \n"+seite);
         seite = konfigSeiteErstellen();
         return seite;
     }
@@ -89,14 +92,14 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      * @author weyer liefert zu einem ausgeführten Submit-Befehl die einzelnen Stücke zurück
      */
     private String[][] postStringZerlegen(String post) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (FirewallWebKonfig), postStringZerlegen(" + post + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), postStringZerlegen(" + post
+                + ")");
 
         String[] submitTeile;
         String[] element, tmp;
         String[][] tupel;
 
-        // Main.debug.println("String mit submit in FirewallWebKonfig angekommen: "+post);
+        // LOG.debug("String mit submit in FirewallWebKonfig angekommen: "+post);
         // String zerlegen und überprüfen:
         try {
             submitTeile = URLDecoder.decode(post, "UTF-8").split("&");
@@ -125,8 +128,8 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      *            String of POST parameters submitted to web site
      */
     private void processParameters(String postString) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (FirewallWebKonfig), processParameters(" + postString + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), processParameters("
+                + postString + ")");
 
         // globally defined to make them usable in HTML creation method
         srcIP = "";
@@ -270,11 +273,10 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      * diese Seite erstellt den kompletten Quelltext für die konfig.html
      */
     private String konfigSeiteErstellen() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), konfigSeiteErstellen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), konfigSeiteErstellen()");
         String html;
 
-        // Main.debug.println("FirewallWebKonfig: dynamische Generierung der HTML-konfig-Seite!");
+        // LOG.debug("FirewallWebKonfig: dynamische Generierung der HTML-konfig-Seite!");
 
         if (firewall != null) {
 
@@ -403,7 +405,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
                 }
 
             } catch (Exception f) {
-                f.printStackTrace(Main.debug);
+                LOG.debug("", f);
                 return null;
             }
 

@@ -25,36 +25,39 @@
  */
 package filius.hardware.knoten;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.software.system.SwitchFirmware;
 
 @SuppressWarnings("serial")
 public class Switch extends LokalerKnoten implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Switch.class);
 
-	public static final String TYPE = messages.getString("hw_switch_msg1");
-	private boolean showAsCloud = false;
+    public static final String TYPE = messages.getString("hw_switch_msg1");
+    private boolean showAsCloud = false;
 
-	@Override
-	public String holeHardwareTyp() {
-		return TYPE;
-	}
+    @Override
+    public String holeHardwareTyp() {
+        return TYPE;
+    }
 
-	public Switch() {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Switch), constr: Switch()");
+    public Switch() {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Switch), constr: Switch()");
 
-		this.setzeAnzahlAnschluesse(24);
-		this.setSystemSoftware(new SwitchFirmware());
-		getSystemSoftware().setKnoten(this);
-		this.setName(TYPE);
-	}
+        this.setzeAnzahlAnschluesse(24);
+        this.setSystemSoftware(new SwitchFirmware());
+        getSystemSoftware().setKnoten(this);
+        this.setName(TYPE);
+    }
 
-	public void setCloud(boolean newVal) {
-		showAsCloud = newVal;
-	}
+    public void setCloud(boolean newVal) {
+        showAsCloud = newVal;
+    }
 
-	public boolean isCloud() {
-		return showAsCloud;
-	}
+    public boolean isCloud() {
+        return showAsCloud;
+    }
 }

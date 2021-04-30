@@ -27,7 +27,9 @@ package filius.software.firewall;
 
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.rahmenprogramm.I18n;
 import filius.software.ProtokollThread;
@@ -41,6 +43,7 @@ import filius.software.vermittlungsschicht.IpPaket;
  * als gueltig weitergeleitet werden
  */
 public class FirewallThread extends ProtokollThread<EthernetFrame> implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(FirewallThread.class);
 
     private LinkedList<EthernetFrame> ausgangsPuffer;
     private Firewall firewall;
@@ -52,7 +55,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
 
     public FirewallThread(Firewall firewall, NetzwerkInterface nic) {
         super(new LinkedList<EthernetFrame>());
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), constr: FirewallThread(" + firewall + ")");
         this.firewall = firewall;
         this.netzwerkInterface = nic;
@@ -63,7 +66,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
      * Überwachung des Datenaustausches
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), starten()");
 
         super.starten();
@@ -84,7 +87,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
 
     @Override
     protected void verarbeiteDatenEinheit(EthernetFrame frame) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), verarbeiteDatenEinheit(" + frame.toString() + ")");
         if (!(frame.getDaten() != null && frame.getDaten() instanceof IpPaket
                 && !firewall.acceptIPPacket((IpPaket) frame.getDaten()))) {

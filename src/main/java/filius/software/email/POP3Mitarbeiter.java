@@ -29,7 +29,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.ServerMitarbeiter;
 import filius.software.transportschicht.TCPSocket;
 
@@ -42,6 +44,7 @@ import filius.software.transportschicht.TCPSocket;
  */
 
 public class POP3Mitarbeiter extends ServerMitarbeiter {
+    private static Logger LOG = LoggerFactory.getLogger(POP3Mitarbeiter.class);
     private EmailServer emailServer;
 
     private String benutzername;
@@ -60,7 +63,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
 
     public POP3Mitarbeiter(TCPSocket socket, POP3Server pop3Server) {
         super(pop3Server, socket);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), constr: POP3Mitarbeiter(" + socket + "," + pop3Server + ")");
         this.socket = socket;
         this.emailServer = pop3Server.holeEmailServer();
@@ -71,7 +74,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
 
     @Override
     protected void verarbeiteNachricht(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), verarbeiteNachricht(" + nachricht + ")");
 
         emailServer.benachrichtigeBeobachter(socket.holeZielIPAdresse() + "< " + nachricht);
@@ -99,7 +102,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
             } else {
                 antwort = "-ERR Please enter USER";
             }
-            // Main.debug.println("Antwort: "+antwort);
+            // LOG.debug("Antwort: "+antwort);
             sendeAntwort(antwort);
         } else if (befehl.equalsIgnoreCase("PASS")) {
             String antwort = "";
@@ -167,7 +170,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
     }
 
     public void schliesseSocket() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), schliesseSocket()");
         if (socket != null) {
             socket.schliessen();
@@ -185,8 +188,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String user(String benutzername) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), user(" + benutzername + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), user("
+                + benutzername + ")");
         String ergebnis = "";
 
         if (sucheBenutzer(benutzername)) {
@@ -206,8 +209,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String pass(String passwort) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), pass(" + passwort + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), pass("
+                + passwort + ")");
         String ergebnis = "";
         try {
             if (pruefePasswort(passwort)) {
@@ -219,7 +222,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                 ergebnis = "-ERR user or password wrong";
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             ergebnis = "-ERR user or password wrong";
         }
         return ergebnis;
@@ -234,8 +237,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String stat(EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), stat(" + uebergebenesAktivesKonto + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), stat("
+                + uebergebenesAktivesKonto + ")");
         // Main.debug
         // .println("===========================================STAT - BenName: "
         // + uebergebenesAktivesKonto.getBenutzername()
@@ -262,8 +265,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String list(EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), list(" + uebergebenesAktivesKonto + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), list("
+                + uebergebenesAktivesKonto + ")");
         String ergebnis = "";
         if (isTransactionState()) {
             try {
@@ -281,7 +284,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                     i = i + 2;
                 }
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 ergebnis = "-ERR no such message";
             }
         }
@@ -298,8 +301,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String list(int i, EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), list(" + i + "," + uebergebenesAktivesKonto + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), list("
+                + i + "," + uebergebenesAktivesKonto + ")");
         String ergebnis = "";
 
         if (isTransactionState()) {
@@ -318,7 +321,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                     i = i + 2;
                 }
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 ergebnis = "-ERR no such message";
             }
         }
@@ -337,8 +340,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String retr(int i, EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), retr(" + i + "," + uebergebenesAktivesKonto + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), retr("
+                + i + "," + uebergebenesAktivesKonto + ")");
         Email abgerufeneEmail = emailsAbrufen(i, uebergebenesAktivesKonto);
         String ergebnis = "";
 
@@ -351,7 +354,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                     abgerufeneEmail.setNeu(false);
                 }
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 ergebnis = "-ERR no such message";
             }
         }
@@ -367,8 +370,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String dele(int i, EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), dele(" + i + "," + uebergebenesAktivesKonto + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), dele("
+                + i + "," + uebergebenesAktivesKonto + ")");
         String ergebnis = "";
         if (isTransactionState()) {
             try {
@@ -376,7 +379,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                     ergebnis = "+OK message marked for delete";
                 }
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 ergebnis = "-ERR no such message";
             }
         }
@@ -393,8 +396,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String rset(EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), rset(" + uebergebenesAktivesKonto + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), rset("
+                + uebergebenesAktivesKonto + ")");
         String ergebnis = "";
         if (isTransactionState()) {
             try {
@@ -406,7 +409,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                 ergebnis = "+OK";
 
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 // Der Server gibt dem Client, auch wenn nichts geaendert werden
                 // konnte, keine negative
                 // Antwort mit -ERR.
@@ -425,8 +428,8 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @param verbindungsId
      */
     public String quit(EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (POP3Mitarbeiter), quit(" + uebergebenesAktivesKonto + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Mitarbeiter), quit("
+                + uebergebenesAktivesKonto + ")");
         String ergebnis = "";
         if (isTransactionState()) {
             try {
@@ -437,9 +440,9 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                 }
                 ergebnis = "+OK";
             } catch (Exception e) {
-                Main.debug.println("EXCEPTION (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                LOG.debug("EXCEPTION (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                         + " (POP3Mitarbeiter), quit: ");
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         }
 
@@ -459,7 +462,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @return boolean
      */
     public String noop() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), noop()");
         String ergebnis = "";
         try {
@@ -473,7 +476,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
 
         } catch (Exception e) {
             ergebnis = "-ERR unknown command";
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
         return ergebnis;
     }
@@ -487,7 +490,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @return boolean
      */
     public boolean sucheBenutzer(String benutzernamen) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), sucheBenutzer(" + benutzernamen + ")");
         for (ListIterator<EmailKonto> iter = emailServer.getListeBenutzerkonten().listIterator(); iter.hasNext();) {
             EmailKonto konto = (EmailKonto) iter.next();
@@ -508,7 +511,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @return boolean
      */
     public boolean pruefePasswort(String passwort) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), pruefePasswort(" + passwort + ")");
         boolean erfolg = false;
 
@@ -527,7 +530,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @return boolean
      */
     public boolean emailsAlsGeloeschtMarkieren(int i, EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), emailsAlsGeloeschtMarkieren(" + i + "," + uebergebenesAktivesKonto + ")");
         List<Email> emails = uebergebenesAktivesKonto.getNachrichten();
         try {
@@ -538,7 +541,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
             emailServer.kontenSpeichern();
             return true;
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             emailServer.kontenSpeichern();
         }
         return false;
@@ -559,7 +562,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @return LinkedList
      */
     public Email emailsAbrufen(int i, EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), emailsAbrufen(" + i + "," + uebergebenesAktivesKonto + ")");
         List<Email> gespeicherteEmails = new LinkedList<Email>();
         Email abgerufeneEmail = new Email();
@@ -568,7 +571,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
             gespeicherteEmails = uebergebenesAktivesKonto.getNachrichten();
             abgerufeneEmail = gespeicherteEmails.get(i);
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             emailServer.kontenSpeichern();
         }
 
@@ -587,7 +590,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @return String
      */
     public String emailsAuflisten(EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), emailsAuflisten(" + uebergebenesAktivesKonto + ")");
         StringBuilder str = new StringBuilder();
 
@@ -606,7 +609,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             emailServer.kontenSpeichern();
         }
         return str.toString();
@@ -626,7 +629,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * @return int [][]
      */
     public int[] anzahlEmailsImPostfach(EmailKonto uebergebenesAktivesKonto) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), anzahlEmailsImPostfach(" + uebergebenesAktivesKonto + ")");
         String str = "";
         int[] a = new int[2];
@@ -644,7 +647,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
             a[0] = str.length();
             a[1] = i;
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             emailServer.kontenSpeichern();
         }
         return a;
@@ -661,7 +664,7 @@ public class POP3Mitarbeiter extends ServerMitarbeiter {
      * IDVerbindung.
      */
     public void sendeAntwort(String daten) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Mitarbeiter), sendeAntwort(" + daten + ")");
         try {
             if (isTransactionState() || isBenAuth()) {

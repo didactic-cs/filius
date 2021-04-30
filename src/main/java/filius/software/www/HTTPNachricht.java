@@ -29,11 +29,13 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import filius.Main;
 import filius.rahmenprogramm.I18n;
 
 public class HTTPNachricht implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(HTTPNachricht.class);
 
     public static final int SERVER = 0, CLIENT = 1;
 
@@ -80,8 +82,8 @@ public class HTTPNachricht implements I18n {
      * @param nachricht
      */
     public HTTPNachricht(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (HTTPNachricht), constr: HTTPNachricht(" + nachricht + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (HTTPNachricht), constr: HTTPNachricht("
+                + nachricht + ")");
         StringTokenizer tokenizer;
         String token;
         String[] zeilen;
@@ -96,17 +98,17 @@ public class HTTPNachricht implements I18n {
                 if (token.equalsIgnoreCase(GET) || token.equalsIgnoreCase(POST)) {
                     method = token;
 
-                    // Main.debug.println("Method: " + method);
+                    // LOG.debug("Method: " + method);
 
                     token = tokenizer.nextToken().trim();
                     pfad = decodePath(token);
 
-                    // Main.debug.println("Pfad: " + pfad);
+                    // LOG.debug("Pfad: " + pfad);
 
                     token = tokenizer.nextToken().trim();
                     protocolVersion = token;
 
-                    // Main.debug.println("Protokoll-Version: " +
+                    // LOG.debug("Protokoll-Version: " +
                     // protocolVersion);
 
                     for (int i = 1; i < zeilen.length; i++) {
@@ -129,12 +131,12 @@ public class HTTPNachricht implements I18n {
                     }
                 } else {
                     protocolVersion = token;
-                    // Main.debug.println("Protokoll-Version: " +
+                    // LOG.debug("Protokoll-Version: " +
                     // protocolVersion);
 
                     token = tokenizer.nextToken().trim();
                     statusCode = Integer.parseInt(token);
-                    // Main.debug.println("Status-Code: " + statusCode);
+                    // LOG.debug("Status-Code: " + statusCode);
 
                     for (int i = 1; i < zeilen.length; i++) {
                         if (zeilen[i].equals("")) {
@@ -145,7 +147,7 @@ public class HTTPNachricht implements I18n {
                                     daten.append("\n");
                             }
                             i = zeilen.length;
-                            // Main.debug.println("Daten: " + daten.toString());
+                            // LOG.debug("Daten: " + daten.toString());
                         } else {
                             tokenizer = new StringTokenizer(zeilen[i], " ");
                             token = tokenizer.nextToken().trim();
@@ -185,7 +187,7 @@ public class HTTPNachricht implements I18n {
     }
 
     public static String holeStatusNachricht(int code) {
-        Main.debug.println("INVOKED (static) filius.software.www.HTTPNachricht, holeStatusNachricht(" + code + ")");
+        LOG.debug("INVOKED (static) filius.software.www.HTTPNachricht, holeStatusNachricht(" + code + ")");
         if (code == 100)
             return "Continue";
         if (code == 101)

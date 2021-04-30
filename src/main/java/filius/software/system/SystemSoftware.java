@@ -31,7 +31,9 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.Observable;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.knoten.Knoten;
 
 /**
@@ -41,6 +43,7 @@ import filius.hardware.knoten.Knoten;
  */
 @SuppressWarnings("serial")
 public abstract class SystemSoftware extends Observable implements Serializable {
+    private static Logger LOG = LoggerFactory.getLogger(SystemSoftware.class);
 
     /** Die Hardware, auf der diese Systemsoftware laeuft. */
     private Knoten hardware;
@@ -95,7 +98,7 @@ public abstract class SystemSoftware extends Observable implements Serializable 
 
     public void setKnoten(Knoten hardware) {
         this.hardware = hardware;
-        // Main.debug.println("DEBUG: SystemSoftware ("+this.hashCode()+") now is connected to Knoten
+        // LOG.debug("DEBUG: SystemSoftware ("+this.hashCode()+") now is connected to Knoten
         // ("+hardware.hashCode()+")");
     }
 
@@ -105,8 +108,8 @@ public abstract class SystemSoftware extends Observable implements Serializable 
      * @deprecated Use firePropertyChanged based on the {@link PropertyChangeSupport} mechanism instead.
      */
     public void benachrichtigeBeobacher(Object o) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (SystemSoftware), benachrichtigeBeobachter(" + o + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SystemSoftware), benachrichtigeBeobachter(" + o
+                + ")");
         setChanged();
         notifyObservers(o);
     }

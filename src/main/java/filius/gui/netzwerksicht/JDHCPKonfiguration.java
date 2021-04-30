@@ -55,7 +55,9 @@ import javax.swing.SpringLayout;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.JExtendedTable;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
@@ -64,6 +66,7 @@ import filius.software.dhcp.DHCPServer;
 import filius.software.system.Betriebssystem;
 
 public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
+    private static Logger LOG = LoggerFactory.getLogger(JDHCPKonfiguration.class);
 
     private static final long serialVersionUID = 1L;
     private DHCPServer server;
@@ -378,12 +381,12 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
 
     /** Listens to the check boxes. */
     public void itemStateChanged(java.awt.event.ItemEvent e) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration) itemStateChanged("
-                + e + "); source=" + e.getItemSelectable());
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration) itemStateChanged(" + e
+                + "); source=" + e.getItemSelectable());
         Object source = e.getItemSelectable();
 
         if (source == cbUseInternal) {
-            // Main.debug.println("\titemStateChanged; source==cbUseInternal");
+            // LOG.debug("\titemStateChanged; source==cbUseInternal");
             if (cbUseInternal.isSelected()) {
                 server.setOwnSettings(true);
                 tfGateway.setEditable(true);
@@ -399,7 +402,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
     }
 
     private void update() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration), update()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration), update()");
         tfObergrenze.setText(server.getObergrenze());
         tfUntergrenze.setText(server.getUntergrenze());
         tfNetzmaske.setText(server.getSubnetzmaske());

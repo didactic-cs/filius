@@ -43,7 +43,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.GUIContainer;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Modem;
@@ -52,6 +54,7 @@ import filius.software.system.ModemFirmware;
 
 @SuppressWarnings("serial")
 public class JModemKonfiguration extends JKonfiguration implements I18n, Observer {
+    private static Logger LOG = LoggerFactory.getLogger(JModemKonfiguration.class);
 
     private static final String CMD_DISCONNECT = "Trennen";
     private static final String CMD_START_SERVER = "ServerStarten";
@@ -71,8 +74,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
 
     @Override
     public void aenderungenAnnehmen() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), aenderungenAnnehmen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), aenderungenAnnehmen()");
         Modem modem;
         ModemFirmware firmware;
 
@@ -95,8 +97,8 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
     }
 
     protected void initAttributEingabeBox(Box box, Box rightBox) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (JModemKonfiguration), initAttributEingabeBox(" + box + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), initAttributEingabeBox("
+                + box + ")");
 
         FocusListener configFocusListener = new FocusListener() {
             public void focusGained(FocusEvent arg0) {}
@@ -211,8 +213,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
 
     @Override
     public synchronized void updateAttribute() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), updateAttribute()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), updateAttribute()");
         Modem modem;
         ModemFirmware firmware;
         boolean aktiv;
@@ -254,8 +255,8 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
     }
 
     public void update(Observable arg0, Object arg1) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), update(" + arg0
-                + "," + arg1 + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), update(" + arg0 + ","
+                + arg1 + ")");
         updateAttribute();
     }
 }

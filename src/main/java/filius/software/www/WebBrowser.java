@@ -39,8 +39,9 @@ import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.tags.ImageTag;
 import org.htmlparser.visitors.TagFindingVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import filius.Main;
 import filius.exception.VerbindungsException;
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
@@ -64,6 +65,7 @@ import filius.software.transportschicht.TCPSocket;
  * 
  */
 public class WebBrowser extends ClientAnwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(WebBrowser.class);
 
     private static final int ABRUF_HTML = 1, ABRUF_IMG = 2;
 
@@ -74,7 +76,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     private String host;
 
     public void holeWebseite(URL url) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), holeWebseite(" + url + ")");
         Object[] args;
 
@@ -92,7 +94,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     }
 
     public void holeWebseite(URL url, String post) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), holeWebseite(" + url + "," + post + ")");
         Object[] args;
 
@@ -110,7 +112,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     }
 
     public void internHoleRessource(URL url, String post) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), internHoleRessource(" + url + "," + post + ")");
         HTTPNachricht nachricht;
         HTTPNachricht fehler;
@@ -151,7 +153,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                         fehler.setDaten(erzeugeHtmlFehlermeldung(0));
                         benachrichtigeBeobachter(fehler);
                     }
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
 
             }
@@ -161,20 +163,20 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                     aktuellerSocket.senden(nachricht.toString());
                     verarbeiteNachricht();
                 } catch (Exception e) {
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
             }
         }
     }
 
     public String holeHost() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebBrowser), holeHost()");
         return host;
     }
 
     public void starten() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebBrowser), starten()");
         super.starten();
         bilddateien = new LinkedList<String>();
@@ -184,7 +186,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
      * liest eine reale Textdatei vom Format .txt ein. Diese befinden sich im Ordner /config
      */
     private String einlesenTextdatei(String datei) throws FileNotFoundException, IOException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), einlesenTextdatei(" + datei + ")");
         StringBuffer fullFile = new StringBuffer();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -198,7 +200,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     }
 
     private String erzeugeHtmlFehlermeldung(int statusCode) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), erzeugeHtmlFehlermeldung(" + statusCode + ")");
         String quelltext;
         String dateipfad;
@@ -213,7 +215,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                 quelltext = einlesenTextdatei(dateipfad);
             } catch (Exception e) {
                 quelltext = messages.getString("sw_webbrowser_msg2");
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
 
             quelltext = quelltext.replace(":code:", "" + statusCode);
@@ -233,7 +235,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
      * @param host
      */
     private void verarbeiteIMGTags(String quelltext, String host) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), verarbeiteIMGTags(" + quelltext + "," + host + ")");
         zustand = ABRUF_IMG;
 
@@ -252,7 +254,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
 
         /*
@@ -267,7 +269,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
                     args[1] = "";
                     ausfuehren("internHoleRessource", args);
                 } catch (MalformedURLException e) {
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
             }
         }
@@ -285,7 +287,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
      * 
      */
     protected void verarbeiteNachricht() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), verarbeiteNachricht()");
         HTTPNachricht antwort;
         String contentType;

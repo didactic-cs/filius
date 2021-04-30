@@ -51,13 +51,16 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.software.dns.DNSServer;
 import filius.software.dns.ResourceRecord;
 import filius.software.vermittlungsschicht.IP;
 
 public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationDNSServerWindow.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -234,7 +237,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
                 if (zeilenNummer != -1) {
                     String domainname = aRecordsTable.getValueAt(zeilenNummer, 0).toString();
                     ((DNSServer) holeAnwendung()).loescheResourceRecord(domainname, ResourceRecord.ADDRESS);
-                    Main.debug.println("GUIApplicationDNSServerWindow: A-Eintrag " + domainname + " geloescht");
+                    LOG.debug("GUIApplicationDNSServerWindow: A-Eintrag " + domainname + " geloescht");
 
                     updateARecordsTable();
                 }
@@ -345,7 +348,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
                 if (zeilenNummer != -1) {
                     String domainname = mxRecordsTable.getValueAt(zeilenNummer, 0).toString();
                     ((DNSServer) holeAnwendung()).loescheResourceRecord(domainname, ResourceRecord.MAIL_EXCHANGE);
-                    Main.debug.println("GUIApplicationDNSServerWindow: MX-Eintrag " + domainname + " geloescht");
+                    LOG.debug("GUIApplicationDNSServerWindow: MX-Eintrag " + domainname + " geloescht");
                     updateMXRecordsTable();
                 }
             }
@@ -454,7 +457,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
                 if (zeilenNummer != -1) {
                     String domainname = nsRecordsTable.getValueAt(zeilenNummer, 0).toString();
                     ((DNSServer) holeAnwendung()).loescheResourceRecord(domainname, ResourceRecord.NAME_SERVER);
-                    Main.debug.println("GUIApplicationDNSServerWindow: NS-Eintrag " + domainname + " geloescht");
+                    LOG.debug("GUIApplicationDNSServerWindow: NS-Eintrag " + domainname + " geloescht");
                     updateNSRecordsTable();
                 }
             }

@@ -32,104 +32,106 @@ import java.beans.PropertyVetoException;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GUIDesktopIcon extends JLabel implements MouseListener {
+    private static Logger LOG = LoggerFactory.getLogger(GUIDesktopIcon.class);
 
-	private String anwendungsName;
-	private String invokeName;
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+    private String anwendungsName;
+    private String invokeName;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	public GUIDesktopIcon() {
-		super();
-		// TODO Auto-generated constructor stub
+    public GUIDesktopIcon() {
+        super();
+        // TODO Auto-generated constructor stub
 
-	}
+    }
 
-	public GUIDesktopIcon(Icon arg0, int arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+    public GUIDesktopIcon(Icon arg0, int arg1) {
+        super(arg0, arg1);
+        // TODO Auto-generated constructor stub
+    }
 
-	public GUIDesktopIcon(Icon arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
-		this.addMouseListener(this);
-	}
+    public GUIDesktopIcon(Icon arg0) {
+        super(arg0);
+        // TODO Auto-generated constructor stub
+        this.addMouseListener(this);
+    }
 
-	public GUIDesktopIcon(String arg0, Icon arg1, int arg2) {
-		super(arg0, arg1, arg2);
-		// TODO Auto-generated constructor stub
-	}
+    public GUIDesktopIcon(String arg0, Icon arg1, int arg2) {
+        super(arg0, arg1, arg2);
+        // TODO Auto-generated constructor stub
+    }
 
-	public GUIDesktopIcon(String arg0, int arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+    public GUIDesktopIcon(String arg0, int arg1) {
+        super(arg0, arg1);
+        // TODO Auto-generated constructor stub
+    }
 
-	public GUIDesktopIcon(String arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
+    public GUIDesktopIcon(String arg0) {
+        super(arg0);
+        // TODO Auto-generated constructor stub
+    }
 
-	public String getAnwendungsName() {
-		return anwendungsName;
-	}
+    public String getAnwendungsName() {
+        return anwendungsName;
+    }
 
-	public void setAnwendungsName(String anwendungsName) {
-		this.anwendungsName = anwendungsName;
-	}
+    public void setAnwendungsName(String anwendungsName) {
+        this.anwendungsName = anwendungsName;
+    }
 
-	public String getInvokeName() {
-		return invokeName;
-	}
+    public String getInvokeName() {
+        return invokeName;
+    }
 
-	public void setInvokeName(String invokeName) {
-		this.invokeName = invokeName;
-	}
+    public void setInvokeName(String invokeName) {
+        this.invokeName = invokeName;
+    }
 
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-	}
+    public void mouseClicked(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+    }
 
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+    public void mouseEntered(MouseEvent arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+    public void mouseExited(MouseEvent arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	public void mousePressed(MouseEvent arg0) {
+    public void mousePressed(MouseEvent arg0) {
 
-		// TODO Auto-generated method stub
-		// FIXME Hardcoded Trash!! (getParent.getParent & Anwendunginstallieren
-		// abfrage)
+        // TODO Auto-generated method stub
+        // FIXME Hardcoded Trash!! (getParent.getParent & Anwendunginstallieren
+        // abfrage)
 
-		GUIDesktopPanel dp = (GUIDesktopPanel) this.getParent().getParent().getParent();
+        GUIDesktopPanel dp = (GUIDesktopPanel) this.getParent().getParent().getParent();
 
-		// Main.debug.println("GUIDesktopIcon: "+getAnwendungsName()+" soll gestartet werden.");
+        // LOG.debug("GUIDesktopIcon: "+getAnwendungsName()+" soll gestartet werden.");
 
-		GUIApplicationWindow tempWindow = dp.starteAnwendung(this.getInvokeName());
-		if (tempWindow != null) {
-			try {
-				tempWindow.setSelected(true);
-				tempWindow.setVisible(true);
-			} catch (PropertyVetoException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace(Main.debug);
-			}
-		}
-	}
+        GUIApplicationWindow tempWindow = dp.starteAnwendung(this.getInvokeName());
+        if (tempWindow != null) {
+            try {
+                tempWindow.setSelected(true);
+                tempWindow.setVisible(true);
+            } catch (PropertyVetoException e) {
+                // TODO Auto-generated catch block
+                LOG.debug("", e);
+            }
+        }
+    }
 
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+    public void mouseReleased(MouseEvent arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
 }

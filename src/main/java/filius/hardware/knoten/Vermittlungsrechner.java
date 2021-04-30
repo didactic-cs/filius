@@ -29,12 +29,15 @@ package filius.hardware.knoten;
 import java.util.ArrayList;
 import java.util.List;
 
-import filius.Main;
-import filius.hardware.NetzwerkInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.software.system.VermittlungsrechnerBetriebssystem;
 
+@SuppressWarnings("serial")
 public class Vermittlungsrechner extends InternetKnoten implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Vermittlungsrechner.class);
 
     public static final String TYPE = messages.getString("hw_vermittlungsrechner_msg1");
 
@@ -45,7 +48,7 @@ public class Vermittlungsrechner extends InternetKnoten implements I18n {
 
     public Vermittlungsrechner() {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (Vermittlungsrechner), constr: Vermittlungsrechner()");
 
         this.setzeAnzahlAnschluesse(1);
@@ -53,11 +56,12 @@ public class Vermittlungsrechner extends InternetKnoten implements I18n {
         getSystemSoftware().setKnoten(this);
         this.setName(TYPE);
     }
-    
-    public List<String> getMacs() {	
-    	List<String> macs = new ArrayList<String>();
-    	int count = getNetzwerkInterfaces().size();
-    	for (int i = 0; i<count; i++) macs.add(getNetzwerkInterfaces().get(0).getMac());
-		return macs;
-	}
+
+    public List<String> getMacs() {
+        List<String> macs = new ArrayList<String>();
+        int count = getNetzwerkInterfaces().size();
+        for (int i = 0; i < count; i++)
+            macs.add(getNetzwerkInterfaces().get(0).getMac());
+        return macs;
+    }
 }

@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.ServerMitarbeiter;
 import filius.software.transportschicht.TCPSocket;
 
@@ -48,6 +50,8 @@ import filius.software.transportschicht.TCPSocket;
  * 
  */
 public class SMTPMitarbeiter extends ServerMitarbeiter {
+    private static Logger LOG = LoggerFactory.getLogger(SMTPMitarbeiter.class);
+
     private static final int START = 0, ENVELOPE = 1, DATA = 2, END = 3;
     private EmailServer emailServer;
 
@@ -63,7 +67,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
     public SMTPMitarbeiter(// Betriebssystem bs,
             TCPSocket socket, SMTPServer server) {
         super(server, socket);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), constr: SMTPMitarbeiter(" + socket + "," + server + ")");
 
         this.socket = socket;
@@ -77,7 +81,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
      * In dieser Methode werden die ankommenden Befehle und Daten zur Uebertragung einer E-Mail verarbeitet.
      */
     protected void verarbeiteNachricht(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
         String[] tokens;
         String tmp;
@@ -144,9 +148,8 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
             }
         } else if (zustand == DATA) {
             tokens = nachricht.split("\n");
-            if ((tokens.length > 0 && tokens[tokens.length - 1].trim().equals("."))
-                    || (tokens.length > 1 && tokens[tokens.length - 2].trim().equals(".") && tokens[tokens.length - 2]
-                            .trim().equals(""))) {
+            if ((tokens.length > 0 && tokens[tokens.length - 1].trim().equals(".")) || (tokens.length > 1
+                    && tokens[tokens.length - 2].trim().equals(".") && tokens[tokens.length - 2].trim().equals(""))) {
                 quelltext = quelltext + nachricht.substring(0, nachricht.lastIndexOf("."));
 
                 email = new Email(quelltext);
@@ -168,7 +171,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
      * Empfaenger in einem lokalen Postfach abgelegt bzw. an einen neuen Empfaenger weiter geleitet.
      */
     private void verarbeiteEmail() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), verarbeiteEmail()");
         StringBuilder weitereEmpfaenger = new StringBuilder();
         List<String> unknownRecipients = new ArrayList<String>();
@@ -204,15 +207,15 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
      * Nachricht informiert!
      */
     private void senden(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), senden(" + nachricht + ")");
         try {
             socket.senden(nachricht);
             emailServer.benachrichtigeBeobachter(socket.holeZielIPAdresse() + "> " + nachricht);
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
-            emailServer.benachrichtigeBeobachter(messages.getString("sw_smtpmitarbeiter_msg14") + " "
-                    + socket.holeZielIPAdresse());
+            LOG.debug("", e);
+            emailServer.benachrichtigeBeobachter(
+                    messages.getString("sw_smtpmitarbeiter_msg14") + " " + socket.holeZielIPAdresse());
         }
     }
 }

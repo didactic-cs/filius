@@ -27,7 +27,9 @@ package filius.software.dns;
 
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.EingabenUeberpruefung;
 
 /**
@@ -50,6 +52,7 @@ import filius.rahmenprogramm.EingabenUeberpruefung;
  * </ol>
  */
 public class ResourceRecord {
+    private static Logger LOG = LoggerFactory.getLogger(ResourceRecord.class);
 
     public static final String ADDRESS = "A", MAIL_EXCHANGE = "MX", NAME_SERVER = "NS";
 
@@ -76,8 +79,8 @@ public class ResourceRecord {
     private String rdata = "";
 
     public ResourceRecord(String domainname, String typ, String rdata) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (ResourceRecord), constr: ResourceRecord(" + domainname + "," + typ + "," + rdata + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ResourceRecord), constr: ResourceRecord("
+                + domainname + "," + typ + "," + rdata + ")");
         setDomainname(domainname);
         this.type = typ;
         setRdata(rdata);
@@ -91,8 +94,8 @@ public class ResourceRecord {
      *            ein String, der durch die Methode toString() erstellt wurde
      */
     public ResourceRecord(String rr) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (ResourceRecord), constr: ResourceRecord(" + rr + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ResourceRecord), constr: ResourceRecord(" + rr
+                + ")");
         StringTokenizer tokenizer;
         String token;
 
@@ -113,8 +116,8 @@ public class ResourceRecord {
             try {
                 setTtl(Integer.parseInt(token));
             } catch (java.lang.NumberFormatException e) {
-                Main.debug.println("EXCEPTION: NumberFormatException, TTL field: '" + token + "'");
-                e.printStackTrace(Main.debug);
+                LOG.debug("EXCEPTION: NumberFormatException, TTL field: '" + token + "'");
+                LOG.debug("", e);
             }
         }
 

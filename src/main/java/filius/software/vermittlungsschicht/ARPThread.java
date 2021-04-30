@@ -16,7 +16,9 @@
  */
 package filius.software.vermittlungsschicht;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.software.ProtokollThread;
 import filius.software.netzzugangsschicht.EthernetFrame;
@@ -27,6 +29,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * 
  */
 public class ARPThread extends ProtokollThread<ArpPaket> {
+    private static Logger LOG = LoggerFactory.getLogger(ARPThread.class);
 
     /**
      * die Implementierung des Address Resolution Protocols mit der Verwaltung der ARP-Eintraege
@@ -38,7 +41,7 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
      */
     public ARPThread(ARP vermittlung) {
         super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeARPPuffer());
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ARPThread), constr: ARPThread(" + vermittlung + ")");
         this.vermittlung = vermittlung;
     }
@@ -49,7 +52,7 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
      * oder eine Antwort ist). Wenn die Anfrage eine eigene IP-Adresse betrifft, wird ein Antwort-Paket verschickt.
      */
     protected void verarbeiteDatenEinheit(ArpPaket arpPaket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ARPThread), verarbeiteDatenEinheit(" + arpPaket.toString() + ")");
 
         // Aus jedem ARP-Paket wird ein neuer ARP-Eintrag erzeugt

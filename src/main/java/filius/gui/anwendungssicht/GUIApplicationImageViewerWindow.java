@@ -36,81 +36,83 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.Information;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
 
 public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationImageViewerWindow.class);
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
-	private JPanel backPanel;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private JPanel backPanel;
 
-	public GUIApplicationImageViewerWindow(final GUIDesktopPanel desktop, String appName) {
-		super(desktop, appName);
+    public GUIApplicationImageViewerWindow(final GUIDesktopPanel desktop, String appName) {
+        super(desktop, appName);
 
-		backPanel = new JPanel(new BorderLayout());
+        backPanel = new JPanel(new BorderLayout());
 
-		JMenuBar mb = new JMenuBar();
+        JMenuBar mb = new JMenuBar();
 
-		JMenu menuDatei = new JMenu(messages.getString("imageviewer_msg1"));
+        JMenu menuDatei = new JMenu(messages.getString("imageviewer_msg1"));
 
-		menuDatei.add(new AbstractAction(messages.getString("imageviewer_msg2")) {
+        menuDatei.add(new AbstractAction(messages.getString("imageviewer_msg2")) {
 
-			private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent arg0) {
-				oeffnen();
-			}
-		});
+            public void actionPerformed(ActionEvent arg0) {
+                oeffnen();
+            }
+        });
 
-		mb.add(menuDatei);
+        mb.add(menuDatei);
 
-		this.setJMenuBar(mb);
+        this.setJMenuBar(mb);
 
-		this.getContentPane().add(backPanel);
-		pack();
+        this.getContentPane().add(backPanel);
+        pack();
 
-	}
+    }
 
-	public void oeffnen() {
-		DMTNFileChooser fc;
-		int rueckgabe;
-		Datei aktuelleDatei;
-		String path;
-		ImageIcon image;
+    public void oeffnen() {
+        DMTNFileChooser fc;
+        int rueckgabe;
+        Datei aktuelleDatei;
+        String path;
+        ImageIcon image;
 
-		fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
-		rueckgabe = fc.openDialog();
+        fc = new DMTNFileChooser((Betriebssystem) holeAnwendung().getSystemSoftware());
+        rueckgabe = fc.openDialog();
 
-		if (rueckgabe == DMTNFileChooser.OK) {
-			aktuelleDatei = holeAnwendung().getSystemSoftware().getDateisystem()
-			        .holeDatei(fc.getAktuellerOrdner(), fc.getAktuellerDateiname());
-			if (aktuelleDatei != null) {
-				this.setTitle(aktuelleDatei.getName());
-				Base64.decodeToFile(aktuelleDatei.getDateiInhalt(), Information.getInformation().getTempPfad()
-				        + aktuelleDatei.getName());
+        if (rueckgabe == DMTNFileChooser.OK) {
+            aktuelleDatei = holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(fc.getAktuellerOrdner(),
+                    fc.getAktuellerDateiname());
+            if (aktuelleDatei != null) {
+                this.setTitle(aktuelleDatei.getName());
+                Base64.decodeToFile(aktuelleDatei.getDateiInhalt(),
+                        Information.getInformation().getTempPfad() + aktuelleDatei.getName());
 
-				path = Information.getInformation().getTempPfad() + aktuelleDatei.getName();
-				image = new ImageIcon(path);
-				JLabel titelgrafik = new JLabel(image);
-				backPanel.add(titelgrafik, BorderLayout.CENTER);
-				backPanel.updateUI();
-			} else {
-				Main.debug.println("ERROR (" + this.hashCode()
-				        + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
-			}
+                path = Information.getInformation().getTempPfad() + aktuelleDatei.getName();
+                image = new ImageIcon(path);
+                JLabel titelgrafik = new JLabel(image);
+                backPanel.add(titelgrafik, BorderLayout.CENTER);
+                backPanel.updateUI();
+            } else {
+                LOG.debug("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
+            }
 
-		} else {
-			Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
-		}
-	}
+        } else {
+            LOG.debug("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
+        }
+    }
 
-	public void update(Observable arg0, Object arg1) {
+    public void update(Observable arg0, Object arg1) {
 
-	}
+    }
 }

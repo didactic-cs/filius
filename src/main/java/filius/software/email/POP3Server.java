@@ -25,7 +25,9 @@
  */
 package filius.software.email;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.TCPServerAnwendung;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
@@ -36,8 +38,9 @@ import filius.software.transportschicht.TCPSocket;
  * rausgeworfen wird, wie z.B. 2x einen EmailServer zu implementieren!
  */
 
-public class POP3Server extends TCPServerAnwendung // extends EmailServer
-{
+public class POP3Server extends TCPServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(POP3Server.class);
+
     private EmailServer emailServer;
 
     // Konstruktor(en)
@@ -45,7 +48,7 @@ public class POP3Server extends TCPServerAnwendung // extends EmailServer
     public POP3Server(int port, // Betriebssystem bs,
             EmailServer emailServer) {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Server), constr: POP3Server(" + port + "," + emailServer + ")");
 
         this.port = port;
@@ -59,7 +62,7 @@ public class POP3Server extends TCPServerAnwendung // extends EmailServer
     // Methoden
 
     protected void neuerMitarbeiter(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Server), neuerMitarbeiter(" + socket + ")");
         POP3Mitarbeiter popMitarbeiter;
 

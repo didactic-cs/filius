@@ -25,7 +25,9 @@
  */
 package filius.software.clientserver;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.Anwendung;
 import filius.software.transportschicht.Socket;
 
@@ -33,6 +35,7 @@ import filius.software.transportschicht.Socket;
  * Die Klasse ClientAnwendung enthaelt die fuer Clients spezifischen Methoden.
  */
 public abstract class ClientAnwendung extends Anwendung {
+    private static Logger LOG = LoggerFactory.getLogger(ClientAnwendung.class);
 
     /**
      * der Socket, der zum Nachrichtenaustausch mit dem Server genutzt wird
@@ -44,7 +47,7 @@ public abstract class ClientAnwendung extends Anwendung {
      * Diese Methode ist <b>nicht blockierend</b>.
      */
     public boolean istVerbunden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientAnwendung), istVerbunden()");
         if (socket != null) {
             return socket.istVerbunden();
@@ -59,7 +62,7 @@ public abstract class ClientAnwendung extends Anwendung {
      * Diese Methode ist <b>nicht blockierend</b>.
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientAnwendung), beenden()");
         super.beenden();
 

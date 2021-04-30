@@ -56,8 +56,9 @@ import javax.swing.table.TableColumn;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import filius.Main;
 import filius.gui.JMainFrame;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.SzenarioVerwaltung;
@@ -65,6 +66,7 @@ import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.rahmenprogramm.nachrichten.LauscherBeobachter;
 
 public class AggregatedMessageTable extends JTable implements LauscherBeobachter, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(AggregatedMessageTable.class);
 
     private static final int EXPORT_MAX_LINES_PER_MESSAGE = 5;
 
@@ -247,7 +249,7 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
 
     @Override
     public synchronized void update() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
         Object[][] daten;
 
         daten = Lauscher.getLauscher().getDaten(interfaceId, true);

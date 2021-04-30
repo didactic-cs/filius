@@ -43,7 +43,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.GUIContainer;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
@@ -54,6 +56,7 @@ import filius.software.system.Betriebssystem;
 
 @SuppressWarnings("serial")
 public class JHostKonfiguration extends JKonfiguration implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(JHostKonfiguration.class);
 
     private static final int LABEL_WIDTH = 160;
     private JTextField name;
@@ -104,7 +107,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             }
 
         } else {
-            Main.debug.println("GUIRechnerKonfiguration: Aenderungen konnten nicht uebernommen werden.");
+            LOG.debug("GUIRechnerKonfiguration: Aenderungen konnten nicht uebernommen werden.");
         }
 
         GUIContainer.getGUIContainer().updateViewport();
@@ -404,7 +407,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             checkGatewayAddress();
             checkNetmask();
         } else {
-            Main.debug.println("GUIRechnerKonfiguration: keine Hardware-Komponente vorhanden");
+            LOG.debug("GUIRechnerKonfiguration: keine Hardware-Komponente vorhanden");
         }
     }
 

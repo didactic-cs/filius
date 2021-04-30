@@ -52,11 +52,15 @@ import java.util.Observer;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.Main;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 
 public class JMainFrame extends javax.swing.JFrame implements WindowListener, Observer {
+    private static Logger LOG = LoggerFactory.getLogger(JMainFrame.class);
 
     private static final long serialVersionUID = 1L;
     private static JMainFrame frame = null;
@@ -70,7 +74,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (e.getID() == KeyEvent.KEY_PRESSED && !(e.getSource() instanceof JTextField)) {
-                    Main.debug.print("KEY dispatcher:\n" + "\tkey:'" + e.getKeyCode() + "'\n" + "\tmodifier: '"
+                    LOG.debug("KEY dispatcher:\n" + "\tkey:'" + e.getKeyCode() + "'\n" + "\tmodifier: '"
                             + e.getModifiersEx() + "'\n" + "\tmodifierText: '"
                             + KeyEvent.getModifiersExText(e.getModifiersEx()) + "'\n" + "\tkeyChar: '" + e.getKeyChar()
                             + "'\n" + "\tsourceType: '" + e.getSource().getClass().getSimpleName() + "'\n");
@@ -108,9 +112,9 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                                     markedlist.add(tempitem);
                                 }
                             }
-                            // Main.debug.println("selected elements for deletion (via key press):");
+                            // LOG.debug("selected elements for deletion (via key press):");
                             for (int i = 0; i < markedlist.size(); i++) {
-                                // Main.debug.println("\t"+((GUIKnotenItem)
+                                // LOG.debug("\t"+((GUIKnotenItem)
                                 // markedlist.get(i)).getKnoten().getName());
                                 GUIEvents.getGUIEvents().itemLoeschen(
                                         ((GUIKnotenItem) markedlist.get(i)).getImageLabel(),
@@ -128,46 +132,46 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                         }
                     }
                     if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == KeyEvent.CTRL_DOWN_MASK) { // CTRL key pressed
-                        // Main.debug.println("KeyDispatcher: CTRL-Key pressed, waiting for additional key!");
+                        // LOG.debug("KeyDispatcher: CTRL-Key pressed, waiting for additional key!");
                         switch (e.getKeyCode()) {
                         case 78: // N (new)
-                            // Main.debug.println("KeyDispatcher: CTRL+N recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+N recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btNeu");
                             return true;
                         case 79: // O (open)
-                            // Main.debug.println("KeyDispatcher: CTRL+O recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+O recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btOeffnen");
                             return true;
                         case 83: // S (save file)
-                            // Main.debug.println("KeyDispatcher: CTRL+S recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+S recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btSpeichern");
                             return true;
                         case 68: // D (development mode)
-                            // Main.debug.println("KeyDispatcher: CTRL+D recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+D recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btEntwurfsmodus");
                             return true;
                         case 82: // R (run-time/simulation mode)
-                            // Main.debug.println("KeyDispatcher: CTRL+R recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+R recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btAktionsmodus");
                             return true;
                         case 37: // left arrow (slower simulation)
-                            // Main.debug.println("KeyDispatcher: CTRL+left recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+left recognised");
                             GUIContainer.getGUIContainer().getMenu().changeSlider(-1);
                             return true;
                         case 39: // right arrow (faster simulation)
-                            // Main.debug.println("KeyDispatcher: CTRL+right recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+right recognised");
                             GUIContainer.getGUIContainer().getMenu().changeSlider(1);
                             return true;
                         case 87: // W (wizard for new modules)
-                            // Main.debug.println("KeyDispatcher: CTRL+W recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+W recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btWizard");
                             return true;
                         case 72: // H (help)
-                            // Main.debug.println("KeyDispatcher: CTRL+H recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+H recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btHilfe");
                             return true;
                         case 65: // A (about dialog)
-                            // Main.debug.println("KeyDispatcher: CTRL+A recognised");
+                            // LOG.debug("KeyDispatcher: CTRL+A recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btInfo");
                             return true;
                         }
@@ -177,7 +181,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                         // key '1' (cable)
                         if ((e.getKeyCode() == 49)
                                 && (GUIContainer.getGUIContainer().getActiveSite() == GUIMainMenu.MODUS_ENTWURF)) {
-                            // Main.debug.println("KeyDispatcher: ALT+1 recognised");
+                            // LOG.debug("KeyDispatcher: ALT+1 recognised");
                             switchCablePreview();
                             return true;
                         }

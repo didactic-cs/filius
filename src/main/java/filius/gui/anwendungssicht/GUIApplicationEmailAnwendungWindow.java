@@ -61,7 +61,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.JExtendedTable;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.ResourceUtil;
@@ -77,6 +79,7 @@ import filius.software.email.EmailUtils;
  * 
  */
 public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationEmailAnwendungWindow.class);
 
     private enum ListMode {
         INBOX, OUTBOX, UNKNOWN
@@ -312,7 +315,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
             emailVorschau.setText(" ");
             emailVorschau.updateUI();
         } else {
-            Main.debug.println(
+            LOG.debug(
                     "============================================GuiAppl. Emailloeschen: Email konnte nicht geloescht werden=======================================");
         }
     }
@@ -338,7 +341,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         try {
             inFrVerfassen.setSelected(true);
         } catch (PropertyVetoException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
 
         JPanel verfassenPanel = new JPanel(new BorderLayout());
@@ -535,7 +538,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
             try {
                 inFrAbholen.setSelected(true);
             } catch (PropertyVetoException e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
 
             progressBar = new JProgressBar(0, 100);
@@ -783,7 +786,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         try {
             inFrKonten.setSelected(true);
         } catch (PropertyVetoException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
     }
 

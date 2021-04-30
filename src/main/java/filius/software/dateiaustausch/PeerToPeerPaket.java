@@ -28,165 +28,157 @@ package filius.software.dateiaustausch;
 import java.util.Random;
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Nadja Haßler
  * 
  */
 public class PeerToPeerPaket {
+    private static Logger LOG = LoggerFactory.getLogger(PeerToPeerPaket.class);
 
-	/*
-	 * Attribute
-	 * ----------------------------------------------------------------
-	 * -----------------------------
-	 */
+    /*
+     * Attribute ---------------------------------------------------------------- -----------------------------
+     */
 
-	protected int guid; // 16 Byte lange zufaellige Zahl zur Identifizierung von
-	                    // Paketen, 128 Bit, also Zahlen zwischen 0 und
-	                    // 6.805647338418769*10^38, hier ist die aber nur 2^31-1
-	                    // gross hoechstens
+    protected int guid; // 16 Byte lange zufaellige Zahl zur Identifizierung von
+                        // Paketen, 128 Bit, also Zahlen zwischen 0 und
+                        // 6.805647338418769*10^38, hier ist die aber nur 2^31-1
+                        // gross hoechstens
 
-	protected String payload; // gibt Art des Pakets an: 0x00 (Ping), 0x01
-	                          // (Pong), 0x80 (Query), 0x81 (Query-Hit) oder
-	                          // 0x40 (Push), Groesse 1 Byte
+    protected String payload; // gibt Art des Pakets an: 0x00 (Ping), 0x01
+                              // (Pong), 0x80 (Query), 0x81 (Query-Hit) oder
+                              // 0x40 (Push), Groesse 1 Byte
 
-	protected int ttl; // die Lebensdauer eines Pakets, Groesse 1 Byte
+    protected int ttl; // die Lebensdauer eines Pakets, Groesse 1 Byte
 
-	protected int hops; // die Anzahl der Hops, die das Paket schon
-	                    // zurueckgelegt hat, Groesse 1 Byte
+    protected int hops; // die Anzahl der Hops, die das Paket schon
+                        // zurueckgelegt hat, Groesse 1 Byte
 
-	protected long payloadLength; // Laenge der Nutzdaten in Bits
+    protected long payloadLength; // Laenge der Nutzdaten in Bits
 
-	/*
-	 * Konstruktoren
-	 * ------------------------------------------------------------
-	 * ---------------------------------
-	 */
+    /*
+     * Konstruktoren ------------------------------------------------------------ ---------------------------------
+     */
 
-	/**
-	 * einziger benoetiger Konstruktor
-	 */
-	public PeerToPeerPaket() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (PeerToPeerPaket), constr: PeerToPeerPaket()");
-		this.guid = guidErstellen();
-		this.payload = "";
-		this.ttl = 8;
-		this.hops = 0;
-	}
+    /**
+     * einziger benoetiger Konstruktor
+     */
+    public PeerToPeerPaket() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), constr: PeerToPeerPaket()");
+        this.guid = guidErstellen();
+        this.payload = "";
+        this.ttl = 8;
+        this.hops = 0;
+    }
 
-	/**
-	 * wandelt einen String (wenn möglich) in ein PeerToPeerPaket um
-	 */
-	public PeerToPeerPaket(String string) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (PeerToPeerPaket), constr: PeerToPeerPaket(" + string + ")");
-		// String wird nach "//" getrennt
-		StringTokenizer tk = new StringTokenizer(string, "//");
-		// Absichern der Informationen
-		guid = Integer.parseInt(tk.nextToken());
-		payload = tk.nextToken();
-		hops = Integer.parseInt(tk.nextToken());
-		ttl = Integer.parseInt(tk.nextToken());
-		payloadLength = Integer.parseInt(tk.nextToken());
-	}
+    /**
+     * wandelt einen String (wenn möglich) in ein PeerToPeerPaket um
+     */
+    public PeerToPeerPaket(String string) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), constr: PeerToPeerPaket("
+                + string + ")");
+        // String wird nach "//" getrennt
+        StringTokenizer tk = new StringTokenizer(string, "//");
+        // Absichern der Informationen
+        guid = Integer.parseInt(tk.nextToken());
+        payload = tk.nextToken();
+        hops = Integer.parseInt(tk.nextToken());
+        ttl = Integer.parseInt(tk.nextToken());
+        payloadLength = Integer.parseInt(tk.nextToken());
+    }
 
-	/*
-	 * Operationen
-	 * --------------------------------------------------------------
-	 * -------------------------------
-	 */
+    /*
+     * Operationen -------------------------------------------------------------- -------------------------------
+     */
 
-	protected long anzahlBenoetigterBits(long zahl) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (PeerToPeerPaket), anzahlBenoetigterBits(" + zahl + ")");
-		int exponent = 0;
-		while (potenzieren(2, exponent) < zahl) {
-			exponent++;
-		}
-		return exponent;
-	}
+    protected long anzahlBenoetigterBits(long zahl) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), anzahlBenoetigterBits("
+                + zahl + ")");
+        int exponent = 0;
+        while (potenzieren(2, exponent) < zahl) {
+            exponent++;
+        }
+        return exponent;
+    }
 
-	private int potenzieren(int basis, int exponent) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), potenzieren("
-		        + basis + "," + exponent + ")");
-		/*
-		 * int ergebnis=1; for (int i=0;i<exponent;i++){
-		 * ergebnis=ergebnis*basis; } return ergebnis;
-		 */
-		return (int) (java.lang.Math.pow((double) basis, (double) exponent));
-	}
+    private int potenzieren(int basis, int exponent) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), potenzieren(" + basis + ","
+                + exponent + ")");
+        /*
+         * int ergebnis=1; for (int i=0;i<exponent;i++){ ergebnis=ergebnis*basis; } return ergebnis;
+         */
+        return (int) (java.lang.Math.pow((double) basis, (double) exponent));
+    }
 
-	/**
-	 * erstellt eine zufaellige GUID im int-Bereich normalerweise sind diese
-	 * Zahlen um einiges groesser, so jedoch handhabbarer
-	 * 
-	 * @return erstellteGuid
-	 */
-	public int guidErstellen() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), guidErstellen()");
-		Random zufallszahl = new Random();
-		int erstellteGuid = -1;
-		while (erstellteGuid < 0) {
-			erstellteGuid = zufallszahl.nextInt();
-		}
-		return erstellteGuid;
-	}
+    /**
+     * erstellt eine zufaellige GUID im int-Bereich normalerweise sind diese Zahlen um einiges groesser, so jedoch
+     * handhabbarer
+     * 
+     * @return erstellteGuid
+     */
+    public int guidErstellen() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), guidErstellen()");
+        Random zufallszahl = new Random();
+        int erstellteGuid = -1;
+        while (erstellteGuid < 0) {
+            erstellteGuid = zufallszahl.nextInt();
+        }
+        return erstellteGuid;
+    }
 
-	/**
-	 * wandelt ein PeerToPeerPaket in einen String um
-	 * 
-	 * @return der String das PeerToPeerPaket verpackt als String
-	 */
-	public String toString() {
-		return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength();
-	}
+    /**
+     * wandelt ein PeerToPeerPaket in einen String um
+     * 
+     * @return der String das PeerToPeerPaket verpackt als String
+     */
+    public String toString() {
+        return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength();
+    }
 
-	/*
-	 * Getter und Setter
-	 * --------------------------------------------------------
-	 * -------------------------------------
-	 */
+    /*
+     * Getter und Setter -------------------------------------------------------- -------------------------------------
+     */
 
-	public int getGuid() {
-		return guid;
-	}
+    public int getGuid() {
+        return guid;
+    }
 
-	public void setGuid(int guid) {
-		this.guid = guid;
-	}
+    public void setGuid(int guid) {
+        this.guid = guid;
+    }
 
-	public int getHops() {
-		return hops;
-	}
+    public int getHops() {
+        return hops;
+    }
 
-	public void setHops(int hops) {
-		this.hops = hops;
-	}
+    public void setHops(int hops) {
+        this.hops = hops;
+    }
 
-	public String getPayload() {
-		return payload;
-	}
+    public String getPayload() {
+        return payload;
+    }
 
-	public void setPayload(String payload) {
-		this.payload = payload;
-	}
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
 
-	public long getPayloadLength() {
-		return payloadLength;
-	}
+    public long getPayloadLength() {
+        return payloadLength;
+    }
 
-	public void setPayloadLength(long payloadLength) {
-		this.payloadLength = payloadLength;
-	}
+    public void setPayloadLength(long payloadLength) {
+        this.payloadLength = payloadLength;
+    }
 
-	public int getTtl() {
-		return ttl;
-	}
+    public int getTtl() {
+        return ttl;
+    }
 
-	public void setTtl(int ttl) {
-		this.ttl = ttl;
-	}
+    public void setTtl(int ttl) {
+        this.ttl = ttl;
+    }
 
 }

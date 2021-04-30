@@ -36,7 +36,9 @@ import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.software.Anwendung;
@@ -46,6 +48,7 @@ import filius.software.Anwendung;
  * 
  */
 public abstract class GUIApplicationWindow extends JInternalFrame implements I18n, Observer {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationWindow.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -87,7 +90,7 @@ public abstract class GUIApplicationWindow extends JInternalFrame implements I18
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
     }
 

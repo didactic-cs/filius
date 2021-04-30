@@ -30,24 +30,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
 import filius.hardware.Verbindung;
 
 public abstract class InternetKnoten extends Knoten {
+    private static Logger LOG = LoggerFactory.getLogger(InternetKnoten.class);
 
     private static final long serialVersionUID = 1L;
     private List<NetzwerkInterface> netzwerkInterfaces = new LinkedList<NetzwerkInterface>();
 
     public Port holeFreienPort() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), holeFreienPort()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), holeFreienPort()");
         ListIterator<NetzwerkInterface> iter = getNetzwerkInterfaces().listIterator();
         while (iter.hasNext()) {
             NetzwerkInterface nic = (NetzwerkInterface) iter.next();
             Port anschluss = nic.getPort();
             if (anschluss.isPortFrei()) {
-                // Main.debug.println("\tfound free port: "+anschluss);
+                // LOG.debug("\tfound free port: "+anschluss);
                 return anschluss;
             }
         }
@@ -62,7 +65,7 @@ public abstract class InternetKnoten extends Knoten {
                 try {
                     connectedPorts.add(connection.findConnectedPort(nic.getPort()));
                 } catch (Exception e) {
-                    Main.debug.println(e.getMessage());
+                    LOG.debug(e.getMessage());
                 }
             }
         }
@@ -93,8 +96,8 @@ public abstract class InternetKnoten extends Knoten {
      * @return
      */
     public NetzwerkInterface getNetzwerkInterfaceByMac(String mac) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnoten), getNetzwerkInterfaceByMac(" + mac + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), getNetzwerkInterfaceByMac("
+                + mac + ")");
         NetzwerkInterface rueckgabe = null;
         ListIterator<NetzwerkInterface> it = this.netzwerkInterfaces.listIterator();
         while (it.hasNext()) {
@@ -119,8 +122,8 @@ public abstract class InternetKnoten extends Knoten {
      * @return
      */
     public NetzwerkInterface getNetzwerkInterfaceByIp(String ip) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnoten), getNetzwerkInterfaceByIp(" + ip + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), getNetzwerkInterfaceByIp("
+                + ip + ")");
         if (ip.equals("127.0.0.1")) {
             return (NetzwerkInterface) netzwerkInterfaces.get(0);
         }
@@ -152,8 +155,8 @@ public abstract class InternetKnoten extends Knoten {
     }
 
     public void setzeAnzahlAnschluesse(int anzahlAnschluesse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnoten), setzeAnzahlAnschluesse(" + anzahlAnschluesse + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), setzeAnzahlAnschluesse("
+                + anzahlAnschluesse + ")");
 
         netzwerkInterfaces = new LinkedList<NetzwerkInterface>();
         for (int i = 0; i < anzahlAnschluesse; i++) {

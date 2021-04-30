@@ -27,20 +27,23 @@ package filius.software.dns;
 
 import java.util.concurrent.TimeoutException;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.ServerMitarbeiter;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.UDPSocket;
 
 public class DNSServerMitarbeiter extends ServerMitarbeiter {
+    private static Logger LOG = LoggerFactory.getLogger(DNSServerMitarbeiter.class);
 
     public DNSServerMitarbeiter(DNSServer server, Socket socket) {
         super(server, socket);
     }
 
     protected void verarbeiteNachricht(String dateneinheit) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServerMitarbeiter), verarbeiteNachricht(" + dateneinheit + ")");
         DNSNachricht nachricht, antwort;
         ResourceRecord record;
@@ -97,8 +100,8 @@ public class DNSServerMitarbeiter extends ServerMitarbeiter {
         if (socket != null) {
             ((UDPSocket) socket).senden(antwort.toString());
 
-            server.benachrichtigeBeobachter(messages.getString("sw_dnsservermitarbeiter_msg2") + "\n>>>>\n"
-                    + antwort.toString() + "<<<<");
+            server.benachrichtigeBeobachter(
+                    messages.getString("sw_dnsservermitarbeiter_msg2") + "\n>>>>\n" + antwort.toString() + "<<<<");
         }
 
     }

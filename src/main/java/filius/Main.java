@@ -32,10 +32,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Locale;
 
 import javax.swing.JOptionPane;
@@ -43,6 +41,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import filius.gui.GUIContainer;
 import filius.gui.GUIMainMenu;
@@ -53,22 +53,17 @@ import filius.rahmenprogramm.FiliusArgs;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.SzenarioVerwaltung;
-import filius.rahmenprogramm.TeeOutputStream;
 
 /**
  * In dieser Klasse wird die Anwendung gestartet und beendet. Das wird in den entsprechenden statischen Methoden
  * implementiert.
  */
 public class Main implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static final String FRANCAIS = "Français";
     private static final String ENGLISH = "English";
     private static final String DEUTSCH = "Deutsch";
-    /**
-     * ueber diesen Stream werden Nachrichten ausgegeben, die fuer die Fehlersuche nuetzlich sind. NOTE: in loggen(..)
-     * gesetzt
-     */
-    public static PrintStream debug = System.out;
 
     /**
      * Der Start laeuft folgendermassen ab:
@@ -85,7 +80,7 @@ public class Main implements I18n {
      * </ol>
      */
     public static void starten(String szenarioDatei) {
-        Main.debug.println("INVOKED (static) filius.Main, starten(" + szenarioDatei + ")");
+        LOG.debug("INVOKED (static) filius.Main, starten(" + szenarioDatei + ")");
         SplashScreen splashScreen;
         XMLDecoder xmldec;
         String konfigPfad;
@@ -94,7 +89,7 @@ public class Main implements I18n {
         try {
             Information.getInformation().loadIni();
         } catch (IOException e1) {
-            Main.debug.println("ini could not be read: " + e1.getMessage());
+            LOG.debug("ini could not be read: " + e1.getMessage());
         }
 
         konfigPfad = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
@@ -132,7 +127,7 @@ public class Main implements I18n {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         }
 
@@ -154,7 +149,7 @@ public class Main implements I18n {
                 SzenarioVerwaltung.getInstance().laden(szenarioDatei, GUIContainer.getGUIContainer().getKnotenItems(),
                         GUIContainer.getGUIContainer().getCableItems(), GUIContainer.getGUIContainer().getDocuItems());
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         }
         GUIContainer.getGUIContainer().setProperty(null);
@@ -169,7 +164,7 @@ public class Main implements I18n {
         // since
         // Splashscreen
         // made visible
-        Main.debug.println("Splash Screen shown for " + splashTime + " ms");
+        LOG.debug("Splash Screen shown for " + splashTime + " ms");
         if (splashTime < 1000) {
             try {
                 Thread.sleep(1000 - splashTime);
@@ -196,7 +191,7 @@ public class Main implements I18n {
      * </ol>
      */
     public static void beenden() {
-        Main.debug.println("INVOKED (static) filius.Main, beenden()");
+        LOG.debug("INVOKED (static) filius.Main, beenden()");
         Object[] programmKonfig;
         int entscheidung;
         boolean abbruch = false;
@@ -225,37 +220,11 @@ public class Main implements I18n {
                     XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
                 encoder.writeObject(programmKonfig);
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
             SzenarioVerwaltung.loescheVerzeichnisInhalt(Information.getInformation().getTempPfad());
             System.exit(0);
         }
-    }
-
-    private static boolean loggen(String logDateiPfad, boolean ausgabeKommandozeile) {
-        PrintStream kommandozeile = null;
-        if (ausgabeKommandozeile) {
-            kommandozeile = System.out;
-        }
-        if (logDateiPfad != null) {
-            try {
-                Main.debug = new PrintStream(new TeeOutputStream(new FileOutputStream(logDateiPfad), kommandozeile));
-                System.out.println("Ausgaben werden in Datei '" + logDateiPfad + "' protokolliert.");
-                System.setErr(Main.debug);
-            } catch (FileNotFoundException e) {
-                System.err.println(
-                        "Error: logging could not be realised due to FileNotFoundException:\n\t'" + e.toString() + "'");
-                Main.debug = new PrintStream(new TeeOutputStream(null, kommandozeile));
-            } catch (Exception e) {
-                System.err.println(
-                        "Error: logging could not be realised; reason not specified:\n\t'" + e.toString() + "'");
-                Main.debug = new PrintStream(new TeeOutputStream(null, kommandozeile));
-            }
-        } else {
-            Main.debug = new PrintStream(new TeeOutputStream(null, kommandozeile));
-        }
-
-        return true;
     }
 
     /**
@@ -278,12 +247,7 @@ public class Main implements I18n {
                 else if (Information.getInformation(filiusArgs.currWD) == null)
                     System.exit(6);
             }
-            if (filiusArgs.log) {
-                filiusArgs.log = loggen(Information.getInformation().getArbeitsbereichPfad() + "filius.log",
-                        filiusArgs.verbose);
-            } else {
-                loggen(null, filiusArgs.verbose);
-            }
+            if (filiusArgs.log) {} else {}
             if (Information.getInformation(filiusArgs.currWD) == null) {
                 System.exit(6);
             }
@@ -301,16 +265,16 @@ public class Main implements I18n {
         } catch (ParseException e) {
             filiusArgs.showUsageInformation();
         }
-        Main.debug.println("------------------------------------------------------");
-        Main.debug.println("\tJava Version: " + System.getProperty("java.version"));
-        Main.debug.println("\tJava Directory: " + System.getProperty("java.home"));
-        Main.debug.println("\tFILIUS Version: " + Information.getVersion());
-        Main.debug.println("\tParameters: '" + filiusArgs.argsString.trim() + "'");
+        LOG.debug("------------------------------------------------------");
+        LOG.debug("\tJava Version: " + System.getProperty("java.version"));
+        LOG.debug("\tJava Directory: " + System.getProperty("java.home"));
+        LOG.debug("\tFILIUS Version: " + Information.getVersion());
+        LOG.debug("\tParameters: '" + filiusArgs.argsString.trim() + "'");
         // +"\n\tWD Base: "+newWD
-        Main.debug.println("\tFILIUS Installation: " + Information.getInformation().getProgrammPfad());
-        Main.debug.println("\tFILIUS Working Directory: " + Information.getInformation().getArbeitsbereichPfad());
-        Main.debug.println("\tFILIUS Temp Directory: " + Information.getInformation().getTempPfad());
-        Main.debug.println("------------------------------------------------------\n");
+        LOG.debug("\tFILIUS Installation: " + Information.getInformation().getProgrammPfad());
+        LOG.debug("\tFILIUS Working Directory: " + Information.getInformation().getArbeitsbereichPfad());
+        LOG.debug("\tFILIUS Temp Directory: " + Information.getInformation().getTempPfad());
+        LOG.debug("------------------------------------------------------\n");
     }
 
     public static void activateNativeLookAndFeel() {

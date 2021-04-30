@@ -27,7 +27,9 @@ package filius.hardware;
 
 import java.io.Serializable;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.VerbindungsException;
 import filius.rahmenprogramm.I18n;
 
@@ -36,6 +38,7 @@ import filius.rahmenprogramm.I18n;
  * 
  */
 public abstract class Verbindung extends Hardware implements Serializable, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Verbindung.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -68,20 +71,20 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     private Thread threadSimplexZwei;
 
     public void setAnschluesse(Port[] anschluesse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), setAnschluesse("
-                + anschluesse + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), setAnschluesse(" + anschluesse
+                + ")");
         this.anschluesse = anschluesse;
 
         try {
             verbinde();
         } catch (VerbindungsException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
     }
 
     private void verbinde() throws VerbindungsException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), verbinde()" + "\t"
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), verbinde()" + "\t"
                 + anschluesse[0].hashCode() + " <-> " + anschluesse[1].hashCode());
         try {
             simplexEins = new SimplexVerbindung(anschluesse[0], anschluesse[1], this);
@@ -127,7 +130,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     }
 
     public void anschluesseTrennen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), anschluesseTrennen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), anschluesseTrennen()");
         simplexEins.anschluesseTrennen();
         simplexZwei.anschluesseTrennen();
         threadSimplexEins.interrupt();
@@ -147,8 +150,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
      * @param verzoegerungsFaktor
      */
     public static void setzeVerzoegerungsFaktor(int verzoegerungsFaktor) {
-        Main.debug.println(
-                "INVOKED (static) filius.hardware.Verbindung, setzeVerzoegerungsFaktor(" + verzoegerungsFaktor + ")");
+        LOG.debug("INVOKED (static) filius.hardware.Verbindung, setzeVerzoegerungsFaktor(" + verzoegerungsFaktor + ")");
         if (verzoegerungsFaktor < 1) {
             Verbindung.verzoegerungsFaktor = 1;
         } else if (verzoegerungsFaktor > 100) {

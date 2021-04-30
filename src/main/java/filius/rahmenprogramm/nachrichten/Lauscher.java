@@ -35,7 +35,9 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Vector;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.software.netzzugangsschicht.EthernetFrame;
@@ -46,6 +48,7 @@ import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.IpPaket;
 
 public class Lauscher implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Lauscher.class);
 
     public static final String ETHERNET = "", ARP = "ARP", IP = "IP", ICMP = "ICMP", TCP = "TCP", UDP = "UDP";
 
@@ -70,14 +73,14 @@ public class Lauscher implements I18n {
     private HashMap<String, LinkedList<Object[]>> datenEinheiten;
 
     private Lauscher() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: Lauscher()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: Lauscher()");
         beobachter = new HashMap<String, LinkedList<LauscherBeobachter>>();
 
         reset();
     }
 
     public void reset() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
         // lauscher = null;
         datenEinheiten = new HashMap<String, LinkedList<Object[]>>();
         this.benachrichtigeBeobachter(null);
@@ -100,8 +103,8 @@ public class Lauscher implements I18n {
     }
 
     public void addBeobachter(String rechnerId, LauscherBeobachter newObserver) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", addBeobachter(" + rechnerId + ","
-                + newObserver + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", addBeobachter(" + rechnerId + "," + newObserver
+                + ")");
         LinkedList<LauscherBeobachter> liste;
 
         liste = this.beobachter.get(rechnerId);
@@ -113,8 +116,7 @@ public class Lauscher implements I18n {
     }
 
     private void benachrichtigeBeobachter(String rechnerId) {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + ", benachrichtigeBeobachter(" + rechnerId + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", benachrichtigeBeobachter(" + rechnerId + ")");
         LinkedList<LauscherBeobachter> liste;
         Collection<LinkedList<LauscherBeobachter>> collection;
         ListIterator<LauscherBeobachter> it;
@@ -130,7 +132,7 @@ public class Lauscher implements I18n {
         } else {
             liste = this.beobachter.get(rechnerId);
         }
-        // Main.debug.println("\tbenachrichtigeBeobachter for "+rechnerId+" gave list "+(liste==null
+        // LOG.debug("\tbenachrichtigeBeobachter for "+rechnerId+" gave list "+(liste==null
         // ? "<null>" : liste.toString()));
         if (liste != null) {
             it = liste.listIterator();
@@ -149,8 +151,8 @@ public class Lauscher implements I18n {
      * @param frame
      */
     public void addDatenEinheit(String interfaceId, EthernetFrame frame) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", addDatenEinheit(" + interfaceId + ","
-                + frame + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", addDatenEinheit(" + interfaceId + "," + frame
+                + ")");
         LinkedList<Object[]> liste;
         Object[] frameMitZeitstempel;
 
@@ -171,7 +173,7 @@ public class Lauscher implements I18n {
     }
 
     public Object[][] getDaten(String interfaceId, boolean inheritAddress) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", getDaten(" + interfaceId + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", getDaten(" + interfaceId + ")");
         Vector<Object[]> vector;
         Object[][] daten;
 
@@ -189,21 +191,19 @@ public class Lauscher implements I18n {
     }
 
     public void print(String interfaceId) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", print(" + interfaceId + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", print(" + interfaceId + ")");
         Object[][] daten;
 
         daten = getDaten(interfaceId, false);
         for (int i = 0; i < daten.length; i++) {
             for (int j = 0; j < daten[i].length; j++) {
-                Main.debug.print("\t" + daten[i][j]);
+                LOG.debug("\t" + daten[i][j]);
             }
-            Main.debug.println();
         }
     }
 
     private Vector<Object[]> datenVorbereiten(String interfaceId, boolean inheritAddress) {
-        Main.debug
-                .println("INVOKED (" + this.hashCode() + ") " + getClass() + ", datenVorbereiten(" + interfaceId + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", datenVorbereiten(" + interfaceId + ")");
         Vector<Object[]> daten;
         LinkedList<Object[]> liste;
         Object[] frameMitZeitstempel, neuerEintrag;
@@ -318,7 +318,7 @@ public class Lauscher implements I18n {
                             neuerEintrag[5] = PROTOKOLL_SCHICHTEN[2];
                             neuerEintrag[6] = "";
                         } else {
-                            Main.debug.println("ERROR (" + this.hashCode() + "): Protokoll der Transportschicht ("
+                            LOG.debug("ERROR (" + this.hashCode() + "): Protokoll der Transportschicht ("
                                     + ipPaket.getProtocol() + ") nicht bekannt.");
                         }
                         daten.addElement(neuerEintrag);

@@ -27,13 +27,16 @@ package filius.hardware.knoten;
 
 import java.util.List;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.Hardware;
 import filius.hardware.Port;
 import filius.software.system.SystemSoftware;
 
 @SuppressWarnings("serial")
 public abstract class Knoten extends Hardware {
+    private static Logger LOG = LoggerFactory.getLogger(Knoten.class);
 
     private String name;
     private SystemSoftware systemAnwendung;
@@ -69,7 +72,7 @@ public abstract class Knoten extends Hardware {
     public void setName(String name) {
         this.name = name;
         if (systemAnwendung != null) {
-            Main.debug.println(
+            LOG.debug(
                     "DEBUG: node with SystemSoftware (" + systemAnwendung.hashCode() + ") now has name '" + name + "'");
         }
     }

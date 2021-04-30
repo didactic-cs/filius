@@ -29,7 +29,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
@@ -59,6 +61,8 @@ import filius.software.vermittlungsschicht.VermittlungsProtokoll;
  * </ol>
  */
 public class Firewall extends Anwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Firewall.class);
+
     // firewall ruleset
     private Vector<FirewallRule> ruleset = new Vector<FirewallRule>();
 
@@ -74,8 +78,7 @@ public class Firewall extends Anwendung implements I18n {
      * startet die Anwendung Firewall.
      */
     public void starten() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), starten()");
         super.starten();
 
         for (NetzwerkInterface nic : getAllNetworkInterfaces()) {
@@ -93,8 +96,7 @@ public class Firewall extends Anwendung implements I18n {
      * ruft die Methoden zum ordnungsgemäßen Stoppen aller existierenden Threads auf
      */
     public void beenden() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), beenden()");
         super.beenden();
 
         this.beendeFirewallThread(null);
@@ -299,7 +301,7 @@ public class Firewall extends Anwendung implements I18n {
      * entfernt eine Regel aus dem Regelkatalog
      */
     public void deleteRule(int idx) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Firewall), entferneRegel(" + idx + ")");
 
         if (idx >= 0 && idx < ruleset.size()) {

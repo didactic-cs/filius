@@ -41,7 +41,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.JMainFrame;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.Host;
@@ -49,6 +51,7 @@ import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
 
 public class JSidebarButton extends JLabel implements Observer, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(JSidebarButton.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -177,7 +180,7 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
     }
 
     public void update(Observable o, Object arg) {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (JSidebarButton), update(" + o + "," + arg + ")");
 
         if (arg != null && arg.equals(Boolean.TRUE)) {

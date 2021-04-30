@@ -49,12 +49,15 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.rahmenprogramm.nachrichten.LauscherBeobachter;
 
 public class LayeredMessageTable extends JTable implements LauscherBeobachter, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(LayeredMessageTable.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -250,7 +253,7 @@ public class LayeredMessageTable extends JTable implements LauscherBeobachter, I
     }
 
     public synchronized void update() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
         Object[][] daten;
 
         daten = Lauscher.getLauscher().getDaten(interfaceId, false);

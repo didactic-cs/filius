@@ -25,26 +25,29 @@
  */
 package filius.software.transportschicht;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.SocketException;
 import filius.software.ProtokollThread;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
 
 public class TransportProtokollThread extends ProtokollThread<IpPaket> {
+    private static Logger LOG = LoggerFactory.getLogger(TransportProtokollThread.class);
 
     private TransportProtokoll protokoll;
 
     public TransportProtokollThread(TransportProtokoll protokoll) {
         super(((InternetKnotenBetriebssystem) protokoll.holeSystemSoftware()).holeIP()
                 .holePaketListe(protokoll.holeTyp()));
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (TransportProtokollThread), constr: TransportProtokollThread(" + protokoll + ")");
         this.protokoll = protokoll;
     }
 
     protected void verarbeiteDatenEinheit(IpPaket paket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (TransportProtokollThread), verarbeiteDatenEinheit(" + paket.toString() + ")");
 
         Segment segment = (Segment) paket.getSegment();
@@ -53,7 +56,7 @@ public class TransportProtokollThread extends ProtokollThread<IpPaket> {
             socket.hinzufuegen(paket.getSender(), segment.getQuellPort(), segment);
         } catch (SocketException e) {
             if (!paket.getEmpfaenger().equals("255.255.255.255") && !paket.getEmpfaenger().equals("0.0.0.0"))
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
         }
     }
 }

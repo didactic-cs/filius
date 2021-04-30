@@ -25,15 +25,17 @@
  */
 package filius.software.transportschicht;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
 
 public class UDP extends TransportProtokoll {
+    private static Logger LOG = LoggerFactory.getLogger(UDP.class);
 
-	public UDP(InternetKnotenBetriebssystem betriebssystem) {
-		super(betriebssystem, IpPaket.UDP);
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDP), constr: UDP("
-		        + betriebssystem + ")");
-	}
+    public UDP(InternetKnotenBetriebssystem betriebssystem) {
+        super(betriebssystem, IpPaket.UDP);
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDP), constr: UDP(" + betriebssystem + ")");
+    }
 }

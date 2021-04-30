@@ -57,7 +57,9 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.CreateAccountException;
 import filius.gui.JExtendedTable;
 import filius.rahmenprogramm.EingabenUeberpruefung;
@@ -72,6 +74,7 @@ import filius.software.email.EmailServer;
  * 
  */
 public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationEmailServerWindow.class);
 
     /**
      *
@@ -260,7 +263,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
                                 benutzernameField.setText("");
                                 passwortField.setText("");
                             } catch (CreateAccountException e1) {
-                                e1.printStackTrace(Main.debug);
+                                LOG.debug("", e1);
                             }
                         } else {
                             showMessageDialog(messages.getString("emailserver_msg24"));
@@ -381,6 +384,6 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
     private void updateLog(Object arg1) {
         this.logArea.append(arg1.toString() + "\n");
 
-        Main.debug.println("GUIApplicationWebServerWindow: update() aufgerufen.");
+        LOG.debug("GUIApplicationWebServerWindow: update() aufgerufen.");
     }
 }

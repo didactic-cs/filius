@@ -25,25 +25,28 @@
  */
 package filius.software.lokal;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.Anwendung;
 
 public class ImageViewer extends Anwendung {
+    private static Logger LOG = LoggerFactory.getLogger(ImageViewer.class);
 
-	public ImageViewer() // Betriebssystem betriebssystem)
-	{
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ImageWriter), constr: ImageWriter()");
-	}
+    public ImageViewer() // Betriebssystem betriebssystem)
+    {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ImageWriter), constr: ImageWriter()");
+    }
 
-	public void starten() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ImageWriter), starten()");
-	}
+    public void starten() {
+        LOG.debug(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (ImageWriter), starten()");
+    }
 
-	public void beenden() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ImageWriter), beenden()");
-	}
+    public void beenden() {
+        LOG.debug(
+                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (ImageWriter), beenden()");
+    }
 }

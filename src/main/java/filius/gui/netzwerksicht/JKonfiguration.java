@@ -43,7 +43,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.MouseInputAdapter;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.JBackgroundPanel;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
@@ -54,6 +56,7 @@ import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 
 public class JKonfiguration extends JBackgroundPanel implements Observer {
+    private static Logger LOG = LoggerFactory.getLogger(JKonfiguration.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -133,8 +136,8 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
         this.add(new JScrollPane(attributPanel), BorderLayout.CENTER);
 
         minimierenButton = new JLabel(new ImageIcon(getClass().getResource("/gfx/allgemein/minimieren.png")));
-        minimierenButton.setBounds(0, 0, minimierenButton.getIcon().getIconWidth(), minimierenButton.getIcon()
-                .getIconHeight());
+        minimierenButton.setBounds(0, 0, minimierenButton.getIcon().getIconWidth(),
+                minimierenButton.getIcon().getIconHeight());
         minimierenButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
                 {
@@ -220,8 +223,7 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
      * 
      */
     public void aenderungenAnnehmen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (JKonfiguration), aenderungenAnnehmen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JKonfiguration), aenderungenAnnehmen()");
     }
 
     /**

@@ -32,7 +32,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Notebook;
@@ -67,6 +69,7 @@ import filius.software.vermittlungsschicht.Weiterleitungstabelle;
  * zur Verfuegung. (als Entwurfsmuster Fassade)
  */
 public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
+    private static Logger LOG = LoggerFactory.getLogger(InternetKnotenBetriebssystem.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -129,7 +132,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      */
     public InternetKnotenBetriebssystem() {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), constr: InternetKnotenBetriebssystem()");
 
         installierteAnwendung = new HashMap<String, Anwendung>();
@@ -152,7 +155,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
 
         // print IDs for all network layers and the according node --> for
         // providing debug support in log file
-        Main.debug.println("DEBUG: InternetKnotenBetriebssystem (" + this.hashCode() + ")\n" + "\tEthernet: "
+        LOG.debug("DEBUG: InternetKnotenBetriebssystem (" + this.hashCode() + ")\n" + "\tEthernet: "
                 + ethernet.hashCode() + "\n" + "\tARP: " + arpVermittlung.hashCode() + "\n" + "\tIP: "
                 + vermittlung.hashCode() + "\n" + "\tICMP: " + icmpVermittlung.hashCode() + "\n" + "\tTCP: "
                 + tcp.hashCode() + "\n" + "\tUDP: " + udp.hashCode());
@@ -165,8 +168,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      */
     public void beenden() {
         super.beenden();
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), beenden()");
 
         // Die einzelnen Protokoll-Threads werden beginnend
         // mit der untersten Schicht beendet.
@@ -191,65 +193,62 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     }
 
     private void printDebugInfo() {
-        Main.debug.println("DEBUG (" + this.hashCode() + "): start InternetKnotenBetriebssystem");
+        LOG.debug("DEBUG (" + this.hashCode() + "): start InternetKnotenBetriebssystem");
         if (this.getKnoten() != null) {
-            Main.debug.println("DEBUG (" + this.hashCode() + ") - Hostname = " + this.getKnoten().holeAnzeigeName());
-            Main.debug.print("DEBUG (" + this.hashCode() + ") - Hardwaretyp = '");
+            LOG.debug("DEBUG (" + this.hashCode() + ") - Hostname = " + this.getKnoten().holeAnzeigeName());
+            LOG.debug("DEBUG (" + this.hashCode() + ") - Hardwaretyp = '");
             if (getKnoten() instanceof filius.hardware.knoten.Notebook) {
-                Main.debug.println("Notebook'");
+                LOG.debug("Notebook'");
             } else if (getKnoten() instanceof filius.hardware.knoten.Rechner) {
-                Main.debug.println("Rechner'");
+                LOG.debug("Rechner'");
             } else if (getKnoten() instanceof filius.hardware.knoten.Vermittlungsrechner) {
-                Main.debug.println("Vermittlungsrechner'");
+                LOG.debug("Vermittlungsrechner'");
             } else {
-                Main.debug.println("<unknown>'");
+                LOG.debug("<unknown>'");
             }
         } else {
-            Main.debug.println("DEBUG (" + this.hashCode() + ") - Hostname = <unknown>");
-            Main.debug.println("DEBUG (" + this.hashCode() + ") - Hardwaretyp = <unknown>");
+            LOG.debug("DEBUG (" + this.hashCode() + ") - Hostname = <unknown>");
+            LOG.debug("DEBUG (" + this.hashCode() + ") - Hardwaretyp = <unknown>");
         }
-        Main.debug.println("DEBUG (" + this.hashCode() + ") - ETHER = " + ethernet.hashCode());
+        LOG.debug("DEBUG (" + this.hashCode() + ") - ETHER = " + ethernet.hashCode());
         List<EthernetThread> threads = ethernet.getEthernetThreads();
         if (threads != null)
             for (int i = 0; i < threads.size(); i++)
-                Main.debug.println(
-                        "DEBUG (" + this.hashCode() + ")      - ETHER T-" + i + " = " + threads.get(i).hashCode());
-        Main.debug.println("DEBUG (" + this.hashCode() + ") - ARP = " + arpVermittlung.hashCode());
+                LOG.debug("DEBUG (" + this.hashCode() + ")      - ETHER T-" + i + " = " + threads.get(i).hashCode());
+        LOG.debug("DEBUG (" + this.hashCode() + ") - ARP = " + arpVermittlung.hashCode());
         filius.software.vermittlungsschicht.ARPThread thread = arpVermittlung.getARPThread();
         if (thread != null)
-            Main.debug.println("DEBUG (" + this.hashCode() + ")      - ARP T = " + thread.hashCode());
-        Main.debug.println("DEBUG (" + this.hashCode() + ") - IP = " + vermittlung.hashCode());
+            LOG.debug("DEBUG (" + this.hashCode() + ")      - ARP T = " + thread.hashCode());
+        LOG.debug("DEBUG (" + this.hashCode() + ") - IP = " + vermittlung.hashCode());
         filius.software.vermittlungsschicht.IPThread IPthread = vermittlung.getIPThread();
         if (IPthread != null)
-            Main.debug.println("DEBUG (" + this.hashCode() + ")      - IP T = " + IPthread.hashCode());
-        Main.debug.println("DEBUG (" + this.hashCode() + ") - ICMP = " + icmpVermittlung.hashCode());
+            LOG.debug("DEBUG (" + this.hashCode() + ")      - IP T = " + IPthread.hashCode());
+        LOG.debug("DEBUG (" + this.hashCode() + ") - ICMP = " + icmpVermittlung.hashCode());
         filius.software.vermittlungsschicht.ICMPThread ICMPthread = icmpVermittlung.getICMPThread();
         if (IPthread != null)
-            Main.debug.println("DEBUG (" + this.hashCode() + ")      - ICMP T = " + ICMPthread.hashCode());
-        Main.debug.println("DEBUG (" + this.hashCode() + ") - TCP = " + tcp.hashCode());
-        Main.debug.println("DEBUG (" + this.hashCode() + ") - UDP = " + udp.hashCode());
+            LOG.debug("DEBUG (" + this.hashCode() + ")      - ICMP T = " + ICMPthread.hashCode());
+        LOG.debug("DEBUG (" + this.hashCode() + ") - TCP = " + tcp.hashCode());
+        LOG.debug("DEBUG (" + this.hashCode() + ") - UDP = " + udp.hashCode());
         if (this.getKnoten() != null) {
             if (getKnoten() instanceof Notebook) {
                 NetzwerkInterface nic = ((NetzwerkInterface) ((Notebook) getKnoten()).getNetzwerkInterfaces().get(0));
-                Main.debug.println(
-                        "DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
-                                + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
+                LOG.debug("DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
+                        + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
             } else if (getKnoten() instanceof Rechner) {
                 NetzwerkInterface nic = ((NetzwerkInterface) ((Rechner) getKnoten()).getNetzwerkInterfaces().get(0));
-                Main.debug.println(
-                        "DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
-                                + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
+                LOG.debug("DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
+                        + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
             } else if (getKnoten() instanceof Vermittlungsrechner) {
                 int nicNr = 0;
                 for (NetzwerkInterface nic : ((Vermittlungsrechner) getKnoten()).getNetzwerkInterfaces()) {
-                    Main.debug.println("DEBUG (" + this.hashCode() + ") - NIC" + nicNr + ": {IP=" + nic.getIp() + "/"
+                    LOG.debug("DEBUG (" + this.hashCode() + ") - NIC" + nicNr + ": {IP=" + nic.getIp() + "/"
                             + nic.getSubnetzMaske() + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW="
                             + nic.getGateway() + "}");
                     nicNr++;
                 }
             }
         } else {
-            Main.debug.println("DEBUG (" + this.hashCode() + ") - NIC=<unknown>");
+            LOG.debug("DEBUG (" + this.hashCode() + ") - NIC=<unknown>");
         }
         getWeiterleitungstabelle().printTabelle(Integer.toString(this.hashCode()));
     }
@@ -262,8 +261,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     @Override
     public synchronized void starten() {
         super.starten();
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), starten()");
 
         dateisystem.fixDirectory(dateisystem.getRoot());
 
@@ -357,7 +355,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * benoetigt, um den Anforderungen an JavaBeans gerecht zu werden.
      */
     public void setInstallierteAnwendungen(HashMap<String, Anwendung> anwendungen) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setInstallierteAnwendungen()");
         this.installierteAnwendung = anwendungen;
         // printInstallierteAnwendungen();
@@ -369,11 +367,11 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     private void printInstallierteAnwendungen() {
         Iterator it = installierteAnwendung.entrySet().iterator();
 
-        Main.debug.println("\tInternetKnotenBetriebssystem: installierte Anwendungen:");
+        LOG.debug("\tInternetKnotenBetriebssystem: installierte Anwendungen:");
         while (it.hasNext()) {
-            Main.debug.println("\t  - " + ((Entry) it.next()).getKey().toString());
+            LOG.debug("\t  - " + ((Entry) it.next()).getKey().toString());
         }
-        Main.debug.println("\t  ges: " + installierteAnwendung.toString());
+        LOG.debug("\t  ges: " + installierteAnwendung.toString());
     }
 
     /**
@@ -392,8 +390,8 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return das Programm / die Anwendung
      */
     public Anwendung holeSoftware(String anwendungsklasse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnotenBetriebssystem), holeSoftware(" + anwendungsklasse + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), holeSoftware("
+                + anwendungsklasse + ")");
         Anwendung anwendung;
 
         if (anwendungsklasse == null)
@@ -415,7 +413,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return ob eine Anwendung entfernt wurde
      */
     public boolean entferneSoftware(String awKlasse) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), entferneSoftware(" + awKlasse + ")");
         printInstallierteAnwendungen(); // DEBUG
         boolean entfernt = false;
@@ -431,7 +429,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     }
 
     public boolean installiereSoftware(String klassenname) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), installiereSoftware(" + klassenname + ")");
         printInstallierteAnwendungen(); // DEBUG
         Anwendung neueAnwendung = null;
@@ -442,13 +440,13 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         ListIterator<Map<String, String>> it;
 
         if (holeSoftware(klassenname) != null) {
-            // Main.debug.println(klassenname + " ist bereits installiert!");
+            // LOG.debug(klassenname + " ist bereits installiert!");
             return false;
         } else {
             try {
                 liste = Information.getInformation().ladeProgrammListe();
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 return false;
             }
 
@@ -464,10 +462,10 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
                             neueAnwendung = (Anwendung) cl.getConstructor().newInstance();
                             neueAnwendung.setSystemSoftware(this);
                         } catch (Exception e) {
-                            e.printStackTrace(Main.debug);
+                            LOG.debug("", e);
                         }
                     } catch (ClassNotFoundException e) {
-                        e.printStackTrace(Main.debug);
+                        LOG.debug("", e);
                     }
                     if (neueAnwendung != null) {
                         installierteAnwendung.put(klassenname, neueAnwendung);
@@ -480,7 +478,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     }
 
     public boolean deinstalliereAnwendung(String anwendungsName) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), deinstalliereAnwendung(" + anwendungsName + ")");
         printInstallierteAnwendungen(); // DEBUG
         Anwendung anwendung;
@@ -502,7 +500,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return ein Array der Anwendungsnamen
      */
     public Anwendung[] holeArrayInstallierteSoftware() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), holeArrayInstallierteSoftware()");
         Anwendung[] anwendungen;
         Iterator it = installierteAnwendung.entrySet().iterator();
@@ -542,7 +540,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return IP-Adresse der einzigen Netzwerkkarte als String
      */
     public String getStandardGateway() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), getStandardGateway()");
         InternetKnoten knoten;
         NetzwerkInterface nic;
@@ -566,7 +564,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      *            IP-Adresse der Netzwerkkarten als String
      */
     public void setStandardGateway(String gateway) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setStandardGateway(" + gateway + ")");
         InternetKnoten knoten;
         NetzwerkInterface nic;
@@ -589,8 +587,8 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public void setzeIPAdresse(String ip) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnotenBetriebssystem), setzeIPAdresse(" + ip + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setzeIPAdresse("
+                + ip + ")");
         InternetKnoten knoten;
         ip = IP.ipCheck(ip);
         if (ip != null && EingabenUeberpruefung.isGueltig(ip, EingabenUeberpruefung.musterIpAdresse)
@@ -631,7 +629,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public String holeMACAdresse() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), holeMACAdresse()");
         InternetKnoten knoten;
 
@@ -652,7 +650,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Entwurfsmusters Fassade
      */
     public String getDNSServer() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), getDNSServer()");
         InternetKnoten knoten;
 
@@ -672,8 +670,8 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Entwurfsmusters Fassade
      */
     public void setDNSServer(String dns) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnotenBetriebssystem), setDNSServer(" + dns + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setDNSServer("
+                + dns + ")");
         InternetKnoten knoten;
         NetzwerkInterface nic;
         Iterator<?> it;
@@ -695,8 +693,8 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public void setzeNetzmaske(String mask) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnotenBetriebssystem), setzeNetzmaske(" + mask + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setzeNetzmaske("
+                + mask + ")");
         InternetKnoten knoten;
         mask = IP.ipCheck(mask);
 
@@ -704,7 +702,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
                 && getKnoten() instanceof InternetKnoten) {
             knoten = (InternetKnoten) getKnoten();
             ((NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0)).setSubnetzMaske(mask);
-            // Main.debug.println("\t"
+            // LOG.debug("\t"
             // + ((NetzwerkInterface) knoten.getNetzwerkInterfaces()
             // .getFirst()).getSubnetzMaske());
         }
@@ -715,7 +713,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public String holeNetzmaske() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), holeNetzmaske()");
         InternetKnoten knoten;
 

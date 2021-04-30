@@ -28,7 +28,9 @@ package filius.software.email;
 import java.util.ArrayList;
 import java.util.List;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.TimeOutException;
 import filius.exception.VerbindungsException;
 import filius.rahmenprogramm.EingabenUeberpruefung;
@@ -38,6 +40,7 @@ import filius.software.clientserver.ClientAnwendung;
 import filius.software.transportschicht.TCPSocket;
 
 public class SMTPClient extends ClientAnwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(SMTPClient.class);
 
     /**
      * Die Anwendung, die diesen SMTP-Client verwendet (das kann eine EmailAnwendung zum Versand einer erstellten
@@ -49,7 +52,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
 
     public SMTPClient(Anwendung anwendung) {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), constr: SMTPClient(" + anwendung + ")");
 
         this.anwendung = anwendung;
@@ -79,7 +82,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * </ul>
      */
     public void versendeEmail(String defaultServerIP, Email email, String absender, String rcpts) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), versendeEmail(" + defaultServerIP + "," + email + "," + absender + "," + rcpts + ")");
         String[] zuSendenAn = rcpts.split(",");
         List<String> recipientTo = new ArrayList<String>();
@@ -93,8 +96,8 @@ public class SMTPClient extends ClientAnwendung implements I18n {
             String serverAdresse;
             if (defaultServerIP == null) {
                 serverAdresse = loeseURLauf(empfaengerAdresse);
-                Main.debug.println(getClass() + "\n\tServer Adresse bei Weiterleitung fuer Maildomain "
-                        + empfaengerAdresse + " ist: " + serverAdresse);
+                LOG.debug(getClass() + "\n\tServer Adresse bei Weiterleitung fuer Maildomain " + empfaengerAdresse
+                        + " ist: " + serverAdresse);
             } else {
                 serverAdresse = defaultServerIP;
             }
@@ -124,7 +127,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
 
     /** Diese Methode ist blockierend */
     public void initialisiereSocket(String zielAdresse, Integer port) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), initialisiereSocket(" + zielAdresse + "," + port + ")");
         anwendung.benachrichtigeBeobachter(EmailServer.LINE_SEPARATOR);
         try {
@@ -137,7 +140,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
                                 + socket.holeZielPort() + " " + messages.getString("sw_smtpclient_msg2"));
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             socket = null;
             anwendung.benachrichtigeBeobachter(e);
         }
@@ -147,7 +150,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * Diese Methode ist <b>blockierend</b>.
      */
     public void schliesseSocket() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schliesseSocket()");
         if (socket != null) {
             socket.schliessen();
@@ -159,7 +162,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
     }
 
     private boolean schickeHelo() throws Exception {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeHelo()");
         String empfang;
 
@@ -186,8 +189,8 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * @param email
      */
     public boolean versenden(Email email, String absender, String rcpts) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (SMTPClient), versenden(" + email + "," + absender + "," + rcpts + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (SMTPClient), versenden("
+                + email + "," + absender + "," + rcpts + ")");
         boolean erfolg = true;
 
         if (socket == null)
@@ -217,7 +220,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
                 anwendung.benachrichtigeBeobachter(messages.getString("sw_smtpclient_msg4") + " " + rcpts);
                 anwendung.benachrichtigeBeobachter();
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 anwendung.benachrichtigeBeobachter(e);
 
                 erfolg = false;
@@ -235,13 +238,13 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * @return
      */
     public String loeseURLauf(String url) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), loeseURLauf(" + url + ")");
         String[] teileDerEmail = url.split("@");
         try {
             return getSystemSoftware().holeDNSClient().holeIPAdresseMailServer(teileDerEmail[1]);
         } catch (java.util.concurrent.TimeoutException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
 
         return null;
@@ -256,7 +259,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean schickeMailFrom(String absender) throws Exception {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeMailFrom(" + absender + ")");
         AddressEntry senderAddress = new AddressEntry(absender);
         if (senderAddress.getMailAddress().length() == 0 || EingabenUeberpruefung
@@ -284,7 +287,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean schickeRcptTo(String rcpts) throws Exception {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeRcptTo(" + rcpts + ")");
         String[] empfaenger = rcpts.split(",");
 
@@ -312,7 +315,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean schickeDataBeginn() throws Exception {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeDataBeginn()");
         socket.senden("DATA");
         String empfangen3 = socket.empfangen();
@@ -332,7 +335,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean schickeData(Email email) throws Exception {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeData(" + email + ")");
         if (email != null) {
             socket.senden(email.toString() + "\r\n.\r\n");
@@ -356,7 +359,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
      * @throws VerbindungsException
      */
     private boolean schickeQuit() throws VerbindungsException, TimeOutException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPClient), schickeQuit()");
         String empfangen;
 

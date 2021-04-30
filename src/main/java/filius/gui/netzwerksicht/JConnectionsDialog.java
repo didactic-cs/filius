@@ -52,7 +52,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SpringLayout;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.GUIContainer;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
@@ -68,7 +70,9 @@ import filius.rahmenprogramm.I18n;
  * @author stefan
  * 
  */
+@SuppressWarnings("serial")
 public class JConnectionsDialog extends JDialog implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(JConnectionsDialog.class);
     private static final int LINE_HEIGHT = 36;
 
     private final ImageIcon nicIcon = new ImageIcon(getClass().getResource("/gfx/hardware/rj45.png"));
@@ -505,7 +509,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
     }
 
     private Knoten getConnectedComponent(NetzwerkInterface nic) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), holeVerbundeneKomponente(" + nic + ")");
 
         if (nic.getPort().getVerbindung() == null) {
@@ -542,7 +546,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
     }
 
     private Kabel getConnectedCable(NetzwerkInterface nic) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), getConnectedCable(" + nic + ")");
         Verbindung nicConn = nic.getPort().getVerbindung();
         if (nicConn == null) {

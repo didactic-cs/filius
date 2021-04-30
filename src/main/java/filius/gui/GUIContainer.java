@@ -68,10 +68,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGeneratorContext;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import filius.Main;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
 import filius.gui.nachrichtensicht.AggregatedExchangeDialog;
 import filius.gui.nachrichtensicht.ExchangeDialog;
@@ -106,6 +107,7 @@ import filius.software.system.Betriebssystem;
 import filius.software.system.SystemSoftware;
 
 public class GUIContainer implements Serializable, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(GUIContainer.class);
 
     private enum FileType {
         PNG, SVG
@@ -496,7 +498,7 @@ public class GUIContainer implements Serializable, I18n {
                     JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), messages.getString("guimainmemu_msg11"));
                 }
             }
-            Main.debug.println("export to file: " + imagePath);
+            LOG.debug("export to file: " + imagePath);
             updateViewport();
         }
     }
@@ -604,7 +606,7 @@ public class GUIContainer implements Serializable, I18n {
             neuerKnoten = new Modem();
             tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM));
         } else {
-            Main.debug.println("ERROR (" + this.hashCode() + "): " + "unbekannter Hardwaretyp " + label.getTyp()
+            LOG.debug("ERROR (" + this.hashCode() + "): " + "unbekannter Hardwaretyp " + label.getTyp()
                     + " konnte nicht erzeugt werden.");
         }
 
@@ -658,7 +660,7 @@ public class GUIContainer implements Serializable, I18n {
         if (ref == null) {
             ref = new GUIContainer(width, height);
             if (ref == null) {
-                Main.debug.println("ERROR (static) getGUIContainer(): Fehler!!! ref==null");
+                LOG.debug("ERROR (static) getGUIContainer(): Fehler!!! ref==null");
             }
             ref.initialisieren();
         }
@@ -668,7 +670,7 @@ public class GUIContainer implements Serializable, I18n {
     private void neueVorschau(String hardwareTyp, int x, int y) {
         String tmp;
 
-        Main.debug.println("GUIContainer: die Komponenten-Vorschau wird erstellt.");
+        LOG.debug("GUIContainer: die Komponenten-Vorschau wird erstellt.");
         if (hardwareTyp.equals(Kabel.TYPE)) {
             tmp = GUIDesignSidebar.KABEL;
         } else if (hardwareTyp.equals(Switch.TYPE)) {
@@ -683,7 +685,7 @@ public class GUIContainer implements Serializable, I18n {
             tmp = GUIDesignSidebar.MODEM;
         } else {
             tmp = null;
-            Main.debug.println("GUIContainer: ausgewaehlte Hardware-Komponente unbekannt!");
+            LOG.debug("GUIContainer: ausgewaehlte Hardware-Komponente unbekannt!");
         }
 
         designDragPreview.setTyp(hardwareTyp);
@@ -722,7 +724,7 @@ public class GUIContainer implements Serializable, I18n {
     }
 
     public void updateViewport() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateViewport()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateViewport()");
         networkPanel.updateViewport(nodeItems, cableItems);
         networkPanel.updateUI();
         if (activeSite == GUIMainMenu.MODUS_AKTION) {
@@ -741,7 +743,7 @@ public class GUIContainer implements Serializable, I18n {
      * 
      */
     public void updateCables() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateCables()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateCables()");
         ListIterator<GUIKabelItem> it = cableItems.listIterator();
         while (it.hasNext()) {
             GUIKabelItem tempCable = (GUIKabelItem) it.next();

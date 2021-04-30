@@ -34,7 +34,9 @@ import java.util.concurrent.TimeoutException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.software.clientserver.ClientAnwendung;
@@ -62,6 +64,7 @@ import filius.software.vermittlungsschicht.VermittlungsProtokoll;
  * 
  */
 public class Terminal extends ClientAnwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Terminal.class);
 
     // Betriebssystem betriebssystem;
     boolean abfrageVar;
@@ -89,11 +92,11 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String mv(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), mv(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), mv(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
 
         if (!numParams(args, 2)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg40"));
@@ -122,12 +125,11 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String del(String[] args) {
-        Main.debug
-                .print("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), del(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), del(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"); // wrong
@@ -155,12 +157,11 @@ public class Terminal extends ClientAnwendung implements I18n {
      */
     // // common functionality for move and copy...
     private boolean pureCopy(String[] args) {
-        Main.debug.print(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), pureCopy(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), pureCopy(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         this.getSystemSoftware().getDateisystem().printTree();
         String srcString = args[0];
         if (srcString.length() > 0 && srcString.substring(0, 1).equals(Dateisystem.FILE_SEPARATOR)) { // 'pfad'
@@ -187,7 +188,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         String destDir = Dateisystem.getDirectory(destString);
         String destFile = Dateisystem.getBasename(destString);
 
-        // Main.debug.println("DEBUG: pureCopy: source '"+srcDir+"'-'"+srcFile+"', destination
+        // LOG.debug("DEBUG: pureCopy: source '"+srcDir+"'-'"+srcFile+"', destination
         // '"+destDir+"'-'"+destFile+"'");
         Datei sfile = this.getSystemSoftware().getDateisystem().holeDatei(srcString);
         if (sfile == null)
@@ -202,11 +203,11 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String cp(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), cp(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), cp(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 2)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg40"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg40"); // wrong
@@ -226,12 +227,11 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     /* */
     public String ipconfig(String[] args) {
-        Main.debug.print(
-                "INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ipconfig(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ipconfig(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 0)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"); // wrong
@@ -254,12 +254,11 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     /* Entspricht route print unter windows */
     public String route(String[] args) {
-        Main.debug
-                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), route(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), route(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 0)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"); // wrong
@@ -301,11 +300,11 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String dir(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), dir(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), dir(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 0, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43");
@@ -368,12 +367,11 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String touch(String[] args) {
-        Main.debug
-                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), touch(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), touch(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"); // wrong
@@ -414,12 +412,11 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String mkdir(String[] args) {
-        Main.debug
-                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), mkdir(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), mkdir(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg41"); // wrong
@@ -460,11 +457,11 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String cd(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), cd(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), cd(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         String ergebnis = "";
         if (!numParams(args, 0, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg43"));
@@ -493,11 +490,11 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     // Unix Tool 'pwd': print working directory
     public String pwd(String[] args) {
-        Main.debug.print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), pwd(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), pwd(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 0)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"); // wrong
@@ -657,12 +654,11 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String host(String[] args) {
-        Main.debug
-                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), host(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), host(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44"));
             return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44"); // wrong
@@ -673,7 +669,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         Betriebssystem bs = (Betriebssystem) getSystemSoftware();
         filius.software.dns.Resolver res = bs.holeDNSClient();
         if (res == null) {
-            filius.Main.debug.println("ERROR (" + this.hashCode() + "): Terminal 'host': Resolver is null!");
+            LOG.debug("ERROR (" + this.hashCode() + "): Terminal 'host': Resolver is null!");
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
             return messages.getString("sw_terminal_msg30");
         }
@@ -685,7 +681,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 benachrichtigeBeobachter(args[0] + " " + messages.getString("sw_terminal_msg28") + " " + result + "\n");
                 return args[0] + " " + messages.getString("sw_terminal_msg28") + " " + result + "\n";
             } else {
-                filius.Main.debug.println("ERROR (" + this.hashCode() + "): Terminal 'host': result is null!");
+                LOG.debug("ERROR (" + this.hashCode() + "): Terminal 'host': result is null!");
                 benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
                 return messages.getString("sw_terminal_msg30");
             }
@@ -693,7 +689,7 @@ public class Terminal extends ClientAnwendung implements I18n {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg31"));
             return messages.getString("sw_terminal_msg31");
         } catch (Exception e) {
-            e.printStackTrace(filius.Main.debug);
+            LOG.debug("", e);
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg29"));
             return messages.getString("sw_terminal_msg29");
         }
@@ -703,12 +699,11 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 'ping' command to check connectivity via ICMP echo request/reply
      */
     public String ping(String[] args) {
-        Main.debug
-                .print("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ping(");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ping(");
         for (int i = 0; i < args.length; i++) {
-            Main.debug.print(i + "='" + args[i] + "' ");
+            LOG.debug(i + "='" + args[i] + "' ");
         }
-        Main.debug.println(")");
+        LOG.debug(")");
         if (!numParams(args, 1)) {
             // wrong number of parameters
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44"));
@@ -716,7 +711,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
         Resolver res = getSystemSoftware().holeDNSClient();
         if (res == null) {
-            Main.debug.println("ERROR (" + this.hashCode() + "): Terminal 'host': Resolver is null!");
+            LOG.debug("ERROR (" + this.hashCode() + "): Terminal 'host': Resolver is null!");
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
             return messages.getString("sw_terminal_msg30");
         }
@@ -729,7 +724,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 destIp = res.holeIPAdresse(args[0]);
             }
             if (destIp == null) { // args[0] could also not be resolved
-                Main.debug.println("ERROR (" + this.hashCode() + "): Terminal 'host': result is null!");
+                LOG.debug("ERROR (" + this.hashCode() + "): Terminal 'host': result is null!");
                 benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
                 return messages.getString("sw_terminal_msg30");
             }
@@ -737,7 +732,7 @@ public class Terminal extends ClientAnwendung implements I18n {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg31") + " (DNS)");
             return messages.getString("sw_terminal_msg31" + " (DNS)");
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg29"));
             return messages.getString("sw_terminal_msg29");
         }
@@ -770,7 +765,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 // wait 1s between single ping executions subtract needed time
                 // for former ping
                 timeDiff = 1000 - (System.currentTimeMillis() - timeStart);
-                // Main.debug.println("DEBUG: Terminal, ping (num="+(num+1)+"), resTTL="+resTTL+",
+                // LOG.debug("DEBUG: Terminal, ping (num="+(num+1)+"), resTTL="+resTTL+",
                 // delay="+(1000-timeDiff)+", timeDiff="+timeDiff);
                 if (resTTL >= 0) {
                     benachrichtigeBeobachter("\nFrom " + args[0] + " (" + destIp + "): icmp_seq=" + (num + 1) + " ttl="
@@ -779,16 +774,16 @@ public class Terminal extends ClientAnwendung implements I18n {
                 }
                 if (timeDiff > 0) {
                     try {
-                        // Main.debug.println("DEBUG: Terminal wartet für "+timeDiff+"ms");
+                        // LOG.debug("DEBUG: Terminal wartet für "+timeDiff+"ms");
                         Thread.sleep(timeDiff);
-                        // Main.debug.println("DEBUG: Terminal fertig mit Warten");
+                        // LOG.debug("DEBUG: Terminal fertig mit Warten");
                     } catch (InterruptedException e) {}
                 }
             } catch (java.util.concurrent.TimeoutException e) {
                 benachrichtigeBeobachter(
                         "\nFrom " + args[0] + " (" + destIp + "): icmp_seq=" + (num + 1) + "   -- Timeout!");
             } catch (Exception e) {
-                e.printStackTrace(filius.Main.debug);
+                LOG.debug("", e);
             }
         }
         benachrichtigeBeobachter(Boolean.FALSE); // inform about a multiple
@@ -919,7 +914,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public void terminalEingabeAuswerten(String enteredCommand, String[] enteredParameters) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
                 + " (Terminal), terminalEingabeAuswerten(" + enteredCommand + "," + enteredParameters + ")");
         Object[] args = new Object[1];
         args[0] = enteredParameters;
@@ -933,7 +928,7 @@ public class Terminal extends ClientAnwendung implements I18n {
             benachrichtigeBeobachter(
                     messages.getString("terminal_msg2") + "\n" + messages.getString("terminal_msg3") + "\n");
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
     }
 
@@ -946,8 +941,8 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String addSlashes(String sl) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-                + " (Terminal), addSlashes(" + sl + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), addSlashes("
+                + sl + ")");
         String slNeu = "";
         String letztesZ = "" + sl.charAt(sl.length() - 1);
         if (!letztesZ.equals("/")) {
@@ -971,7 +966,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     // // bisher war Implementierung exakt identisch --> Verweis aufeinander
     // eingefügt!
     private String stringFuellen(int a, String fueller) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
                 + " (Terminal), stringFuellen(" + a + "," + fueller + ")");
         String tmp = "";
         for (int i = 0; i < a; i++) {
@@ -988,8 +983,8 @@ public class Terminal extends ClientAnwendung implements I18n {
      * method to check for correct number of parameters
      */
     private int countParams(String[] args) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
-                + " (Terminal), countParams(" + args + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), countParams("
+                + args + ")");
         int count = 0;
         for (int i = 0; i < args.length; i++) {
             if (!args[i].isEmpty()) {

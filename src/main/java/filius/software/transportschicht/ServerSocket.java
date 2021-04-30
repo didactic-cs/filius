@@ -27,7 +27,9 @@ package filius.software.transportschicht;
 
 import java.util.Hashtable;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.ServerSocketException;
 import filius.exception.TimeOutException;
 import filius.exception.VerbindungsException;
@@ -45,6 +47,7 @@ import filius.software.vermittlungsschicht.IpPaket;
  * @author carsten
  */
 public class ServerSocket implements SocketSchnittstelle, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(ServerSocket.class);
 
     /**
      * Tabelle zur Verwaltung der TCP-Sockets. Der Key in der Tabelle besteht aus einem String, der durch zusammensetzen
@@ -84,7 +87,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      */
     public ServerSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll)
             throws ServerSocketException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), constr: ServerSocket("
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), constr: ServerSocket("
                 + betriebssystem + "," + lokalerPort + "," + transportProtokoll + ")");
         this.betriebssystem = betriebssystem;
         this.lokalerPort = lokalerPort;
@@ -115,7 +118,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * Methode zum Eintragen eines neuen Sockets in die Socket-Liste
      */
     public void eintragenSocket(Socket socket) {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), eintragenSocket(" + socket + ")");
         String ziel;
 
@@ -129,13 +132,13 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * dann freigegeben.
      */
     public void austragenSocket(Socket socket) {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), austragenSocket(" + socket + ")");
         String ziel;
 
         ziel = socket.holeZielIPAdresse() + ":" + socket.holeZielPort();
         socketListe.remove(ziel);
-        // Main.debug.println(socketListe);
+        // LOG.debug(socketListe);
 
         if (socketListe.isEmpty() && aktuellerSocket == null) {
             protokoll.gibPortFrei(lokalerPort);
@@ -150,7 +153,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * @return
      */
     public synchronized Socket oeffnen() throws VerbindungsException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), oeffnen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), oeffnen()");
         Socket socket = null;
 
         if (protokoll instanceof TCP) {
@@ -165,7 +168,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
         } catch (TimeOutException e) {
             socket = null;
             aktuellerSocket = null;
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
 
         if (socket != null && socket.istVerbunden()) {
@@ -182,8 +185,8 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * Verbindungsanfragen.
      */
     public void hinzufuegen(String startIp, int startPort, Object segment) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), hinzufuegen(" + startIp
-                + "," + startPort + "," + segment + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), hinzufuegen(" + startIp + ","
+                + startPort + "," + segment + ")");
         String start;
         Socket socket;
 
@@ -205,7 +208,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * befindet. Wenn ein Socket in diesem Zustand geschlossen wird, blockiert dieser nicht!
      */
     public void schliessen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), schliessen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), schliessen()");
 
         if (aktuellerSocket != null)
             aktuellerSocket.schliessen();
@@ -218,7 +221,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * Diese Methode ist <b>nicht blockierend</b>!
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), beenden()");
         if (aktuellerSocket != null)
             aktuellerSocket.beenden();
     }

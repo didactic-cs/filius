@@ -45,152 +45,154 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 
 public class PanelCompiler extends JPanel implements I18n, Runnable {
+    private static Logger LOG = LoggerFactory.getLogger(PanelCompiler.class);
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private String[] quelltextDateien;
+    private String[] quelltextDateien;
 
-	private String anwendungsKlasse;
+    private String anwendungsKlasse;
 
-	private String anwendungsName;
+    private String anwendungsName;
 
-	private JEditorPane ausgabe;
+    private JEditorPane ausgabe;
 
-	private JProgressBar progressBar;
+    private JProgressBar progressBar;
 
-	private boolean fehlerfreiKompiliert = false;
+    private boolean fehlerfreiKompiliert = false;
 
-	public PanelCompiler(String[] quelltextDateien, String anwendungsName, String anwendungsKlasse) {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: PanelCompiler("
-		        + quelltextDateien + "," + anwendungsName + "," + anwendungsKlasse + ")");
-		this.quelltextDateien = quelltextDateien;
-		this.anwendungsKlasse = anwendungsKlasse;
-		this.anwendungsName = anwendungsName;
+    public PanelCompiler(String[] quelltextDateien, String anwendungsName, String anwendungsKlasse) {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: PanelCompiler(" + quelltextDateien
+                + "," + anwendungsName + "," + anwendungsKlasse + ")");
+        this.quelltextDateien = quelltextDateien;
+        this.anwendungsKlasse = anwendungsKlasse;
+        this.anwendungsName = anwendungsName;
 
-		setPreferredSize(new Dimension(700, 480));
-		setMaximumSize(new Dimension(700, 480));
+        setPreferredSize(new Dimension(700, 480));
+        setMaximumSize(new Dimension(700, 480));
 
-		initKomponenten();
-	}
+        initKomponenten();
+    }
 
-	private void initKomponenten() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", initKomponenten()");
-		JScrollPane scrollPane;
+    private void initKomponenten() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", initKomponenten()");
+        JScrollPane scrollPane;
 
-		this.setBorder(new EtchedBorder());
+        this.setBorder(new EtchedBorder());
 
-		ausgabe = new JEditorPane();
+        ausgabe = new JEditorPane();
 
-		scrollPane = new JScrollPane(ausgabe);
-		scrollPane.setPreferredSize(new Dimension(600, 400));
+        scrollPane = new JScrollPane(ausgabe);
+        scrollPane.setPreferredSize(new Dimension(600, 400));
 
-		add(scrollPane, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.CENTER);
 
-		progressBar = new JProgressBar(0, 100);
-		progressBar.setValue(0);
-		progressBar.setIndeterminate(true);
-		progressBar.setStringPainted(true);
-		progressBar.setPreferredSize(new Dimension(600, 20));
-		add(progressBar, BorderLayout.SOUTH);
-	}
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setValue(0);
+        progressBar.setIndeterminate(true);
+        progressBar.setStringPainted(true);
+        progressBar.setPreferredSize(new Dimension(600, 20));
+        add(progressBar, BorderLayout.SOUTH);
+    }
 
-	public void run() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", run()");
+    public void run() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", run()");
 
-		progressBar.setString(messages.getString("panelcompiler_msg1") + " " + anwendungsName);
+        progressBar.setString(messages.getString("panelcompiler_msg1") + " " + anwendungsName);
 
-		if (!kompilieren(quelltextDateien)) {
-			ausgabe.setContentType("text/html");
-			ausgabe.setText(messages.getString("panelcompiler_msg2"));
-		} else if (fehlerfreiKompiliert) {
-			ausgabe.setContentType("text/html");
-			ausgabe.setText(messages.getString("panelcompiler_msg3"));
-		}
+        if (!kompilieren(quelltextDateien)) {
+            ausgabe.setContentType("text/html");
+            ausgabe.setText(messages.getString("panelcompiler_msg2"));
+        } else if (fehlerfreiKompiliert) {
+            ausgabe.setContentType("text/html");
+            ausgabe.setText(messages.getString("panelcompiler_msg3"));
+        }
 
-		remove(progressBar);
-		updateUI();
-	}
+        remove(progressBar);
+        updateUI();
+    }
 
-	public void speichern() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern()");
-		boolean vorhanden = false;
-		FileWriter fw = null;
-		ListIterator it;
-		HashMap map;
+    public void speichern() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern()");
+        boolean vorhanden = false;
+        FileWriter fw = null;
+        ListIterator it;
+        HashMap map;
 
-		if (fehlerfreiKompiliert) {
-			try {
-				it = Information.getInformation().ladeProgrammListe().listIterator();
-				while (it.hasNext() && !vorhanden) {
-					map = (HashMap) it.next();
-					if (map.get("Klasse").equals("filius.software.clientserver." + anwendungsKlasse)) {
-						vorhanden = true;
-					}
-				}
-			} catch (IOException e1) {
-				e1.printStackTrace(Main.debug);
-			}
+        if (fehlerfreiKompiliert) {
+            try {
+                it = Information.getInformation().ladeProgrammListe().listIterator();
+                while (it.hasNext() && !vorhanden) {
+                    map = (HashMap) it.next();
+                    if (map.get("Klasse").equals("filius.software.clientserver." + anwendungsKlasse)) {
+                        vorhanden = true;
+                    }
+                }
+            } catch (IOException e1) {
+                LOG.debug("", e1);
+            }
 
-			if (!vorhanden) {
-				try {
-					fw = new FileWriter(Information.getInformation().getAnwendungenPfad() + "EigeneAnwendungen.txt",
-					        true);
-					fw.write("\n" + anwendungsName + ";filius.software.clientserver." + anwendungsKlasse
-					        + ";filius.gui.anwendungssicht.GUIApplication" + anwendungsKlasse
-					        + "Window;gfx/desktop/icon_clientbaustein.png");
-				} catch (IOException e) {
-					Main.debug.println("EXCEPTION (" + this.hashCode() + "): Konnte Datei nicht erstellen");
-					ausgabe.setContentType("text/html");
-					ausgabe.setText(ausgabe.getText() + messages.getString("panelcompiler_msg4"));
-				} finally {
-					if (fw != null)
-						try {
-							fw.close();
-						} catch (IOException e) {
-						}
-				}
-			}
-		} else {
+            if (!vorhanden) {
+                try {
+                    fw = new FileWriter(Information.getInformation().getAnwendungenPfad() + "EigeneAnwendungen.txt",
+                            true);
+                    fw.write("\n" + anwendungsName + ";filius.software.clientserver." + anwendungsKlasse
+                            + ";filius.gui.anwendungssicht.GUIApplication" + anwendungsKlasse
+                            + "Window;gfx/desktop/icon_clientbaustein.png");
+                } catch (IOException e) {
+                    LOG.debug("EXCEPTION (" + this.hashCode() + "): Konnte Datei nicht erstellen");
+                    ausgabe.setContentType("text/html");
+                    ausgabe.setText(ausgabe.getText() + messages.getString("panelcompiler_msg4"));
+                } finally {
+                    if (fw != null)
+                        try {
+                            fw.close();
+                        } catch (IOException e) {}
+                }
+            }
+        } else {
 
-		}
-	}
+        }
+    }
 
-	private boolean kompilieren(String[] quelltextDateien) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", kompilieren()");
-		StringWriter strWriter = new StringWriter();
-		StandardJavaFileManager fileManager;
-		JavaCompiler jc;
-		Iterable<? extends JavaFileObject> kompilierEinheiten;
-		File[] dateien;
+    private boolean kompilieren(String[] quelltextDateien) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", kompilieren()");
+        StringWriter strWriter = new StringWriter();
+        StandardJavaFileManager fileManager;
+        JavaCompiler jc;
+        Iterable<? extends JavaFileObject> kompilierEinheiten;
+        File[] dateien;
 
-		jc = ToolProvider.getSystemJavaCompiler();
+        jc = ToolProvider.getSystemJavaCompiler();
 
-		if (jc == null) {
-			Main.debug.println("ERROR (" + this.hashCode() + "): Kein Java-Compiler erzeugt!");
-			fehlerfreiKompiliert = false;
+        if (jc == null) {
+            LOG.debug("ERROR (" + this.hashCode() + "): Kein Java-Compiler erzeugt!");
+            fehlerfreiKompiliert = false;
 
-			return false;
-		} else {
-			fileManager = jc.getStandardFileManager(null, null, null);
+            return false;
+        } else {
+            fileManager = jc.getStandardFileManager(null, null, null);
 
-			dateien = new File[quelltextDateien.length];
-			for (int i = 0; i < dateien.length; i++) {
-				dateien[i] = new File(quelltextDateien[i]);
-			}
+            dateien = new File[quelltextDateien.length];
+            for (int i = 0; i < dateien.length; i++) {
+                dateien[i] = new File(quelltextDateien[i]);
+            }
 
-			kompilierEinheiten = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(dateien));
-			fehlerfreiKompiliert = jc.getTask(strWriter, fileManager, null, null, null, kompilierEinheiten).call();
-			if (!fehlerfreiKompiliert) {
-				ausgabe.setContentType("text/plain");
-				ausgabe.setText(strWriter.toString());
-			}
-			return true;
-		}
-	}
+            kompilierEinheiten = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(dateien));
+            fehlerfreiKompiliert = jc.getTask(strWriter, fileManager, null, null, null, kompilierEinheiten).call();
+            if (!fehlerfreiKompiliert) {
+                ausgabe.setContentType("text/plain");
+                ausgabe.setText(strWriter.toString());
+            }
+            return true;
+        }
+    }
 }

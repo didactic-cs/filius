@@ -25,24 +25,25 @@
  */
 package filius.software.transportschicht;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.vermittlungsschicht.IpPaket;
 
 /**
  * 
- * @author carsten Demux ist die Schnittstelle zwischen der TCP und der
- *         IP-Schicht
+ * @author carsten Demux ist die Schnittstelle zwischen der TCP und der IP-Schicht
  */
 public class TCP extends TransportProtokoll {
+    private static Logger LOG = LoggerFactory.getLogger(TCP.class);
 
-	/**
-	 * @author carsten
-	 * @param betriebssystem
-	 */
-	public TCP(InternetKnotenBetriebssystem betriebssystem) {
-		super(betriebssystem, IpPaket.TCP);
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCP), constr: TCP("
-		        + betriebssystem + ")");
-	}
+    /**
+     * @author carsten
+     * @param betriebssystem
+     */
+    public TCP(InternetKnotenBetriebssystem betriebssystem) {
+        super(betriebssystem, IpPaket.TCP);
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCP), constr: TCP(" + betriebssystem + ")");
+    }
 }

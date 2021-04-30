@@ -35,157 +35,154 @@ import java.util.StringTokenizer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
 import filius.software.Anwendung;
 import filius.software.system.Datei;
 
 public class FileExplorer extends Anwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(FileExplorer.class);
 
-	// Betriebssystem betriebssystem;
-	private HashMap<String, String> fileTypeMap;
+    // Betriebssystem betriebssystem;
+    private HashMap<String, String> fileTypeMap;
 
-	public FileExplorer(// Betriebssystem betriebssystem
-	) {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileExplorer), constr: FileExplorer()");
-		this.getFileTypeMap();
-	}
+    public FileExplorer(// Betriebssystem betriebssystem
+    ) {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileExplorer), constr: FileExplorer()");
+        this.getFileTypeMap();
+    }
 
-	public void beenden() {
-		// TODO Auto-generated method stub
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileExplorer), beenden()");
-	}
+    public void beenden() {
+        // TODO Auto-generated method stub
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileExplorer), beenden()");
+    }
 
-	public void starten() {
-		// TODO Auto-generated method stub
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileExplorer), starten()");
-	}
+    public void starten() {
+        // TODO Auto-generated method stub
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileExplorer), starten()");
+    }
 
-	/**
-	 * Diese Funktion importiert die ausgewaehlte Datei in das Betriebssystem
-	 * des Rechners. Dabei wird die Datei Base64 kodiert, um sie als String
-	 * verarbeiten zu koennen!
-	 * 
-	 * @param dateiname
-	 * @return
-	 */
-	public String addFile(String pfadname, String dateiname, DefaultMutableTreeNode ordner, String neuerName) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileExplorer), addFile(" + pfadname + "," + dateiname + "," + ordner + "," + neuerName + ")");
-		String ergebnis = messages.getString("sw_fileexplorer_msg1");
-		java.io.File file = new java.io.File(pfadname + dateiname);
-		if (!file.exists() || file.length() > 150000) { // max filesize 150.000
-			                                            // Bytes
-			return ergebnis + "\n" + messages.getString("sw_fileexplorer_msg3");
-		}
+    /**
+     * Diese Funktion importiert die ausgewaehlte Datei in das Betriebssystem des Rechners. Dabei wird die Datei Base64
+     * kodiert, um sie als String verarbeiten zu koennen!
+     * 
+     * @param dateiname
+     * @return
+     */
+    public String addFile(String pfadname, String dateiname, DefaultMutableTreeNode ordner, String neuerName) {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (FileExplorer), addFile("
+                + pfadname + "," + dateiname + "," + ordner + "," + neuerName + ")");
+        String ergebnis = messages.getString("sw_fileexplorer_msg1");
+        java.io.File file = new java.io.File(pfadname + dateiname);
+        if (!file.exists() || file.length() > 150000) { // max filesize 150.000
+                                                        // Bytes
+            return ergebnis + "\n" + messages.getString("sw_fileexplorer_msg3");
+        }
 
-		if (ordner.getUserObject().getClass().equals(Datei.class)) {
-			Main.debug.println("ERROR (" + this.hashCode() + "): Es können keine Dateien in Dateien angeleget werden!");
-		} else {
-			if (neuerName.equals(""))
-				neuerName = "noName";
-			String dateityp = this.getFileType(dateiname);
-			Datei tempDatei;
-			if (dateityp != null && dateityp.equals("text")) {
-				String txtInhalt = "";
-				try {
-					BufferedReader in = new BufferedReader(new FileReader(pfadname + dateiname));
-					String str;
-					while ((str = in.readLine()) != null) {
-						txtInhalt += str + "\r\n";
-					}
-					in.close();
-					ergebnis = messages.getString("sw_fileexplorer_msg2");
-				} catch (IOException e) {
-					e.printStackTrace(Main.debug);
-				}
-				tempDatei = new Datei(neuerName, dateityp, txtInhalt);
-			} else {
-				tempDatei = new Datei(neuerName, dateityp, Base64.encodeFromFile(pfadname + dateiname));
-				tempDatei.setSize(file.length());
-				ergebnis = messages.getString("sw_fileexplorer_msg2");
-			}
-			getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
-		}
+        if (ordner.getUserObject().getClass().equals(Datei.class)) {
+            LOG.debug("ERROR (" + this.hashCode() + "): Es können keine Dateien in Dateien angeleget werden!");
+        } else {
+            if (neuerName.equals(""))
+                neuerName = "noName";
+            String dateityp = this.getFileType(dateiname);
+            Datei tempDatei;
+            if (dateityp != null && dateityp.equals("text")) {
+                String txtInhalt = "";
+                try {
+                    BufferedReader in = new BufferedReader(new FileReader(pfadname + dateiname));
+                    String str;
+                    while ((str = in.readLine()) != null) {
+                        txtInhalt += str + "\r\n";
+                    }
+                    in.close();
+                    ergebnis = messages.getString("sw_fileexplorer_msg2");
+                } catch (IOException e) {
+                    LOG.debug("", e);
+                }
+                tempDatei = new Datei(neuerName, dateityp, txtInhalt);
+            } else {
+                tempDatei = new Datei(neuerName, dateityp, Base64.encodeFromFile(pfadname + dateiname));
+                tempDatei.setSize(file.length());
+                ergebnis = messages.getString("sw_fileexplorer_msg2");
+            }
+            getSystemSoftware().getDateisystem().speicherDatei(ordner, tempDatei);
+        }
 
-		return ergebnis;
-	}
+        return ergebnis;
+    }
 
-	/**
-	 * Ermittelt an Hand der Dateiendung den Dateitypen, damit dieser im
-	 * Dateikonstruktor gesetzt werden kann. Es werden folgende Typen
-	 * unterstuetzt und entsprechend gesetzt. Die Dateitypen werden in der
-	 * Konfigurationsdate filetypes.txt festgelegt.
-	 * 
-	 * @param dateiname
-	 *            Der zu ueberpruefende Dateiname
-	 * @return Typ der Datei als String
-	 */
-	public String getFileType(String dateiname) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileExplorer), getFileType(" + dateiname + ")");
-		String tmpType = "";
-		/*
-		 * Schritt 1: Die Datei wird in LowerCase konvertiert und der letzte
-		 * Token wird gesucht
-		 */
-		dateiname = dateiname.toLowerCase();
-		StringTokenizer st = new StringTokenizer(dateiname, ".");
-		// Main.debug.println("Die Datei hat " + st.countTokens() + " Tokens!");
-		int counting = st.countTokens();
-		if (counting > 1) {
-			for (int i = 1; i < counting; i++) {
-				st.nextToken();
-			}
-			String a = st.nextToken();
-			tmpType = fileTypeMap.get(a);
-		} else {
-			tmpType = "text";
-		}
-		// Main.debug.println("Der Dateityp ist: " + tmpType);
-		return tmpType;
-	}
+    /**
+     * Ermittelt an Hand der Dateiendung den Dateitypen, damit dieser im Dateikonstruktor gesetzt werden kann. Es werden
+     * folgende Typen unterstuetzt und entsprechend gesetzt. Die Dateitypen werden in der Konfigurationsdate
+     * filetypes.txt festgelegt.
+     * 
+     * @param dateiname
+     *            Der zu ueberpruefende Dateiname
+     * @return Typ der Datei als String
+     */
+    public String getFileType(String dateiname) {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileExplorer), getFileType(" + dateiname + ")");
+        String tmpType = "";
+        /*
+         * Schritt 1: Die Datei wird in LowerCase konvertiert und der letzte Token wird gesucht
+         */
+        dateiname = dateiname.toLowerCase();
+        StringTokenizer st = new StringTokenizer(dateiname, ".");
+        // LOG.debug("Die Datei hat " + st.countTokens() + " Tokens!");
+        int counting = st.countTokens();
+        if (counting > 1) {
+            for (int i = 1; i < counting; i++) {
+                st.nextToken();
+            }
+            String a = st.nextToken();
+            tmpType = fileTypeMap.get(a);
+        } else {
+            tmpType = "text";
+        }
+        // LOG.debug("Der Dateityp ist: " + tmpType);
+        return tmpType;
+    }
 
-	/**
-	 * Liest einmalig die definierten Filetypen ein, damit diese beim
-	 * Importieren der Dateien passend zugewiesen werden koennen. Wird einmalig
-	 * im Konstruktor des FileImporters aufgerufen.
-	 * 
-	 * @author Johannes Bade & Thomas Gerding
-	 * 
-	 */
-	public void getFileTypeMap() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (FileExplorer), getFileTypeMap()");
-		fileTypeMap = new HashMap<String, String>();
-		RandomAccessFile configFile;
-		try {
-			configFile = new RandomAccessFile("config/filetypes.txt", "r");
-			for (String line; (line = configFile.readLine()) != null;) {
-				StringTokenizer stx = new StringTokenizer(line, ";");
-				String tmpType = stx.nextToken();
-				StringTokenizer sty = new StringTokenizer(stx.nextToken(), ",");
+    /**
+     * Liest einmalig die definierten Filetypen ein, damit diese beim Importieren der Dateien passend zugewiesen werden
+     * koennen. Wird einmalig im Konstruktor des FileImporters aufgerufen.
+     * 
+     * @author Johannes Bade & Thomas Gerding
+     * 
+     */
+    public void getFileTypeMap() {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (FileExplorer), getFileTypeMap()");
+        fileTypeMap = new HashMap<String, String>();
+        RandomAccessFile configFile;
+        try {
+            configFile = new RandomAccessFile("config/filetypes.txt", "r");
+            for (String line; (line = configFile.readLine()) != null;) {
+                StringTokenizer stx = new StringTokenizer(line, ";");
+                String tmpType = stx.nextToken();
+                StringTokenizer sty = new StringTokenizer(stx.nextToken(), ",");
 
-				while (sty.hasMoreElements()) {
-					fileTypeMap.put(sty.nextToken(), tmpType);
-				}
+                while (sty.hasMoreElements()) {
+                    fileTypeMap.put(sty.nextToken(), tmpType);
+                }
 
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace(Main.debug);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace(Main.debug);
-		}
+            }
+        } catch (FileNotFoundException e) {
+            LOG.debug("", e);
+        } catch (IOException e) {
+            LOG.debug("", e);
+        }
 
-		// Main.debug.println(fileTypeMap);
+        // LOG.debug(fileTypeMap);
 
-	}
+    }
 
 }

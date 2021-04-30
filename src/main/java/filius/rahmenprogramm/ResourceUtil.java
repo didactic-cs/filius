@@ -5,10 +5,11 @@ import java.net.URL;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
-
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceUtil {
+    private static Logger LOG = LoggerFactory.getLogger(ResourceUtil.class);
 
     public static File getResourceFile(String relativePath) {
         String path = getResourcePath(relativePath);
@@ -23,11 +24,11 @@ public class ResourceUtil {
         String path = null;
         if (urlEncodedPath != null) {
             try {
-                Main.debug.println(urlEncodedPath);
+                LOG.debug(urlEncodedPath);
                 path = URIUtil.decode(urlEncodedPath);
-                Main.debug.println("Resolved path: " + path);
+                LOG.debug("Resolved path: " + path);
             } catch (URIException e) {
-                Main.debug.println("Resource " + relativePath + " could not be resolved (" + urlEncodedPath + ")");
+                LOG.debug("Resource " + relativePath + " could not be resolved (" + urlEncodedPath + ")");
             }
         }
         return path;
@@ -37,9 +38,9 @@ public class ResourceUtil {
         String urlEncodedPath = null;
         URL systemResource = ClassLoader.getSystemResource(relativePath);
         if (null == systemResource) {
-            Main.debug.println("Resource " + relativePath + " could not be found!");
+            LOG.debug("Resource " + relativePath + " could not be found!");
         } else {
-            Main.debug.println("Resource " + systemResource);
+            LOG.debug("Resource " + systemResource);
             urlEncodedPath = systemResource.getPath().replace("+", "%2b");
         }
         return urlEncodedPath;

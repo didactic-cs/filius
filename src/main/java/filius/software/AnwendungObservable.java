@@ -27,21 +27,22 @@ package filius.software;
 
 import java.util.Observable;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AnwendungObservable extends Observable {
+    private static Logger LOG = LoggerFactory.getLogger(AnwendungObservable.class);
 
-	public void notifyObservers() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (AnwendungObservable), notifyObservers()");
-		setChanged();
-		super.notifyObservers();
-	}
+    public void notifyObservers() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (AnwendungObservable), notifyObservers()");
+        setChanged();
+        super.notifyObservers();
+    }
 
-	public void notifyObservers(Object daten) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (AnwendungObservable), notifyObservers(" + daten + ")");
-		setChanged();
-		super.notifyObservers(daten);
-	}
+    public void notifyObservers(Object daten) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (AnwendungObservable), notifyObservers(" + daten
+                + ")");
+        setChanged();
+        super.notifyObservers(daten);
+    }
 }

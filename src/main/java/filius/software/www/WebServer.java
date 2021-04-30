@@ -34,7 +34,9 @@ import java.util.StringTokenizer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
@@ -50,6 +52,7 @@ import filius.software.transportschicht.TCPSocket;
  * 
  */
 public class WebServer extends TCPServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(WebServer.class);
 
     private DefaultMutableTreeNode verzeichnis;
 
@@ -75,7 +78,7 @@ public class WebServer extends TCPServerAnwendung {
      * nachdem ein WebServer erzeugt wurde, muss ueber die Vaterklasse Anwendung ein Betriebssystem zugewiesen werden
      */
     public void setSystemSoftware(InternetKnotenBetriebssystem betriebssystem) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
 
@@ -87,7 +90,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void erzeugeIndexDatei(String dateipfad) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeIndexDatei(" + dateipfad + ")");
         String input;
 
@@ -99,7 +102,7 @@ public class WebServer extends TCPServerAnwendung {
             }
             erzeugeDatei("index", "html", fullFile.toString());
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
 
     }
@@ -115,9 +118,9 @@ public class WebServer extends TCPServerAnwendung {
             in.close();
             out.close();
         } catch (java.io.IOException e) {
-            Main.debug.println("EXCEPTION (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+            LOG.debug("EXCEPTION (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                     + " (WebServer):  IOException in conversion of InputStream to Byte[]");
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
         return out.toByteArray();
     }
@@ -126,7 +129,7 @@ public class WebServer extends TCPServerAnwendung {
      * erzeugt alle Dateien, fuer Fehlermeldungen etc. Die Dateien liegen als Textdateien im realen Ordner /konfig
      */
     private void erzeugeStandardVerzeichnis() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeStandardVerzeichnis()");
         Dateisystem dateisystem;
 
@@ -149,7 +152,7 @@ public class WebServer extends TCPServerAnwendung {
                         inputStreamToBytes(getClass().getResourceAsStream("/gfx/allgemein/splashscreen-mini.png"))));
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
 
     }
@@ -158,7 +161,7 @@ public class WebServer extends TCPServerAnwendung {
      * erzeugt eine Datei fuer das Dateisystem von Filius. Dieses arbeitet mit TreeNodes
      */
     private void erzeugeDatei(String dateiname, String endung, String quellcode) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeDatei(" + dateiname + "," + endung + "," + quellcode + ")");
         String kompletteDateiName = dateiname + "." + endung;
         Datei datei = new Datei(kompletteDateiName, endung, quellcode);
@@ -169,7 +172,7 @@ public class WebServer extends TCPServerAnwendung {
      * holt eine Datei aus dem Verzeichnisbaum des WebServers. Dieser benutzt TreeNodes
      */
     protected Datei dateiLiefern(String relativerPfad) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), dateiLiefern(" + relativerPfad + ")");
         Datei tmpDatei;
 
@@ -183,8 +186,8 @@ public class WebServer extends TCPServerAnwendung {
      * 
      */
     public WebServerPlugIn holePlugin(String key) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebServer), holePlugin(" + key + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), holePlugin("
+                + key + ")");
         WebServerPlugIn plugIn = null;
 
         if (plugins.containsKey(key)) {
@@ -220,18 +223,18 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void changeVHostTable(int row, int col, String val) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), changeVHostTable(" + row + "," + col + "," + val + ")");
         if (val != null)
             vHostArray[row][col] = val;
         else
             vHostArray[row][col] = "";
-        // Main.debug.println("DEBUG WebServer: vHostArray (danach):\n"+printVHostTable());
+        // LOG.debug("DEBUG WebServer: vHostArray (danach):\n"+printVHostTable());
         this.saveVHosts();
     }
 
     public String vhostPrefix(String vhost) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), vhostPrefix(" + vhost + ")");
         for (int i = 0; i < vHostArray.length; i++) {
             if (vHostArray[i][0] != null && vHostArray[i][0].equalsIgnoreCase(vhost)) {
@@ -247,7 +250,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     protected void neuerMitarbeiter(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), neuerMitarbeiter(" + socket + ")");
         WebServerMitarbeiter wsMitarbeiter;
 
@@ -260,8 +263,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void starten() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
         super.starten();
 
         if (!getSystemSoftware().getDateisystem().dateiVorhanden("www.conf", "vhosts")) {
@@ -272,13 +274,12 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void beenden() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), beenden()");
         super.beenden();
     }
 
     private void saveVHosts() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), schreibeRecordListe()");
         Datei vhosts;
         StringBuffer text;
@@ -303,8 +304,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     private void initialisiereVHosts() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");
         Datei vhosts;
         StringTokenizer tokenizer;
         String line;

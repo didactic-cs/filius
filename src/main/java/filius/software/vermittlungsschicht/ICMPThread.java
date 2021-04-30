@@ -27,7 +27,9 @@ package filius.software.vermittlungsschicht;
 
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.Verbindung;
 import filius.software.ProtokollThread;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -37,6 +39,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * 
  */
 public class ICMPThread extends ProtokollThread<IcmpPaket> {
+    private static Logger LOG = LoggerFactory.getLogger(ICMPThread.class);
 
     private ICMP vermittlung;
 
@@ -45,7 +48,7 @@ public class ICMPThread extends ProtokollThread<IcmpPaket> {
 
     public ICMPThread(ICMP vermittlung) {
         super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeICMPPuffer());
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ICMPThread), constr: ICMPThread(" + vermittlung + ")");
         this.rcvdPackets = new LinkedList<IcmpPaket>();
         this.vermittlung = vermittlung;

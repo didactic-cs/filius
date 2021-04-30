@@ -30,13 +30,16 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Random;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.SocketException;
 import filius.rahmenprogramm.I18n;
 import filius.software.Protokoll;
 import filius.software.system.InternetKnotenBetriebssystem;
 
 public abstract class TransportProtokoll extends Protokoll implements I18n, Runnable {
+    private static Logger LOG = LoggerFactory.getLogger(TransportProtokoll.class);
 
     private static final int PORT_UNTERE_GRENZE = 1024;
 
@@ -68,7 +71,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
      */
     public TransportProtokoll(InternetKnotenBetriebssystem betriebssystem, int typ) {
         super(betriebssystem);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (TransportProtokoll), constr: TransportProtokoll(" + betriebssystem + "," + typ + ")");
         this.typ = typ;
         portTabelle = new Hashtable<Integer, SocketSchnittstelle>();
@@ -83,8 +86,8 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public int reserviereFreienPort(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (TransportProtokoll), reserviereFreienPort(" + socket + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reserviereFreienPort("
+                + socket + ")");
         // Freien Port suchen
         boolean portGefunden = false;
         int freienPort;
@@ -101,8 +104,8 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public SocketSchnittstelle holeSocket(int port) throws SocketException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), holeSocket("
-                + port + ")");
+        LOG.debug(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), holeSocket(" + port + ")");
         if (port == -1) {
             throw new SocketException(messages.getString("sw_transportprotokoll_msg3"));
         }
@@ -118,8 +121,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     private int sucheFreienPort() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (TransportProtokoll), sucheFreienPort()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), sucheFreienPort()");
         int spanne = PORT_OBERE_GRENZE - PORT_UNTERE_GRENZE;
         Random random = new Random();
         int zufallsZahl = Math.abs(random.nextInt());
@@ -129,11 +131,11 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public boolean reservierePort(int port, SocketSchnittstelle socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reservierePort("
-                + port + "," + socket + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reservierePort(" + port
+                + "," + socket + ")");
         synchronized (portTabelle) {
             if (portTabelle.containsKey(port)) {
-                Main.debug.println("ERROR (" + this.hashCode() + "): Port " + port + " ist bereits belegt!");
+                LOG.debug("ERROR (" + this.hashCode() + "): Port " + port + " ist bereits belegt!");
                 return false;
             } else {
                 portTabelle.put(port, socket);
@@ -143,8 +145,8 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public boolean gibPortFrei(int port) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), gibPortFrei("
-                + port + ")");
+        LOG.debug(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), gibPortFrei(" + port + ")");
 
         synchronized (portTabelle) {
             if (portTabelle.containsKey(port)) {
@@ -169,8 +171,8 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     protected void senden(String zielIp, String quellIp, Object segment) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), senden("
-                + zielIp + "," + segment + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), senden(" + zielIp + ","
+                + segment + ")");
 
         synchronized (segmentListe) {
             segmentListe.addLast((new Object[] { zielIp, quellIp, segment }));
@@ -179,7 +181,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), run()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), run()");
         InternetKnotenBetriebssystem bs;
 
         Object[] temp;
@@ -201,7 +203,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), starten()");
         portTabelle = new Hashtable<Integer, SocketSchnittstelle>();
 
         thread = new TransportProtokollThread(this);
@@ -209,8 +211,8 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
 
         if (!running) {
             running = true;
-            if (sendeThread == null
-                    || (!sendeThread.getState().equals(State.WAITING) && !sendeThread.getState().equals(State.BLOCKED))) {
+            if (sendeThread == null || (!sendeThread.getState().equals(State.WAITING)
+                    && !sendeThread.getState().equals(State.BLOCKED))) {
                 sendeThread = new Thread(this);
                 sendeThread.start();
             }
@@ -218,7 +220,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), beenden()");
         thread.beenden();
 
         running = false;

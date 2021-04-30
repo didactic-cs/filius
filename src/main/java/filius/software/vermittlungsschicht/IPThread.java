@@ -25,7 +25,9 @@
  */
 package filius.software.vermittlungsschicht;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.ProtokollThread;
 import filius.software.system.InternetKnotenBetriebssystem;
 
@@ -33,6 +35,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * Thread zur Ueberwachung des IP-Puffers, in den von der Ethernet-Schicht eingehende IP-Pakete geschrieben werden
  */
 public class IPThread extends ProtokollThread<IpPaket> {
+    private static Logger LOG = LoggerFactory.getLogger(IPThread.class);
 
     /** Die IPsschicht */
     private IP vermittlung;
@@ -42,7 +45,7 @@ public class IPThread extends ProtokollThread<IpPaket> {
      */
     public IPThread(IP vermittlung) {
         super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeIPPuffer());
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (IPThread), constr: IPThread(" + vermittlung + ")");
 
         this.vermittlung = vermittlung;

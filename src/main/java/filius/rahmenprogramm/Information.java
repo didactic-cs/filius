@@ -48,6 +48,9 @@ import java.util.Vector;
 
 import javax.swing.JFileChooser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.Main;
 import filius.gui.GUIContainer;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
@@ -58,6 +61,8 @@ import filius.hardware.Verbindung;
  * bestimmten Projekt sind.
  */
 public class Information implements Serializable {
+    private static Logger LOG = LoggerFactory.getLogger(Information.class);
+
     public enum FeatureMode {
         FORCE_DISABLE, FORCE_ENABLE, AUTO
     }
@@ -283,7 +288,7 @@ public class Information implements Serializable {
         try {
             initialisiereVerzeichnisse();
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+LOG.debug("",e);
         }
 
         SzenarioVerwaltung.loescheVerzeichnisInhalt(getTempPfad());
@@ -306,33 +311,33 @@ public class Information implements Serializable {
         pfad = getArbeitsbereichPfad();
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
-                Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
+                LOG.debug("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
         pfad = getTempPfad();
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
-                Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
+                LOG.debug("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
         pfad = getAnwendungenPfad();
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
-                Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
+                LOG.debug("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
         pfad = getAnwendungenPfad() + "filius" + System.getProperty("file.separator") + "software"
                 + System.getProperty("file.separator") + "clientserver" + System.getProperty("file.separator");
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
-                Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
+                LOG.debug("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
         pfad = getAnwendungenPfad() + "filius" + System.getProperty("file.separator") + "gui"
                 + System.getProperty("file.separator") + "anwendungssicht" + System.getProperty("file.separator");
         if (!(new java.io.File(pfad)).exists())
             if (!(new java.io.File(pfad)).mkdirs())
-                Main.debug.println("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
+                LOG.debug("ERROR (" + this.hashCode() + ") " + getClass() + "\n\t" + pfad
                         + " konnte nicht erzeugt werden");
 
         pfad = getAnwendungenPfad() + "EigeneAnwendungen.txt";

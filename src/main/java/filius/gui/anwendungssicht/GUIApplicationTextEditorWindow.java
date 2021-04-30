@@ -50,7 +50,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.CloseableBrowserTabbedPaneUI;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
@@ -62,6 +64,7 @@ import filius.software.system.Datei;
  * 
  */
 public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationTextEditorWindow.class);
 
     private static final long serialVersionUID = 1L;
     private JTextArea editorField;
@@ -209,7 +212,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
                     aktuellerDateiname);
             changeCurrentFile(tmpFile);
         } else {
-            Main.debug.println("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
+            LOG.debug("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei");
         }
     }
 
@@ -219,8 +222,7 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
             original = aktuelleDatei.getDateiInhalt();
             editorField.setText(original);
         } else {
-            Main.debug.println(
-                    "ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
+            LOG.debug("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
         }
     }
 

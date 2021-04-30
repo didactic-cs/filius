@@ -64,12 +64,15 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.lokal.FileExplorer;
 import filius.software.system.Datei;
 import filius.software.system.Dateisystem;
 
 public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationFileExplorerWindow.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -199,9 +202,9 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                                     try {
                                         zwischenAblageNode = tiefesKopieren(selektierteNode);
                                     } catch (IOException e1) {
-                                        e1.printStackTrace(Main.debug);
+                                        LOG.debug("", e1);
                                     } catch (ClassNotFoundException e1) {
-                                        e1.printStackTrace(Main.debug);
+                                        LOG.debug("", e1);
                                     }
                                     aktuellerOrdner.remove(selektierteNode);
                                     aktualisieren();
@@ -211,9 +214,9 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                                     try {
                                         zwischenAblageNode = tiefesKopieren(selektierteNode);
                                     } catch (IOException e1) {
-                                        e1.printStackTrace(Main.debug);
+                                        LOG.debug("", e);
                                     } catch (ClassNotFoundException e1) {
-                                        e1.printStackTrace(Main.debug);
+                                        LOG.debug("", e);
                                     }
                                     aktualisieren();
                                 }
@@ -395,7 +398,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                 try {
                     fileImportFrame.setSelected(true);
                 } catch (PropertyVetoException e1) {
-                    e1.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
             }
         });
@@ -459,7 +462,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         try {
             fileImportFrame.setSelected(true);
         } catch (PropertyVetoException e1) {
-            e1.printStackTrace(Main.debug);
+            LOG.debug("", e1);
         }
     }
 

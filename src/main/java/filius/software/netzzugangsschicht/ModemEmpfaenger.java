@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.knoten.Modem;
 import filius.software.ProtokollThread;
 import filius.software.system.ModemFirmware;
@@ -39,6 +41,7 @@ import filius.software.system.ModemFirmware;
  * leitet die Frames an das angeschlossene virtuelle Rechnernetz weiter.
  */
 public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
+    private static Logger LOG = LoggerFactory.getLogger(ModemEmpfaenger.class);
 
     /**
      * Die Modem-Firmware zur Verbindung von Rechnernetzen ueber eine TCP/IP-Verbindung
@@ -55,7 +58,7 @@ public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
      * aufgerufen.
      */
     public ModemEmpfaenger(ModemFirmware firmware, InputStream in) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterExtern), constr: ModemAnschlussBeobachterExtern(" + firmware + "," + in
                 + ")");
         this.firmware = firmware;
@@ -67,20 +70,20 @@ public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
      * Socket bzw. Stream ueberwacht wird.
      */
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterExtern), run()");
         ObjectInputStream in = null;
         try {
             in = new ObjectInputStream(this.in);
         } catch (IOException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
         while (running) {
             try {
                 EthernetFrame object = (EthernetFrame) in.readObject();
                 verarbeiteDatenEinheit(object);
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 if (running) {
                     firmware.verbindungZuruecksetzen();
                 }
@@ -92,7 +95,7 @@ public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
      * Hier werden ankommende Frames von einem Modem an das angeschlossene virtuelle Rechnernetz weitergegeben.
      */
     protected void verarbeiteDatenEinheit(EthernetFrame datenEinheit) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterExtern), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
         if (firmware.isStarted()) {
             synchronized (((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer()) {

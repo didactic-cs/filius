@@ -28,7 +28,9 @@ package filius.software.vermittlungsschicht;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
 import filius.software.Protokoll;
@@ -36,11 +38,12 @@ import filius.software.system.SystemSoftware;
 
 /** Oberklasse von ARP und IP mit Hilfsmethoden */
 public abstract class VermittlungsProtokoll extends Protokoll {
+    private static Logger LOG = LoggerFactory.getLogger(VermittlungsProtokoll.class);
 
     /** Standard-Konstruktor der Oberklasse Protokoll */
     public VermittlungsProtokoll(SystemSoftware systemSoftware) {
         super(systemSoftware);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (VermittlungsProtokoll), constr: VermittlungsProtokoll(" + systemSoftware + ")");
     }
 
@@ -62,9 +65,8 @@ public abstract class VermittlungsProtokoll extends Protokoll {
      * @return ob die Netz-IDs der zwei Adressen uebereinstimmen
      */
     public static boolean gleichesRechnernetz(String adresseEins, String adresseZwei, String netzmaske) {
-        Main.debug
-                .println("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, gleichesRechnernetz("
-                        + adresseEins + "," + adresseZwei + "," + netzmaske + ")");
+        LOG.debug("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, gleichesRechnernetz("
+                + adresseEins + "," + adresseZwei + "," + netzmaske + ")");
         int addressOneAsInt = ipAddressToInt(adresseEins);
         int addressTwoAsInt = ipAddressToInt(adresseZwei);
         int netmaskAsInt = ipAddressToInt(netzmaske);
@@ -94,9 +96,8 @@ public abstract class VermittlungsProtokoll extends Protokoll {
      * Determine subnet address for given IP and netmask.
      */
     public static String getSubnetForIp(String ip, String mask) {
-        Main.debug
-                .println("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, getSubnetForIp("
-                        + ip + "," + mask + ")");
+        LOG.debug("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, getSubnetForIp(" + ip
+                + "," + mask + ")");
         int[] a1, m;
         int[] res = new int[4];
         StringTokenizer tokenizer;

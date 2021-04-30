@@ -27,144 +27,144 @@ package filius.software.dateiaustausch;
 
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Nadja Haßler
  */
 public class QueryHitPaket extends PeerToPeerPaket {
+    private static Logger LOG = LoggerFactory.getLogger(QueryHitPaket.class);
 
-	private int anzahlHits;
+    private int anzahlHits;
 
-	private int port;
+    private int port;
 
-	private String ipAdresse;
+    private String ipAdresse;
 
-	private String geschwindigkeit; // (in kb/sek)
+    private String geschwindigkeit; // (in kb/sek)
 
-	private String ergebnis;// =new LinkedList();
+    private String ergebnis;// =new LinkedList();
 
-	private String serventIdentifizierung;
+    private String serventIdentifizierung;
 
-	public QueryHitPaket(int anzahlHips, int port, String ip, String speed, String ergebnisListe, String si) {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
-		        + " (QueryHitPaket), constr: QueryHitPaket(" + anzahlHips + "," + port + "," + ip + "," + speed + ","
-		        + ergebnisListe + "," + si + ")");
-		setPayload("0x81");
-		this.anzahlHits = anzahlHips;
-		this.port = port;
-		this.ipAdresse = ip;
-		this.geschwindigkeit = speed;
-		this.ergebnis = ergebnisListe;
-		this.serventIdentifizierung = si;
-		this.setPayloadLength(payloadLengthBerechnen());
-	}
+    public QueryHitPaket(int anzahlHips, int port, String ip, String speed, String ergebnisListe, String si) {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), constr: QueryHitPaket("
+                + anzahlHips + "," + port + "," + ip + "," + speed + "," + ergebnisListe + "," + si + ")");
+        setPayload("0x81");
+        this.anzahlHits = anzahlHips;
+        this.port = port;
+        this.ipAdresse = ip;
+        this.geschwindigkeit = speed;
+        this.ergebnis = ergebnisListe;
+        this.serventIdentifizierung = si;
+        this.setPayloadLength(payloadLengthBerechnen());
+    }
 
-	/**
-	 * wandelt einen String (wenn möglich) in ein QueryHitPaket um
-	 * 
-	 * @param string
-	 *            der umzuwandelnde String
-	 */
-	public QueryHitPaket(String string) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (QueryHitPaket), constr: QueryHitPaket(" + string + ")");
-		// String wird nach "//" getrennt
-		StringTokenizer tk = new StringTokenizer(string, "//");
-		// Absichern der Informationen
-		guid = Integer.parseInt(tk.nextToken());
-		payload = tk.nextToken();
-		hops = Integer.parseInt(tk.nextToken());
-		ttl = Integer.parseInt(tk.nextToken());
-		payloadLength = Integer.parseInt(tk.nextToken());
-		anzahlHits = Integer.parseInt(tk.nextToken());
-		port = Integer.parseInt(tk.nextToken());
-		ipAdresse = tk.nextToken();
-		geschwindigkeit = tk.nextToken();
-		ergebnis = tk.nextToken();
-		serventIdentifizierung = tk.nextToken();
-	}
+    /**
+     * wandelt einen String (wenn möglich) in ein QueryHitPaket um
+     * 
+     * @param string
+     *            der umzuwandelnde String
+     */
+    public QueryHitPaket(String string) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), constr: QueryHitPaket("
+                + string + ")");
+        // String wird nach "//" getrennt
+        StringTokenizer tk = new StringTokenizer(string, "//");
+        // Absichern der Informationen
+        guid = Integer.parseInt(tk.nextToken());
+        payload = tk.nextToken();
+        hops = Integer.parseInt(tk.nextToken());
+        ttl = Integer.parseInt(tk.nextToken());
+        payloadLength = Integer.parseInt(tk.nextToken());
+        anzahlHits = Integer.parseInt(tk.nextToken());
+        port = Integer.parseInt(tk.nextToken());
+        ipAdresse = tk.nextToken();
+        geschwindigkeit = tk.nextToken();
+        ergebnis = tk.nextToken();
+        serventIdentifizierung = tk.nextToken();
+    }
 
-	public long payloadLengthBerechnen() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (QueryHitPaket), payloadLengthBerechnen()");
-		long ergebnisZahl = 0;
-		ergebnisZahl = ergebnisZahl + anzahlBenoetigterBits(anzahlHits) + anzahlBenoetigterBits(port)
-		        + ipAdresse.length() * 8 + (geschwindigkeit.length() * 8) + ergebnis.length() * 8
-		        + serventIdentifizierung.length() * 8;
-		// Main.debug.println(" hits: " + anzahlBenoetigterBits(anzahlHits)
-		// + " port: " + anzahlBenoetigterBits(port) + " ip: "
-		// + ipAdresse.length() * 8 + " geschw: "
-		// + (geschwindigkeit.length() * 8) + " ergebnis: "
-		// + ergebnis.length() * 8 + " serverID: "
-		// + serventIdentifizierung.length() * 8);
+    public long payloadLengthBerechnen() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), payloadLengthBerechnen()");
+        long ergebnisZahl = 0;
+        ergebnisZahl = ergebnisZahl + anzahlBenoetigterBits(anzahlHits) + anzahlBenoetigterBits(port)
+                + ipAdresse.length() * 8 + (geschwindigkeit.length() * 8) + ergebnis.length() * 8
+                + serventIdentifizierung.length() * 8;
+        // LOG.debug(" hits: " + anzahlBenoetigterBits(anzahlHits)
+        // + " port: " + anzahlBenoetigterBits(port) + " ip: "
+        // + ipAdresse.length() * 8 + " geschw: "
+        // + (geschwindigkeit.length() * 8) + " ergebnis: "
+        // + ergebnis.length() * 8 + " serverID: "
+        // + serventIdentifizierung.length() * 8);
 
-		return ergebnisZahl;
-	}
+        return ergebnisZahl;
+    }
 
-	public int getAnzahlHits() {
-		return anzahlHits;
-	}
+    public int getAnzahlHits() {
+        return anzahlHits;
+    }
 
-	public void setAnzahlHits(int anzahlHips) {
-		this.anzahlHits = anzahlHips;
-	}
+    public void setAnzahlHits(int anzahlHips) {
+        this.anzahlHits = anzahlHips;
+    }
 
-	public String getErgebnis() {
-		return ergebnis;
-	}
+    public String getErgebnis() {
+        return ergebnis;
+    }
 
-	public void setErgebnis(String ergebnisListe) {
-		this.ergebnis = ergebnisListe;
-	}
+    public void setErgebnis(String ergebnisListe) {
+        this.ergebnis = ergebnisListe;
+    }
 
-	public String getIpAdresse() {
-		return ipAdresse;
-	}
+    public String getIpAdresse() {
+        return ipAdresse;
+    }
 
-	public void setIpAdresse(String ipAdresse) {
-		this.ipAdresse = ipAdresse;
-	}
+    public void setIpAdresse(String ipAdresse) {
+        this.ipAdresse = ipAdresse;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-	public String getServentIdentifizierung() {
-		return serventIdentifizierung;
-	}
+    public String getServentIdentifizierung() {
+        return serventIdentifizierung;
+    }
 
-	public void setServentIdentifizierung(String serventIdentifizierung) {
-		this.serventIdentifizierung = serventIdentifizierung;
-	}
+    public void setServentIdentifizierung(String serventIdentifizierung) {
+        this.serventIdentifizierung = serventIdentifizierung;
+    }
 
-	public String getGeschwindigkeit() {
-		return geschwindigkeit;
-	}
+    public String getGeschwindigkeit() {
+        return geschwindigkeit;
+    }
 
-	public void setGeschwindigkeit(String speed) {
-		this.geschwindigkeit = speed;
-	}
+    public void setGeschwindigkeit(String speed) {
+        this.geschwindigkeit = speed;
+    }
 
-	/**
-	 * wandelt ein QueryHitPaket in einen String um
-	 * 
-	 * @return der String das QueryHitPaket verpackt als String
-	 */
-	public String toString() {
-		if (getErgebnis().equals("")) {
-			setErgebnis(" ");
-		}
-		if (getServentIdentifizierung().equals("")) {
-			setServentIdentifizierung(" ");
-		}
-		return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength() + "//"
-		        + getAnzahlHits() + "//" + getPort() + "//" + getIpAdresse() + "//" + getGeschwindigkeit() + "//"
-		        + getErgebnis() + "//" + getServentIdentifizierung();
-	}
+    /**
+     * wandelt ein QueryHitPaket in einen String um
+     * 
+     * @return der String das QueryHitPaket verpackt als String
+     */
+    public String toString() {
+        if (getErgebnis().equals("")) {
+            setErgebnis(" ");
+        }
+        if (getServentIdentifizierung().equals("")) {
+            setServentIdentifizierung(" ");
+        }
+        return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength() + "//"
+                + getAnzahlHits() + "//" + getPort() + "//" + getIpAdresse() + "//" + getGeschwindigkeit() + "//"
+                + getErgebnis() + "//" + getServentIdentifizierung();
+    }
 }

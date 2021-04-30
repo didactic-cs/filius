@@ -27,7 +27,9 @@ package filius.software.vermittlungsschicht;
 
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
@@ -41,6 +43,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * manuelle Eintraege. Ausserdem werden bei jeder Abfrage die automatischen Standard-Eintraege erzeugt.
  */
 public class Weiterleitungstabelle implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Weiterleitungstabelle.class);
 
     /**
      * Die Tabelle mit den manuellen Eintraegen der Weiterleitungstabelle. Sie werden als String-Arrays in einer Liste
@@ -111,9 +114,8 @@ public class Weiterleitungstabelle implements I18n {
      * @param schnittstelle
      */
     public void addManuellenEintrag(String netzwerkziel, String netzwerkmaske, String gateway, String schnittstelle) {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), addManuellenEintrag("
-                        + netzwerkziel + "," + netzwerkmaske + "," + gateway + "," + schnittstelle + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), addManuellenEintrag("
+                + netzwerkziel + "," + netzwerkmaske + "," + gateway + "," + schnittstelle + ")");
         manuelleEintraege = null;
 
         if (netzwerkziel != null && netzwerkmaske != null && gateway != null && schnittstelle != null) {
@@ -132,10 +134,10 @@ public class Weiterleitungstabelle implements I18n {
      *            die auszugebende Tabelle
      */
     public void printTabelle(String name) {
-        Main.debug.println("DEBUG (" + name + ") Weiterleitungstabelle (IP,mask,gw,if):");
+        LOG.debug("DEBUG (" + name + ") Weiterleitungstabelle (IP,mask,gw,if):");
         for (String[] eintrag : holeTabelle()) {
-            Main.debug.printf("DEBUG (%s)  '%15s' | '%15s' | '%15s' | '%15s'\n", name, eintrag[0], eintrag[1],
-                    eintrag[2], eintrag[3]);
+            LOG.debug("DEBUG (%s)  '%15s' | '%15s' | '%15s' | '%15s'\n", name, eintrag[0], eintrag[1], eintrag[2],
+                    eintrag[3]);
         }
     }
 
@@ -157,8 +159,7 @@ public class Weiterleitungstabelle implements I18n {
      * Eintraegen
      */
     public LinkedList<String[]> holeTabelle() {
-        Main.debug
-                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), holeTabelle()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), holeTabelle()");
         InternetKnoten knoten;
         String gateway;
         LinkedList<String[]> tabelle;

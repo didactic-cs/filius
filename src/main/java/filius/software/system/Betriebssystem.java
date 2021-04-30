@@ -25,7 +25,9 @@
  */
 package filius.software.system;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.dhcp.DHCPClient;
 import filius.software.dhcp.DHCPServer;
 import filius.software.rip.RIPTable;
@@ -38,6 +40,7 @@ import filius.software.rip.RIPTable;
  * 
  */
 public class Betriebssystem extends InternetKnotenBetriebssystem {
+    private static Logger LOG = LoggerFactory.getLogger(Betriebssystem.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -60,8 +63,7 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
      */
     public Betriebssystem() {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass()
-                + " (Betriebssystem), constr: Betriebssystem()");
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), constr: Betriebssystem()");
 
         dhcpServer = new DHCPServer();
         dhcpServer.setSystemSoftware(this);
@@ -83,7 +85,7 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
      */
     @Override
     public synchronized void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), starten()");
         super.starten();
 
         if (isDHCPKonfiguration()) {
@@ -100,7 +102,7 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
      * aufgerufen und der DHCP-Server und -Client beendet.
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), beenden()");
         super.beenden();
 
         dhcpServer.beenden();

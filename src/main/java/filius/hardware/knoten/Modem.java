@@ -25,39 +25,42 @@
  */
 package filius.hardware.knoten;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.system.ModemFirmware;
 
 public class Modem extends LokalerKnoten {
+    private static Logger LOG = LoggerFactory.getLogger(Modem.class);
 
-	public static final String TYPE = "Modem";
-	private static final long serialVersionUID = 1L;
-	private boolean modemVerbindungAktiv = false;
+    public static final String TYPE = "Modem";
+    private static final long serialVersionUID = 1L;
+    private boolean modemVerbindungAktiv = false;
 
-	@Override
-	public String holeHardwareTyp() {
-		return TYPE;
-	}
+    @Override
+    public String holeHardwareTyp() {
+        return TYPE;
+    }
 
-	public Modem() {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Modem), constr: Modem()");
+    public Modem() {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Modem), constr: Modem()");
 
-		this.setzeAnzahlAnschluesse(1);
-		this.setSystemSoftware(new ModemFirmware());
-		getSystemSoftware().setKnoten(this);
-		this.setName(TYPE);
-	}
+        this.setzeAnzahlAnschluesse(1);
+        this.setSystemSoftware(new ModemFirmware());
+        getSystemSoftware().setKnoten(this);
+        this.setName(TYPE);
+    }
 
-	public void setzeModemVerbindungAktiv(boolean verbindungAktiv) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Modem), setzeVerbindungAktiv("
-		        + verbindungAktiv + ")");
-		this.modemVerbindungAktiv = verbindungAktiv;
-		this.setChanged();
-		this.notifyObservers(verbindungAktiv);
-	}
+    public void setzeModemVerbindungAktiv(boolean verbindungAktiv) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Modem), setzeVerbindungAktiv("
+                + verbindungAktiv + ")");
+        this.modemVerbindungAktiv = verbindungAktiv;
+        this.setChanged();
+        this.notifyObservers(verbindungAktiv);
+    }
 
-	public boolean istModemVerbindungAktiv() {
-		return modemVerbindungAktiv;
-	}
+    public boolean istModemVerbindungAktiv() {
+        return modemVerbindungAktiv;
+    }
 }

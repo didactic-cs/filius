@@ -27,56 +27,58 @@ package filius.software.dateiaustausch;
 
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Nadja Haßler
  */
 public class PingPaket extends PeerToPeerPaket {
+    private static Logger LOG = LoggerFactory.getLogger(PingPaket.class);
 
-	private String ip;
+    private String ip;
 
-	public PingPaket() {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (PingPaket), constr: PingPaket()");
-		setPayload("0x00");
-		this.setPayloadLength(0);
-		this.setIp("");
-	}
+    public PingPaket() {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (PingPaket), constr: PingPaket()");
+        setPayload("0x00");
+        this.setPayloadLength(0);
+        this.setIp("");
+    }
 
-	/**
-	 * wandelt einen String (wenn möglich) in ein PingPaket um
-	 */
-	public PingPaket(String string) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (PingPaket), constr: PingPaket("
-		        + string + ")");
-		// String wird nach "//" getrennt
-		StringTokenizer tk = new StringTokenizer(string, "//");
-		// Absichern der Informationen
-		guid = Integer.parseInt(tk.nextToken());
-		payload = tk.nextToken();
-		hops = Integer.parseInt(tk.nextToken());
-		ttl = Integer.parseInt(tk.nextToken());
-		payloadLength = Integer.parseInt(tk.nextToken());
-		ip = tk.nextToken();
-	}
+    /**
+     * wandelt einen String (wenn möglich) in ein PingPaket um
+     */
+    public PingPaket(String string) {
+        LOG.debug(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + " (PingPaket), constr: PingPaket(" + string + ")");
+        // String wird nach "//" getrennt
+        StringTokenizer tk = new StringTokenizer(string, "//");
+        // Absichern der Informationen
+        guid = Integer.parseInt(tk.nextToken());
+        payload = tk.nextToken();
+        hops = Integer.parseInt(tk.nextToken());
+        ttl = Integer.parseInt(tk.nextToken());
+        payloadLength = Integer.parseInt(tk.nextToken());
+        ip = tk.nextToken();
+    }
 
-	public String getIp() {
-		return ip;
-	}
+    public String getIp() {
+        return ip;
+    }
 
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
-	/**
-	 * wandelt ein PingPaket in einen String um
-	 * 
-	 * @return der String das PingPaket verpackt als String
-	 */
-	public String toString() {
-		return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength() + "//"
-		        + getIp();
-	}
+    /**
+     * wandelt ein PingPaket in einen String um
+     * 
+     * @return der String das PingPaket verpackt als String
+     */
+    public String toString() {
+        return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength() + "//"
+                + getIp();
+    }
 
 }

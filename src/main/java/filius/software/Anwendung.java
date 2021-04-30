@@ -30,7 +30,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Observer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.Information;
 import filius.software.system.InternetKnotenBetriebssystem;
 
@@ -43,6 +45,7 @@ import filius.software.system.InternetKnotenBetriebssystem;
  * @see filius.software.AnwendungObservable
  */
 public abstract class Anwendung extends Thread {
+    private static Logger LOG = LoggerFactory.getLogger(Anwendung.class);
 
     /** Bezeichnung fuer die Anwendung */
     private String anwendungsName;
@@ -69,7 +72,7 @@ public abstract class Anwendung extends Thread {
      * Der Konstruktur bewirkt eine Meldung auf der Standardausgabe, dass die Anwendung erzeugt wurde.
      */
     public Anwendung() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), constr: Anwendung()");
 
         try {
@@ -80,7 +83,7 @@ public abstract class Anwendung extends Thread {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
     }
 
@@ -90,21 +93,21 @@ public abstract class Anwendung extends Thread {
      * @param beobachter
      */
     public void hinzuBeobachter(Observer beobachter) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), hinzuBeobachter(" + beobachter + ")");
         observable.addObserver(beobachter);
     }
 
     /** Methode zur Benachrichtigung der Beobachter. */
     public void benachrichtigeBeobachter(Object daten) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), benachrichtigeBeobachter(" + daten + ")");
         observable.notifyObservers(daten);
     }
 
     /** Methode zur Benachrichtigung der Beobachter. */
     public void benachrichtigeBeobachter() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), benachrichtigeBeobachter()");
         observable.notifyObservers();
     }
@@ -113,8 +116,7 @@ public abstract class Anwendung extends Thread {
      * Methode zum Starten des Threads beim Wechsel vom Entwurfs- in den Aktionsmodus.
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Anwendung), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), starten()");
         running = true;
 
         synchronized (kommandos) {
@@ -133,8 +135,7 @@ public abstract class Anwendung extends Thread {
      * Methode zum Anhalten des Threads.
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Anwendung), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), beenden()");
         running = false;
 
         if (kommandos != null) {
@@ -157,8 +158,8 @@ public abstract class Anwendung extends Thread {
      *            die Parameter der Methode
      */
     protected void ausfuehren(String methode, Object[] args) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Anwendung), ausfuehren(" + methode + "," + args + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), ausfuehren("
+                + methode + "," + args + ")");
         Object[] aufruf;
 
         aufruf = new Object[2];
@@ -176,8 +177,7 @@ public abstract class Anwendung extends Thread {
      * aufgerufen.
      */
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Anwendung), run()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), run()");
         Class<?>[] argumentKlassen;
         Class<?> klasse;
         Method method;
@@ -226,7 +226,7 @@ public abstract class Anwendung extends Thread {
                         } catch (NoSuchMethodException e) {
                             klasse = klasse.getSuperclass();
                         } catch (Exception e) {
-                            e.printStackTrace(Main.debug);
+                            LOG.debug("", e);
                             klasse = null;
                         }
                     }

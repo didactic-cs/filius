@@ -25,7 +25,9 @@
  */
 package filius.software.clientserver;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.software.transportschicht.TCPSocket;
 
@@ -72,6 +74,7 @@ import filius.software.transportschicht.TCPSocket;
  * </p>
  */
 public class ClientBaustein extends ClientAnwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(ClientBaustein.class);
 
     /** Port-Nummer des Servers, an dem Verbindungsanfragen angenommen werden */
     private int zielPort = 55555;
@@ -88,7 +91,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * <code>initialisiereSocket</code> in einem anderen Thread.
      */
     public void verbinden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), verbinden()");
         Object[] args;
 
@@ -104,7 +107,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Methode zum Aufbau einer Verbindung mit einem TCP-Socket. Diese Methode ist blockierend.
      */
     public synchronized void initialisiereSocket(String zielAdresse, Integer port) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), initialisiereSocket(" + zielAdresse + "," + port + ")");
         if (!istVerbunden()) {
             try {
@@ -113,7 +116,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
 
                 benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg2"));
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 socket = null;
                 benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg1") + e.getMessage());
             }
@@ -126,7 +129,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Diese Methode ist <b> blockierend</b>.
      */
     public void trennen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), trennen()");
         if (socket != null) {
             socket.schliessen();
@@ -139,7 +142,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Diese Methode <b>blockiert</b> bis die Nachricht versand wurde. Der Empfang der Antwort erfolgt asynchron.
      */
     public void senden(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), versendeNachricht(" + nachricht + ")");
 
         if (socket != null && socket.istVerbunden()) {
@@ -148,7 +151,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 benachrichtigeBeobachter("<<" + nachricht);
             } catch (Exception e) {
                 benachrichtigeBeobachter(e.getMessage());
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         } else {
             benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg4"));
@@ -161,7 +164,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * direkt von der GUI aufgerufen werden.
      */
     public void empfangeNachricht() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), empfangeNachricht()");
         String nachricht;
 
@@ -178,7 +181,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 }
             } catch (Exception e) {
                 benachrichtigeBeobachter(e.getMessage());
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         }
     }

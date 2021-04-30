@@ -48,6 +48,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.event.MouseInputAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.Main;
 import filius.gui.JBackgroundPanel;
 import filius.hardware.NetzwerkInterface;
@@ -58,6 +61,7 @@ import filius.rahmenprogramm.Information;
 import filius.software.system.Betriebssystem;
 
 public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer {
+    private static Logger LOG = LoggerFactory.getLogger(GUIDesktopPanel.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -118,7 +122,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
                         gnw.setSelected(true);
                         gnw.toFront();
                     } catch (PropertyVetoException e1) {
-                        e1.printStackTrace(Main.debug);
+LOG.debug("",e);
                     }
                 }
 
@@ -146,12 +150,12 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
         try {
             softwareList = Information.getInformation().ladeProgrammListe();
         } catch (IOException e) {
-            e.printStackTrace(Main.debug);
+LOG.debug("",e);
         }
         this.iconPanel.removeAll();
 
-        tmpLabel = new GUIDesktopIcon(new ImageIcon(getClass()
-                .getResource("/gfx/desktop/icon_softwareinstallation.png")));
+        tmpLabel = new GUIDesktopIcon(
+                new ImageIcon(getClass().getResource("/gfx/desktop/icon_softwareinstallation.png")));
         tmpLabel.setAnwendungsName(messages.getString("desktoppanel_msg1"));
         tmpLabel.setInvokeName("Software-Installation");
         tmpLabel.setToolTipText(tmpLabel.getAnwendungsName());
@@ -175,7 +179,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
                         cl = Class.forName(guiKlassenName, true,
                                 FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
                     } catch (ClassNotFoundException e) {
-                        e.printStackTrace(Main.debug);
+LOG.debug("",e);
                     }
 
                     try {
@@ -188,8 +192,8 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
 
                             addLaufendeAnwendung(softwareKlasse, tempWindow);
 
-                            tmpLabel = new GUIDesktopIcon(new ImageIcon(getClass().getResource(
-                                    "/" + ((String) tmpMap.get("gfxFile")))));
+                            tmpLabel = new GUIDesktopIcon(
+                                    new ImageIcon(getClass().getResource("/" + ((String) tmpMap.get("gfxFile")))));
 
                             tmpLabel.setAnwendungsName((String) tmpMap.get("Anwendung"));
                             tmpLabel.setInvokeName((String) tmpMap.get("Klasse"));
@@ -202,7 +206,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
                             this.iconPanel.add(tmpLabel);
                         }
                     } catch (Exception e) {
-                        e.printStackTrace(Main.debug);
+LOG.debug("",e);
                     }
                 }
             }
@@ -240,7 +244,7 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
                 this.installationsDialog.setSelected(true);
 
             } catch (PropertyVetoException e) {
-                e.printStackTrace(Main.debug);
+LOG.debug("",e);
             }
         }
 
@@ -305,8 +309,8 @@ public class GUIDesktopPanel extends JBackgroundPanel implements I18n, Observer 
     }
 
     public void update(Observable o, Object arg) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIDesktopPanel), update(" + o + ","
-                + arg + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIDesktopPanel), update(" + o + "," + arg
+                + ")");
         if (arg == null) {
             updateAnwendungen();
         } else if (arg.equals(Boolean.TRUE)) {

@@ -28,10 +28,12 @@ package filius.hardware;
 import java.io.Serializable;
 import java.util.Observable;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public abstract class Hardware extends Observable implements Serializable {
+    private static Logger LOG = LoggerFactory.getLogger(Hardware.class);
 
     private boolean aktiv = false; // ist die Hardware gerade aktiv? vor allem
                                    // wichtig fuer die GUI
@@ -45,7 +47,7 @@ public abstract class Hardware extends Observable implements Serializable {
     }
 
     public void setAktiv(boolean aktiv) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Hardware), setAktiv(" + aktiv + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Hardware), setAktiv(" + aktiv + ")");
 
         if (this.aktiv != aktiv) {
             this.aktiv = aktiv;

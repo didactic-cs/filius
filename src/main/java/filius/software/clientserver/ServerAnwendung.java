@@ -27,7 +27,9 @@ package filius.software.clientserver;
 
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.ServerSocketException;
 import filius.rahmenprogramm.I18n;
 import filius.software.Anwendung;
@@ -42,6 +44,7 @@ import filius.software.transportschicht.SocketSchnittstelle;
  * uebernehmen.
  */
 public abstract class ServerAnwendung extends Anwendung implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(ServerAnwendung.class);
 
     /** Konstante: UDP oder TCP der Klasse TransportProtokoll */
     protected int transportProtokoll;
@@ -64,7 +67,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
 
     /** Konstruktor zur Initialisierung des verwendeten TransportProtokolls */
     public ServerAnwendung(int transportProtokoll) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + ", constr: ServerAnwendung(" + transportProtokoll + ")");
         this.transportProtokoll = transportProtokoll;
     }
@@ -97,7 +100,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * @param flag
      */
     public synchronized void setAktiv(boolean flag) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), setAktiv(" + flag + ")");
         aktiv = flag;
 
@@ -125,7 +128,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * Mitarbeiter als leere Liste erstellt und die starten()-Methode der Oberklasse zum Starten des Threads aufgerufen.
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), starten()");
         super.starten();
         mitarbeiter = new LinkedList<ServerMitarbeiter>();
@@ -143,7 +146,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * Mitarbeiter-Threads sowie die Socket-Schnittstelle werden beendet.
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), beenden()");
         super.beenden();
 
@@ -187,7 +190,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * neuerMitarbeiter() erstellt, der die weitere Verarbeitung uebernimmt.
      */
     public void annehmenVerbindungen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), annehmenVerbindungen()");
         Socket transportSocket;
 
@@ -197,7 +200,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
                     try {
                         socket = new ServerSocket(getSystemSoftware(), port, transportProtokoll);
                     } catch (ServerSocketException e) {
-                        e.printStackTrace(Main.debug);
+                        LOG.debug("", e);
                         setAktiv(false);
                         benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg3"));
                         if (socket != null) {
@@ -218,7 +221,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
                         }
                     } catch (Exception e) {
                         benachrichtigeBeobachter(e.getMessage());
-                        e.printStackTrace(Main.debug);
+                        LOG.debug("", e);
                     }
                 }
             } else {

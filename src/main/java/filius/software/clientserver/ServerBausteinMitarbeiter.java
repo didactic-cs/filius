@@ -25,51 +25,49 @@
  */
 package filius.software.clientserver;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.transportschicht.Socket;
 
 /**
  * <p>
- * In dieser Klasse erfolgt die Verarbeitung von eingehenden Nachrichten an
- * einen Server.
+ * In dieser Klasse erfolgt die Verarbeitung von eingehenden Nachrichten an einen Server.
  * </p>
  * <p>
- * Die Oberklasse <code>ServerMitarbeiter</code> erbt von der Klasse Thread. In
- * der <code>run()</code>-Methode der Oberklasse wird der Socket auf eingehende
- * Nachrichten ueberwacht. Sobald eine Nachricht eintrifft, wird diese an die
- * Methode <code>verarbeiteNachricht(String)</code> zur weiteren Verarbeitung
- * weiter gegeben. Ausserdem wird dort der Socket automatisch geschlossen, wenn
- * das Client-Programm den Verbindungsabbau initiiert.
+ * Die Oberklasse <code>ServerMitarbeiter</code> erbt von der Klasse Thread. In der <code>run()</code>-Methode der
+ * Oberklasse wird der Socket auf eingehende Nachrichten ueberwacht. Sobald eine Nachricht eintrifft, wird diese an die
+ * Methode <code>verarbeiteNachricht(String)</code> zur weiteren Verarbeitung weiter gegeben. Ausserdem wird dort der
+ * Socket automatisch geschlossen, wenn das Client-Programm den Verbindungsabbau initiiert.
  * </p>
  * <p>
- * In dieser Klasse sollte nur die Methode <code>senden(String)</code> des
- * Sockets verwendet werden!
+ * In dieser Klasse sollte nur die Methode <code>senden(String)</code> des Sockets verwendet werden!
  * </p>
  */
 public class ServerBausteinMitarbeiter extends ServerMitarbeiter {
+    private static Logger LOG = LoggerFactory.getLogger(ServerBausteinMitarbeiter.class);
 
-	/**
-	 * Standard-Konstruktor. Wenn der Server auf einem bestimmten Port auf
-	 * eingehende Verbindungen warten soll, muss die Port-Nummer hier mit
-	 * <code>setPort(int)</code> initialisiert werden!
-	 */
-	public ServerBausteinMitarbeiter(ServerAnwendung server, Socket socket) {
-		super(server, socket);
-	}
+    /**
+     * Standard-Konstruktor. Wenn der Server auf einem bestimmten Port auf eingehende Verbindungen warten soll, muss die
+     * Port-Nummer hier mit <code>setPort(int)</code> initialisiert werden!
+     */
+    public ServerBausteinMitarbeiter(ServerAnwendung server, Socket socket) {
+        super(server, socket);
+    }
 
-	/**
-	 * Methode, die automatisch aufgerufen wird, wenn eine neue Nachricht
-	 * eintrifft. Hier erfolgt die Verarbeitung der eingehenden Nachricht.
-	 */
-	protected void verarbeiteNachricht(String nachricht) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + " (ServerBausteinMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
-		try {
-			socket.senden(nachricht);
-			server.benachrichtigeBeobachter("<<" + nachricht);
-		} catch (Exception e) {
-			e.printStackTrace(Main.debug);
-			server.benachrichtigeBeobachter(e.getMessage());
-		}
-	}
+    /**
+     * Methode, die automatisch aufgerufen wird, wenn eine neue Nachricht eintrifft. Hier erfolgt die Verarbeitung der
+     * eingehenden Nachricht.
+     */
+    protected void verarbeiteNachricht(String nachricht) {
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + " (ServerBausteinMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
+        try {
+            socket.senden(nachricht);
+            server.benachrichtigeBeobachter("<<" + nachricht);
+        } catch (Exception e) {
+            LOG.debug("", e);
+            server.benachrichtigeBeobachter(e.getMessage());
+        }
+    }
 }

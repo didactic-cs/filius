@@ -25,10 +25,13 @@
  */
 package filius.hardware;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.netzzugangsschicht.EthernetFrame;
 
 public class SimplexVerbindung implements Runnable {
+    private static Logger LOG = LoggerFactory.getLogger(SimplexVerbindung.class);
 
     private boolean threadRunning = true;
     private Verbindung verbindung = null;
@@ -48,9 +51,8 @@ public class SimplexVerbindung implements Runnable {
      *            es zwei Verbindungen, die die bidirektionale Verbindung zwischen den beiden Hardwares herstellt.
      */
     public SimplexVerbindung(Port anschluss1, Port anschluss2, Verbindung verbindung) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (SimplexVerbindung), constr: SimplexVerbindung(" + anschluss1 + "," + anschluss2 + "," + verbindung
-                + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), constr: SimplexVerbindung("
+                + anschluss1 + "," + anschluss2 + "," + verbindung + ")");
         this.anschluss1 = anschluss1;
         this.anschluss2 = anschluss2;
         this.verbindung = verbindung;
@@ -61,20 +63,22 @@ public class SimplexVerbindung implements Runnable {
      *         Verbindung in beide Richtungen
      */
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), run()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), run()");
         EthernetFrame frame;
 
         while (threadRunning) {
             synchronized (anschluss1.holeAusgangsPuffer()) {
                 if (anschluss1.holeAusgangsPuffer().size() < 1) {
                     try {
-                        // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run:   set wait()");
+                        // LOG.debug("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run:
+                        // set wait()");
                         verbindung.setAktiv(false);
                         anschluss1.holeAusgangsPuffer().wait();
                     } catch (InterruptedException e) {}
                 }
                 if (anschluss1.holeAusgangsPuffer().size() > 0) {
-                    // Main.debug.println("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run:   set wait()");
+                    // LOG.debug("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run: set
+                    // wait()");
                     verbindung.setAktiv(true);
                     frame = (EthernetFrame) anschluss1.holeAusgangsPuffer().getFirst();
                     anschluss1.holeAusgangsPuffer().remove(frame);
@@ -111,8 +115,7 @@ public class SimplexVerbindung implements Runnable {
     }
 
     public void anschluesseTrennen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (SimplexVerbindung), anschluesseTrennen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), anschluesseTrennen()");
         anschluss1.entferneVerbindung();
         anschluss2.entferneVerbindung();
         this.setThreadRunning(false);

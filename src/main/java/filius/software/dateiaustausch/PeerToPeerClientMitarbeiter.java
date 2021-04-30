@@ -25,7 +25,9 @@
  */
 package filius.software.dateiaustausch;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.system.Datei;
 import filius.software.transportschicht.TCPSocket;
 import filius.software.www.HTTPNachricht;
@@ -36,6 +38,7 @@ import filius.software.www.HTTPNachricht;
  * 
  */
 class PeerToPeerClientMitarbeiter extends Thread {
+    private static Logger LOG = LoggerFactory.getLogger(PeerToPeerClientMitarbeiter.class);
 
     /**
      * Der Thread kann verschiedene Funktionalitaeten erfuellen. Dazu stehen verschiedene Modi zur verfuegung.:
@@ -83,7 +86,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
      * @see filius.software.dateiaustausch.PeerToPeerClientMitarbeiter#PING
      */
     public PeerToPeerClientMitarbeiter(PeerToPeerAnwendung peerToPeerAnwendung, String ip, PeerToPeerPaket paket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClientMitarbeiter), constr: PeerToPeerClientMitarbeiter(" + peerToPeerAnwendung + ","
                 + ip + "," + paket + ")");
         this.peerToPeerAnwendung = peerToPeerAnwendung;
@@ -107,7 +110,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
      * @see filius.software.dateiaustausch.PeerToPeerClientMitarbeiter#HTTP
      */
     public PeerToPeerClientMitarbeiter(PeerToPeerAnwendung anwendung, String ip, String dateiname) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClientMitarbeiter), constr: PeerToPeerClientMitarbeiter(" + anwendung + "," + ip + ","
                 + dateiname + ")");
         HTTPNachricht nachricht;
@@ -142,7 +145,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
      * </ol>
      */
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClientMitarbeiter), run()");
         String antwort;
         HTTPNachricht http, abfrage;
@@ -184,7 +187,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         } finally {
             socket.schliessen();
         }

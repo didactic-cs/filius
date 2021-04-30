@@ -27,7 +27,9 @@ package filius.software.netzzugangsschicht;
 
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.nachrichten.Lauscher;
@@ -39,6 +41,7 @@ import filius.software.vermittlungsschicht.IpPaket;
 
 /** Diese Klasse implementiert die Netzzugangsschicht */
 public class Ethernet extends Protokoll {
+    private static Logger LOG = LoggerFactory.getLogger(Ethernet.class);
 
     public static final String ETHERNET_BROADCAST = "FF:FF:FF:FF:FF:FF";
 
@@ -59,7 +62,7 @@ public class Ethernet extends Protokoll {
     /** Konstruktor zur Initialisierung der Systemsoftware */
     public Ethernet(SystemSoftware systemSoftware) {
         super(systemSoftware);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Ethernet), constr: Ethernet("
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Ethernet), constr: Ethernet("
                 + systemSoftware + ")");
     }
 
@@ -89,8 +92,8 @@ public class Ethernet extends Protokoll {
      * durch die Quell-MAC-Adresse spezifiziert wird.
      */
     public void senden(Object daten, String startMAC, String zielMAC, String typ) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), senden(" + daten + ","
-                + startMAC + "," + zielMAC + "," + typ + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), senden(" + daten + "," + startMAC
+                + "," + zielMAC + "," + typ + ")");
         EthernetFrame ethernetFrame;
         boolean gesendet = false;
 
@@ -127,7 +130,7 @@ public class Ethernet extends Protokoll {
      * Hier wird zu jeder Netzwerkkarte ein Thread zur Ueberwachung des Eingangspuffers gestartet.
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), starten()");
         InternetKnoten knoten;
         EthernetThread interfaceBeobachter;
 
@@ -140,7 +143,7 @@ public class Ethernet extends Protokoll {
                 try {
                     threads.add(interfaceBeobachter);
                 } catch (Exception e) {
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
             }
         }
@@ -150,7 +153,7 @@ public class Ethernet extends Protokoll {
      * beendet alle laufenden EthernetThreads zur Ueberwachung der Eingangspuffer der Netzwerkkarten
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), beenden()");
         EthernetThread interfaceBeobachter;
 
         for (int x = 0; x < threads.size(); x++) {

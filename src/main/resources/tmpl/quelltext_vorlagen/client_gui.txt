@@ -165,7 +165,7 @@ public class GUIApplicationClientBausteinWindow extends GUIApplicationWindow {
 
 		client = (ClientBaustein) holeAnwendung();
 
-		Main.debug.println(getClass().toString()
+		LOG.debug(getClass().toString()
 				+ "\n\taktualisieren() aufgerufen"
 				+ "\n\tVerbindung hergestellt: " + client.istVerbunden());
 
@@ -188,7 +188,7 @@ public class GUIApplicationClientBausteinWindow extends GUIApplicationWindow {
 			tfServerPort.setEditable(true);
 		}
 
-		Main.debug.println(getClass().toString()
+		LOG.debug(getClass().toString()
 				+ "\n\taktualisieren() beendet");
 
 	}

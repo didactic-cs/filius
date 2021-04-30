@@ -25,7 +25,9 @@
  */
 package filius.software.email;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.TCPServerAnwendung;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
@@ -36,11 +38,13 @@ import filius.software.transportschicht.TCPSocket;
  * 
  */
 public class SMTPServer extends TCPServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(SMTPServer.class);
+
     private EmailServer emailServer;
 
     public SMTPServer(int port, EmailServer emailServer) {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPServer), constr: SMTPServer(" + port + "," + emailServer + ")");
 
         this.port = port;
@@ -69,7 +73,7 @@ public class SMTPServer extends TCPServerAnwendung {
 
     @Override
     protected void neuerMitarbeiter(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPServer), neuerMitarbeiter(" + socket + ")");
         SMTPMitarbeiter smtpMitarbeiter;
 

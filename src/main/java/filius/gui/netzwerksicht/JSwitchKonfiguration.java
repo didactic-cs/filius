@@ -42,106 +42,109 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.GUIContainer;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
 
 public class JSwitchKonfiguration extends JKonfiguration implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(JSwitchKonfiguration.class);
 
-	private static final long serialVersionUID = 1L;
-	private JTextField name; // Name,Name,20,String,editable,Neuer
-	private JCheckBox checkCloud;
+    private static final long serialVersionUID = 1L;
+    private JTextField name; // Name,Name,20,String,editable,Neuer
+    private JCheckBox checkCloud;
 
-	protected JSwitchKonfiguration(Hardware hardware) {
-		super(hardware);
-	}
+    protected JSwitchKonfiguration(Hardware hardware) {
+        super(hardware);
+    }
 
-	public void aenderungenAnnehmen() {
-		((Switch) holeHardware()).setName(name.getText());
+    public void aenderungenAnnehmen() {
+        ((Switch) holeHardware()).setName(name.getText());
 
-		GUIContainer.getGUIContainer().updateViewport();
-		updateAttribute();
-	}
+        GUIContainer.getGUIContainer().updateViewport();
+        updateAttribute();
+    }
 
-	public void changeAppearance() {
-		filius.Main.debug.println("DEBUG: changeAppearance invoked for Switch");
-		if (checkCloud.isSelected()) {
-			GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
-			        .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH_CLOUD)));
-			((Switch) holeHardware()).setCloud(true);
-		} else {
-			GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
-			        .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH)));
-			((Switch) holeHardware()).setCloud(false);
-		}
-	}
+    public void changeAppearance() {
+        LOG.debug("DEBUG: changeAppearance invoked for Switch");
+        if (checkCloud.isSelected()) {
+            GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
+                    .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH_CLOUD)));
+            ((Switch) holeHardware()).setCloud(true);
+        } else {
+            GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
+                    .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH)));
+            ((Switch) holeHardware()).setCloud(false);
+        }
+    }
 
-	@Override
-	protected void initAttributEingabeBox(Box box, Box rightBox) {
-		JLabel tempLabel;
-		Box tempBox;
-		Box tempBox2;
-		FocusListener focusListener;
-		ActionListener actionListener;
-		ItemListener itemListener;
+    @Override
+    protected void initAttributEingabeBox(Box box, Box rightBox) {
+        JLabel tempLabel;
+        Box tempBox;
+        Box tempBox2;
+        FocusListener focusListener;
+        ActionListener actionListener;
+        ItemListener itemListener;
 
-		actionListener = new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				aenderungenAnnehmen();
-			}
-		};
-		itemListener = new ItemListener() {
-			public void itemStateChanged(java.awt.event.ItemEvent evt) {
-				changeAppearance();
-			}
-		};
-		focusListener = new FocusListener() {
+        actionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                aenderungenAnnehmen();
+            }
+        };
+        itemListener = new ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                changeAppearance();
+            }
+        };
+        focusListener = new FocusListener() {
 
-			public void focusGained(FocusEvent arg0) {
-			}
+            public void focusGained(FocusEvent arg0) {}
 
-			public void focusLost(FocusEvent arg0) {
-				aenderungenAnnehmen();
-			}
+            public void focusLost(FocusEvent arg0) {
+                aenderungenAnnehmen();
+            }
 
-		};
+        };
 
-		tempLabel = new JLabel(messages.getString("jswitchkonfiguration_msg1"));
-		tempLabel.setPreferredSize(new Dimension(140, 10));
-		tempLabel.setVisible(true);
-		tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        tempLabel = new JLabel(messages.getString("jswitchkonfiguration_msg1"));
+        tempLabel.setPreferredSize(new Dimension(140, 10));
+        tempLabel.setVisible(true);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-		checkCloud = new JCheckBox(messages.getString("jswitchkonfiguration_msg3"));
-		checkCloud.setPreferredSize(new Dimension(160, 10));
-		checkCloud.setVisible(true);
-		checkCloud.setOpaque(false);
-		// checkCloud.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		checkCloud.addItemListener(itemListener);
+        checkCloud = new JCheckBox(messages.getString("jswitchkonfiguration_msg3"));
+        checkCloud.setPreferredSize(new Dimension(160, 10));
+        checkCloud.setVisible(true);
+        checkCloud.setOpaque(false);
+        // checkCloud.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        checkCloud.addItemListener(itemListener);
 
-		name = new JTextField(messages.getString("jswitchkonfiguration_msg2"));
-		name.addActionListener(actionListener);
-		name.addFocusListener(focusListener);
+        name = new JTextField(messages.getString("jswitchkonfiguration_msg2"));
+        name.addActionListener(actionListener);
+        name.addFocusListener(focusListener);
 
-		tempBox = Box.createHorizontalBox();
-		tempBox.setOpaque(false);
-		tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-		tempBox.setMaximumSize(new Dimension(400, 40));
-		tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-		tempBox.add(tempLabel);
-		tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
-		tempBox.add(name);
-		tempBox2 = Box.createVerticalBox();
-		tempBox2.add(tempBox);
-		tempBox2.add(Box.createVerticalStrut(10));
-		tempBox2.add(checkCloud);
-		box.add(tempBox2, BorderLayout.NORTH);
-	}
+        tempBox = Box.createHorizontalBox();
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(tempLabel);
+        tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
+        tempBox.add(name);
+        tempBox2 = Box.createVerticalBox();
+        tempBox2.add(tempBox);
+        tempBox2.add(Box.createVerticalStrut(10));
+        tempBox2.add(checkCloud);
+        box.add(tempBox2, BorderLayout.NORTH);
+    }
 
-	@Override
-	public void updateAttribute() {
-		name.setText(((Switch) holeHardware()).holeAnzeigeName());
-		checkCloud.setSelected(((Switch) holeHardware()).isCloud());
-	}
+    @Override
+    public void updateAttribute() {
+        name.setText(((Switch) holeHardware()).holeAnzeigeName());
+        checkCloud.setSelected(((Switch) holeHardware()).isCloud());
+    }
 
 }

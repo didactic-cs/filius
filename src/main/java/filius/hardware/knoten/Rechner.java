@@ -25,28 +25,32 @@
  */
 package filius.hardware.knoten;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 
 /**
  * @author Nadja
  */
+@SuppressWarnings("serial")
 public class Rechner extends Host implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(Rechner.class);
 
-	public static final String TYPE = messages.getString("hw_rechner_msg1");
+    public static final String TYPE = messages.getString("hw_rechner_msg1");
 
-	@Override
-	public String holeHardwareTyp() {
-		return TYPE;
-	}
+    @Override
+    public String holeHardwareTyp() {
+        return TYPE;
+    }
 
-	/**
-	 * Konstruktor wird nur zu Hilfszwecken in verschiedenen Klassen benutzt
-	 */
-	public Rechner() {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Rechner), constr: Rechner()");
+    /**
+     * Konstruktor wird nur zu Hilfszwecken in verschiedenen Klassen benutzt
+     */
+    public Rechner() {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Rechner), constr: Rechner()");
 
-		this.setName(messages.getString("hw_rechner_msg2"));
-	}
+        this.setName(messages.getString("hw_rechner_msg2"));
+    }
 }

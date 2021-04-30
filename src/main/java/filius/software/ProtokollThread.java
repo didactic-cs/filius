@@ -27,7 +27,8 @@ package filius.software;
 
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Diese Klasse ist die Oberklasse von Protokoll-Threads. Die Aufgabe ist, den Puffer zu ueberwachen, und die
@@ -37,6 +38,7 @@ import filius.Main;
  * 
  */
 public abstract class ProtokollThread<T> extends Thread {
+    private static Logger LOG = LoggerFactory.getLogger(ProtokollThread.class);
 
     /** ob der Thread gerade am laufen ist */
     protected boolean running = false;
@@ -67,7 +69,7 @@ public abstract class ProtokollThread<T> extends Thread {
      * mit dem Aufruf der Methode verarbeiteDatenEinheit() zur weiteren Verarbeitung weitergegeben.
      */
     public void run() {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (ProtkollThread), run()");
         while (running) {
             synchronized (puffer) {
@@ -102,12 +104,12 @@ public abstract class ProtokollThread<T> extends Thread {
      * der Thread nicht beendet wird.
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ProtokollThread), starten()");
         if (!running) {
             running = true;
             if (getState().equals(State.WAITING) || getState().equals(State.BLOCKED)) {
-                // Main.debug.println(getClass()+"\n\tProtokollThread: Thread laeuft bereits.");
+                // LOG.debug(getClass()+"\n\tProtokollThread: Thread laeuft bereits.");
             } else {
                 start();
             }
@@ -119,7 +121,7 @@ public abstract class ProtokollThread<T> extends Thread {
      * interrupt() aufgerufen, um die Verarbeitung fortzusetzen, damit der Thread dann beendet werden kann.
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ProtokollThread), beenden()");
         running = false;
         if (getState().equals(State.WAITING) || getState().equals(State.BLOCKED)) {

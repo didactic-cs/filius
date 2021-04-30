@@ -48,7 +48,9 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.InternalFrameEvent;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.lokal.Terminal;
 import filius.software.system.Dateisystem;
 
@@ -60,6 +62,7 @@ import filius.software.system.Dateisystem;
  */
 @SuppressWarnings("serial")
 public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
+    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationTerminalWindow.class);
 
     private static final Color BACKGROUND = new Color(0, 0, 0);
     private static final Color FOREGROUND = new Color(222, 222, 222);
@@ -273,8 +276,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     public void internalFrameOpened(InternalFrameEvent e) {}
 
     public void update(Observable arg0, Object arg1) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (GUIApplicationTerminalWindow), update(" + arg0 + "," + arg1 + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationTerminalWindow), update(" + arg0
+                + "," + arg1 + ")");
         if (arg1 != null && jobRunning) {
             if (arg1 instanceof Boolean) {
                 multipleObserverEvents = ((Boolean) arg1).booleanValue();

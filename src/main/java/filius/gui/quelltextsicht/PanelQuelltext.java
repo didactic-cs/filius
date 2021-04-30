@@ -36,93 +36,94 @@ import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PanelQuelltext extends JTabbedPane {
+    private static Logger LOG = LoggerFactory.getLogger(PanelQuelltext.class);
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Die Editoren fuer die Quelltextdateien. Als Schluessel wird der Dateipfad
-	 * der Quelltextdatei und als Wert das EditorPane verwendet.
-	 */
-	private Hashtable<String, JEditorPane> editorPanes;
+    /**
+     * Die Editoren fuer die Quelltextdateien. Als Schluessel wird der Dateipfad der Quelltextdatei und als Wert das
+     * EditorPane verwendet.
+     */
+    private Hashtable<String, JEditorPane> editorPanes;
 
-	/** Konstruktor zur Initialisierung der GUI-Komponenten */
-	public PanelQuelltext() {
-		super();
+    /** Konstruktor zur Initialisierung der GUI-Komponenten */
+    public PanelQuelltext() {
+        super();
 
-		editorPanes = new Hashtable<String, JEditorPane>();
-	}
+        editorPanes = new Hashtable<String, JEditorPane>();
+    }
 
-	/**
-	 * Zum Hinzufuegen eines neuen Editors zur Bearbeitung des Quelltextes.
-	 * 
-	 * @param neueDatei
-	 *            Dateipfad der Datei, in der der bearbeitete Quelltext
-	 *            gespeichert werden soll. Dieser Dateiname muss den neuen
-	 *            Klassennamen enthalten (z. B. /home/foo/NeueKlasse.java)
-	 */
-	public void hinzuEditor(String klassenName, String neueDatei) {
-		JScrollPane scrollPane;
-		JEditorPane editorPane;
+    /**
+     * Zum Hinzufuegen eines neuen Editors zur Bearbeitung des Quelltextes.
+     * 
+     * @param neueDatei
+     *            Dateipfad der Datei, in der der bearbeitete Quelltext gespeichert werden soll. Dieser Dateiname muss
+     *            den neuen Klassennamen enthalten (z. B. /home/foo/NeueKlasse.java)
+     */
+    public void hinzuEditor(String klassenName, String neueDatei) {
+        JScrollPane scrollPane;
+        JEditorPane editorPane;
 
-		editorPane = new JEditorPane();
-		editorPane.setEditable(true);
-		editorPane.setEnabled(true);
-		editorPane.setContentType("text/plain");
-		editorPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
-		editorPane.setText(ladeQuelltext(neueDatei));
+        editorPane = new JEditorPane();
+        editorPane.setEditable(true);
+        editorPane.setEnabled(true);
+        editorPane.setContentType("text/plain");
+        editorPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+        editorPane.setText(ladeQuelltext(neueDatei));
 
-		scrollPane = new JScrollPane(editorPane);
-		add(klassenName, scrollPane);
+        scrollPane = new JScrollPane(editorPane);
+        add(klassenName, scrollPane);
 
-		editorPanes.put(neueDatei, editorPane);
-	}
+        editorPanes.put(neueDatei, editorPane);
+    }
 
-	private String ladeQuelltext(String datei) {
-		String quellText = "";
-		RandomAccessFile quellDatei = null;
+    private String ladeQuelltext(String datei) {
+        String quellText = "";
+        RandomAccessFile quellDatei = null;
 
-		try {
-			quellDatei = new RandomAccessFile(datei, "r");
-			for (String line; (line = quellDatei.readLine()) != null;) {
-				quellText += line + "\n";
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace(Main.debug);
-		} finally {
-			try {
-				quellDatei.close();
-			} catch (IOException e) {
-				e.printStackTrace(Main.debug);
-			}
-		}
-		return quellText;
-	}
+        try {
+            quellDatei = new RandomAccessFile(datei, "r");
+            for (String line; (line = quellDatei.readLine()) != null;) {
+                quellText += line + "\n";
+            }
+        } catch (Exception e1) {
+            LOG.debug("", e1);
+        } finally {
+            try {
+                quellDatei.close();
+            } catch (IOException e) {
+                LOG.debug("", e);
+            }
+        }
+        return quellText;
+    }
 
-	/**
-	 * Methode zum Speichern aller bearbeiteten bzw. neu erstellten Quelltexte
-	 */
-	public void speicherQuelltexte() {
-		Enumeration dateipfade, editors;
-		JEditorPane pane;
-		String pfad;
-		FileWriter writer;
+    /**
+     * Methode zum Speichern aller bearbeiteten bzw. neu erstellten Quelltexte
+     */
+    public void speicherQuelltexte() {
+        Enumeration dateipfade, editors;
+        JEditorPane pane;
+        String pfad;
+        FileWriter writer;
 
-		dateipfade = editorPanes.keys();
-		editors = editorPanes.elements();
-		while (dateipfade.hasMoreElements() && editors.hasMoreElements()) {
-			pfad = (String) dateipfade.nextElement();
-			pane = (JEditorPane) editors.nextElement();
+        dateipfade = editorPanes.keys();
+        editors = editorPanes.elements();
+        while (dateipfade.hasMoreElements() && editors.hasMoreElements()) {
+            pfad = (String) dateipfade.nextElement();
+            pane = (JEditorPane) editors.nextElement();
 
-			try {
-				writer = new FileWriter(pfad, false);
-				writer.write(pane.getText());
-				writer.close();
-			} catch (IOException e2) {
-				e2.printStackTrace(Main.debug);
-			}
-		}
-	}
+            try {
+                writer = new FileWriter(pfad, false);
+                writer.write(pane.getText());
+                writer.close();
+            } catch (IOException e2) {
+                LOG.debug("", e2);
+            }
+        }
+    }
 }

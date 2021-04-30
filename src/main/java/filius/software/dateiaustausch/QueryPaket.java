@@ -27,85 +27,86 @@ package filius.software.dateiaustausch;
 
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Nadja Haßler
  */
 public class QueryPaket extends PeerToPeerPaket {
+    private static Logger LOG = LoggerFactory.getLogger(QueryPaket.class);
 
-	private String minimaleGeschwindigkeit; // (in kb/sek)
-	private String suchKriterien;
+    private String minimaleGeschwindigkeit; // (in kb/sek)
+    private String suchKriterien;
 
-	public QueryPaket(String mg, String sk) {
-		super();
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket("
-		        + mg + "," + sk + ")");
+    public QueryPaket(String mg, String sk) {
+        super();
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket(" + mg + ","
+                + sk + ")");
 
-		setPayload("0x80");
-		this.minimaleGeschwindigkeit = mg;
-		this.suchKriterien = sk;
-		this.setPayloadLength(payloadLengthBerechnen());
-	}
+        setPayload("0x80");
+        this.minimaleGeschwindigkeit = mg;
+        this.suchKriterien = sk;
+        this.setPayloadLength(payloadLengthBerechnen());
+    }
 
-	/**
-	 * wandelt einen String (wenn möglich) in ein QueryPaket um
-	 * 
-	 * @param string
-	 *            der umzuwandelnde String
-	 */
-	public QueryPaket(String string) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket("
-		        + string + ")");
-		// String wird nach "//" getrennt
-		StringTokenizer tk = new StringTokenizer(string, "//");
-		// Absichern der Informationen
-		guid = Integer.parseInt(tk.nextToken());
-		payload = tk.nextToken();
-		hops = Integer.parseInt(tk.nextToken());
-		ttl = Integer.parseInt(tk.nextToken());
-		payloadLength = Integer.parseInt(tk.nextToken());
-		minimaleGeschwindigkeit = tk.nextToken();
-		suchKriterien = tk.nextToken();
-	}
+    /**
+     * wandelt einen String (wenn möglich) in ein QueryPaket um
+     * 
+     * @param string
+     *            der umzuwandelnde String
+     */
+    public QueryPaket(String string) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket(" + string
+                + ")");
+        // String wird nach "//" getrennt
+        StringTokenizer tk = new StringTokenizer(string, "//");
+        // Absichern der Informationen
+        guid = Integer.parseInt(tk.nextToken());
+        payload = tk.nextToken();
+        hops = Integer.parseInt(tk.nextToken());
+        ttl = Integer.parseInt(tk.nextToken());
+        payloadLength = Integer.parseInt(tk.nextToken());
+        minimaleGeschwindigkeit = tk.nextToken();
+        suchKriterien = tk.nextToken();
+    }
 
-	public int payloadLengthBerechnen() {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
-		        + " (QueryPaket), payloadLengthBerechnen()");
-		int ergebnis = 0;
-		ergebnis = ergebnis + minimaleGeschwindigkeit.length() * 8 + suchKriterien.length() * 8;
-		return ergebnis;
-	}
+    public int payloadLengthBerechnen() {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryPaket), payloadLengthBerechnen()");
+        int ergebnis = 0;
+        ergebnis = ergebnis + minimaleGeschwindigkeit.length() * 8 + suchKriterien.length() * 8;
+        return ergebnis;
+    }
 
-	public String getMinimaleGeschwindigkeit() {
-		return minimaleGeschwindigkeit;
-	}
+    public String getMinimaleGeschwindigkeit() {
+        return minimaleGeschwindigkeit;
+    }
 
-	public void setMinimaleGeschwindigkeit(String minimaleGeschwindigkeit) {
-		this.minimaleGeschwindigkeit = minimaleGeschwindigkeit;
-	}
+    public void setMinimaleGeschwindigkeit(String minimaleGeschwindigkeit) {
+        this.minimaleGeschwindigkeit = minimaleGeschwindigkeit;
+    }
 
-	public String getSuchKriterien() {
-		return suchKriterien;
-	}
+    public String getSuchKriterien() {
+        return suchKriterien;
+    }
 
-	public void setSuchKriterien(String suchKriterien) {
-		this.suchKriterien = suchKriterien;
-	}
+    public void setSuchKriterien(String suchKriterien) {
+        this.suchKriterien = suchKriterien;
+    }
 
-	/**
-	 * wandelt ein QueryPaket in einen String um
-	 * 
-	 * @return der String das QueryPaket verpackt als String
-	 */
-	public String toString() {
-		if (getMinimaleGeschwindigkeit().equals("")) {
-			setMinimaleGeschwindigkeit(" ");
-		}
-		if (getSuchKriterien().equals("")) {
-			setSuchKriterien(" ");
-		}
-		return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength() + "//"
-		        + getMinimaleGeschwindigkeit() + "//" + getSuchKriterien();
-	}
+    /**
+     * wandelt ein QueryPaket in einen String um
+     * 
+     * @return der String das QueryPaket verpackt als String
+     */
+    public String toString() {
+        if (getMinimaleGeschwindigkeit().equals("")) {
+            setMinimaleGeschwindigkeit(" ");
+        }
+        if (getSuchKriterien().equals("")) {
+            setSuchKriterien(" ");
+        }
+        return getGuid() + "//" + getPayload() + "//" + getHops() + "//" + getTtl() + "//" + getPayloadLength() + "//"
+                + getMinimaleGeschwindigkeit() + "//" + getSuchKriterien();
+    }
 }

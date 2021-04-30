@@ -38,13 +38,16 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author Johannes Bade
  */
 public class JCablePanel extends JPanel implements Observer {
+    private static Logger LOG = LoggerFactory.getLogger(JCablePanel.class);
+
     private static final long serialVersionUID = 1L;
     private GUIKnotenItem ziel1, ziel2;
 
@@ -60,7 +63,7 @@ public class JCablePanel extends JPanel implements Observer {
     }
 
     public void updateBounds() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");
         int x1, x2, y1, y2, t1;
 
         // Theoretisch korrekte Positionen
@@ -88,8 +91,8 @@ public class JCablePanel extends JPanel implements Observer {
 
         // add 2 for each direction to take care of linewidth
         setBounds(x1 - 2, y1 - 2, x2 - x1 + 4, y2 - y1 + 4);
-        Main.debug.println("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2
-                + "  (W:" + (x2 - x1) + ", H:" + (y2 - y1) + ")");
+        LOG.debug("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2 + "  (W:"
+                + (x2 - x1) + ", H:" + (y2 - y1) + ")");
     }
 
     protected void paintComponent(Graphics g) {
@@ -115,8 +118,8 @@ public class JCablePanel extends JPanel implements Observer {
                            // lines (upper left to lower right corner)
         int kp2 = (y1 - this.getY() + y2 - this.getY()) / 4;
 
-        QuadCurve2D myCurve = new QuadCurve2D.Double(x1 - this.getX(), y1 - this.getY(), kp1, kp2, x2 - this.getX(), y2
-                - this.getY());
+        QuadCurve2D myCurve = new QuadCurve2D.Double(x1 - this.getX(), y1 - this.getY(), kp1, kp2, x2 - this.getX(),
+                y2 - this.getY());
 
         // Kurve malen
         g2.draw(myCurve);
@@ -130,8 +133,7 @@ public class JCablePanel extends JPanel implements Observer {
      * tested prior to actually use them for determining a point to be inside a bound of a curve or line, respectively.
      */
     public boolean clicked(int x, int y) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), clicked(" + x + "," + y
-                + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), clicked(" + x + "," + y + ")");
         int delta = 10;
 
         Rectangle2D absolutePointerRect = new Rectangle2D.Double(x - delta, y - delta, 2 * delta, 2 * delta);
@@ -165,8 +167,7 @@ public class JCablePanel extends JPanel implements Observer {
      *         Wird genutzt um Kabel blinken zu lassen :)
      */
     public void update(Observable o, Object arg) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), update(" + o + ","
-                + arg + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), update(" + o + "," + arg + ")");
 
         if (arg.equals(Boolean.TRUE)) {
             kabelFarbe = farbeBlinken;

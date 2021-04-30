@@ -52,7 +52,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.GUIContainer;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
@@ -70,6 +72,7 @@ import filius.software.firewall.Firewall;
 import filius.software.system.VermittlungsrechnerBetriebssystem;
 
 public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(JVermittlungsrechnerKonfiguration.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -99,7 +102,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     public void aenderungenAnnehmen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), aenderungenAnnehmen()");
         ListIterator it;
         Vermittlungsrechner vRechner;
@@ -120,12 +123,12 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
             if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, ipAdressen[i]))
                 nic.setIp(ipAdressen[i].getText());
             else
-                Main.debug.println("ERROR (" + this.hashCode() + "): IP-Adresse ungueltig " + ipAdressen[i].getText());
+                LOG.debug("ERROR (" + this.hashCode() + "): IP-Adresse ungueltig " + ipAdressen[i].getText());
 
             if (ueberpruefen(EingabenUeberpruefung.musterSubNetz, netzmasken[i]))
                 nic.setSubnetzMaske(netzmasken[i].getText());
             else
-                Main.debug.println("ERROR (" + this.hashCode() + "): Netzmaske ungueltig " + netzmasken[i].getText());
+                LOG.debug("ERROR (" + this.hashCode() + "): Netzmaske ungueltig " + netzmasken[i].getText());
         }
 
         GUIContainer.getGUIContainer().updateViewport();
@@ -133,7 +136,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     private void showFirewallDialog() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), firewallDialogAnzeigen()");
 
         Firewall firewall = ((VermittlungsrechnerBetriebssystem) ((Vermittlungsrechner) holeHardware())
@@ -148,7 +151,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     protected void initAttributEingabeBox(Box box, Box rightBox) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), initAttributEingabeBox(" + box + ")");
         Vermittlungsrechner vRechner;
         NetzwerkInterface tempNic;
@@ -392,11 +395,11 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         tpNetzwerkKarten.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent arg0) {
-                // Main.debug.println("JVermittlungsrechnerKonfiguration, ChangeListener, stateChanged("+arg0+")");
+                // LOG.debug("JVermittlungsrechnerKonfiguration, ChangeListener, stateChanged("+arg0+")");
                 JTabbedPane pane = (JTabbedPane) arg0.getSource();
                 // Get current tab
                 int sel = pane.getSelectedIndex();
-                // Main.debug.println("\tsource: "+pane+", index="+sel+", getComponentCount="+pane.getComponentCount());
+                // LOG.debug("\tsource: "+pane+", index="+sel+", getComponentCount="+pane.getComponentCount());
                 if (highlightedCable != null) {
                     highlightedCable.setAktiv(false);
                 }
@@ -494,7 +497,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     private void showConnectionsDialog() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), showBasicSettingsDialog()");
         GUIContainer.getGUIContainer().getProperty().minimieren();
         // basic dialog creation and settings
@@ -513,7 +516,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     public void doUnselectAction() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), doUnselectAction()");
         if (highlightedCable != null) {
             highlightedCable.setAktiv(false);
@@ -535,7 +538,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     public void updateAttribute() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), updateAttribute()");
         ListIterator it;
         Vermittlungsrechner vRechner;
@@ -591,7 +594,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     private Knoten holeVerbundeneKomponente(NetzwerkInterface nic) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), holeVerbundeneKomponente(" + nic + ")");
         Port lokalerAnschluss, entfernterAnschluss;
         Port[] ports;
@@ -624,7 +627,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
                         return knoten;
                 }
             } else {
-                Main.debug.println("ERROR (" + this.hashCode() + "): Knotentyp unbekannt.");
+                LOG.debug("ERROR (" + this.hashCode() + "): Knotentyp unbekannt.");
             }
         }
 

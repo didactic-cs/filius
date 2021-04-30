@@ -25,7 +25,9 @@
  */
 package filius.software.clientserver;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.VerbindungsException;
 import filius.rahmenprogramm.I18n;
 import filius.software.transportschicht.Socket;
@@ -36,6 +38,7 @@ import filius.software.transportschicht.Socket;
  * 
  */
 public abstract class ServerMitarbeiter extends Thread implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(ServerMitarbeiter.class);
 
     /** Die Server-Anwendung, die diesen Mitarbeiter verwaltet */
     protected ServerAnwendung server;
@@ -53,7 +56,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * @param socket
      */
     public ServerMitarbeiter(ServerAnwendung server, Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), constr: ServerMitarbeiter(" + server + "," + socket + ")");
         this.server = server;
         this.socket = socket;
@@ -75,14 +78,14 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * @param nachricht
      */
     protected void sendeNachricht(String nachricht) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), sendeNachricht(" + nachricht + ")");
         try {
             socket.senden(nachricht);
             server.benachrichtigeBeobachter("<<" + nachricht);
         } catch (Exception e) {
             server.benachrichtigeBeobachter(e.getMessage());
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
     }
 
@@ -91,7 +94,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * anderen zur Verarbeitung an die Methode verarbeitenNachricht() weiter gegeben.
      */
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), run()");
         String nachricht = null;
         while (running) {
@@ -113,13 +116,13 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
                 }
                 nachricht = null;
             } catch (VerbindungsException e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 server.benachrichtigeBeobachter(e.getMessage());
                 socket.beenden();
                 running = false;
                 server.entferneMitarbeiter(this);
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
                 server.benachrichtigeBeobachter(e.getMessage());
                 socket.schliessen();
                 running = false;
@@ -134,7 +137,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * der Thread nicht beendet wird.
      */
     public void starten() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), starten()");
         if (!running) {
             running = true;
@@ -149,7 +152,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * interrupt() aufgerufen, um die Verarbeitung fortzusetzen, damit der Thread dann beendet werden kann.
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), beenden()");
         shutdown(false);
     }

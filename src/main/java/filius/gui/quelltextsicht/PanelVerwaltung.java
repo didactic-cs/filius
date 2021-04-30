@@ -55,12 +55,15 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
 
 public class PanelVerwaltung extends JPanel implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(PanelVerwaltung.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -140,8 +143,8 @@ public class PanelVerwaltung extends JPanel implements I18n {
 
                 dateien[0] = Information.getInformation().getAnwendungenPfad() + "filius/software/clientserver/"
                         + klasse + "Mitarbeiter.java";
-                quelltext = ladeQuelltext(ResourceUtil
-                        .getResourcePath("tmpl/quelltext_vorlagen/server_mitarbeiter.txt"));
+                quelltext = ladeQuelltext(
+                        ResourceUtil.getResourcePath("tmpl/quelltext_vorlagen/server_mitarbeiter.txt"));
                 quelltext = quelltext.replaceAll("ServerBaustein", klasse);
                 speicherQuelltext(quelltext, dateien[0]);
 
@@ -161,8 +164,8 @@ public class PanelVerwaltung extends JPanel implements I18n {
             klasse = (String) tabelle.getValueAt(tabelle.getSelectedRow(), 1);
             klasse = klasse.substring(klasse.lastIndexOf(".") + 1);
 
-            file = new File(Information.getInformation().getAnwendungenPfad() + "filius/software/clientserver/"
-                    + klasse + "Mitarbeiter.java");
+            file = new File(Information.getInformation().getAnwendungenPfad() + "filius/software/clientserver/" + klasse
+                    + "Mitarbeiter.java");
 
             if (file.exists()) {
                 dateien = new String[3];
@@ -198,12 +201,12 @@ public class PanelVerwaltung extends JPanel implements I18n {
                 quellText += line + "\n";
             }
         } catch (Exception e1) {
-            e1.printStackTrace(Main.debug);
+            LOG.debug("", e1);
         } finally {
             try {
                 quellDatei.close();
             } catch (Exception e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
         }
         return quellText;
@@ -226,7 +229,7 @@ public class PanelVerwaltung extends JPanel implements I18n {
             writer.write(quelltext);
             writer.close();
         } catch (IOException e2) {
-            e2.printStackTrace(Main.debug);
+            LOG.debug("", e2);
         }
     }
 
@@ -507,7 +510,7 @@ public class PanelVerwaltung extends JPanel implements I18n {
             }
 
         } catch (IOException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         } finally {
             if (fw != null)
                 try {
@@ -565,7 +568,7 @@ public class PanelVerwaltung extends JPanel implements I18n {
                 dtm.addRow(zeile);
             }
         } catch (IOException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
         }
 
         tabelle.updateUI();

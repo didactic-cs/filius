@@ -44,6 +44,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.tools.ToolProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.Main;
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
@@ -56,6 +59,7 @@ import filius.rahmenprogramm.SzenarioVerwaltung;
 import filius.software.system.SystemSoftware;
 
 public class GUIMainMenu implements Serializable, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(GUIMainMenu.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -77,7 +81,7 @@ public class GUIMainMenu implements Serializable, I18n {
             btInfo;
 
     public GUIMainMenu() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
         Container c = JMainFrame.getJMainFrame().getContentPane();
 
         menupanel = new JBackgroundPanel();
@@ -169,7 +173,7 @@ public class GUIMainMenu implements Serializable, I18n {
                             entscheidung = JOptionPane.YES_OPTION;
                         }
                     } catch (Exception exc) {
-                        exc.printStackTrace(Main.debug);
+LOG.debug("",e);
                     }
                     if (entscheidung == JOptionPane.YES_OPTION) {
                         GUIContainer.getGUIContainer().clearAllItems();
@@ -233,7 +237,7 @@ public class GUIMainMenu implements Serializable, I18n {
                             entscheidung = JOptionPane.YES_OPTION;
                         }
                     } catch (Exception exc) {
-                        exc.printStackTrace(Main.debug);
+LOG.debug("",e);
                     }
                     if (entscheidung == JOptionPane.YES_OPTION
                             && GUIContainer.getGUIContainer().getActiveSite() != MODUS_AKTION) {
@@ -256,9 +260,9 @@ public class GUIMainMenu implements Serializable, I18n {
                                     Thread.sleep(10);
                                     GUIContainer.getGUIContainer().updateCables();
                                 } catch (FileNotFoundException e1) {
-                                    e1.printStackTrace(Main.debug);
+LOG.debug("",e);
                                 } catch (Exception e2) {
-                                    e2.printStackTrace(Main.debug);
+LOG.debug("",e);
                                 }
                             }
                         }
@@ -402,8 +406,7 @@ public class GUIMainMenu implements Serializable, I18n {
     // simulation
     // and possibly highlight in development view
     private void resetCableHighlighting(int mode) {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), resetCableHL(" + mode + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), resetCableHL(" + mode + ")");
         if (mode == MODUS_AKTION) { // change to simulation view: de-highlight
                                     // all cables
             for (GUIKabelItem cableItem : GUIContainer.getGUIContainer().getCableItems()) {
@@ -418,8 +421,7 @@ public class GUIMainMenu implements Serializable, I18n {
     }
 
     public synchronized void selectMode(int mode) {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), selectMode(" + mode + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), selectMode(" + mode + ")");
 
         if (mode == MODUS_ENTWURF) {
             resetCableHighlighting(mode); // de-highlight cables
@@ -458,7 +460,7 @@ public class GUIMainMenu implements Serializable, I18n {
                 btWizard.setEnabled(false);
             }
         } else if (mode == MODUS_AKTION && aktuellerModus != MODUS_AKTION) {
-            // Main.debug.println("\tMode: MODUS_AKTION");
+            // LOG.debug("\tMode: MODUS_AKTION");
             resetCableHighlighting(mode); // de-highlight cables
 
             btEntwurfsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/entwurfsmodus.png")));

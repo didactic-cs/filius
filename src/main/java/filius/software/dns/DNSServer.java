@@ -29,13 +29,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.clientserver.UDPServerAnwendung;
 import filius.software.system.Datei;
 import filius.software.system.Dateisystem;
 import filius.software.transportschicht.Socket;
 
 public class DNSServer extends UDPServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(DNSServer.class);
 
     private boolean recursiveResolutionEnabled = false;
 
@@ -49,15 +52,14 @@ public class DNSServer extends UDPServerAnwendung {
 
     public DNSServer() {
         super();
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), constr: DNSServer()");
 
         setPort(53);
     }
 
     public void starten() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), starten()");
         super.starten();
 
         Dateisystem dateisystem = getSystemSoftware().getDateisystem();
@@ -71,8 +73,7 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     public void beenden() {
-        Main.debug.println(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), beenden()");
         super.beenden();
     }
 
@@ -81,7 +82,7 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     public void hinzuRecord(String domainname, String typ, String rdata) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), hinzuRecord(" + domainname + "," + typ + "," + rdata + ")");
         ResourceRecord rr;
 
@@ -92,7 +93,7 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     private List<ResourceRecord> leseRecordListe() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + ", initialisiereRecordListe()");
 
         Dateisystem dateisystem = getSystemSoftware().getDateisystem();
@@ -114,7 +115,7 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     private void schreibeRecordListe(List<ResourceRecord> records) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), schreibeRecordListe()");
 
         StringBuffer text = new StringBuffer();
@@ -135,8 +136,8 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     public void changeSingleEntry(int recordIdx, int partIdx, String type, String newValue) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", changeSingleEntry(" + recordIdx + ","
-                + partIdx + "," + type + "," + newValue + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", changeSingleEntry(" + recordIdx + "," + partIdx
+                + "," + type + "," + newValue + ")");
         List<ResourceRecord> rrList = leseRecordListe();
         int countA = 0;
         // iterating whole list is necessary, since MX and A records are mixed
@@ -158,7 +159,7 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     public void loescheResourceRecord(String domainname, String typ) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), loescheResourceRecord(" + domainname + "," + typ + ")");
         List<ResourceRecord> rrList = leseRecordListe();
 
@@ -172,8 +173,8 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     public ResourceRecord holeRecord(String domainname, String typ) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (DNSServer), holeRecord(" + domainname + "," + typ + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), holeRecord("
+                + domainname + "," + typ + ")");
 
         for (ResourceRecord rr : leseRecordListe()) {
             if (rr.getDomainname().equalsIgnoreCase(domainname) && rr.getType().equals(typ)) {
@@ -215,7 +216,7 @@ public class DNSServer extends UDPServerAnwendung {
     }
 
     protected void neuerMitarbeiter(Socket socket) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), neuerMitarbeiter(" + socket + ")");
         DNSServerMitarbeiter dnsMitarbeiter = new DNSServerMitarbeiter(this, socket);
         dnsMitarbeiter.starten();

@@ -33,54 +33,56 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LadeZipDatei {
+    private static Logger LOG = LoggerFactory.getLogger(LadeZipDatei.class);
 
-	public void extrahierenArchiv(File archiv, File zielDir) throws Exception {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", extrahiereArchiv(" + archiv + ","
-		        + zielDir + ")");
-		if (!zielDir.exists()) {
-			zielDir.mkdir();
-		}
+    public void extrahierenArchiv(File archiv, File zielDir) throws Exception {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", extrahiereArchiv(" + archiv + "," + zielDir
+                + ")");
+        if (!zielDir.exists()) {
+            zielDir.mkdir();
+        }
 
-		ZipFile zipFile = new ZipFile(archiv);
-		Enumeration eingaenge = zipFile.entries();
+        ZipFile zipFile = new ZipFile(archiv);
+        Enumeration eingaenge = zipFile.entries();
 
-		byte[] buffer = new byte[16384];
-		int laenge;
-		while (eingaenge.hasMoreElements()) {
-			ZipEntry eingang = (ZipEntry) eingaenge.nextElement();
+        byte[] buffer = new byte[16384];
+        int laenge;
+        while (eingaenge.hasMoreElements()) {
+            ZipEntry eingang = (ZipEntry) eingaenge.nextElement();
 
-			String eingangFileName = eingang.getName();
+            String eingangFileName = eingang.getName();
 
-			File verzeichnis = baueVerzeichnisHierarchieFuer(eingangFileName, zielDir);
-			if (!verzeichnis.exists()) {
-				verzeichnis.mkdirs();
-			}
+            File verzeichnis = baueVerzeichnisHierarchieFuer(eingangFileName, zielDir);
+            if (!verzeichnis.exists()) {
+                verzeichnis.mkdirs();
+            }
 
-			if (!eingang.isDirectory()) {
-				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(zielDir,
-				        eingangFileName)));
+            if (!eingang.isDirectory()) {
+                BufferedOutputStream bos = new BufferedOutputStream(
+                        new FileOutputStream(new File(zielDir, eingangFileName)));
 
-				BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(eingang));
+                BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(eingang));
 
-				while ((laenge = bis.read(buffer)) > 0) {
-					bos.write(buffer, 0, laenge);
-				}
+                while ((laenge = bis.read(buffer)) > 0) {
+                    bos.write(buffer, 0, laenge);
+                }
 
-				bos.flush();
-				bos.close();
-				bis.close();
-			}
-		}
-	}
+                bos.flush();
+                bos.close();
+                bis.close();
+            }
+        }
+    }
 
-	private File baueVerzeichnisHierarchieFuer(String eingangName, File zielDir) {
-		Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + ", baueVerzeichnisHierarchieFuer("
-		        + eingangName + "," + zielDir + ")");
-		int lastIndex = eingangName.lastIndexOf('/');
-		String internalPathToEntry = eingangName.substring(0, lastIndex + 1);
-		return new File(zielDir, internalPathToEntry);
-	}
+    private File baueVerzeichnisHierarchieFuer(String eingangName, File zielDir) {
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", baueVerzeichnisHierarchieFuer(" + eingangName
+                + "," + zielDir + ")");
+        int lastIndex = eingangName.lastIndexOf('/');
+        String internalPathToEntry = eingangName.substring(0, lastIndex + 1);
+        return new File(zielDir, internalPathToEntry);
+    }
 }

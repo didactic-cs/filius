@@ -28,7 +28,9 @@ package filius.software.dns;
 import java.util.LinkedList;
 import java.util.concurrent.TimeoutException;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.VerbindungsException;
 import filius.hardware.Verbindung;
 import filius.software.clientserver.ClientAnwendung;
@@ -70,6 +72,7 @@ import filius.software.vermittlungsschicht.IP;
  */
 
 public class Resolver extends ClientAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(Resolver.class);
 
     /**
      * Methode zum Abruf eines Resource Record. Das Rueckgabeformat ist NAME TYPE CLASS TTL RDATA (Bsp. web.de. A IN
@@ -81,7 +84,7 @@ public class Resolver extends ClientAnwendung {
      */
     private DNSNachricht holeResourceRecord(String typ, String domainname, String dnsServer)
             throws java.util.concurrent.TimeoutException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeResourceRecord(" + typ + "," + domainname + ")");
         DNSNachricht anfrage, antwort = null;
         String tmp;
@@ -103,7 +106,7 @@ public class Resolver extends ClientAnwendung {
                     socket.senden(anfrage.toString());
                     tmp = socket.empfangen(10 * Verbindung.holeRTT());
                     if (tmp == null) {
-                        Main.debug.println("ERROR (" + this.hashCode() + "): keine Antwort auf Query empfangen");
+                        LOG.debug("ERROR (" + this.hashCode() + "): keine Antwort auf Query empfangen");
                         throw new TimeoutException();
                     }
 
@@ -114,7 +117,7 @@ public class Resolver extends ClientAnwendung {
                     socket.schliessen();
                     socket = null;
                 } catch (VerbindungsException e) {
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                     return null;
                 }
             }
@@ -136,7 +139,7 @@ public class Resolver extends ClientAnwendung {
      * @return
      */
     public String holeIPAdresse(String domainname, String dnsServer) throws TimeoutException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeIPAdresse(" + domainname + ")");
         DNSNachricht antwort;
         String adresse, dnsServerDomain;
@@ -186,7 +189,7 @@ public class Resolver extends ClientAnwendung {
     }
 
     public String holeIPAdresseMailServer(String domainname) throws TimeoutException {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeIPAdressMailServer(" + domainname + ")");
         DNSNachricht antwort = null;
         String mailserver = null, adresse, dnsServerDomain;
@@ -244,7 +247,7 @@ public class Resolver extends ClientAnwendung {
     }
 
     private String durchsucheRecordListe(String typ, String domainname, LinkedList<ResourceRecord> liste) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), durchsucheRecordListe(" + typ + "," + domainname + "," + liste + ")");
 
         for (ResourceRecord rr : liste) {

@@ -27,11 +27,14 @@ package filius.hardware;
 
 import java.io.Serializable;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.rahmenprogramm.Information;
 import filius.software.vermittlungsschicht.IP;
 
 public class NetzwerkInterface implements Serializable {
+    private static Logger LOG = LoggerFactory.getLogger(NetzwerkInterface.class);
 
     private static final long serialVersionUID = 1L;
     private String mac;
@@ -42,7 +45,7 @@ public class NetzwerkInterface implements Serializable {
     private Port anschluss;
 
     public NetzwerkInterface() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (NetzwerkInterface), constr: NetzwerkInterface()");
         setMac(Information.getInformation().holeFreieMACAdresse());
         // set initial IP address to the same value for all new devices

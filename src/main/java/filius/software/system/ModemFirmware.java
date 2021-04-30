@@ -32,7 +32,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.hardware.knoten.Modem;
 import filius.rahmenprogramm.I18n;
 import filius.software.netzzugangsschicht.ModemEmpfaenger;
@@ -59,6 +61,7 @@ import filius.software.netzzugangsschicht.ModemSender;
  */
 @SuppressWarnings("serial")
 public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
+    private static Logger LOG = LoggerFactory.getLogger(ModemFirmware.class);
 
     /**
      * Das Modem kann in zwei verschiedenen Modi betrieben werden. Als Server wartet es auf Verbindungswuensche und als
@@ -103,7 +106,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Verbindungen und die Ueberwachung des Socket-Status erfolgt in einem neuen Thread!
      */
     public synchronized void starteServer() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteServer()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteServer()");
         (new Thread(this)).start();
     }
 
@@ -113,20 +116,20 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * gestartet.
      */
     public void starteClient() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteClient()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteClient()");
         try {
             socket = new Socket(ipAdresse, port);
             aktiviereModemVerbindung();
         } catch (UnknownHostException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             benachrichtigeBeobacher(messages.getString("modemfirmware_msg1"));
             ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
         } catch (IOException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             benachrichtigeBeobacher(messages.getString("modemfirmware_msg2"));
             ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
         } catch (InterruptedException e) {
-            e.printStackTrace(Main.debug);
+            LOG.debug("", e);
             benachrichtigeBeobacher(null);
             ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
         }
@@ -188,7 +191,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Wenn noch Verbindungen bestehen werden diese abgebaut.
      */
     public void trennen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), trennen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), trennen()");
 
         deaktiviereModemVerbindung();
         if (mode == SERVER && serverSocket != null) {
@@ -202,7 +205,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
             try {
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace(Main.debug);
+                LOG.debug("", e);
             }
             socket = null;
         }
@@ -222,7 +225,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Datenweiterleitung geleert.
      */
     private void leerePortPuffer() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), leerePortPuffer()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), leerePortPuffer()");
         synchronized (((Modem) getKnoten()).getErstenAnschluss().holeEingangsPuffer()) {
             ((Modem) getKnoten()).getErstenAnschluss().holeEingangsPuffer().clear();
         }
@@ -234,7 +237,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Programmablauf zu unterbrechen, erfolgt das Warten in einem eigenen Thread.
      */
     public void run() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), run()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), run()");
         try {
             serverSocket = new ServerSocket(port);
             benachrichtigeBeobacher(null);
@@ -242,7 +245,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
             aktiviereModemVerbindung();
             serverSocket.close();
         } catch (Exception e) {
-            Main.debug.println("EXCEPTION (" + this.hashCode() + "): Modemverbindung beendet.");
+            LOG.debug("EXCEPTION (" + this.hashCode() + "): Modemverbindung beendet.");
             ((Modem) getKnoten()).setzeModemVerbindungAktiv(false);
         } finally {
             benachrichtigeBeobacher(null);

@@ -27,12 +27,14 @@ package filius.software.netzzugangsschicht;
 
 import java.io.Serializable;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Diese Klasse implementiert einen Frame auf der Netzzugangsschicht.
  */
 public class EthernetFrame implements Serializable {
+    private static Logger LOG = LoggerFactory.getLogger(EthernetFrame.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -53,9 +55,8 @@ public class EthernetFrame implements Serializable {
 
     /** Konstruktor zur Initialisierung der Attribute des Frames */
     public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ) {
-        Main.debug
-                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (EthernetFrame), constr: EthernetFrame("
-                        + daten + "," + quellMacAdresse + "," + zielMacAdresse + "," + typ + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EthernetFrame), constr: EthernetFrame(" + daten
+                + "," + quellMacAdresse + "," + zielMacAdresse + "," + typ + ")");
         this.zielMacAdresse = zielMacAdresse;
         this.quellMacAdresse = quellMacAdresse;
         this.typ = typ;

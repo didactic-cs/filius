@@ -30,7 +30,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author freischlad
@@ -44,17 +45,17 @@ import filius.Main;
  *         loader", does not itself have a parent but may serve as the parent of a ClassLoader instance.
  */
 public class FiliusClassLoader extends URLClassLoader {
+    private static Logger LOG = LoggerFactory.getLogger(FiliusClassLoader.class);
 
     private static FiliusClassLoader classLoader;
 
     protected FiliusClassLoader(ClassLoader parent) throws MalformedURLException {
         super(new URL[] { new File(Information.getInformation().getAnwendungenPfad()).toURI().toURL() }, parent);
-        Main.debug.println(
-                "INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: FiliusClassLoader(" + parent + ")");
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: FiliusClassLoader(" + parent + ")");
     }
 
     public static FiliusClassLoader getInstance(ClassLoader parent) {
-        Main.debug.println("INVOKED (static) filius.rahmenprogramm.FiliusClassLoader, getInstance()");
+        LOG.debug("INVOKED (static) filius.rahmenprogramm.FiliusClassLoader, getInstance()");
         if (classLoader == null) {
             try {
                 classLoader = new FiliusClassLoader(parent);

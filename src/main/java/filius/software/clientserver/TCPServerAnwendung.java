@@ -25,14 +25,17 @@
  */
 package filius.software.clientserver;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.vermittlungsschicht.IpPaket;
 
 public abstract class TCPServerAnwendung extends ServerAnwendung {
+    private static Logger LOG = LoggerFactory.getLogger(TCPServerAnwendung.class);
 
-	public TCPServerAnwendung() {
-		super(IpPaket.TCP);
-		Main.debug.println("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-		        + ", constr: TCPServerAnwendung()");
-	}
+    public TCPServerAnwendung() {
+        super(IpPaket.TCP);
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+                + ", constr: TCPServerAnwendung()");
+    }
 }

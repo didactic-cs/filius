@@ -28,10 +28,13 @@ package filius.hardware;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.software.netzzugangsschicht.EthernetFrame;
 
 public class Port implements Serializable {
+    private static Logger LOG = LoggerFactory.getLogger(Port.class);
 
     private static final long serialVersionUID = 1L;
     private LinkedList<EthernetFrame> eingangsPuffer = new LinkedList<EthernetFrame>();
@@ -57,8 +60,7 @@ public class Port implements Serializable {
     }
 
     public boolean setVerbindung(Verbindung verbindung) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), setVerbindung(" + verbindung
-                + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), setVerbindung(" + verbindung + ")");
         if (isPortFrei()) {
             this.verbindung = verbindung;
             return true;
@@ -68,7 +70,7 @@ public class Port implements Serializable {
     }
 
     public void entferneVerbindung() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), entferneVerbindung()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), entferneVerbindung()");
         this.verbindung = null;
     }
 

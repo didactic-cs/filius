@@ -27,7 +27,9 @@ package filius.software.transportschicht;
 
 import java.util.LinkedList;
 
-import filius.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.exception.SocketException;
 import filius.exception.VerbindungsException;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -38,6 +40,7 @@ import filius.software.vermittlungsschicht.IpPaket;
  * herzustellen. Ausserdem wird jede Nachricht in genau einem Segment uebertragen.
  */
 public class UDPSocket extends Socket {
+    private static Logger LOG = LoggerFactory.getLogger(UDPSocket.class);
 
     /** Liste eingehender Segmente */
     private LinkedList<UdpSegment> puffer = new LinkedList<UdpSegment>();
@@ -60,7 +63,7 @@ public class UDPSocket extends Socket {
     public UDPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort)
             throws VerbindungsException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.UDP);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + ")");
     }
 
@@ -79,7 +82,7 @@ public class UDPSocket extends Socket {
     public UDPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int lokalerPort)
             throws VerbindungsException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.UDP, lokalerPort);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + "," + lokalerPort + ")");
     }
 
@@ -95,7 +98,7 @@ public class UDPSocket extends Socket {
      */
     public UDPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws VerbindungsException {
         super(betriebssystem, lokalerPort, IpPaket.UDP);
-        Main.debug.println("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
+        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDPSocket), constr: UDPSocket("
                 + betriebssystem + "," + lokalerPort + ")");
     }
 
@@ -105,12 +108,12 @@ public class UDPSocket extends Socket {
      * @author carsten
      */
     public void hinzufuegen(String startIp, int startPort, Object segment) {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), hinzufuegen(" + startIp
-                + "," + startPort + "," + segment + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), hinzufuegen(" + startIp + ","
+                + startPort + "," + segment + ")");
         zielIp = startIp;
         zielPort = startPort;
 
-        // Main.debug.println(getClass().toString()
+        // LOG.debug(getClass().toString()
         // + "\n\thinzufuegen() wurde aufgerufen"
         // + "\n\tAbsender-Adresse: " + startIp + ":" + startPort
         // + "\n\tDaten: " + segment.toString());
@@ -128,8 +131,7 @@ public class UDPSocket extends Socket {
      * @return gibt den empfangenen Datenstring zurueck.
      */
     public synchronized String empfangen(long millis) {
-        Main.debug
-                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), empfangen(" + millis + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), empfangen(" + millis + ")");
         UdpSegment segment;
 
         synchronized (puffer) {
@@ -137,7 +139,7 @@ public class UDPSocket extends Socket {
                 try {
                     puffer.wait(millis);
                 } catch (InterruptedException e) {
-                    e.printStackTrace(Main.debug);
+                    LOG.debug("", e);
                 }
             }
             if (puffer.size() >= 1) {
@@ -155,14 +157,13 @@ public class UDPSocket extends Socket {
      * @return gibt den empfangenen Datenstring zurueck.
      */
     public synchronized String empfangen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), empfangen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), empfangen()");
         return empfangen(0);
     }
 
     /** Methode zum Senden einer Nachricht ueber UDP */
     public synchronized void senden(String nachricht) {
-        Main.debug
-                .println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), senden(" + nachricht + ")");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), senden(" + nachricht + ")");
         UdpSegment segment;
 
         segment = new UdpSegment();
@@ -179,7 +180,7 @@ public class UDPSocket extends Socket {
     }
 
     public synchronized void sendeBroadcast(String quellIp, String nachricht) {
-        Main.debug.println(
+        LOG.debug(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), sendeBroadcast(" + nachricht + ")");
         UdpSegment segment;
 
@@ -195,7 +196,7 @@ public class UDPSocket extends Socket {
      * Methode zum Schliessen eines Sockets. Der Port wird wieder freigegeben!
      */
     public void schliessen() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), schliessen()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), schliessen()");
         synchronized (puffer) {
             puffer.notifyAll();
         }
@@ -209,14 +210,14 @@ public class UDPSocket extends Socket {
      * 
      */
     public void beenden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), beenden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), beenden()");
         synchronized (puffer) {
             puffer.notifyAll();
         }
     }
 
     public void verbinden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), verbinden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), verbinden()");
 
         if (!verbunden) {
             if (modus == PASSIV) {
@@ -233,14 +234,14 @@ public class UDPSocket extends Socket {
                 eintragenPort();
                 verbunden = true;
             } catch (SocketException e) {
-                Main.debug.println("EXCEPTION (" + this.hashCode() + "): verbinden() NICHT erfolgreich");
-                e.printStackTrace(Main.debug);
+                LOG.debug("EXCEPTION (" + this.hashCode() + "): verbinden() NICHT erfolgreich");
+                LOG.debug("", e);
             }
         }
     }
 
     public boolean istVerbunden() {
-        Main.debug.println("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), istVerbunden()");
+        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), istVerbunden()");
         return verbunden;
     }
 
