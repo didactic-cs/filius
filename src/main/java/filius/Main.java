@@ -44,6 +44,9 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 import filius.gui.GUIContainer;
 import filius.gui.GUIMainMenu;
 import filius.gui.JMainFrame;
@@ -247,7 +250,17 @@ public class Main implements I18n {
                 else if (Information.getInformation(filiusArgs.currWD) == null)
                     System.exit(6);
             }
-            if (filiusArgs.log) {} else {}
+            if (filiusArgs.log) {
+                System.setProperty("FILIUS_LOG_LEVEL", "DEBUG");
+                LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+                loggerContext.reset();
+                JoranConfigurator configurator = new JoranConfigurator();
+                configurator.setContext(loggerContext);
+                try {
+                    configurator.doConfigure(configurator.getClass().getResourceAsStream("/logback.xml"));
+                    LOG.info("Log to file enabled.");
+                } catch (JoranException e) {}
+            }
             if (Information.getInformation(filiusArgs.currWD) == null) {
                 System.exit(6);
             }
