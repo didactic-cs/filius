@@ -48,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.skuzzle.semantic.Version;
+import de.skuzzle.semantic.Version.VersionFormatException;
 import filius.gui.GUIErrorHandler;
 import filius.gui.netzwerksicht.GUIDocuItem;
 import filius.gui.netzwerksicht.GUIKabelItem;
@@ -265,11 +266,19 @@ public class SzenarioVerwaltung extends Observable implements I18n {
                 int startIdx = versionInfo.indexOf(":") + 2;
                 String versionString = versionInfo.substring(startIdx, versionInfo.indexOf(" ", startIdx));
                 LOG.debug("File saved by Filius in version '" + versionString + "'");
-                Version fileVersion = Version.parseVersion(versionString.trim());
+                Version fileVersion = null;
+                try {
+                    fileVersion = Version.parseVersion(versionString.trim());
+                } catch (VersionFormatException e) {
+                    LOG.debug("Version string of project file is not a valid semantic version.");
+                }
                 Version programVersion = Version
                         .parseVersion(Information.getVersion().substring(0, versionInfo.indexOf(" ")));
 
-                if (fileVersion.compareTo(programVersion) < 0) {
+                if (fileVersion == null) {
+                    LOG.debug(
+                            "WARNING: version of scenario file could not be evaluated. Certain elements might not be rendered correctly any more!");
+                } else if (fileVersion.compareTo(programVersion) < 0) {
                     LOG.debug("WARNING: current Filius version is newer ("
                             + filius.rahmenprogramm.Information.getVersion()
                             + ") than version of scenario file, such that certain elements might not be rendered correctly any more!");

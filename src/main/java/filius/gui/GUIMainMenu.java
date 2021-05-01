@@ -47,7 +47,6 @@ import javax.tools.ToolProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import filius.Main;
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
@@ -173,7 +172,7 @@ public class GUIMainMenu implements Serializable, I18n {
                             entscheidung = JOptionPane.YES_OPTION;
                         }
                     } catch (Exception exc) {
-LOG.debug("",e);
+                        LOG.debug("", e);
                     }
                     if (entscheidung == JOptionPane.YES_OPTION) {
                         GUIContainer.getGUIContainer().clearAllItems();
@@ -237,7 +236,7 @@ LOG.debug("",e);
                             entscheidung = JOptionPane.YES_OPTION;
                         }
                     } catch (Exception exc) {
-LOG.debug("",e);
+                        LOG.debug("", e);
                     }
                     if (entscheidung == JOptionPane.YES_OPTION
                             && GUIContainer.getGUIContainer().getActiveSite() != MODUS_AKTION) {
@@ -260,9 +259,9 @@ LOG.debug("",e);
                                     Thread.sleep(10);
                                     GUIContainer.getGUIContainer().updateCables();
                                 } catch (FileNotFoundException e1) {
-LOG.debug("",e);
+                                    LOG.debug("Selected File could not be found.", e);
                                 } catch (Exception e2) {
-LOG.debug("",e);
+                                    LOG.debug(e2.getMessage(), e2);
                                 }
                             }
                         }
