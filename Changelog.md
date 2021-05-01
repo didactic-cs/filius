@@ -1,5 +1,13 @@
 # Changelog Filius
 
+## [1.12.3] - 2021-05-01
+### Changed
+ * Use now SLF4J and Logback for logging
+
+### Fixed
+ * Error when reading old Filius files because of non-compliant version strings fixed
+ * Fixed wrong data in data exchange detail section caused be shallow frame copies
+
 ## [1.12.2] - 2021-04-26
 ### Fixed
 * Fix exception after one node was deleted
@@ -21,7 +29,7 @@
  * SEQ and ACK numbers are now initialized with trailing zeros and formatted as decimal numbers for better readability
 
 ### Fixed
- * Version comparison (only visible in log outpug)
+ * Version comparison (only visible in log output)
  * Filius can know be installed in directories that contain '+' or '$'
  * SEQ number is now incremented after FIN reception
  * Help contents are now available from the start
