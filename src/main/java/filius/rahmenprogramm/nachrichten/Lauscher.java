@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Vector;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,7 +159,7 @@ public class Lauscher implements I18n {
 
         frameMitZeitstempel = new Object[2];
         frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
-        frameMitZeitstempel[1] = frame;
+        frameMitZeitstempel[1] = SerializationUtils.clone(frame);
 
         liste = (LinkedList<Object[]>) datenEinheiten.get(interfaceId);
         if (liste == null) {
