@@ -391,9 +391,6 @@ public class GUIEvents implements I18n {
 
     private void updateAktivesItem(int posX, int posY) {
         // Falls kein neues Objekt erstellt werden soll
-        if (aktiveslabel != null && aktiveslabel.getParent() != null) {
-            aktiveslabel.getParent().setComponentZOrder(aktiveslabel, aktiveslabel.getParent().getComponentCount() - 1);
-        }
         aktiveslabel = null;
         aktivesItem = null;
 
@@ -407,11 +404,11 @@ public class GUIEvents implements I18n {
                 if (templabel.inBounds(posX, posY)) {
                     aktivesItem = tempitem;
                     aktiveslabel = tempitem.getImageLabel();
-                    if (aktiveslabel.getParent() != null) {
-                        aktiveslabel.getParent().setComponentZOrder(aktiveslabel, 0);
-                    }
                 }
             }
+        }
+        if (aktiveslabel != null && aktiveslabel.getParent() != null) {
+            aktiveslabel.getParent().setComponentZOrder(aktiveslabel, 0);
         }
     }
 
