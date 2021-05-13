@@ -300,6 +300,7 @@ public class WebServer extends TCPServerAnwendung {
         vhosts.setDateiInhalt(text.toString());
         vhosts.setName("vhosts");
 
+        dateisystem.erstelleVerzeichnis(dateisystem.holeRootPfad(), "www.conf");
         dateisystem.speicherDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "www.conf", vhosts);
     }
 

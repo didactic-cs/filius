@@ -50,10 +50,9 @@ import org.slf4j.LoggerFactory;
  * @see javax.swing.tree.DefaultMutableTree
  * @see filius.software.system.Datei
  */
+@SuppressWarnings("serial")
 public class Dateisystem implements Serializable {
     private static Logger LOG = LoggerFactory.getLogger(Dateisystem.class);
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * Trennzeichen zwischen Verzeichnissen (und Datei) in einer Pfadangabe.
@@ -356,8 +355,7 @@ public class Dateisystem implements Serializable {
      * @return ob das Speichern erfolgreich war
      */
     public boolean speicherDatei(String verzeichnisPfad, Datei datei) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", speicherDatei(" + verzeichnisPfad + "," + datei
-                + ")");
+        LOG.debug("speicherDatei(" + verzeichnisPfad + "," + datei + ")");
         DefaultMutableTreeNode node = null;
 
         node = verzeichnisKnoten(verzeichnisPfad);
@@ -375,8 +373,8 @@ public class Dateisystem implements Serializable {
             }
             return true;
         } else {
-            LOG.debug("ERROR (" + this.hashCode() + "): Datei " + datei + " konnte nicht gespeichert werden, "
-                    + "weil Verzeichnis " + verzeichnisPfad + " nicht existiert.");
+            LOG.debug("Datei " + datei + " konnte nicht gespeichert werden, " + "weil Verzeichnis " + verzeichnisPfad
+                    + " nicht existiert.");
             return false;
         }
     }
