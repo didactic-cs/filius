@@ -1,5 +1,13 @@
 # Changelog Filius
 
+## [1.12.4] - 2021-05-01
+### Changed
+ * Log can now be enabled for stdout
+
+### Fixed
+ * Z layer of components in design mode fixed.
+ * Vhosts for web server will be persisted again.
+ 
 ## [1.12.3] - 2021-05-01
 ### Changed
  * Use now SLF4J and Logback for logging
