@@ -267,8 +267,8 @@ public class Lauscher implements I18n {
                         neuerEintrag[3] = ipPaket.getEmpfaenger();
                         neuerEintrag[4] = IP;
                         neuerEintrag[5] = PROTOKOLL_SCHICHTEN[1];
-                        neuerEintrag[6] = messages.getString("rp_lauscher_msg12") + ipPaket.getProtocol() + ", TTL: "
-                                + ipPaket.getTtl();
+                        neuerEintrag[6] = messages.getString("rp_lauscher_msg12") + ": " + ipPaket.getProtocol()
+                                + ", TTL: " + ipPaket.getTtl();
                         daten.addElement(neuerEintrag);
 
                         neuerEintrag = new Object[SPALTEN.length];
@@ -319,7 +319,7 @@ public class Lauscher implements I18n {
                             neuerEintrag[5] = PROTOKOLL_SCHICHTEN[2];
                             neuerEintrag[6] = "";
                         } else {
-                            LOG.debug("ERROR (" + this.hashCode() + "): Protokoll der Transportschicht ("
+                            LOG.error("ERROR (" + this.hashCode() + "): Protokoll der Transportschicht ("
                                     + ipPaket.getProtocol() + ") nicht bekannt.");
                         }
                         daten.addElement(neuerEintrag);

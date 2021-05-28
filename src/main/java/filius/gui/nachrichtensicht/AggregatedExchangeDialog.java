@@ -327,14 +327,18 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
                         layerNode.add(dateNode);
                     }
                     if (dataSet[6] != null && !dataSet[6].toString().isEmpty()) {
-                        String contentLabel = String.format("%-15s", messages.getString("rp_lauscher_msg7") + ": ");
+                        String contentLabel = messages.getString("rp_lauscher_msg7");
+                        if (dataSet[5] == Lauscher.PROTOKOLL_SCHICHTEN[3]) {
+                            contentLabel += " (" + dataSet[6].toString().length() + " Bytes)";
+                        }
+                        contentLabel += ": ";
                         if (dataSet[6].toString().contains("\n")) {
                             labelNode = new DefaultMutableTreeNode(contentLabel);
                             dateNode = new DefaultMutableTreeNode(dataSet[6]);
                             labelNode.add(dateNode);
                             layerNode.add(labelNode);
                         } else {
-                            dateNode = new DefaultMutableTreeNode(contentLabel + dataSet[6]);
+                            dateNode = new DefaultMutableTreeNode(String.format("%-15s", contentLabel) + dataSet[6]);
                             layerNode.add(dateNode);
                         }
                     }
