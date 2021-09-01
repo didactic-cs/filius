@@ -1,5 +1,9 @@
 # Changelog Filius
 
+## [1.12.5] - 2021-09-01
+### Fixed
+ * Templates for new applications work now with the new log framework
+ 
 ## [1.12.4] - 2021-05-01
 ### Changed
  * Log can now be enabled for stdout
