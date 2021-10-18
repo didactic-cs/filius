@@ -58,3 +58,11 @@ The bundled JRE (if available) is built with the following command:
 ```
 jlink --no-header-files --no-man-pages --compress=2 --strip-debug --add-modules java.base,java.desktop,java.instrument,java.management,java.naming,java.sql,java.xml.crypto,jdk.unsupported,java.compiler,jdk.compiler,jdk.zipfs --output java-runtime
 ```
+
+# Generate Documenation
+Source code is documented with Javadoc. Generate the API documentation with Maven:
+
+```
+mvn javadoc:javadoc
+```
+The documentation will be stored in the default output directory (target) in 'site/apidocs' as HTML pages.

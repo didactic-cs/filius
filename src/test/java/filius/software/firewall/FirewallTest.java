@@ -21,7 +21,7 @@ import filius.software.vermittlungsschicht.IpPaket;
 public class FirewallTest {
 
     private static final String DEST_IP_ADDRESS = "192.168.1.2";
-    private static final String SENDER_IP_ADDRESS = "192.168.1.1";
+    private static final String SENDER_IP_ADDRESS = "10.10.10.1";
 
     @BeforeClass
     public static void initI18N() {
@@ -35,13 +35,13 @@ public class FirewallTest {
         IpPaket ipPacket = new IpPaket(IpPaket.TCP);
         ipPacket.setSegment(segment);
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setFilterSYNSegmentsOnly(false);
 
         assertTrue(firewall.acceptIPPacket(ipPacket));
     }
 
-    private Firewall createActiveFirewallDefaultAccept(short defaultPolicy) {
+    private Firewall createActiveFirewall(short defaultPolicy) {
         Firewall firewall = new Firewall();
         Betriebssystem os = new Betriebssystem();
         os.setKnoten(new Rechner());
@@ -55,7 +55,7 @@ public class FirewallTest {
     public void testAcceptIPPacket_ICMP_Drop() throws Exception {
         IpPaket ipPacket = new IcmpPaket();
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setDropICMP(true);
 
         assertFalse(firewall.acceptIPPacket(ipPacket));
@@ -65,7 +65,7 @@ public class FirewallTest {
     public void testCheckAcceptIcmp_IsIcmpAndDropIcmp_DoNOTAccept() throws Exception {
         IcmpPaket icmp = new IcmpPaket();
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setDropICMP(true);
 
         assertFalse(firewall.checkAcceptIcmp(icmp));
@@ -75,7 +75,7 @@ public class FirewallTest {
     public void testCheckAcceptIcmp_IsIcmpAndNOTDropIcmp_DoAccept() throws Exception {
         IcmpPaket icmp = new IcmpPaket();
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setDropICMP(false);
 
         assertTrue(firewall.checkAcceptIcmp(icmp));
@@ -85,7 +85,7 @@ public class FirewallTest {
     public void testCheckAcceptIcmp_IsNOTIcmpAndDropIcmp_DoAccept() throws Exception {
         IpPaket paket = new IpPaket(IpPaket.TCP);
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setDropICMP(true);
 
         assertTrue(firewall.checkAcceptIcmp(paket));
@@ -95,7 +95,7 @@ public class FirewallTest {
     public void testCheckAcceptTCP_IsIcmp_Accept() throws Exception {
         IpPaket paket = new IcmpPaket();
 
-        Firewall firewall = createActiveFirewallDefaultAccept(DROP);
+        Firewall firewall = createActiveFirewall(DROP);
 
         assertTrue(firewall.checkAcceptTCP(paket));
 
@@ -105,9 +105,9 @@ public class FirewallTest {
     public void testCheckAcceptTCP_IsTCPRuleApplies_Drop() throws Exception {
         IpPaket paket = createIPPacketTcp(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setFilterSYNSegmentsOnly(false);
-        FirewallRule rule = createDropRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP);
+        FirewallRule rule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP, DROP);
 
         firewall.addRule(rule);
 
@@ -118,9 +118,9 @@ public class FirewallTest {
     public void testCheckAcceptTCP_IsTCPRuleAppliesNOSync_Accept() throws Exception {
         IpPaket paket = createIPPacketTcp(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setFilterSYNSegmentsOnly(true);
-        FirewallRule rule = createDropRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP);
+        FirewallRule rule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP, DROP);
         firewall.addRule(rule);
 
         assertTrue(firewall.checkAcceptTCP(paket));
@@ -130,15 +130,16 @@ public class FirewallTest {
     public void testCheckAcceptTCP_IsTCPAndRuleNOTApplies_NOTDrop() throws Exception {
         IpPaket paket = createIPPacketTcp(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
-        FirewallRule rule = createDropRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 99, FirewallRule.TCP);
+        Firewall firewall = createActiveFirewall(ACCEPT);
+        FirewallRule rule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 99, FirewallRule.TCP, DROP);
         firewall.addRule(rule);
 
         assertTrue(firewall.checkAcceptTCP(paket));
     }
 
-    private FirewallRule createDropRule(String sender, String dest, int port, short protocol) {
-        FirewallRule rule = new FirewallRule(sender, "255.255.255.0", dest, "255.255.255.0", port, protocol, DROP);
+    private FirewallRule createRule(String sender, String dest, int port, short protocol, short defaultAction) {
+        FirewallRule rule = new FirewallRule(sender, "255.255.255.0", dest, "255.255.255.0", port, protocol,
+                defaultAction);
         return rule;
     }
 
@@ -156,21 +157,47 @@ public class FirewallTest {
     public void testCheckAcceptUDP_IsUDPAndRuleApplies_Drop() throws Exception {
         IpPaket paket = createIPPacketUDP(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setFilterUdp(true);
-        FirewallRule rule = createDropRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP);
+        FirewallRule rule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP, DROP);
         firewall.addRule(rule);
 
         assertFalse(firewall.checkAcceptUDP(paket));
     }
 
     @Test
+    public void testCheckAcceptUDP_IsUDPAndRuleAppliesForDestination_Accept() throws Exception {
+        IpPaket paket = createIPPacketUDP(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 53);
+
+        Firewall firewall = createActiveFirewall(DROP);
+        firewall.setFilterUdp(true);
+        FirewallRule rule = createRule("", paket.getEmpfaenger(), ((UdpSegment) paket.getSegment()).getZielPort(),
+                FirewallRule.UDP, ACCEPT);
+        firewall.addRule(rule);
+
+        assertTrue(firewall.checkAcceptUDP(paket));
+    }
+
+    @Test
+    public void testCheckAcceptUDP_IsUDPAndRuleAppliesForSender_Accept() throws Exception {
+        IpPaket paket = createIPPacketUDP(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 53);
+
+        Firewall firewall = createActiveFirewall(DROP);
+        firewall.setFilterUdp(true);
+        FirewallRule rule = createRule("", paket.getSender(), ((UdpSegment) paket.getSegment()).getQuellPort(),
+                FirewallRule.UDP, ACCEPT);
+        firewall.addRule(rule);
+
+        assertTrue(firewall.checkAcceptUDP(paket));
+    }
+
+    @Test
     public void testCheckAcceptUDP_IsUDPAndRuleApplies_UDPFilterInactive_Accept() throws Exception {
         IpPaket paket = createIPPacketUDP(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
 
-        Firewall firewall = createActiveFirewallDefaultAccept(ACCEPT);
+        Firewall firewall = createActiveFirewall(ACCEPT);
         firewall.setFilterUdp(false);
-        FirewallRule rule = createDropRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP);
+        FirewallRule rule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP, DROP);
         firewall.addRule(rule);
 
         assertTrue(firewall.checkAcceptUDP(paket));
@@ -181,6 +208,7 @@ public class FirewallTest {
         paket.setSender(sender);
         paket.setEmpfaenger(dest);
         UdpSegment segment = new UdpSegment();
+        segment.setQuellPort(5555);
         segment.setZielPort(port);
         paket.setSegment(segment);
         return paket;

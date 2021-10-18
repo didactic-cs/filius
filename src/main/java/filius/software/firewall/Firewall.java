@@ -167,12 +167,14 @@ public class Firewall extends Anwendung implements I18n {
         boolean accept = true;
         if (packet.getProtocol() == IpPaket.TCP && isSegmentApplicable(packet)) {
             boolean foundRule = false;
+            Segment segment = (Segment) packet.getSegment();
             for (int i = 0; i < ruleset.size() && !foundRule; i++) {
                 FirewallRule firewallRule = ruleset.get(i);
-                boolean ruleToBeApplied = isProtocolApplicable(packet, firewallRule);
-                ruleToBeApplied = ruleToBeApplied && isSourceAddressApplicable(packet, firewallRule);
-                ruleToBeApplied = ruleToBeApplied && isDestAddressApplicable(packet, firewallRule);
-                ruleToBeApplied = ruleToBeApplied && isPortApplicable(packet, firewallRule);
+                boolean ruleToBeApplied = isProtocolApplicable(packet, firewallRule)
+                        && (isEndpointsApplicable(packet.getSender(), packet.getEmpfaenger(), segment.getZielPort(),
+                                firewallRule)
+                                || isEndpointsApplicable(packet.getEmpfaenger(), packet.getSender(),
+                                        segment.getQuellPort(), firewallRule));
 
                 if (ruleToBeApplied) { // if rule matches to current packet, then
                     notifyRuleApplication(i, firewallRule);
@@ -185,6 +187,14 @@ public class Firewall extends Anwendung implements I18n {
             }
         }
         return accept;
+    }
+
+    private boolean isEndpointsApplicable(String endpoint1IPAddress, String endpoint2IPAddress, int endpoint2Port,
+            FirewallRule firewallRule) {
+        boolean ruleToBeApplied = isSourceAddressApplicable(endpoint1IPAddress, firewallRule);
+        ruleToBeApplied = ruleToBeApplied && isDestAddressApplicable(endpoint2IPAddress, firewallRule);
+        ruleToBeApplied = ruleToBeApplied && isPortApplicable(endpoint2Port, firewallRule);
+        return ruleToBeApplied;
     }
 
     private void notifyRuleApplication(int i, FirewallRule firewallRule) {
@@ -209,12 +219,14 @@ public class Firewall extends Anwendung implements I18n {
         boolean accept = true;
         if (packet.getProtocol() == IpPaket.UDP && isSegmentApplicable(packet)) {
             boolean foundRule = false;
+            Segment segment = (Segment) packet.getSegment();
             for (int i = 0; i < ruleset.size(); i++) {
                 FirewallRule firewallRule = ruleset.get(i);
-                boolean ruleToBeApplied = isProtocolApplicable(packet, firewallRule);
-                ruleToBeApplied = ruleToBeApplied && isSourceAddressApplicable(packet, firewallRule);
-                ruleToBeApplied = ruleToBeApplied && isDestAddressApplicable(packet, firewallRule);
-                ruleToBeApplied = ruleToBeApplied && isPortApplicable(packet, firewallRule);
+                boolean ruleToBeApplied = isProtocolApplicable(packet, firewallRule)
+                        && (isEndpointsApplicable(packet.getSender(), packet.getEmpfaenger(), segment.getZielPort(),
+                                firewallRule)
+                                || isEndpointsApplicable(packet.getEmpfaenger(), packet.getSender(),
+                                        segment.getQuellPort(), firewallRule));
 
                 if (ruleToBeApplied) { // if rule matches to current packet, then
                     notifyRuleApplication(i, firewallRule);
@@ -229,10 +241,8 @@ public class Firewall extends Anwendung implements I18n {
         return accept;
     }
 
-    private boolean isPortApplicable(IpPaket packet, FirewallRule firewallRule) {
-        return firewallRule.port == FirewallRule.ALL_PORTS
-                || (((Segment) packet.getSegment()).getZielPort() == firewallRule.port
-                        || ((Segment) packet.getSegment()).getQuellPort() == firewallRule.port);
+    private boolean isPortApplicable(int port, FirewallRule firewallRule) {
+        return firewallRule.port == FirewallRule.ALL_PORTS || port == firewallRule.port;
     }
 
     private boolean isProtocolApplicable(IpPaket packet, FirewallRule firewallRule) {
@@ -240,12 +250,12 @@ public class Firewall extends Anwendung implements I18n {
                 || (packet.getProtocol() == (int) firewallRule.protocol);
     }
 
-    private boolean isDestAddressApplicable(IpPaket packet, FirewallRule firewallRule) {
-        return firewallRule.destIP.isEmpty() || VermittlungsProtokoll.gleichesRechnernetz(packet.getEmpfaenger(),
-                firewallRule.destIP, firewallRule.destMask);
+    private boolean isDestAddressApplicable(String ipAddress, FirewallRule firewallRule) {
+        return firewallRule.destIP.isEmpty()
+                || VermittlungsProtokoll.gleichesRechnernetz(ipAddress, firewallRule.destIP, firewallRule.destMask);
     }
 
-    private boolean isSourceAddressApplicable(IpPaket packet, FirewallRule firewallRule) {
+    private boolean isSourceAddressApplicable(String ipAddress, FirewallRule firewallRule) {
         boolean ruleToBeApplied = false;
         if (firewallRule.srcIP.isEmpty()) {
             ruleToBeApplied = true;
@@ -253,14 +263,13 @@ public class Firewall extends Anwendung implements I18n {
             if (firewallRule.srcIP.equals(FirewallRule.SAME_NETWORK)) {
                 for (NetzwerkInterface iface : ((InternetKnoten) getSystemSoftware().getKnoten())
                         .getNetzwerkInterfaces()) {
-                    if (VermittlungsProtokoll.gleichesRechnernetz(packet.getSender(), iface.getIp(),
-                            iface.getSubnetzMaske())) {
+                    if (VermittlungsProtokoll.gleichesRechnernetz(ipAddress, iface.getIp(), iface.getSubnetzMaske())) {
                         ruleToBeApplied = true;
                         break;
                     }
                 }
             } else {
-                ruleToBeApplied = VermittlungsProtokoll.gleichesRechnernetz(packet.getSender(), firewallRule.srcIP,
+                ruleToBeApplied = VermittlungsProtokoll.gleichesRechnernetz(ipAddress, firewallRule.srcIP,
                         firewallRule.srcMask);
             }
         }
