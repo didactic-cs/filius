@@ -44,6 +44,7 @@ import javax.swing.JTextField;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.FormSubmitEvent;
+import javax.swing.text.html.FormSubmitEvent.MethodType;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -274,9 +275,12 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 
                     // in diesem Fall kam das Event vom Submit-Button:
                     if (e instanceof FormSubmitEvent) {
-                        FormSubmitEvent evt = (FormSubmitEvent) e;
                         // Zerlegen erfolgt erst im Server
-                        String postDatenteil = evt.getData();
+                        String postDatenteil = "";
+                        FormSubmitEvent formSubmitEvent = (FormSubmitEvent) e;
+                        if (formSubmitEvent.getMethod() == MethodType.POST) {
+                            postDatenteil = formSubmitEvent.getData();
+                        }
                         abrufenWebseite(url, postDatenteil);
                     } else {
                         abrufenWebseite(url, null);
