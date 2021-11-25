@@ -68,7 +68,7 @@ public class GUIMainMenu implements Serializable, I18n {
 
     private JBackgroundPanel menupanel;
 
-    private JSlider verzoegerung;
+    private JSlider simulationSpeedInPercent;
 
     private FileFilter filiusFileFilter;
 
@@ -298,19 +298,21 @@ public class GUIMainMenu implements Serializable, I18n {
         geschwindigkeit.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
         geschwindigkeit.setBounds(612, 10, 120, 44);
 
-        verzoegerung = new JSlider(0, 100);
-        verzoegerung.setToolTipText(messages.getString("guimainmemu_msg16"));
-        verzoegerung.setMaximum(10);
-        verzoegerung.setMinimum(1);
-        verzoegerung.setValue(verzoegerung.getMaximum());
-        Verbindung.setzeVerzoegerungsFaktor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
-        verzoegerung.setBounds(510, 10, 100, 44);
-        verzoegerung.setOpaque(false);
-        verzoegerung.addChangeListener(new ChangeListener() {
+        simulationSpeedInPercent = new JSlider(0, 100);
+        simulationSpeedInPercent.setToolTipText(messages.getString("guimainmemu_msg16"));
+        simulationSpeedInPercent.setMaximum(100);
+        simulationSpeedInPercent.setMinimum(1);
+        simulationSpeedInPercent.setValue(simulationSpeedInPercent.getMaximum());
+        Verbindung.setzeVerzoegerungsFaktor(
+                simulationSpeedInPercent.getMaximum() - simulationSpeedInPercent.getValue() + 1);
+        simulationSpeedInPercent.setBounds(510, 10, 100, 44);
+        simulationSpeedInPercent.setOpaque(false);
+        simulationSpeedInPercent.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent arg0) {
-                Verbindung.setzeVerzoegerungsFaktor(verzoegerung.getMaximum() - verzoegerung.getValue() + 1);
-                geschwindigkeit.setText("" + verzoegerung.getValue() * 10 + "%");
+                Verbindung.setzeVerzoegerungsFaktor(
+                        simulationSpeedInPercent.getMaximum() - simulationSpeedInPercent.getValue() + 1);
+                geschwindigkeit.setText("" + simulationSpeedInPercent.getValue() + "%");
             }
 
         });
@@ -323,7 +325,7 @@ public class GUIMainMenu implements Serializable, I18n {
         menupanel.add(btNeu);
         menupanel.add(btOeffnen);
         menupanel.add(btSpeichern);
-        menupanel.add(verzoegerung);
+        menupanel.add(simulationSpeedInPercent);
         menupanel.add(geschwindigkeit);
         if (isSoftwareWizardEnabled()) {
             menupanel.add(btWizard);
@@ -368,12 +370,12 @@ public class GUIMainMenu implements Serializable, I18n {
     }
 
     public void changeSlider(int diff) {
-        if (diff < 0 && verzoegerung.getValue() + diff < 1) {
-            verzoegerung.setValue(1);
-        } else if (diff > 0 && verzoegerung.getValue() + diff > 10) {
-            verzoegerung.setValue(10);
+        if (diff < 0 && simulationSpeedInPercent.getValue() + diff < 1) {
+            simulationSpeedInPercent.setValue(1);
+        } else if (diff > 0 && simulationSpeedInPercent.getValue() + diff > 10) {
+            simulationSpeedInPercent.setValue(10);
         } else
-            verzoegerung.setValue(verzoegerung.getValue() + diff);
+            simulationSpeedInPercent.setValue(simulationSpeedInPercent.getValue() + diff);
     }
 
     public boolean doClick(String button) { // manually perform click event on a
@@ -482,7 +484,7 @@ public class GUIMainMenu implements Serializable, I18n {
             }
 
             geschwindigkeit.setEnabled(true);
-            verzoegerung.setEnabled(true);
+            simulationSpeedInPercent.setEnabled(true);
         }
         aktuellerModus = mode;
     }

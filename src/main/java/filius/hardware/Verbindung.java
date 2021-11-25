@@ -45,7 +45,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     /**
      * Verzoegerung der Uebertragung in Millisekunden, wenn der Verzoegerungsfaktor 1 ist.
      */
-    private static final int MIN_VERZOEGERUNG = 50;
+    private static final int MIN_VERZOEGERUNG_IN_MILLIS = 5;
 
     /** Faktor der Verzoegerungszeit, der zwischen 1 und 100 */
     private static int verzoegerungsFaktor = 1;
@@ -162,12 +162,12 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
 
     /**
      * Gibt die Verzoegerung einer Verbindung zwischen zwei Knoten im Rechnernetz in Millisekunden zurueck. Dazu wird
-     * die minimale Verzoegerungszeit von 50 Millisekunden mit dem Verzoegerungsfaktor multipliziert.
+     * die minimale Verzoegerungszeit mit dem Verzoegerungsfaktor multipliziert.
      * 
      * @return Verzoegerung der Uebertragung zwischen zwei Knoten im Rechnernetz in Millisekunden
      */
     public static int holeVerzoegerung() {
-        return verzoegerungsFaktor * MIN_VERZOEGERUNG;
+        return verzoegerungsFaktor * MIN_VERZOEGERUNG_IN_MILLIS;
     }
 
     public static void setRTTfactor(int factor) {
