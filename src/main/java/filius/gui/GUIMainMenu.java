@@ -292,7 +292,7 @@ public class GUIMainMenu implements Serializable, I18n {
         btInfo.addActionListener(al);
         btHilfe.addActionListener(al);
 
-        geschwindigkeit = new JLabel("100%");
+        geschwindigkeit = new JLabel();
         geschwindigkeit.setVisible(true);
         geschwindigkeit.setToolTipText(messages.getString("guimainmemu_msg15"));
         geschwindigkeit.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
@@ -302,20 +302,15 @@ public class GUIMainMenu implements Serializable, I18n {
         simulationSpeedInPercent.setToolTipText(messages.getString("guimainmemu_msg16"));
         simulationSpeedInPercent.setMaximum(100);
         simulationSpeedInPercent.setMinimum(1);
-        simulationSpeedInPercent.setValue(simulationSpeedInPercent.getMaximum());
-        Verbindung.setzeVerzoegerungsFaktor(
-                simulationSpeedInPercent.getMaximum() - simulationSpeedInPercent.getValue() + 1);
+        simulationSpeedInPercent.setValue(100 - Verbindung.holeVerzoegerungsFaktor());
         simulationSpeedInPercent.setBounds(510, 10, 100, 44);
         simulationSpeedInPercent.setOpaque(false);
         simulationSpeedInPercent.addChangeListener(new ChangeListener() {
-
             public void stateChanged(ChangeEvent arg0) {
-                Verbindung.setzeVerzoegerungsFaktor(
-                        simulationSpeedInPercent.getMaximum() - simulationSpeedInPercent.getValue() + 1);
-                geschwindigkeit.setText("" + simulationSpeedInPercent.getValue() + "%");
+                updateLatency();
             }
-
         });
+        updateLatency();
 
         menupanel.setLayout(null);
 
@@ -344,6 +339,12 @@ public class GUIMainMenu implements Serializable, I18n {
                 return messages.getString("guimainmemu_msg13");
             }
         };
+    }
+
+    private void updateLatency() {
+        Verbindung.setzeVerzoegerungsFaktor(
+                simulationSpeedInPercent.getMaximum() - simulationSpeedInPercent.getValue() + 1);
+        geschwindigkeit.setText("" + simulationSpeedInPercent.getValue() + "%");
     }
 
     private void initCurrentFileOrDirSelection(JFileChooser fcLaden) {

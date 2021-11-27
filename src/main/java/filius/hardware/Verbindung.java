@@ -48,7 +48,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     private static final int MIN_VERZOEGERUNG_IN_MILLIS = 5;
 
     /** Faktor der Verzoegerungszeit, der zwischen 1 und 100 */
-    private static int verzoegerungsFaktor = 1;
+    private static int verzoegerungsFaktor = 10;
 
     /**
      * maximale Anzahl von Hops zum Datenaustausch. Diese Zahl wird verwendet, um eine Round-Trip-Time (RTT) zu
@@ -137,6 +137,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
         threadSimplexZwei.interrupt();
     }
 
+    /** Value between 1 (low latency) and 100 (highest latency) */
     public static int holeVerzoegerungsFaktor() {
         return verzoegerungsFaktor;
     }
