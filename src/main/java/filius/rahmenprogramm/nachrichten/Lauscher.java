@@ -36,6 +36,7 @@ import java.util.ListIterator;
 import java.util.Vector;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -359,16 +360,58 @@ public class Lauscher implements I18n {
                         neuerEintrag[1] = timestampStr;
                         neuerEintrag[2] = source;
                         neuerEintrag[3] = dest;
-                        neuerEintrag[4] = "";
                         neuerEintrag[5] = PROTOKOLL_SCHICHTEN[3];
                         if (ipPaket.getProtocol() == IpPaket.TCP) {
                             neuerEintrag[6] = tcpSeg.getDaten();
                         } else if (ipPaket.getProtocol() == IpPaket.UDP) {
                             neuerEintrag[6] = udpSeg.getDaten();
                         }
-
-                        if (neuerEintrag[6] != null && !((String) neuerEintrag[6]).trim().equals(""))
+                        String payload = (String) neuerEintrag[6];
+                        if (payload != null && !payload.trim().equals("")) {
+                            String protocol = "";
+                            if (StringUtils.containsIgnoreCase(payload, "http/")) {
+                                protocol = "HTTP";
+                            } else if (StringUtils.contains(payload, "//0x00//")
+                                    || StringUtils.contains(payload, "//0x01//")
+                                    || StringUtils.contains(payload, "//0x80//")
+                                    || StringUtils.contains(payload, "//0x81//")
+                                    || StringUtils.contains(payload, "//0x40//")) {
+                                protocol = "GNT";
+                            } else if (StringUtils.startsWithIgnoreCase(payload, "+OK")
+                                    || StringUtils.startsWithIgnoreCase(payload, "-ERR")
+                                    || StringUtils.startsWithIgnoreCase(payload, "USER ")
+                                    || StringUtils.startsWithIgnoreCase(payload, "PASS ")
+                                    || StringUtils.startsWithIgnoreCase(payload, "STAT ")
+                                    || StringUtils.startsWithIgnoreCase(payload, "LIST ")
+                                    || StringUtils.startsWithIgnoreCase(payload, "RETR ")
+                                    || StringUtils.startsWithIgnoreCase(payload, "DELE ")
+                                    || StringUtils.startsWithIgnoreCase(payload, "NOOP")
+                                    || StringUtils.startsWithIgnoreCase(payload, "RSET")
+                                    || StringUtils.startsWithIgnoreCase(payload, "QUIT")
+                                    || StringUtils.startsWithIgnoreCase(payload, "TOP")) {
+                                protocol = "POP3";
+                            } else if (StringUtils.startsWithIgnoreCase(payload, "1")
+                                    || StringUtils.startsWithIgnoreCase(payload, "2")
+                                    || StringUtils.startsWithIgnoreCase(payload, "3")
+                                    || StringUtils.startsWithIgnoreCase(payload, "4")
+                                    || StringUtils.startsWithIgnoreCase(payload, "5")
+                                    || StringUtils.startsWithIgnoreCase(payload, "HELO")
+                                    || StringUtils.startsWithIgnoreCase(payload, "EHELO")
+                                    || StringUtils.startsWithIgnoreCase(payload, "MAIL FROM")
+                                    || StringUtils.startsWithIgnoreCase(payload, "RCPT TO")
+                                    || StringUtils.startsWithIgnoreCase(payload, "DATA")
+                                    || StringUtils.startsWithIgnoreCase(payload, "From")
+                                    || StringUtils.startsWithIgnoreCase(payload, "QUIT")) {
+                                protocol = "SMTP";
+                            } else if (StringUtils.contains(payload, "ID=") && StringUtils.contains(payload, "QR=")
+                                    && StringUtils.contains(payload, "RCODE=")) {
+                                protocol = "DNS";
+                            } else if (StringUtils.contains(payload, "DHCP")) {
+                                protocol = "DHCP";
+                            }
+                            neuerEintrag[4] = protocol;
                             daten.addElement(neuerEintrag);
+                        }
                     } else if (frame.getTyp().equals(EthernetFrame.ARP)) {
                         arpPaket = (ArpPaket) frame.getDaten();
                         neuerEintrag[2] = arpPaket.getQuellIp();

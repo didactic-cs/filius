@@ -825,7 +825,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 if (currentFrameSerialNumber < nextFrameSerialNumber) {
                     String message = packetData[1] + " " + packetData[4] + " " + packetData[2] + " > " + packetData[3]
                             + " " + packetData[6];
-                    benachrichtigeBeobachter("\n  " + message.trim().replace("\n", " | "));
+                    benachrichtigeBeobachter("\n  " + message.trim().replace("\n", "  "));
                     offset++;
                 }
             }
