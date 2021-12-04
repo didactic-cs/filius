@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import filius.hardware.NetzwerkInterface;
 import filius.software.ProtokollThread;
-import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
 
 /**
@@ -56,31 +55,18 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
                 + " (ARPThread), verarbeiteDatenEinheit(" + arpPaket.toString() + ")");
 
         // Aus jedem ARP-Paket wird ein neuer ARP-Eintrag erzeugt
-        if (!arpPaket.getQuellIp().equalsIgnoreCase("0.0.0.0")) {
-            vermittlung.hinzuARPTabellenEintrag(arpPaket.getQuellIp(), arpPaket.getQuellMacAdresse());
+        if (!arpPaket.getSenderIP().equalsIgnoreCase("0.0.0.0")) {
+            vermittlung.hinzuARPTabellenEintrag(arpPaket.getSenderIP(), arpPaket.getSenderMAC());
         }
 
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware();
-        NetzwerkInterface nic = vermittlung.getBroadcastNic(arpPaket.getQuellIp());
+        NetzwerkInterface nic = vermittlung.getBroadcastNic(arpPaket.getSenderIP());
 
         // wenn die Anfrage eine Anfrage fuer eine eigene
         // IP-Adresse ist, wird eine Antwort verschickt
-        if (nic != null && arpPaket.getZielMacAdresse().equalsIgnoreCase("ff:ff:ff:ff:ff:ff")
-                && arpPaket.getZielIp().equalsIgnoreCase(nic.getIp())) {
-            ArpPaket antwortArp = new ArpPaket();
-            antwortArp.setProtokollTyp(arpPaket.getProtokollTyp());
-            antwortArp.setQuellIp(nic.getIp());
-            antwortArp.setQuellMacAdresse(nic.getMac());
-
-            if (arpPaket.getQuellIp().equalsIgnoreCase("0.0.0.0")) {
-                antwortArp.setZielIp("255.255.255.255");
-                antwortArp.setZielMacAdresse("ff:ff:ff:ff:ff:ff");
-            } else {
-                antwortArp.setZielIp(arpPaket.getQuellIp());
-                antwortArp.setZielMacAdresse(arpPaket.getQuellMacAdresse());
-            }
-
-            bs.holeEthernet().senden(antwortArp, nic.getMac(), antwortArp.getZielMacAdresse(), EthernetFrame.ARP);
+        if (nic != null && arpPaket.getTargetMAC().equalsIgnoreCase("ff:ff:ff:ff:ff:ff")
+                && arpPaket.getTargetIP().equalsIgnoreCase(nic.getIp())) {
+            bs.holeARP().sendArpReply(nic.getMac(), nic.getIp(), arpPaket.getSenderMAC(), arpPaket.getSenderIP());
         }
     }
 }

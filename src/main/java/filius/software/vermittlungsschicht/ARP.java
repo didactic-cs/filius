@@ -172,16 +172,41 @@ public class ARP extends VermittlungsProtokoll {
         if (nic == null) {
             return;
         }
+        sendArpRequest(nic.getMac(), nic.getIp(), "FF:FF:FF:FF:FF:FF", suchIp);
+    }
 
+    public ArpPaket sendArpRequest(String senderMAC, String senderIP, String targetMAC, String lookupOrTargetIP) {
         ArpPaket arpPaket = new ArpPaket();
-        arpPaket.setProtokollTyp(EthernetFrame.ARP);
-        arpPaket.setZielIp(suchIp);
-        arpPaket.setZielMacAdresse("FF:FF:FF:FF:FF:FF");
-        arpPaket.setQuellIp(nic.getIp());
-        arpPaket.setQuellMacAdresse(nic.getMac());
+        arpPaket.setOperation(ArpPaket.REQUEST);
+        arpPaket.setProtokollTyp(EthernetFrame.IP);
+        arpPaket.setTargetIP(lookupOrTargetIP);
+        arpPaket.setTargetMAC(targetMAC);
+        arpPaket.setSenderIP(senderIP);
+        arpPaket.setSenderMAC(senderMAC);
 
-        ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeEthernet().senden(arpPaket, nic.getMac(),
-                "FF:FF:FF:FF:FF:FF", EthernetFrame.ARP);
+        ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeEthernet().senden(arpPaket, senderMAC,
+                arpPaket.getTargetMAC(), EthernetFrame.ARP);
+        return arpPaket;
+    }
+
+    public ArpPaket sendArpReply(String senderMAC, String senderIP, String targetMAC, String targetIP) {
+        ArpPaket antwortArp = new ArpPaket();
+        antwortArp.setOperation(ArpPaket.REPLY);
+        antwortArp.setProtokollTyp(EthernetFrame.IP);
+        antwortArp.setSenderIP(senderIP);
+        antwortArp.setSenderMAC(senderMAC);
+
+        if (targetIP.equalsIgnoreCase("0.0.0.0")) {
+            antwortArp.setTargetIP("255.255.255.255");
+            antwortArp.setTargetMAC("ff:ff:ff:ff:ff:ff");
+        } else {
+            antwortArp.setTargetIP(targetIP);
+            antwortArp.setTargetMAC(targetMAC);
+        }
+
+        ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeEthernet().senden(antwortArp, senderMAC,
+                antwortArp.getTargetMAC(), EthernetFrame.ARP);
+        return antwortArp;
     }
 
     public NetzwerkInterface getBroadcastNic(String zielStr) {

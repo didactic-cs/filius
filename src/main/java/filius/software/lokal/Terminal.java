@@ -37,11 +37,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.dns.Resolver;
+import filius.software.netzzugangsschicht.Ethernet;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
 import filius.software.system.Dateisystem;
@@ -50,6 +52,7 @@ import filius.software.transportschicht.ServerSocket;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.SocketSchnittstelle;
 import filius.software.transportschicht.TransportProtokoll;
+import filius.software.vermittlungsschicht.ArpPaket;
 import filius.software.vermittlungsschicht.IP;
 import filius.software.vermittlungsschicht.IcmpPaket;
 import filius.software.vermittlungsschicht.Route;
@@ -837,6 +840,29 @@ public class Terminal extends ClientAnwendung implements I18n {
         return "";
     }
 
+    public String arpsend(String[] args) {
+        String targetIP = IP.CURRENT_NETWORK;
+        String targetMAC = Ethernet.ETHERNET_BROADCAST;
+        String senderIP = null;
+        Betriebssystem os = (Betriebssystem) getSystemSoftware();
+        if (numParams(args, 2)) {
+            if (EingabenUeberpruefung.isGueltig(args[1], EingabenUeberpruefung.musterIpAdresse)) {
+                targetIP = args[1];
+                targetMAC = os.holeARP().holeARPTabellenEintrag(targetIP);
+            }
+            if (EingabenUeberpruefung.isGueltig(args[0], EingabenUeberpruefung.musterIpAdresse)) {
+                senderIP = args[0];
+            }
+        }
+        if (null != targetMAC && null != senderIP) {
+            ArpPaket arpPacket = os.holeARP().sendArpReply(os.holeMACAdresse(), senderIP, targetMAC, targetIP);
+            benachrichtigeBeobachter("  >>> " + arpPacket);
+        } else {
+            benachrichtigeBeobachter(messages.getString("sw_terminal_msg56"));
+        }
+        return null;
+    }
+
     /**
      * 'traceroute' prints the route packets take to the network host (using ICMP Echo Request and ICMP Time Exceeded)
      */
@@ -964,8 +990,7 @@ public class Terminal extends ClientAnwendung implements I18n {
             setInterrupt(false);
             ausfuehren(enteredCommand, args);
         } catch (NoSuchMethodException e) {
-            benachrichtigeBeobachter(
-                    messages.getString("terminal_msg2") + "\n" + messages.getString("terminal_msg3") + "\n");
+            benachrichtigeBeobachter(messages.getString("terminal_msg2") + "\n" + messages.getString("terminal_msg3"));
         } catch (Exception e) {
             LOG.debug("", e);
         }

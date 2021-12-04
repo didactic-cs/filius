@@ -90,11 +90,11 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
             // packets meant for some of their NICs
             // without even having received the packet on this specific NIC,
             // i.e., without physical connection)
-            String zielIp = ((ArpPaket) etp.getDaten()).getZielIp();
+            String zielIp = ((ArpPaket) etp.getDaten()).getTargetIP();
             if (!zielIp.equals(netzwerkInterface.getIp()) && !"0.0.0.0".equals(netzwerkInterface.getIp())) {
                 LOG.debug("ERROR (" + this.hashCode() + "):  ARP packet seems to be sent from a NIC ("
-                        + ((ArpPaket) etp.getDaten()).getQuellIp() + ","
-                        + ((ArpPaket) etp.getDaten()).getQuellMacAdresse()
+                        + ((ArpPaket) etp.getDaten()).getSenderIP() + ","
+                        + ((ArpPaket) etp.getDaten()).getSenderMAC()
                         + ") not connected to the currently considered NIC (" + netzwerkInterface.getIp() + ","
                         + netzwerkInterface.getMac() + ")");
                 return;

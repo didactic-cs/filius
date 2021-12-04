@@ -50,7 +50,7 @@ import filius.software.transportschicht.UdpSegment;
 public class IP extends VermittlungsProtokoll implements I18n {
     private static Logger LOG = LoggerFactory.getLogger(IP.class);
 
-    private static final String CURRENT_NETWORK = "0.0.0.0";
+    public static final String CURRENT_NETWORK = "0.0.0.0";
 
     /** String-Konstante fuer die IP-Adresse Localhost (127.0.0.1) */
     public static final String LOCALHOST = "127.0.0.1";

@@ -30,68 +30,80 @@ import java.io.Serializable;
 /** Diese Klasse umfasst die Attribute eines ARP-Pakets */
 public class ArpPaket implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    public static int REQUEST = 1, REPLY = 2;
 
-	/** Protokoll-Typ der Vermittlungsschicht */
-	private String protokollTyp;
+    private static final long serialVersionUID = 1L;
 
-	/** MAC-Adresse des sendenden Knotens */
-	private String quellMacAdresse;
+    /** Protokoll-Typ der Vermittlungsschicht */
+    private String protokollTyp;
 
-	/** IP-Adresse des sendenden Knotens */
-	private String quellIp;
+    /** Operation: 1 - request, 2 - reply */
+    private int operation = 1;
 
-	/** MAC-Adresse des Zielknotens (i.d.R. Broadcast) */
-	private String zielMacAdresse;
+    /** MAC-Adresse des sendenden Knotens */
+    private String senderMAC;
 
-	/**
-	 * Ziel-IP-Adresse bzw. die Adresse des Knotens, zu dem die MAC-Adresse
-	 * gesucht wird
-	 */
-	private String zielIp;
+    /** IP-Adresse des sendenden Knotens */
+    private String senderIP;
 
-	public String getProtokollTyp() {
-		return protokollTyp;
-	}
+    /** MAC-Adresse des Zielknotens (i.d.R. Broadcast) */
+    private String targetMAC;
 
-	public void setProtokollTyp(String protokollTyp) {
-		this.protokollTyp = protokollTyp;
-	}
+    /**
+     * Ziel-IP-Adresse bzw. die Adresse des Knotens, zu dem die MAC-Adresse gesucht wird
+     */
+    private String targetIP;
 
-	public String getQuellIp() {
-		return quellIp;
-	}
+    public String getProtokollTyp() {
+        return protokollTyp;
+    }
 
-	public void setQuellIp(String quellIp) {
-		this.quellIp = quellIp;
-	}
+    public void setProtokollTyp(String protokollTyp) {
+        this.protokollTyp = protokollTyp;
+    }
 
-	public String getQuellMacAdresse() {
-		return quellMacAdresse;
-	}
+    public String getSenderIP() {
+        return senderIP;
+    }
 
-	public void setQuellMacAdresse(String quellMacAdresse) {
-		this.quellMacAdresse = quellMacAdresse;
-	}
+    public void setSenderIP(String quellIp) {
+        this.senderIP = quellIp;
+    }
 
-	public String getZielIp() {
-		return zielIp;
-	}
+    public String getSenderMAC() {
+        return senderMAC;
+    }
 
-	public void setZielIp(String zielIp) {
-		this.zielIp = zielIp;
-	}
+    public void setSenderMAC(String quellMacAdresse) {
+        this.senderMAC = quellMacAdresse;
+    }
 
-	public String getZielMacAdresse() {
-		return zielMacAdresse;
-	}
+    public String getTargetIP() {
+        return targetIP;
+    }
 
-	public void setZielMacAdresse(String zielMacAdresse) {
-		this.zielMacAdresse = zielMacAdresse;
-	}
+    public void setTargetIP(String zielIp) {
+        this.targetIP = zielIp;
+    }
 
-	public String toString() {
-		return "[" + "protokollTyp=" + protokollTyp + ", " + "quellMacAdresse=" + quellMacAdresse + ", " + "quellIp="
-		        + quellIp + ", " + "zielMacAdresse=" + zielMacAdresse + ", " + "zielIp=" + zielIp + "]";
-	}
+    public String getTargetMAC() {
+        return targetMAC;
+    }
+
+    public void setTargetMAC(String zielMacAdresse) {
+        this.targetMAC = zielMacAdresse;
+    }
+
+    public String toString() {
+        return "[op=" + (operation == REQUEST ? "REQUEST" : "REPLY") + ", sender=" + senderMAC + "|" + senderIP
+                + ", target=" + targetMAC + "|" + targetIP + "]";
+    }
+
+    public int getOperation() {
+        return operation;
+    }
+
+    public void setOperation(int operation) {
+        this.operation = operation;
+    }
 }

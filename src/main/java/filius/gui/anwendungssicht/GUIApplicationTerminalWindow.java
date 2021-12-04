@@ -211,8 +211,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                         terminalField.append("\n");
                     }
                     inputField.setText("");
-                    GUIApplicationTerminalWindow.this.tpPane.getVerticalScrollBar()
-                            .setValue(GUIApplicationTerminalWindow.this.tpPane.getVerticalScrollBar().getMaximum());
+                    scrollDown();
                 }
                 // [strg] + [c]
                 else if (e.getKeyCode() == KeyEvent.VK_C
@@ -305,8 +304,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     }
 
     private void scrollDown() {
-        this.inputLabel.repaint();
         this.terminalField.repaint();
+        this.inputLabel.repaint();
         this.tpPane.repaint();
         this.tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
     }
