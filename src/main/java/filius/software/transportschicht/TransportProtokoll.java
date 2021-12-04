@@ -71,7 +71,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
      */
     public TransportProtokoll(InternetKnotenBetriebssystem betriebssystem, int typ) {
         super(betriebssystem);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (TransportProtokoll), constr: TransportProtokoll(" + betriebssystem + "," + typ + ")");
         this.typ = typ;
         portTabelle = new Hashtable<Integer, SocketSchnittstelle>();
@@ -86,7 +86,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public int reserviereFreienPort(Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reserviereFreienPort("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reserviereFreienPort("
                 + socket + ")");
         // Freien Port suchen
         boolean portGefunden = false;
@@ -121,7 +121,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     private int sucheFreienPort() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), sucheFreienPort()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), sucheFreienPort()");
         int spanne = PORT_OBERE_GRENZE - PORT_UNTERE_GRENZE;
         Random random = new Random();
         int zufallsZahl = Math.abs(random.nextInt());
@@ -131,7 +131,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public boolean reservierePort(int port, SocketSchnittstelle socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reservierePort(" + port
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reservierePort(" + port
                 + "," + socket + ")");
         synchronized (portTabelle) {
             if (portTabelle.containsKey(port)) {
@@ -171,7 +171,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     protected void senden(String zielIp, String quellIp, Object segment) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), senden(" + zielIp + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), senden(" + zielIp + ","
                 + segment + ")");
 
         synchronized (segmentListe) {
@@ -181,7 +181,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), run()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), run()");
         InternetKnotenBetriebssystem bs;
 
         Object[] temp;
@@ -203,7 +203,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), starten()");
         portTabelle = new Hashtable<Integer, SocketSchnittstelle>();
 
         thread = new TransportProtokollThread(this);
@@ -220,7 +220,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), beenden()");
         thread.beenden();
 
         running = false;

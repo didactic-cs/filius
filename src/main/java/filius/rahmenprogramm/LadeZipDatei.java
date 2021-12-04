@@ -40,7 +40,7 @@ public class LadeZipDatei {
     private static Logger LOG = LoggerFactory.getLogger(LadeZipDatei.class);
 
     public void extrahierenArchiv(File archiv, File zielDir) throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", extrahiereArchiv(" + archiv + "," + zielDir
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", extrahiereArchiv(" + archiv + "," + zielDir
                 + ")");
         if (!zielDir.exists()) {
             zielDir.mkdir();
@@ -79,7 +79,7 @@ public class LadeZipDatei {
     }
 
     private File baueVerzeichnisHierarchieFuer(String eingangName, File zielDir) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", baueVerzeichnisHierarchieFuer(" + eingangName
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", baueVerzeichnisHierarchieFuer(" + eingangName
                 + "," + zielDir + ")");
         int lastIndex = eingangName.lastIndexOf('/');
         String internalPathToEntry = eingangName.substring(0, lastIndex + 1);

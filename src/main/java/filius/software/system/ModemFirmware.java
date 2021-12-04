@@ -106,7 +106,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Verbindungen und die Ueberwachung des Socket-Status erfolgt in einem neuen Thread!
      */
     public synchronized void starteServer() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteServer()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteServer()");
         (new Thread(this)).start();
     }
 
@@ -116,7 +116,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * gestartet.
      */
     public void starteClient() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteClient()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), starteClient()");
         try {
             socket = new Socket(ipAdresse, port);
             aktiviereModemVerbindung();
@@ -191,7 +191,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Wenn noch Verbindungen bestehen werden diese abgebaut.
      */
     public void trennen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), trennen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), trennen()");
 
         deaktiviereModemVerbindung();
         if (mode == SERVER && serverSocket != null) {
@@ -225,7 +225,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Datenweiterleitung geleert.
      */
     private void leerePortPuffer() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), leerePortPuffer()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), leerePortPuffer()");
         synchronized (((Modem) getKnoten()).getErstenAnschluss().holeEingangsPuffer()) {
             ((Modem) getKnoten()).getErstenAnschluss().holeEingangsPuffer().clear();
         }
@@ -237,7 +237,7 @@ public class ModemFirmware extends SystemSoftware implements Runnable, I18n {
      * Programmablauf zu unterbrechen, erfolgt das Warten in einem eigenen Thread.
      */
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), run()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ModemFirmware), run()");
         try {
             serverSocket = new ServerSocket(port);
             benachrichtigeBeobacher(null);

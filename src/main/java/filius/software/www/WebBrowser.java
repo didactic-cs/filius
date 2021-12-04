@@ -76,7 +76,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     private String host;
 
     public void holeWebseite(URL url) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), holeWebseite(" + url + ")");
         Object[] args;
 
@@ -94,7 +94,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     }
 
     public void holeWebseite(URL url, String post) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), holeWebseite(" + url + "," + post + ")");
         Object[] args;
 
@@ -112,7 +112,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     }
 
     public void internHoleRessource(URL url, String post) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), internHoleRessource(" + url + "," + post + ")");
         HTTPNachricht nachricht;
         HTTPNachricht fehler;
@@ -186,7 +186,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
      * liest eine reale Textdatei vom Format .txt ein. Diese befinden sich im Ordner /config
      */
     private String einlesenTextdatei(String datei) throws FileNotFoundException, IOException {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), einlesenTextdatei(" + datei + ")");
         StringBuffer fullFile = new StringBuffer();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -200,7 +200,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
     }
 
     private String erzeugeHtmlFehlermeldung(int statusCode) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), erzeugeHtmlFehlermeldung(" + statusCode + ")");
         String quelltext;
         String dateipfad;
@@ -235,7 +235,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
      * @param host
      */
     private void verarbeiteIMGTags(String quelltext, String host) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), verarbeiteIMGTags(" + quelltext + "," + host + ")");
         zustand = ABRUF_IMG;
 
@@ -287,7 +287,7 @@ public class WebBrowser extends ClientAnwendung implements I18n {
      * 
      */
     protected void verarbeiteNachricht() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), verarbeiteNachricht()");
         HTTPNachricht antwort;
         String contentType;

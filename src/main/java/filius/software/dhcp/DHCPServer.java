@@ -268,7 +268,7 @@ public class DHCPServer extends UDPServerAnwendung {
      * ueber einen Mitarbeiter, weil es nur einen Port mit der Gegenstelle "0.0.0.0:68" gibt.
      */
     protected void neuerMitarbeiter(Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DHCPServer), neuerMitarbeiter(" + socket + ")");
         DHCPServerMitarbeiter dhcpMitarbeiter;
 

@@ -45,7 +45,7 @@ public class IPThread extends ProtokollThread<IpPaket> {
      */
     public IPThread(IP vermittlung) {
         super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeIPPuffer());
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (IPThread), constr: IPThread(" + vermittlung + ")");
 
         this.vermittlung = vermittlung;

@@ -292,7 +292,7 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
     }
 
     public void update(Observable arg0, Object arg1) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationWebBrowserWindow), update("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationWebBrowserWindow), update("
                 + arg0 + "," + arg1 + ")");
         if (arg1 == null) {
             anzeigeFeld.updateUI();

@@ -62,7 +62,7 @@ public class Ethernet extends Protokoll {
     /** Konstruktor zur Initialisierung der Systemsoftware */
     public Ethernet(SystemSoftware systemSoftware) {
         super(systemSoftware);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Ethernet), constr: Ethernet("
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Ethernet), constr: Ethernet("
                 + systemSoftware + ")");
     }
 
@@ -92,7 +92,7 @@ public class Ethernet extends Protokoll {
      * durch die Quell-MAC-Adresse spezifiziert wird.
      */
     public void senden(Object daten, String startMAC, String zielMAC, String typ) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), senden(" + daten + "," + startMAC
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), senden(" + daten + "," + startMAC
                 + "," + zielMAC + "," + typ + ")");
         EthernetFrame ethernetFrame;
         boolean gesendet = false;
@@ -130,7 +130,7 @@ public class Ethernet extends Protokoll {
      * Hier wird zu jeder Netzwerkkarte ein Thread zur Ueberwachung des Eingangspuffers gestartet.
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), starten()");
         InternetKnoten knoten;
         EthernetThread interfaceBeobachter;
 
@@ -153,7 +153,7 @@ public class Ethernet extends Protokoll {
      * beendet alle laufenden EthernetThreads zur Ueberwachung der Eingangspuffer der Netzwerkkarten
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Ethernet), beenden()");
         EthernetThread interfaceBeobachter;
 
         for (int x = 0; x < threads.size(); x++) {

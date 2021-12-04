@@ -55,7 +55,7 @@ public class PeerToPeerServer extends TCPServerAnwendung {
      */
     PeerToPeerServer(PeerToPeerAnwendung peerToPeerAnwendung) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServer), constr: PeerToPeerServer(" + peerToPeerAnwendung + ")");
         this.peerToPeerAnwendung = peerToPeerAnwendung;
         setPort(6346);
@@ -67,7 +67,7 @@ public class PeerToPeerServer extends TCPServerAnwendung {
      * Mitarbeiter in einem neuen Thread gestartet, der fuer die Verarbeitung der eingehenden Anfrage genutzt wird.
      */
     protected void neuerMitarbeiter(Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServer), neuerMitarbeiter(" + socket + ")");
         PeerToPeerServerMitarbeiter neuerMitarbeiter;
         neuerMitarbeiter = new PeerToPeerServerMitarbeiter(this, socket, peerToPeerAnwendung);
@@ -82,7 +82,7 @@ public class PeerToPeerServer extends TCPServerAnwendung {
      * @param paket
      */
     void sendePaket(PeerToPeerPaket paket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerServer), sendePaket(" + paket + ")");
         ListIterator<ServerMitarbeiter> it;
         PeerToPeerServerMitarbeiter m;

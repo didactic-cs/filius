@@ -74,14 +74,14 @@ public class Lauscher implements I18n {
     private HashMap<String, LinkedList<Object[]>> datenEinheiten;
 
     private Lauscher() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: Lauscher()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: Lauscher()");
         beobachter = new HashMap<String, LinkedList<LauscherBeobachter>>();
 
         reset();
     }
 
     public void reset() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
         // lauscher = null;
         datenEinheiten = new HashMap<String, LinkedList<Object[]>>();
         this.benachrichtigeBeobachter(null);
@@ -104,7 +104,7 @@ public class Lauscher implements I18n {
     }
 
     public void addBeobachter(String rechnerId, LauscherBeobachter newObserver) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", addBeobachter(" + rechnerId + "," + newObserver
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", addBeobachter(" + rechnerId + "," + newObserver
                 + ")");
         LinkedList<LauscherBeobachter> liste;
 
@@ -117,7 +117,7 @@ public class Lauscher implements I18n {
     }
 
     private void benachrichtigeBeobachter(String rechnerId) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", benachrichtigeBeobachter(" + rechnerId + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", benachrichtigeBeobachter(" + rechnerId + ")");
         LinkedList<LauscherBeobachter> liste;
         Collection<LinkedList<LauscherBeobachter>> collection;
         ListIterator<LauscherBeobachter> it;
@@ -152,7 +152,7 @@ public class Lauscher implements I18n {
      * @param frame
      */
     public void addDatenEinheit(String interfaceId, EthernetFrame frame) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", addDatenEinheit(" + interfaceId + "," + frame
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", addDatenEinheit(" + interfaceId + "," + frame
                 + ")");
         LinkedList<Object[]> liste;
         Object[] frameMitZeitstempel;
@@ -174,7 +174,7 @@ public class Lauscher implements I18n {
     }
 
     public Object[][] getDaten(String interfaceId, boolean inheritAddress, int offset) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", getDaten(" + interfaceId + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", getDaten(" + interfaceId + ")");
         Vector<Object[]> vector;
         Object[][] daten;
 
@@ -192,7 +192,7 @@ public class Lauscher implements I18n {
     }
 
     public void print(String interfaceId) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", print(" + interfaceId + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", print(" + interfaceId + ")");
         Object[][] daten;
 
         daten = getDaten(interfaceId, false, 1);
@@ -229,7 +229,7 @@ public class Lauscher implements I18n {
      * @return
      */
     private Vector<Object[]> datenVorbereiten(String interfaceId, boolean inheritAddress, int offset) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", datenVorbereiten(" + interfaceId + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", datenVorbereiten(" + interfaceId + ")");
         Vector<Object[]> daten;
         LinkedList<Object[]> liste;
         Object[] frameMitZeitstempel, neuerEintrag;

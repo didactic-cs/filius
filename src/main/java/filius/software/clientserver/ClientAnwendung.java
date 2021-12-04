@@ -47,7 +47,7 @@ public abstract class ClientAnwendung extends Anwendung {
      * Diese Methode ist <b>nicht blockierend</b>.
      */
     public boolean istVerbunden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientAnwendung), istVerbunden()");
         if (socket != null) {
             return socket.istVerbunden();
@@ -62,7 +62,7 @@ public abstract class ClientAnwendung extends Anwendung {
      * Diese Methode ist <b>nicht blockierend</b>.
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientAnwendung), beenden()");
         super.beenden();
 

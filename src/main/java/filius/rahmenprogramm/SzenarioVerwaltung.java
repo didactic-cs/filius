@@ -65,7 +65,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     private SzenarioVerwaltung() {}
 
     public static SzenarioVerwaltung getInstance() {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, getInstance()");
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, getInstance()");
         if (verwaltung == null) {
             verwaltung = new SzenarioVerwaltung();
         }
@@ -73,7 +73,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public void reset() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
         pfad = null;
         geaendert = false;
 
@@ -82,7 +82,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public void setzeGeaendert() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", setzeGeaendert()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", setzeGeaendert()");
         geaendert = true;
 
         this.setChanged();
@@ -107,7 +107,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
      */
     public boolean speichern(String datei, List<GUIKnotenItem> hardwareItems, List<GUIKabelItem> kabelItems,
             List<GUIDocuItem> docuItems) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern(" + datei + "," + hardwareItems + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern(" + datei + "," + hardwareItems + ","
                 + kabelItems + ")");
 
         String tmpDir;
@@ -146,7 +146,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
     private static boolean netzwerkSpeichern(String datei, List<GUIKnotenItem> hardwareItems,
             List<GUIKabelItem> kabelItems, List<GUIDocuItem> docuItems) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkSpeichern(" + datei + ","
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkSpeichern(" + datei + ","
                 + hardwareItems + "," + kabelItems + ")");
         XMLEncoder mx = null;
         FileOutputStream fos = null;
@@ -194,7 +194,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
     public boolean laden(String datei, List<GUIKnotenItem> hardwareItems, List<GUIKabelItem> kabelItems,
             List<GUIDocuItem> docuItems) throws FileNotFoundException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", laden(" + datei + "," + hardwareItems + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", laden(" + datei + "," + hardwareItems + ","
                 + kabelItems + ")");
 
         boolean erfolg = true;
@@ -237,7 +237,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
 
     private static boolean netzwerkLaden(String datei, List<GUIKnotenItem> hardwareItems, List<GUIKabelItem> kabelItems,
             List<GUIDocuItem> docuItems) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkLaden(" + datei + ","
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, netzwerkLaden(" + datei + ","
                 + hardwareItems + "," + kabelItems + ")");
         Object tmpObject = null;
 
@@ -347,7 +347,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean erzeugeZipArchiv(String datenOrdner, String archivDatei) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, erzeugeZipArchiv(" + datenOrdner + ","
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, erzeugeZipArchiv(" + datenOrdner + ","
                 + archivDatei + ")");
         FileOutputStream out;
         ZipOutputStream zipOut;
@@ -388,7 +388,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     private static boolean schreibeZipDatei(ZipOutputStream out, String relPfad, String datei) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, schreibeZipDatei(" + out + "," + relPfad
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, schreibeZipDatei(" + out + "," + relPfad
                 + "," + datei + ")");
         File path;
         boolean result = true;
@@ -412,7 +412,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     private static boolean schreibeZipEntry(ZipOutputStream out, String relPfad, String datei) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, schreibeZipEntry(" + out + "," + relPfad
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, schreibeZipEntry(" + out + "," + relPfad
                 + "," + datei + ")");
         ZipEntry zipEntry;
         byte[] buffer = new byte[0xFFFF];
@@ -439,7 +439,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean entpackeZipArchiv(String archivDatei, String zielOrdner) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, entpackeZipArchiv(" + archivDatei + ","
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, entpackeZipArchiv(" + archivDatei + ","
                 + zielOrdner + ")");
         ZipFile zf;
         File file;
@@ -506,7 +506,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean loescheVerzeichnisInhalt(String verzeichnis) {
-        // LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung,
+        // LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung,
         // loescheVerzeichnisInhalt("+verzeichnis+")");
         File path;
         File file;
@@ -536,7 +536,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean loescheDateien(String datei) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, loescheDateien(" + datei + ")");
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, loescheDateien(" + datei + ")");
         File path;
 
         path = new File(datei);
@@ -552,7 +552,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean kopiereVerzeichnis(String quelle, String ziel) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, kopiereVerzeichnis(" + quelle + "," + ziel
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, kopiereVerzeichnis(" + quelle + "," + ziel
                 + ")");
         File quellOrdner, zielOrdner, tmp;
 
@@ -578,7 +578,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean saveStream(InputStream source, String zieldatei) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, saveStream(" + source + "," + zieldatei
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, saveStream(" + source + "," + zieldatei
                 + ")");
         File destfile;
         FileOutputStream fos = null;
@@ -613,7 +613,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
     }
 
     public static boolean kopiereDatei(String quelldatei, String zieldatei) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, kopiereDatei(" + quelldatei + ","
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.SzenarioVerwaltung, kopiereDatei(" + quelldatei + ","
                 + zieldatei + ")");
         File srcfile, destfile;
         FileInputStream fis = null;

@@ -52,20 +52,20 @@ public class FileExplorer extends Anwendung implements I18n {
     public FileExplorer(// Betriebssystem betriebssystem
     ) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileExplorer), constr: FileExplorer()");
         this.getFileTypeMap();
     }
 
     public void beenden() {
         // TODO Auto-generated method stub
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileExplorer), beenden()");
     }
 
     public void starten() {
         // TODO Auto-generated method stub
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileExplorer), starten()");
     }
 
@@ -77,7 +77,7 @@ public class FileExplorer extends Anwendung implements I18n {
      * @return
      */
     public String addFile(String pfadname, String dateiname, DefaultMutableTreeNode ordner, String neuerName) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (FileExplorer), addFile("
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (FileExplorer), addFile("
                 + pfadname + "," + dateiname + "," + ordner + "," + neuerName + ")");
         String ergebnis = messages.getString("sw_fileexplorer_msg1");
         java.io.File file = new java.io.File(pfadname + dateiname);
@@ -128,7 +128,7 @@ public class FileExplorer extends Anwendung implements I18n {
      * @return Typ der Datei als String
      */
     public String getFileType(String dateiname) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileExplorer), getFileType(" + dateiname + ")");
         String tmpType = "";
         /*
@@ -159,7 +159,7 @@ public class FileExplorer extends Anwendung implements I18n {
      * 
      */
     public void getFileTypeMap() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileExplorer), getFileTypeMap()");
         fileTypeMap = new HashMap<String, String>();
         RandomAccessFile configFile;

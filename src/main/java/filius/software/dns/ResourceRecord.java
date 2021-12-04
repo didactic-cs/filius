@@ -79,7 +79,7 @@ public class ResourceRecord {
     private String rdata = "";
 
     public ResourceRecord(String domainname, String typ, String rdata) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ResourceRecord), constr: ResourceRecord("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ResourceRecord), constr: ResourceRecord("
                 + domainname + "," + typ + "," + rdata + ")");
         setDomainname(domainname);
         this.type = typ;
@@ -94,7 +94,7 @@ public class ResourceRecord {
      *            ein String, der durch die Methode toString() erstellt wurde
      */
     public ResourceRecord(String rr) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ResourceRecord), constr: ResourceRecord(" + rr
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ResourceRecord), constr: ResourceRecord(" + rr
                 + ")");
         StringTokenizer tokenizer;
         String token;

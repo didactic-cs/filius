@@ -48,7 +48,7 @@ public class ErzeugeZipDatei {
      * @throws IOException
      */
     public ErzeugeZipDatei(String verzeichnis, String zipFileName) throws IOException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: ErzeugeZipDatei(" + verzeichnis + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: ErzeugeZipDatei(" + verzeichnis + ","
                 + zipFileName + ")");
         // Puffer zum Auslesen der Dateien. // Der vollständige Pfad zur
         // zukünftigen Zip-Datei.
@@ -69,7 +69,7 @@ public class ErzeugeZipDatei {
      * @throws IOException
      */
     public void zipDatei(File verzeichnisZip, ZipOutputStream zipOut) throws IOException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", zipDatei(" + verzeichnisZip + "," + zipOut
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", zipDatei(" + verzeichnisZip + "," + zipOut
                 + ")");
         byte[] buf = new byte[4096];
         // Alle Dateinamen aus dem Verzeichnis werden in des Array eingelesen.

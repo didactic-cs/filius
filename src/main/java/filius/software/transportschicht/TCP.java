@@ -44,6 +44,6 @@ public class TCP extends TransportProtokoll {
      */
     public TCP(InternetKnotenBetriebssystem betriebssystem) {
         super(betriebssystem, IpPaket.TCP);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCP), constr: TCP(" + betriebssystem + ")");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCP), constr: TCP(" + betriebssystem + ")");
     }
 }

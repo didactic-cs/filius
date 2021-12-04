@@ -71,7 +71,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     private Thread threadSimplexZwei;
 
     public void setAnschluesse(Port[] anschluesse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), setAnschluesse(" + anschluesse
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), setAnschluesse(" + anschluesse
                 + ")");
         this.anschluesse = anschluesse;
 
@@ -84,7 +84,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     }
 
     private void verbinde() throws VerbindungsException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), verbinde()" + "\t"
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), verbinde()" + "\t"
                 + anschluesse[0].hashCode() + " <-> " + anschluesse[1].hashCode());
         try {
             simplexEins = new SimplexVerbindung(anschluesse[0], anschluesse[1], this);
@@ -130,7 +130,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     }
 
     public void anschluesseTrennen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), anschluesseTrennen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Verbindung), anschluesseTrennen()");
         simplexEins.anschluesseTrennen();
         simplexZwei.anschluesseTrennen();
         threadSimplexEins.interrupt();
@@ -151,7 +151,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
      * @param verzoegerungsFaktor
      */
     public static void setzeVerzoegerungsFaktor(int verzoegerungsFaktor) {
-        LOG.debug("INVOKED (static) filius.hardware.Verbindung, setzeVerzoegerungsFaktor(" + verzoegerungsFaktor + ")");
+        LOG.trace("INVOKED (static) filius.hardware.Verbindung, setzeVerzoegerungsFaktor(" + verzoegerungsFaktor + ")");
         if (verzoegerungsFaktor < 1) {
             Verbindung.verzoegerungsFaktor = 1;
         } else if (verzoegerungsFaktor > 100) {

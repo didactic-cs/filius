@@ -41,7 +41,7 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
      */
     public ARPThread(ARP vermittlung) {
         super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeARPPuffer());
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ARPThread), constr: ARPThread(" + vermittlung + ")");
         this.vermittlung = vermittlung;
     }
@@ -52,7 +52,7 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
      * oder eine Antwort ist). Wenn die Anfrage eine eigene IP-Adresse betrifft, wird ein Antwort-Paket verschickt.
      */
     protected void verarbeiteDatenEinheit(ArpPaket arpPaket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ARPThread), verarbeiteDatenEinheit(" + arpPaket.toString() + ")");
 
         // Aus jedem ARP-Paket wird ein neuer ARP-Eintrag erzeugt

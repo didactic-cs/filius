@@ -71,7 +71,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      */
     public void starten() {
         super.starten();
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), starten()");
         SwitchPortBeobachter anschlussBeobachter;
 
         sat = new HashMap<String, Port>();
@@ -88,7 +88,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
     /** Hier wird die Netzzugangsschicht des Switch gestoppt. */
     public void beenden() {
         super.beenden();
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), beenden()");
         for (SwitchPortBeobachter anschlussBeobachter : switchBeobachter) {
             anschlussBeobachter.beenden();
         }
@@ -96,7 +96,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
 
     /** Diese Methode wird genutzt, um die SAT abzurufen. */
     public Vector<Vector<String>> holeSAT() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeSAT()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeSAT()");
         Vector<Vector<String>> eintraege = new Vector<Vector<String>>();
         Vector<String> eintrag;
         String ausgabe;
@@ -124,7 +124,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      *            der Anschluss des Switch, der mit dem entfernten Anschluss verbunden ist
      */
     public void hinzuSatEintrag(String macAdresse, Port anschluss) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), hinzuSatEintrag(" + macAdresse
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), hinzuSatEintrag(" + macAdresse
                 + "," + anschluss + ")");
         sat.put(macAdresse, anschluss);
         firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, anschluss));
@@ -139,7 +139,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      * @return der Anschluss zur MAC oder null, wenn kein passender Eintrag existiert
      */
     public Port holeAnschlussFuerMAC(String macAdresse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeAnschlussFuerMAC("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeAnschlussFuerMAC("
                 + macAdresse + ")");
         if (sat.containsKey(macAdresse)) {
             return (Port) sat.get(macAdresse);

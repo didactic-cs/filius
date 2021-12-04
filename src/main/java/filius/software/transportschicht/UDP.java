@@ -36,6 +36,6 @@ public class UDP extends TransportProtokoll {
 
     public UDP(InternetKnotenBetriebssystem betriebssystem) {
         super(betriebssystem, IpPaket.UDP);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDP), constr: UDP(" + betriebssystem + ")");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (UDP), constr: UDP(" + betriebssystem + ")");
     }
 }

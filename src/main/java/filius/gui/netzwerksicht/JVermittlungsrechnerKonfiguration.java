@@ -103,7 +103,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     public void aenderungenAnnehmen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), aenderungenAnnehmen()");
         ListIterator it;
         Vermittlungsrechner vRechner;
@@ -137,7 +137,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     private void showFirewallDialog() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), firewallDialogAnzeigen()");
 
         Firewall firewall = ((VermittlungsrechnerBetriebssystem) ((Vermittlungsrechner) holeHardware())
@@ -152,7 +152,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     protected void initAttributEingabeBox(Box box, Box rightBox) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), initAttributEingabeBox(" + box + ")");
         Vermittlungsrechner vRechner;
         NetzwerkInterface tempNic;
@@ -521,7 +521,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     private void showConnectionsDialog() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), showBasicSettingsDialog()");
         GUIContainer.getGUIContainer().getProperty().minimieren();
         // basic dialog creation and settings
@@ -540,7 +540,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     public void doUnselectAction() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), doUnselectAction()");
         if (highlightedCable != null) {
             highlightedCable.setAktiv(false);
@@ -562,7 +562,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     public void updateAttribute() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), updateAttribute()");
         ListIterator it;
         Vermittlungsrechner vRechner;
@@ -619,7 +619,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
     }
 
     private Knoten holeVerbundeneKomponente(NetzwerkInterface nic) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), holeVerbundeneKomponente(" + nic + ")");
         Port lokalerAnschluss, entfernterAnschluss;
         Port[] ports;

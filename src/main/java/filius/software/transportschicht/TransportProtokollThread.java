@@ -41,13 +41,13 @@ public class TransportProtokollThread extends ProtokollThread<IpPaket> {
     public TransportProtokollThread(TransportProtokoll protokoll) {
         super(((InternetKnotenBetriebssystem) protokoll.holeSystemSoftware()).holeIP()
                 .holePaketListe(protokoll.holeTyp()));
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (TransportProtokollThread), constr: TransportProtokollThread(" + protokoll + ")");
         this.protokoll = protokoll;
     }
 
     protected void verarbeiteDatenEinheit(IpPaket paket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (TransportProtokollThread), verarbeiteDatenEinheit(" + paket.toString() + ")");
 
         Segment segment = (Segment) paket.getSegment();

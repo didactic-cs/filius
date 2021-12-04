@@ -66,7 +66,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
     public GUIApplicationWebServerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: GUIApplicationWebServerWindow("
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: GUIApplicationWebServerWindow("
                 + desktop + "," + appName + ")");
         this.setResizable(true);
         this.setMaximizable(false);
@@ -209,7 +209,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
     }
 
     public void update(Observable arg0, Object arg1) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationWebServerWindow), update(" + arg0
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationWebServerWindow), update(" + arg0
                 + "," + arg1 + ")");
         if (logArea != null && arg1 != null) {
             logArea.append(arg1.toString() + "\n");

@@ -60,7 +60,7 @@ public abstract class WebServerPlugIn {
      * liest eine reale Textdatei vom Format .txt ein. Diese befinden sich im Ordner /config
      */
     protected String textDateiEinlesen(String datei) throws FileNotFoundException, IOException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), textDateiEinlesen(" + datei
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), textDateiEinlesen(" + datei
                 + ")");
         StringBuffer fullFile = new StringBuffer();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(

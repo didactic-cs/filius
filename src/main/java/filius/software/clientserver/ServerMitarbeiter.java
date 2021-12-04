@@ -56,7 +56,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * @param socket
      */
     public ServerMitarbeiter(ServerAnwendung server, Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), constr: ServerMitarbeiter(" + server + "," + socket + ")");
         this.server = server;
         this.socket = socket;
@@ -78,7 +78,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * @param nachricht
      */
     protected void sendeNachricht(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), sendeNachricht(" + nachricht + ")");
         try {
             socket.senden(nachricht);
@@ -94,7 +94,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * anderen zur Verarbeitung an die Methode verarbeitenNachricht() weiter gegeben.
      */
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), run()");
         String nachricht = null;
         while (running) {
@@ -137,7 +137,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * der Thread nicht beendet wird.
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), starten()");
         if (!running) {
             running = true;
@@ -152,7 +152,7 @@ public abstract class ServerMitarbeiter extends Thread implements I18n {
      * interrupt() aufgerufen, um die Verarbeitung fortzusetzen, damit der Thread dann beendet werden kann.
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerMitarbeiter), beenden()");
         shutdown(false);
     }

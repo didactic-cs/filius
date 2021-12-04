@@ -45,7 +45,7 @@ public class Notebook extends Host implements I18n {
      */
     public Notebook() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Notebook), constr: Notebook()");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Notebook), constr: Notebook()");
 
         this.setName(messages.getString("hw_notebook_msg2"));
     }

@@ -61,7 +61,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
     /** Konstruktor mit Initialisierung von Firewall und Webserver */
     public VermittlungsrechnerBetriebssystem() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (VermittlungsrechnerBetriebssystem), constr: VermittlungsrechnerBetriebssystem()");
         setIpForwardingEnabled(true);
         initialisiereAnwendungen();
@@ -76,7 +76,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
      * Firewall ueber eine Web-Schnittstelle
      */
     private void initialisiereAnwendungen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (VermittlungsrechnerBetriebssystem), initialisiereFirewallUndWebserver()");
         FirewallWebLog weblog;
         FirewallWebKonfig webkonfig;

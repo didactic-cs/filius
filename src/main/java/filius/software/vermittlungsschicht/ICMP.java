@@ -71,19 +71,19 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
     }
 
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), starten()");
         thread = new ICMPThread(this);
         thread.starten();
     }
 
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), beenden()");
         if (thread != null)
             thread.beenden();
     }
 
     private void placeLocalICMPPacket(IcmpPaket icmpPacket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), placeLocalICMPPacket("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ICMP), placeLocalICMPPacket("
                 + icmpPacket.toString() + ")");
         LinkedList<IcmpPaket> icmpPakete = ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeEthernet()
                 .holeICMPPuffer();

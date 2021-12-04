@@ -44,7 +44,7 @@ public class SMTPServer extends TCPServerAnwendung {
 
     public SMTPServer(int port, EmailServer emailServer) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPServer), constr: SMTPServer(" + port + "," + emailServer + ")");
 
         this.port = port;
@@ -73,7 +73,7 @@ public class SMTPServer extends TCPServerAnwendung {
 
     @Override
     protected void neuerMitarbeiter(Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPServer), neuerMitarbeiter(" + socket + ")");
         SMTPMitarbeiter smtpMitarbeiter;
 

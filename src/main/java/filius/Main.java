@@ -83,7 +83,7 @@ public class Main implements I18n {
      * </ol>
      */
     public static void starten(String szenarioDatei) {
-        LOG.debug("INVOKED (static) filius.Main, starten(" + szenarioDatei + ")");
+        LOG.trace("INVOKED (static) filius.Main, starten(" + szenarioDatei + ")");
         SplashScreen splashScreen;
         XMLDecoder xmldec;
         String konfigPfad;
@@ -194,7 +194,7 @@ public class Main implements I18n {
      * </ol>
      */
     public static void beenden() {
-        LOG.debug("INVOKED (static) filius.Main, beenden()");
+        LOG.trace("INVOKED (static) filius.Main, beenden()");
         Object[] programmKonfig;
         int entscheidung;
         boolean abbruch = false;

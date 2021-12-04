@@ -48,7 +48,7 @@ public class POP3Server extends TCPServerAnwendung {
     public POP3Server(int port, // Betriebssystem bs,
             EmailServer emailServer) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Server), constr: POP3Server(" + port + "," + emailServer + ")");
 
         this.port = port;
@@ -62,7 +62,7 @@ public class POP3Server extends TCPServerAnwendung {
     // Methoden
 
     protected void neuerMitarbeiter(Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Server), neuerMitarbeiter(" + socket + ")");
         POP3Mitarbeiter popMitarbeiter;
 

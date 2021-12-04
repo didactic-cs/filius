@@ -91,7 +91,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * <code>initialisiereSocket</code> in einem anderen Thread.
      */
     public void verbinden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), verbinden()");
         Object[] args;
 
@@ -107,7 +107,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Methode zum Aufbau einer Verbindung mit einem TCP-Socket. Diese Methode ist blockierend.
      */
     public synchronized void initialisiereSocket(String zielAdresse, Integer port) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), initialisiereSocket(" + zielAdresse + "," + port + ")");
         if (!istVerbunden()) {
             try {
@@ -129,7 +129,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Diese Methode ist <b> blockierend</b>.
      */
     public void trennen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), trennen()");
         if (socket != null) {
             socket.schliessen();
@@ -142,7 +142,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Diese Methode <b>blockiert</b> bis die Nachricht versand wurde. Der Empfang der Antwort erfolgt asynchron.
      */
     public void senden(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), versendeNachricht(" + nachricht + ")");
 
         if (socket != null && socket.istVerbunden()) {
@@ -164,7 +164,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * direkt von der GUI aufgerufen werden.
      */
     public void empfangeNachricht() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ClientBaustein), empfangeNachricht()");
         String nachricht;
 

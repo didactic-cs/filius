@@ -223,7 +223,7 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
      * 
      */
     public void aenderungenAnnehmen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JKonfiguration), aenderungenAnnehmen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JKonfiguration), aenderungenAnnehmen()");
     }
 
     /**

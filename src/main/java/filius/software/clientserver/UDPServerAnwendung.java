@@ -35,7 +35,7 @@ public abstract class UDPServerAnwendung extends ServerAnwendung {
 
     public UDPServerAnwendung() {
         super(IpPaket.UDP);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + ", constr: UDPServerAnwendung()");
     }
 

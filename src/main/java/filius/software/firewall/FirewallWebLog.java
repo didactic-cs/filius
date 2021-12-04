@@ -53,7 +53,7 @@ public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
      * Diese Methode muss die HTML-Seite mit den Log-Informationen zurück liefern
      */
     public String holeHtmlSeite(String postDaten) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), holehtmlSeite(" + postDaten
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), holehtmlSeite(" + postDaten
                 + ")");
         StringBuffer logSeite = new StringBuffer();
 
@@ -66,7 +66,7 @@ public class FirewallWebLog extends WebServerPlugIn implements Observer, I18n {
     }
 
     public void update(Observable arg0, Object arg1) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), update(" + arg0 + "," + arg1
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebLog), update(" + arg0 + "," + arg1
                 + ")");
         if (arg1 instanceof Object[]) {
             logDaten.append("<br /> \n").append(((Object[]) arg1)[0]);

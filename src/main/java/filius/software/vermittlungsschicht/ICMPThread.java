@@ -48,7 +48,7 @@ public class ICMPThread extends ProtokollThread<IcmpPaket> {
 
     public ICMPThread(ICMP vermittlung) {
         super(((InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware()).holeEthernet().holeICMPPuffer());
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ICMPThread), constr: ICMPThread(" + vermittlung + ")");
         this.rcvdPackets = new LinkedList<IcmpPaket>();
         this.vermittlung = vermittlung;

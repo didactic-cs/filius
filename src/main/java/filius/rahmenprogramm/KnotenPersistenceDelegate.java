@@ -40,7 +40,7 @@ public class KnotenPersistenceDelegate extends DefaultPersistenceDelegate {
     private static Logger LOG = LoggerFactory.getLogger(KnotenPersistenceDelegate.class);
 
     public void writeObject(Object oldInstance, Encoder out) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", writeObject()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", writeObject()");
         if (oldInstance instanceof Host) {
             // LOG.debug("\tObjekt der Klasse Host");
             super.writeObject((Host) oldInstance, out);

@@ -43,11 +43,11 @@ public class Kontakt {
 
     // Konstruktor(en)
     public Kontakt() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt()");
     }
 
     public Kontakt(String emailAdresse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt(" + emailAdresse
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Kontakt), constr: Kontakt(" + emailAdresse
                 + ")");
         this.email = emailAdresse;
     }

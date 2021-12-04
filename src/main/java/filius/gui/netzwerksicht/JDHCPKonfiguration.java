@@ -381,7 +381,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
 
     /** Listens to the check boxes. */
     public void itemStateChanged(java.awt.event.ItemEvent e) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration) itemStateChanged(" + e
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration) itemStateChanged(" + e
                 + "); source=" + e.getItemSelectable());
         Object source = e.getItemSelectable();
 
@@ -402,7 +402,7 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
     }
 
     private void update() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration), update()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JDHCPKonfiguration), update()");
         tfObergrenze.setText(server.getObergrenze());
         tfUntergrenze.setText(server.getUntergrenze());
         tfNetzmaske.setText(server.getSubnetzmaske());

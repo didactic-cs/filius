@@ -63,7 +63,7 @@ public class JCablePanel extends JPanel implements Observer {
     }
 
     public void updateBounds() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");
         int x1, x2, y1, y2, t1;
 
         // Theoretisch korrekte Positionen
@@ -133,7 +133,7 @@ public class JCablePanel extends JPanel implements Observer {
      * tested prior to actually use them for determining a point to be inside a bound of a curve or line, respectively.
      */
     public boolean clicked(int x, int y) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), clicked(" + x + "," + y + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), clicked(" + x + "," + y + ")");
         int delta = 10;
 
         Rectangle2D absolutePointerRect = new Rectangle2D.Double(x - delta, y - delta, 2 * delta, 2 * delta);
@@ -167,7 +167,7 @@ public class JCablePanel extends JPanel implements Observer {
      *         Wird genutzt um Kabel blinken zu lassen :)
      */
     public void update(Observable o, Object arg) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), update(" + o + "," + arg + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), update(" + o + "," + arg + ")");
 
         if (arg.equals(Boolean.TRUE)) {
             kabelFarbe = farbeBlinken;

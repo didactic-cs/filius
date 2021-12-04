@@ -187,7 +187,7 @@ public class TCPSocket extends Socket implements Runnable {
     public TCPSocket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort)
             throws VerbindungsException {
         super(betriebssystem, zielAdresse, zielPort, IpPaket.TCP);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
                 + betriebssystem + "," + zielAdresse + "," + zielPort + ")");
     }
 
@@ -203,7 +203,7 @@ public class TCPSocket extends Socket implements Runnable {
      */
     public TCPSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort) throws VerbindungsException {
         super(betriebssystem, lokalerPort, IpPaket.TCP);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (TCPSocket), constr: TCPSocket("
                 + betriebssystem + "," + lokalerPort + ")");
     }
 
@@ -220,7 +220,7 @@ public class TCPSocket extends Socket implements Runnable {
      * @param repeat
      */
     private void sendeSegment(TcpSegment segment, boolean repeat) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), sendeSegment(" + segment + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), sendeSegment(" + segment + ")");
         segment.setQuellPort(lokalerPort);
         segment.setZielPort(zielPort);
         if (repeat) {
@@ -260,7 +260,7 @@ public class TCPSocket extends Socket implements Runnable {
      *             wenn eine Antwort nicht innerhalb der maximalen Round-Trip-Time empfangen wird.
      */
     public synchronized void verbinden() throws VerbindungsException, TimeOutException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), verbinden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), verbinden()");
         TcpSegment tmp, segment;
         long sendezeit = Long.MAX_VALUE;
 
@@ -399,7 +399,7 @@ public class TCPSocket extends Socket implements Runnable {
      * @return - Gibt eine Liste mit den erstellten TcpSegmenten zurueck.
      */
     protected LinkedList<TcpSegment> erstelleSegmente(String daten) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), erstelleSegment(" + daten + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), erstelleSegment(" + daten + ")");
         LinkedList<TcpSegment> segmenteListe;
         int paketeAnzahl;
         TcpSegment segment;
@@ -438,7 +438,7 @@ public class TCPSocket extends Socket implements Runnable {
      *             wenn eine Bestaetigung nicht rechtzeitig eintrifft
      */
     public synchronized void senden(String nachricht) throws VerbindungsException, TimeOutException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), senden(" + nachricht + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), senden(" + nachricht + ")");
         TcpSegment segment, antwort;
         boolean bestaetigt = true;
         LinkedList<TcpSegment> liste;
@@ -547,7 +547,7 @@ public class TCPSocket extends Socket implements Runnable {
      *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
      */
     public String empfangen(long timeoutMillis) throws VerbindungsException, TimeOutException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), empfangen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), empfangen()");
         StringBuffer nachricht = new StringBuffer();
         LinkedList<TcpSegment> segmentListe = new LinkedList<TcpSegment>();
         boolean beendet = false;
@@ -645,12 +645,12 @@ public class TCPSocket extends Socket implements Runnable {
      * Verbindungsabbau etwas nicht funktioniert, wird der Socket einseitig geschlossen
      */
     public void schliessen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), schliessen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), schliessen()");
         (new Thread(this)).start();
     }
 
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), run()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), run()");
         closeSocket();
     }
 
@@ -741,7 +741,7 @@ public class TCPSocket extends Socket implements Runnable {
      *            wird ein neues Segment erstellt.
      */
     private void sendeAck(TcpSegment empfangSegment, TcpSegment sendeSegment) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), sendeAck(" + empfangSegment + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), sendeAck(" + empfangSegment + ","
                 + sendeSegment + ")");
         if (sendeSegment == null) {
             sendeSegment = new TcpSegment();
@@ -768,7 +768,7 @@ public class TCPSocket extends Socket implements Runnable {
      * FIN-Segments aufgerufen.
      */
     public void hinzufuegen(String startIp, int startPort, Object segment) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), hinzufuegen(" + startIp + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), hinzufuegen(" + startIp + ","
                 + startPort + "," + segment + ")");
         TcpSegment tcpSegment = (TcpSegment) segment;
 
@@ -799,7 +799,7 @@ public class TCPSocket extends Socket implements Runnable {
      * Die Methode ist <b>nicht blockierend</b>!
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), beenden()");
         zustand = CLOSED;
         synchronized (puffer) {
             puffer.notifyAll();
@@ -814,14 +814,14 @@ public class TCPSocket extends Socket implements Runnable {
      * @return ob der aktuelle Zustand ESTABLISHED ist
      */
     public boolean istVerbunden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), istVerbunden(), port: "
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), istVerbunden(), port: "
                 + this.holeLokalenPort());
         return (zustand == ESTABLISHED);
     }
 
     /* workaround function for more ugly exception provoking original code */
     public boolean isSortOfConnected() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), isSortOfConnected(), port: "
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), isSortOfConnected(), port: "
                 + this.holeLokalenPort());
         if (zustand >= 5 && zustand <= 11) {
             return true;

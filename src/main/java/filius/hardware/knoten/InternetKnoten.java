@@ -44,7 +44,7 @@ public abstract class InternetKnoten extends Knoten {
     private List<NetzwerkInterface> netzwerkInterfaces = new LinkedList<NetzwerkInterface>();
 
     public Port holeFreienPort() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), holeFreienPort()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), holeFreienPort()");
         ListIterator<NetzwerkInterface> iter = getNetzwerkInterfaces().listIterator();
         while (iter.hasNext()) {
             NetzwerkInterface nic = (NetzwerkInterface) iter.next();
@@ -96,7 +96,7 @@ public abstract class InternetKnoten extends Knoten {
      * @return
      */
     public NetzwerkInterface getNetzwerkInterfaceByMac(String mac) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), getNetzwerkInterfaceByMac("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), getNetzwerkInterfaceByMac("
                 + mac + ")");
         NetzwerkInterface rueckgabe = null;
         ListIterator<NetzwerkInterface> it = this.netzwerkInterfaces.listIterator();
@@ -122,7 +122,7 @@ public abstract class InternetKnoten extends Knoten {
      * @return
      */
     public NetzwerkInterface getNetzwerkInterfaceByIp(String ip) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), getNetzwerkInterfaceByIp("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), getNetzwerkInterfaceByIp("
                 + ip + ")");
         if (ip.equals("127.0.0.1")) {
             return (NetzwerkInterface) netzwerkInterfaces.get(0);
@@ -155,7 +155,7 @@ public abstract class InternetKnoten extends Knoten {
     }
 
     public void setzeAnzahlAnschluesse(int anzahlAnschluesse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), setzeAnzahlAnschluesse("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnoten), setzeAnzahlAnschluesse("
                 + anzahlAnschluesse + ")");
 
         netzwerkInterfaces = new LinkedList<NetzwerkInterface>();

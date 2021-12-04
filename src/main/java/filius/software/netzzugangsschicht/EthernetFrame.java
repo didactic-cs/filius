@@ -55,7 +55,7 @@ public class EthernetFrame implements Serializable {
 
     /** Konstruktor zur Initialisierung der Attribute des Frames */
     public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EthernetFrame), constr: EthernetFrame(" + daten
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (EthernetFrame), constr: EthernetFrame(" + daten
                 + "," + quellMacAdresse + "," + zielMacAdresse + "," + typ + ")");
         this.zielMacAdresse = zielMacAdresse;
         this.quellMacAdresse = quellMacAdresse;

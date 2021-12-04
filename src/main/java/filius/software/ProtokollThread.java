@@ -104,7 +104,7 @@ public abstract class ProtokollThread<T> extends Thread {
      * der Thread nicht beendet wird.
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ProtokollThread), starten()");
         if (!running) {
             running = true;
@@ -121,7 +121,7 @@ public abstract class ProtokollThread<T> extends Thread {
      * interrupt() aufgerufen, um die Verarbeitung fortzusetzen, damit der Thread dann beendet werden kann.
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ProtokollThread), beenden()");
         running = false;
         if (getState().equals(State.WAITING) || getState().equals(State.BLOCKED)) {

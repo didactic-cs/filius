@@ -63,7 +63,7 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
      */
     public Betriebssystem() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), constr: Betriebssystem()");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), constr: Betriebssystem()");
 
         dhcpServer = new DHCPServer();
         dhcpServer.setSystemSoftware(this);
@@ -85,7 +85,7 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
      */
     @Override
     public synchronized void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), starten()");
         super.starten();
 
         if (isDHCPKonfiguration()) {
@@ -102,7 +102,7 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
      * aufgerufen und der DHCP-Server und -Client beendet.
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), beenden()");
         super.beenden();
 
         dhcpServer.beenden();

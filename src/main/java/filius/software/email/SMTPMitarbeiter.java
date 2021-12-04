@@ -67,7 +67,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
     public SMTPMitarbeiter(// Betriebssystem bs,
             TCPSocket socket, SMTPServer server) {
         super(server, socket);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), constr: SMTPMitarbeiter(" + socket + "," + server + ")");
 
         this.socket = socket;
@@ -81,7 +81,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
      * In dieser Methode werden die ankommenden Befehle und Daten zur Uebertragung einer E-Mail verarbeitet.
      */
     protected void verarbeiteNachricht(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
         String[] tokens;
         String tmp;
@@ -171,7 +171,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
      * Empfaenger in einem lokalen Postfach abgelegt bzw. an einen neuen Empfaenger weiter geleitet.
      */
     private void verarbeiteEmail() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), verarbeiteEmail()");
         StringBuilder weitereEmpfaenger = new StringBuilder();
         List<String> unknownRecipients = new ArrayList<String>();
@@ -207,7 +207,7 @@ public class SMTPMitarbeiter extends ServerMitarbeiter {
      * Nachricht informiert!
      */
     private void senden(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (SMTPMitarbeiter), senden(" + nachricht + ")");
         try {
             socket.senden(nachricht);

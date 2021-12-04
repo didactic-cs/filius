@@ -78,7 +78,7 @@ public class WebServer extends TCPServerAnwendung {
      * nachdem ein WebServer erzeugt wurde, muss ueber die Vaterklasse Anwendung ein Betriebssystem zugewiesen werden
      */
     public void setSystemSoftware(InternetKnotenBetriebssystem betriebssystem) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
 
@@ -90,7 +90,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void erzeugeIndexDatei(String dateipfad) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeIndexDatei(" + dateipfad + ")");
         String input;
 
@@ -129,7 +129,7 @@ public class WebServer extends TCPServerAnwendung {
      * erzeugt alle Dateien, fuer Fehlermeldungen etc. Die Dateien liegen als Textdateien im realen Ordner /konfig
      */
     private void erzeugeStandardVerzeichnis() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeStandardVerzeichnis()");
         Dateisystem dateisystem;
 
@@ -161,7 +161,7 @@ public class WebServer extends TCPServerAnwendung {
      * erzeugt eine Datei fuer das Dateisystem von Filius. Dieses arbeitet mit TreeNodes
      */
     private void erzeugeDatei(String dateiname, String endung, String quellcode) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), erzeugeDatei(" + dateiname + "," + endung + "," + quellcode + ")");
         String kompletteDateiName = dateiname + "." + endung;
         Datei datei = new Datei(kompletteDateiName, endung, quellcode);
@@ -172,7 +172,7 @@ public class WebServer extends TCPServerAnwendung {
      * holt eine Datei aus dem Verzeichnisbaum des WebServers. Dieser benutzt TreeNodes
      */
     protected Datei dateiLiefern(String relativerPfad) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), dateiLiefern(" + relativerPfad + ")");
         Datei tmpDatei;
 
@@ -186,7 +186,7 @@ public class WebServer extends TCPServerAnwendung {
      * 
      */
     public WebServerPlugIn holePlugin(String key) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), holePlugin("
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), holePlugin("
                 + key + ")");
         WebServerPlugIn plugIn = null;
 
@@ -223,7 +223,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void changeVHostTable(int row, int col, String val) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), changeVHostTable(" + row + "," + col + "," + val + ")");
         if (val != null)
             vHostArray[row][col] = val;
@@ -234,7 +234,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public String vhostPrefix(String vhost) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), vhostPrefix(" + vhost + ")");
         for (int i = 0; i < vHostArray.length; i++) {
             if (vHostArray[i][0] != null && vHostArray[i][0].equalsIgnoreCase(vhost)) {
@@ -250,7 +250,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     protected void neuerMitarbeiter(Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), neuerMitarbeiter(" + socket + ")");
         WebServerMitarbeiter wsMitarbeiter;
 
@@ -263,7 +263,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
         super.starten();
 
         if (!getSystemSoftware().getDateisystem().dateiVorhanden("www.conf", "vhosts")) {
@@ -274,12 +274,12 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), beenden()");
         super.beenden();
     }
 
     private void saveVHosts() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), schreibeRecordListe()");
         Datei vhosts;
         StringBuffer text;
@@ -305,7 +305,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     private void initialisiereVHosts() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");
         Datei vhosts;
         StringTokenizer tokenizer;
         String line;

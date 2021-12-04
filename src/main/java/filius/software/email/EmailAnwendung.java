@@ -59,7 +59,7 @@ public class EmailAnwendung extends Anwendung {
      * Startet die Email-Anwendung und für Sie jeweils einen Pop3- und Smtp-Client.
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), starten()");
         super.starten();
 
         pop3client = new POP3Client(this);
@@ -74,7 +74,7 @@ public class EmailAnwendung extends Anwendung {
      * Superklasse aufgerufen und der Socket geschlossen.
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), beenden()");
         super.beenden();
         if (pop3client != null)
             pop3client.beenden();
@@ -111,14 +111,14 @@ public class EmailAnwendung extends Anwendung {
      * @param pop3Server
      */
     public void emailsAbholenEmails(String benutzername, String passwort, String pop3Port, String pop3Server) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), emailsAbholenEmails("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailAnwendung), emailsAbholenEmails("
                 + benutzername + "," + passwort + "," + pop3Port + "," + pop3Server + ")");
         pop3client.emailsHolen(pop3Server, pop3Port, benutzername, passwort);
     }
 
     public boolean kontaktHinzufuegen(String name, String vorname, String strasse, int hausnr, int plz, String wohnort,
             String email, String telefon) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), kontaktHinzufuegen(" + name + "," + vorname + "," + strasse + "," + hausnr + ","
                 + plz + "," + wohnort + "," + email + "," + telefon + ")");
         if (EingabenUeberpruefung.isGueltig(name, EingabenUeberpruefung.musterMindEinZeichen)
@@ -149,7 +149,7 @@ public class EmailAnwendung extends Anwendung {
     }
 
     public boolean kontaktLoeschen(String name, String vorname, String email) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), kontaktLoeschen(" + name + "," + vorname + "," + email + ")");
         if (EingabenUeberpruefung.isGueltig(name, EingabenUeberpruefung.musterMindEinZeichen)
                 && EingabenUeberpruefung.isGueltig(vorname, EingabenUeberpruefung.musterMindEinZeichen)
@@ -168,7 +168,7 @@ public class EmailAnwendung extends Anwendung {
     }
 
     public void speichern() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), speichern()");
         Datei datei = new Datei();
         datei.setDateiInhalt(konto.toString());
@@ -178,7 +178,7 @@ public class EmailAnwendung extends Anwendung {
     }
 
     public void laden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EmailAnwendung), laden()");
         Datei datei = getSystemSoftware().getDateisystem().holeDatei(getSystemSoftware().getDateisystem().getRoot(),
                 "konten.txt");

@@ -43,7 +43,7 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
      */
     public EthernetThread(Ethernet ethernet, NetzwerkInterface nic) {
         super(nic.getPort().holeEingangsPuffer());
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EthernetThread), constr: EthernetThread(" + ethernet + "," + nic + ")");
 
         this.ethernet = ethernet;
@@ -55,7 +55,7 @@ public class EthernetThread extends ProtokollThread<EthernetFrame> {
      * geschrieben.
      */
     protected void verarbeiteDatenEinheit(EthernetFrame etp) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (EthernetThread), verarbeiteDateneinheit(" + etp.toString() + ")");
         // record receipt (independent of further processing)
         Lauscher.getLauscher().addDatenEinheit(netzwerkInterface.getMac(), etp);

@@ -87,7 +87,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      */
     public ServerSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll)
             throws ServerSocketException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), constr: ServerSocket("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), constr: ServerSocket("
                 + betriebssystem + "," + lokalerPort + "," + transportProtokoll + ")");
         this.betriebssystem = betriebssystem;
         this.lokalerPort = lokalerPort;
@@ -153,7 +153,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * @return
      */
     public synchronized Socket oeffnen() throws VerbindungsException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), oeffnen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), oeffnen()");
         Socket socket = null;
 
         if (protokoll instanceof TCP) {
@@ -185,7 +185,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * Verbindungsanfragen.
      */
     public void hinzufuegen(String startIp, int startPort, Object segment) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), hinzufuegen(" + startIp + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), hinzufuegen(" + startIp + ","
                 + startPort + "," + segment + ")");
         String start;
         Socket socket;
@@ -208,7 +208,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * befindet. Wenn ein Socket in diesem Zustand geschlossen wird, blockiert dieser nicht!
      */
     public void schliessen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), schliessen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), schliessen()");
 
         if (aktuellerSocket != null)
             aktuellerSocket.schliessen();
@@ -221,7 +221,7 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * Diese Methode ist <b>nicht blockierend</b>!
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), beenden()");
         if (aktuellerSocket != null)
             aktuellerSocket.beenden();
     }

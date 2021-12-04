@@ -78,7 +78,7 @@ public class Firewall extends Anwendung implements I18n {
      * startet die Anwendung Firewall.
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), starten()");
         super.starten();
 
         for (NetzwerkInterface nic : getAllNetworkInterfaces()) {
@@ -96,7 +96,7 @@ public class Firewall extends Anwendung implements I18n {
      * ruft die Methoden zum ordnungsgemäßen Stoppen aller existierenden Threads auf
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), beenden()");
         super.beenden();
 
         this.beendeFirewallThread(null);
@@ -310,7 +310,7 @@ public class Firewall extends Anwendung implements I18n {
      * entfernt eine Regel aus dem Regelkatalog
      */
     public void deleteRule(int idx) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Firewall), entferneRegel(" + idx + ")");
 
         if (idx >= 0 && idx < ruleset.size()) {

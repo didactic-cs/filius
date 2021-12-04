@@ -108,7 +108,7 @@ public abstract class SystemSoftware extends Observable implements Serializable 
      * @deprecated Use firePropertyChanged based on the {@link PropertyChangeSupport} mechanism instead.
      */
     public void benachrichtigeBeobacher(Object o) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SystemSoftware), benachrichtigeBeobachter(" + o
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SystemSoftware), benachrichtigeBeobachter(" + o
                 + ")");
         setChanged();
         notifyObservers(o);

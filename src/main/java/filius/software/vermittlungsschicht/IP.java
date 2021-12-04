@@ -73,7 +73,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      */
     public IP(InternetKnotenBetriebssystem systemsoftware) {
         super(systemsoftware);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware + ")");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware + ")");
     }
 
     public boolean isIPForwardingEnabled() {
@@ -133,7 +133,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
 
     /** Hilfsmethode zum Versenden eines Broadcast-Pakets */
     private void sendeBroadcast(IpPaket ipPaket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), sendeBroadcast(" + ipPaket.toString()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), sendeBroadcast(" + ipPaket.toString()
                 + ")");
 
         InternetKnoten knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
@@ -164,7 +164,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      *            das zu verarbeitende Segment
      */
     void benachrichtigeTransportschicht(IpPaket paket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), benachrichtigeTransportschicht("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), benachrichtigeTransportschicht("
                 + paket.toString() + ")");
         if (paket.getSegment() instanceof TcpSegment) {
             synchronized (ipPaketListeTCP) {
@@ -293,7 +293,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * @return die Liste mit Segmenten fuer UDP- oder TCP-Segmente
      */
     public LinkedList<IpPaket> holePaketListe(int protokollTyp) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), holePaketListe(" + protokollTyp + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), holePaketListe(" + protokollTyp + ")");
         if (protokollTyp == IpPaket.TCP) {
             return ipPaketListeTCP;
         } else if (protokollTyp == IpPaket.UDP) {
@@ -306,7 +306,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * Hier wird der Thread zur Ueberwachung des Puffers fuer eingehende IP-Pakete der Netzzugangsschicht
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), starten()");
 
         thread = new IPThread(this);
         thread.starten();
@@ -314,7 +314,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
 
     /** Der Thread zur Ueberwachung des IP-Pakete-Puffers */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), beenden()");
         thread.beenden();
     }
 

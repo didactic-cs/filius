@@ -80,7 +80,7 @@ public class GUIMainMenu implements Serializable, I18n {
             btInfo;
 
     public GUIMainMenu() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
         Container c = JMainFrame.getJMainFrame().getContentPane();
 
         menupanel = new JBackgroundPanel();
@@ -408,7 +408,7 @@ public class GUIMainMenu implements Serializable, I18n {
     // simulation
     // and possibly highlight in development view
     private void resetCableHighlighting(int mode) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), resetCableHL(" + mode + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), resetCableHL(" + mode + ")");
         if (mode == MODUS_AKTION) { // change to simulation view: de-highlight
                                     // all cables
             for (GUIKabelItem cableItem : GUIContainer.getGUIContainer().getCableItems()) {
@@ -423,7 +423,7 @@ public class GUIMainMenu implements Serializable, I18n {
     }
 
     public synchronized void selectMode(int mode) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), selectMode(" + mode + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), selectMode(" + mode + ")");
 
         if (mode == MODUS_ENTWURF) {
             resetCableHighlighting(mode); // de-highlight cables

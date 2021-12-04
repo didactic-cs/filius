@@ -69,7 +69,7 @@ public class Query {
      *            ein String, der durch die Methode toString() erstellt wurde
      */
     public Query(String query) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Query), constr: Query(" + query + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Query), constr: Query(" + query + ")");
         StringTokenizer tokenizer;
         String token;
 

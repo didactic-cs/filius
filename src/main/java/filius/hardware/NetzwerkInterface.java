@@ -45,7 +45,7 @@ public class NetzwerkInterface implements Serializable {
     private Port anschluss;
 
     public NetzwerkInterface() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (NetzwerkInterface), constr: NetzwerkInterface()");
         setMac(Information.getInformation().holeFreieMACAdresse());
         // set initial IP address to the same value for all new devices

@@ -84,7 +84,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      */
     public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int transportProtokoll)
             throws VerbindungsException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
                 + "," + zielAdresse + "," + zielPort + "," + transportProtokoll + ")");
         String ip;
 
@@ -127,7 +127,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
     public Socket(InternetKnotenBetriebssystem betriebssystem, String zielAdresse, int zielPort, int transportProtokoll,
             int lokalerPort) throws VerbindungsException {
         this(betriebssystem, zielAdresse, zielPort, transportProtokoll);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
                 + "," + zielAdresse + "," + zielPort + "," + transportProtokoll + "," + lokalerPort + ")");
 
         this.lokalerPort = lokalerPort;
@@ -144,7 +144,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      */
     public Socket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll)
             throws VerbindungsException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
                 + "," + lokalerPort + "," + transportProtokoll + ")");
 
         modus = PASSIV;
@@ -162,7 +162,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * leerer Konstruktor wird von Unterklassen benoetigt
      */
     public Socket() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket()");
     }
 
     /** Zum Versenden einer Nachricht ueber den Socket */
@@ -199,12 +199,12 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      *            das zu sendende Segment
      */
     protected void sende(Segment segment) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), sende(" + segment + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), sende(" + segment + ")");
         protokoll.senden(zielIp, quellIp, segment);
     }
 
     protected void sende(String zielIp, String quellIp, Segment segment) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), sende(" + segment + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), sende(" + segment + ")");
         protokoll.senden(zielIp, quellIp, segment);
     }
 
@@ -225,7 +225,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * 
      */
     protected void eintragenPort() throws SocketException {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), eintragenPort()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), eintragenPort()");
         SocketSchnittstelle socket = null;
 
         if (lokalerPort == -1) {
@@ -255,7 +255,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * 
      */
     protected void austragenPort() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), austragenPort()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), austragenPort()");
         SocketSchnittstelle socket = null;
 
         try {
@@ -276,7 +276,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * Methode fuer den Zugriff auf die IP-Adresse des entfernten Sockets
      */
     public String holeZielIPAdresse() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), holeZielIPAdresse()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), holeZielIPAdresse()");
         return zielIp;
     }
 
@@ -284,7 +284,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * Methode fuer den Zugriff auf den TCP-Port des entfernten Sockets
      */
     public int holeZielPort() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), holeZielPort()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), holeZielPort()");
         return zielPort;
     }
 

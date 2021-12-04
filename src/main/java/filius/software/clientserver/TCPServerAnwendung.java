@@ -35,7 +35,7 @@ public abstract class TCPServerAnwendung extends ServerAnwendung {
 
     public TCPServerAnwendung() {
         super(IpPaket.TCP);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + ", constr: TCPServerAnwendung()");
     }
 }

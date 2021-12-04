@@ -75,7 +75,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      * bestuecken, und anschließend eine HTML-Seite zurueckliefern
      */
     public String holeHtmlSeite(String postDaten) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), holeHtmlSeite(" + postDaten
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), holeHtmlSeite(" + postDaten
                 + ")");
         String seite = "";
         if (postDaten != null && !postDaten.isEmpty()) {
@@ -92,7 +92,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      * @author weyer liefert zu einem ausgeführten Submit-Befehl die einzelnen Stücke zurück
      */
     private String[][] postStringZerlegen(String post) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), postStringZerlegen(" + post
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), postStringZerlegen(" + post
                 + ")");
 
         String[] submitTeile;
@@ -128,7 +128,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      *            String of POST parameters submitted to web site
      */
     private void processParameters(String postString) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), processParameters("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), processParameters("
                 + postString + ")");
 
         // globally defined to make them usable in HTML creation method
@@ -273,7 +273,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
      * diese Seite erstellt den kompletten Quelltext für die konfig.html
      */
     private String konfigSeiteErstellen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), konfigSeiteErstellen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (FirewallWebKonfig), konfigSeiteErstellen()");
         String html;
 
         // LOG.debug("FirewallWebKonfig: dynamische Generierung der HTML-konfig-Seite!");

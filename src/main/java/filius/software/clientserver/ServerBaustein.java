@@ -65,7 +65,7 @@ public class ServerBaustein extends TCPServerAnwendung {
      * der zu verwaltenden Mitarbeiter hinzugefuegt.
      */
     protected void neuerMitarbeiter(Socket socket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerBaustein), neuerMitarbeiter(" + socket + ")");
         ServerMitarbeiter mitarbeiter;
 

@@ -43,7 +43,7 @@ public class DNSServerMitarbeiter extends ServerMitarbeiter {
     }
 
     protected void verarbeiteNachricht(String dateneinheit) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServerMitarbeiter), verarbeiteNachricht(" + dateneinheit + ")");
         DNSNachricht nachricht, antwort;
         ResourceRecord record;

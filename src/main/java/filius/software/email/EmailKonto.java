@@ -52,7 +52,7 @@ public class EmailKonto {
 
     /* Liest durch Semicolon getrennte Werte ein */
     public EmailKonto(String kontoString) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), constr: EmailKonto(" + kontoString
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), constr: EmailKonto(" + kontoString
                 + ")");
         String[] teile = kontoString.split(";");
         if (teile.length > 8) {
@@ -69,7 +69,7 @@ public class EmailKonto {
     }
 
     public String toString() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), toString()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (EmailKonto), toString()");
         String ergebnis = "" + pop3server + ";" + smtpserver + ";" + pop3port + ";" + smtpport + ";" + benutzername
                 + ";" + passwort + ";" + nachname + ";" + vorname + ";" + emailAdresse;
         return ergebnis;

@@ -374,7 +374,7 @@ public class GUIEvents implements I18n {
     }
 
     private GUIKabelItem findClickedCable(MouseEvent e) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", clickedCable(" + e + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", clickedCable(" + e + ")");
         // Falls kein neues Objekt erstellt werden soll
         int xPos = e.getX() + GUIContainer.getGUIContainer().getXOffset();
         int yPos = e.getY() + GUIContainer.getGUIContainer().getYOffset();
@@ -702,7 +702,7 @@ public class GUIEvents implements I18n {
 
     // remove a single cable without using touching the connected node
     private void removeSingleCable(GUIKabelItem cable) {
-        LOG.debug("INVOKED filius.gui.GUIEvents, removeSingleCable(" + cable + ")");
+        LOG.trace("INVOKED filius.gui.GUIEvents, removeSingleCable(" + cable + ")");
         if (cable == null)
             return; // no cable to be removed (this variable should be set in
                     // contextMenuCable)

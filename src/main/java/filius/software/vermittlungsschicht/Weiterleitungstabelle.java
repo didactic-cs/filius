@@ -114,7 +114,7 @@ public class Weiterleitungstabelle implements I18n {
      * @param schnittstelle
      */
     public void addManuellenEintrag(String netzwerkziel, String netzwerkmaske, String gateway, String schnittstelle) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), addManuellenEintrag("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), addManuellenEintrag("
                 + netzwerkziel + "," + netzwerkmaske + "," + gateway + "," + schnittstelle + ")");
         manuelleEintraege = null;
 
@@ -159,7 +159,7 @@ public class Weiterleitungstabelle implements I18n {
      * Eintraegen
      */
     public LinkedList<String[]> holeTabelle() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), holeTabelle()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), holeTabelle()");
         InternetKnoten knoten;
         String gateway;
         LinkedList<String[]> tabelle;

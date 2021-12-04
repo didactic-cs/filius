@@ -42,7 +42,7 @@ public abstract class LokalerKnoten extends Knoten {
     private LinkedList<Port> anschluesse = new LinkedList<Port>();
 
     public Port holeFreienPort() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (LokalerKnoten), holeFreienPort()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (LokalerKnoten), holeFreienPort()");
         for (Port anschluss : anschluesse) {
             if (anschluss.isPortFrei()) {
                 return anschluss;
@@ -100,7 +100,7 @@ public abstract class LokalerKnoten extends Knoten {
     }
 
     public void setzeAnzahlAnschluesse(int anzahlAnschluesse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (LokalerKnoten), setzeAnzahlAnschluesse("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (LokalerKnoten), setzeAnzahlAnschluesse("
                 + anzahlAnschluesse + ")");
         LinkedList<Port> anschluesse;
 

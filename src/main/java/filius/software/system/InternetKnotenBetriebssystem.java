@@ -138,7 +138,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      */
     public InternetKnotenBetriebssystem() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), constr: InternetKnotenBetriebssystem()");
 
         installierteAnwendung = new HashMap<String, Anwendung>();
@@ -174,7 +174,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      */
     public void beenden() {
         super.beenden();
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), beenden()");
 
         // Die einzelnen Protokoll-Threads werden beginnend
         // mit der untersten Schicht beendet.
@@ -267,7 +267,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     @Override
     public synchronized void starten() {
         super.starten();
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), starten()");
 
         dateisystem.fixDirectory(dateisystem.getRoot());
 
@@ -369,7 +369,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * benoetigt, um den Anforderungen an JavaBeans gerecht zu werden.
      */
     public void setInstallierteAnwendungen(HashMap<String, Anwendung> anwendungen) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setInstallierteAnwendungen()");
         this.installierteAnwendung = anwendungen;
         // printInstallierteAnwendungen();
@@ -404,7 +404,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return das Programm / die Anwendung
      */
     public Anwendung holeSoftware(String anwendungsklasse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), holeSoftware("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), holeSoftware("
                 + anwendungsklasse + ")");
         Anwendung anwendung;
 
@@ -427,7 +427,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return ob eine Anwendung entfernt wurde
      */
     public boolean entferneSoftware(String awKlasse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), entferneSoftware(" + awKlasse + ")");
         printInstallierteAnwendungen(); // DEBUG
         boolean entfernt = false;
@@ -443,7 +443,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     }
 
     public boolean installiereSoftware(String klassenname) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), installiereSoftware(" + klassenname + ")");
         printInstallierteAnwendungen(); // DEBUG
         Anwendung neueAnwendung = null;
@@ -492,7 +492,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     }
 
     public boolean deinstalliereAnwendung(String anwendungsName) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), deinstalliereAnwendung(" + anwendungsName + ")");
         printInstallierteAnwendungen(); // DEBUG
         Anwendung anwendung;
@@ -514,7 +514,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return ein Array der Anwendungsnamen
      */
     public Anwendung[] holeArrayInstallierteSoftware() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), holeArrayInstallierteSoftware()");
         Anwendung[] anwendungen;
         Iterator it = installierteAnwendung.entrySet().iterator();
@@ -554,7 +554,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * @return IP-Adresse der einzigen Netzwerkkarte als String
      */
     public String getStandardGateway() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), getStandardGateway()");
         InternetKnoten knoten;
         NetzwerkInterface nic;
@@ -578,7 +578,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      *            IP-Adresse der Netzwerkkarten als String
      */
     public void setStandardGateway(String gateway) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setStandardGateway(" + gateway + ")");
         InternetKnoten knoten;
         NetzwerkInterface nic;
@@ -601,7 +601,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public void setzeIPAdresse(String ip) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setzeIPAdresse("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setzeIPAdresse("
                 + ip + ")");
         InternetKnoten knoten;
         ip = IP.ipCheck(ip);
@@ -643,7 +643,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public String holeMACAdresse() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), holeMACAdresse()");
         InternetKnoten knoten;
 
@@ -684,7 +684,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Entwurfsmusters Fassade
      */
     public void setDNSServer(String dns) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setDNSServer("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setDNSServer("
                 + dns + ")");
         InternetKnoten knoten;
         NetzwerkInterface nic;
@@ -707,7 +707,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Fassade
      */
     public void setzeNetzmaske(String mask) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setzeNetzmaske("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), setzeNetzmaske("
                 + mask + ")");
         InternetKnoten knoten;
         mask = IP.ipCheck(mask);

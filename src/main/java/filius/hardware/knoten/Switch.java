@@ -45,7 +45,7 @@ public class Switch extends LokalerKnoten implements I18n {
 
     public Switch() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Switch), constr: Switch()");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Switch), constr: Switch()");
 
         this.setzeAnzahlAnschluesse(24);
         this.setSystemSoftware(new SwitchFirmware());

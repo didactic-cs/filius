@@ -253,7 +253,7 @@ public class LayeredMessageTable extends JTable implements LauscherBeobachter, I
     }
 
     public synchronized void update() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
         Object[][] daten;
 
         daten = Lauscher.getLauscher().getDaten(interfaceId, false, 1);

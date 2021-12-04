@@ -309,7 +309,7 @@ LOG.debug("",e);
     }
 
     public void update(Observable o, Object arg) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIDesktopPanel), update(" + o + "," + arg
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIDesktopPanel), update(" + o + "," + arg
                 + ")");
         if (arg == null) {
             updateAnwendungen();

@@ -60,7 +60,7 @@ public class ServerBausteinMitarbeiter extends ServerMitarbeiter {
      * eingehenden Nachricht.
      */
     protected void verarbeiteNachricht(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerBausteinMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
         try {
             socket.senden(nachricht);

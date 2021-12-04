@@ -86,7 +86,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
      * @see filius.software.dateiaustausch.PeerToPeerClientMitarbeiter#PING
      */
     public PeerToPeerClientMitarbeiter(PeerToPeerAnwendung peerToPeerAnwendung, String ip, PeerToPeerPaket paket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClientMitarbeiter), constr: PeerToPeerClientMitarbeiter(" + peerToPeerAnwendung + ","
                 + ip + "," + paket + ")");
         this.peerToPeerAnwendung = peerToPeerAnwendung;
@@ -110,7 +110,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
      * @see filius.software.dateiaustausch.PeerToPeerClientMitarbeiter#HTTP
      */
     public PeerToPeerClientMitarbeiter(PeerToPeerAnwendung anwendung, String ip, String dateiname) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClientMitarbeiter), constr: PeerToPeerClientMitarbeiter(" + anwendung + "," + ip + ","
                 + dateiname + ")");
         HTTPNachricht nachricht;
@@ -145,7 +145,7 @@ class PeerToPeerClientMitarbeiter extends Thread {
      * </ol>
      */
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerClientMitarbeiter), run()");
         String antwort;
         HTTPNachricht http, abfrage;

@@ -55,18 +55,18 @@ public class FileImporter extends Anwendung implements I18n {
 
     public FileImporter() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileImporter), constr: FileImporter()");
         this.getFileTypeMap();
     }
 
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileImporter), starten()");
     }
 
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileImporter), beenden()");
     }
 
@@ -78,7 +78,7 @@ public class FileImporter extends Anwendung implements I18n {
      * @return
      */
     public String addFile(String pfadname, String dateiname, DefaultMutableTreeNode ordner, String neuerName) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (FileImporter), addFile("
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (FileImporter), addFile("
                 + pfadname + "," + dateiname + "," + ordner + "," + neuerName + ")");
         Datei tempDatei;
         String dateityp;
@@ -124,7 +124,7 @@ public class FileImporter extends Anwendung implements I18n {
      * @return Typ der Datei als String
      */
     public String getFileType(String dateiname) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileImporter), getFileType(" + dateiname + ")");
         String tmpType = "";
         /*
@@ -156,7 +156,7 @@ public class FileImporter extends Anwendung implements I18n {
      * 
      */
     public void getFileTypeMap() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileImporter), getFileTypeMap()");
         fileTypeMap = new HashMap<String, String>();
         RandomAccessFile configFile;

@@ -67,7 +67,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
 
     /** Konstruktor zur Initialisierung des verwendeten TransportProtokolls */
     public ServerAnwendung(int transportProtokoll) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + ", constr: ServerAnwendung(" + transportProtokoll + ")");
         this.transportProtokoll = transportProtokoll;
     }
@@ -100,7 +100,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * @param flag
      */
     public synchronized void setAktiv(boolean flag) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), setAktiv(" + flag + ")");
         aktiv = flag;
 
@@ -128,7 +128,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * Mitarbeiter als leere Liste erstellt und die starten()-Methode der Oberklasse zum Starten des Threads aufgerufen.
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), starten()");
         super.starten();
         mitarbeiter = new LinkedList<ServerMitarbeiter>();
@@ -146,7 +146,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * Mitarbeiter-Threads sowie die Socket-Schnittstelle werden beendet.
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), beenden()");
         super.beenden();
 
@@ -190,7 +190,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
      * neuerMitarbeiter() erstellt, der die weitere Verarbeitung uebernimmt.
      */
     public void annehmenVerbindungen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ServerAnwendung), annehmenVerbindungen()");
         Socket transportSocket;
 

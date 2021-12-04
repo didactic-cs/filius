@@ -43,7 +43,7 @@ public abstract class VermittlungsProtokoll extends Protokoll {
     /** Standard-Konstruktor der Oberklasse Protokoll */
     public VermittlungsProtokoll(SystemSoftware systemSoftware) {
         super(systemSoftware);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (VermittlungsProtokoll), constr: VermittlungsProtokoll(" + systemSoftware + ")");
     }
 
@@ -65,7 +65,7 @@ public abstract class VermittlungsProtokoll extends Protokoll {
      * @return ob die Netz-IDs der zwei Adressen uebereinstimmen
      */
     public static boolean gleichesRechnernetz(String adresseEins, String adresseZwei, String netzmaske) {
-        LOG.debug("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, gleichesRechnernetz("
+        LOG.trace("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, gleichesRechnernetz("
                 + adresseEins + "," + adresseZwei + "," + netzmaske + ")");
         int addressOneAsInt = ipAddressToInt(adresseEins);
         int addressTwoAsInt = ipAddressToInt(adresseZwei);
@@ -96,7 +96,7 @@ public abstract class VermittlungsProtokoll extends Protokoll {
      * Determine subnet address for given IP and netmask.
      */
     public static String getSubnetForIp(String ip, String mask) {
-        LOG.debug("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, getSubnetForIp(" + ip
+        LOG.trace("INVOKED (static) filius.software.vermittlungsschicht.VermittlungsProtokoll, getSubnetForIp(" + ip
                 + "," + mask + ")");
         int[] a1, m;
         int[] res = new int[4];

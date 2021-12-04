@@ -49,7 +49,7 @@ public class Rechner extends Host implements I18n {
      */
     public Rechner() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Rechner), constr: Rechner()");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Rechner), constr: Rechner()");
 
         this.setName(messages.getString("hw_rechner_msg2"));
     }

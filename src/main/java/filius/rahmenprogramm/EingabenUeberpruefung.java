@@ -83,13 +83,13 @@ public class EingabenUeberpruefung implements I18n {
      * @return
      */
     public static boolean isGueltig(String zuPruefen, Pattern muster) {
-        LOG.debug("INVOKED (EingabenUeberpruefung), isGueltig(" + zuPruefen + "," + muster + ")");
+        LOG.trace("INVOKED (EingabenUeberpruefung), isGueltig(" + zuPruefen + "," + muster + ")");
         Matcher m = muster.matcher(zuPruefen);
         return m.matches();
     }
 
     public static boolean isValidSubnetmask(String subnet) {
-        LOG.debug("INVOKED (EingabenUeberpruefung), isValidSubnetmask(" + subnet + ")");
+        LOG.trace("INVOKED (EingabenUeberpruefung), isValidSubnetmask(" + subnet + ")");
         String[] token = subnet.split("\\.");
         String binary = "";
         LOG.debug("DEBUG (EingabenUeberpruefung), '" + token + "', length=" + token.length);

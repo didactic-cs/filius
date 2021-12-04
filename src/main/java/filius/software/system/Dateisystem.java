@@ -70,7 +70,7 @@ public class Dateisystem implements Serializable {
      * genuegen. Daher ist der Paramterlose Konstruktor wichtig!
      */
     public Dateisystem() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), constr: Dateisystem()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), constr: Dateisystem()");
         root = new DefaultMutableTreeNode("root");
     }
 
@@ -121,7 +121,7 @@ public class Dateisystem implements Serializable {
      *         "verzeichnis" vorhanden ist.
      */
     public boolean dateiVorhanden(DefaultMutableTreeNode verzeichnis, String dateiName) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), dateiVorhanden(" + verzeichnis
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), dateiVorhanden(" + verzeichnis
                 + "," + dateiName + ")");
 
         if (verzeichnis == null) {
@@ -188,7 +188,7 @@ public class Dateisystem implements Serializable {
      * @see absoluterPfad(DefaultMutableTreeNode)
      */
     public DefaultMutableTreeNode verzeichnisKnoten(String pfad) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", verzeichnisKnoten(" + pfad + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", verzeichnisKnoten(" + pfad + ")");
         pfad = stripRoot(evaluatePathString(pfad));
 
         if (pfad.equals(FILE_SEPARATOR) || pfad.isEmpty()) {
@@ -220,7 +220,7 @@ public class Dateisystem implements Serializable {
      * @see absoluterPfad(DefaultMutableTreeNode)
      */
     public static DefaultMutableTreeNode verzeichnisKnoten(DefaultMutableTreeNode verzeichnis, String pfad) {
-        LOG.debug("INVOKED (static) filius.software.system.Dateisystem, verzeichnisKnoten(" + verzeichnis + "," + pfad
+        LOG.trace("INVOKED (static) filius.software.system.Dateisystem, verzeichnisKnoten(" + verzeichnis + "," + pfad
                 + ")");
         DefaultMutableTreeNode node;
         String absolutePath;
@@ -266,7 +266,7 @@ public class Dateisystem implements Serializable {
      * @return die Datei wenn vorhanden, sonst "null"
      */
     public Datei holeDatei(String dateiPfad) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + dateiPfad + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + dateiPfad + ")");
         DefaultMutableTreeNode node;
 
         node = verzeichnisKnoten(dateiPfad);
@@ -290,7 +290,7 @@ public class Dateisystem implements Serializable {
      * @return die Datei wenn vorhanden, sonst "null"
      */
     public Datei holeDatei(DefaultMutableTreeNode verzeichnis, String dateiPfad) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + verzeichnis + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + verzeichnis + ","
                 + dateiPfad + ")");
         String absoluterDateiPfad;
 
@@ -308,7 +308,7 @@ public class Dateisystem implements Serializable {
      * @return die Datei wenn vorhanden, sonst "null"
      */
     public Datei holeDatei(String verzeichnisPfad, String dateiPfad) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + verzeichnisPfad
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), holeDatei(" + verzeichnisPfad
                 + "," + dateiPfad + ")");
         String absoluterDateiPfad;
 
@@ -327,7 +327,7 @@ public class Dateisystem implements Serializable {
      * @return eine Liste von Dateien, in deren Dateiname der Suchstring enthalten ist
      */
     public List<Datei> dateiSuche(String suchVerzeichnis, String suchString) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), dateiSuche(" + suchVerzeichnis
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Dateisystem), dateiSuche(" + suchVerzeichnis
                 + "," + suchString + ")");
 
         List<Datei> dateien = new LinkedList<Datei>();
@@ -391,7 +391,7 @@ public class Dateisystem implements Serializable {
      * @return ob das Speichern erfolgreich war
      */
     public boolean speicherDatei(DefaultMutableTreeNode verzeichnis, Datei datei) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", speicherDatei(" + verzeichnis + "," + datei
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", speicherDatei(" + verzeichnis + "," + datei
                 + ")");
         return speicherDatei(absoluterPfad(verzeichnis), datei);
     }
@@ -407,7 +407,7 @@ public class Dateisystem implements Serializable {
      *         wird auch "true" zurueck gegeben.
      */
     public boolean erstelleVerzeichnis(String verzeichnisPfad, String neuesVerzeichnis) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", erstelleVerzeichnis(" + verzeichnisPfad + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", erstelleVerzeichnis(" + verzeichnisPfad + ","
                 + neuesVerzeichnis + ")");
         DefaultMutableTreeNode node;
         DefaultMutableTreeNode neuerNode = null;
@@ -460,7 +460,7 @@ public class Dateisystem implements Serializable {
      * @return eine Liste der Dateien
      */
     public List<Datei> holeDateien(DefaultMutableTreeNode node) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", holeDateien(" + node + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", holeDateien(" + node + ")");
         List<Datei> liste = new LinkedList<Datei>();
 
         if (node == null) {
@@ -487,7 +487,7 @@ public class Dateisystem implements Serializable {
      *         existiert wird null zurueckgeliefert.
      */
     public List<Object> listeVerzeichnis(DefaultMutableTreeNode verzeichnis) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", listeVerzeichnis(" + verzeichnis + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", listeVerzeichnis(" + verzeichnis + ")");
         LinkedList<Object> liste = new LinkedList<Object>();
         if (verzeichnis == null) {
             return null;
@@ -537,7 +537,7 @@ public class Dateisystem implements Serializable {
      */
     // evaluate '.' and '..' as special directories
     public static String evaluatePathString(String path) {
-        LOG.debug("INVOKED (static) filius.software.system.Dateisystem, evaluatePathString(" + path + ")");
+        LOG.trace("INVOKED (static) filius.software.system.Dateisystem, evaluatePathString(" + path + ")");
         String result = "";
         StringTokenizer tk = new StringTokenizer(path, Dateisystem.FILE_SEPARATOR);
         String[] pathElements = new String[tk.countTokens()];
@@ -570,7 +570,7 @@ public class Dateisystem implements Serializable {
     // strip root node denomination, e.g. 'root', from actual (absolute!) path
     // String representation
     private static String stripRoot(String path) {
-        LOG.debug("INVOKED (static) filius.software.system.Dateisystem, stripRoot(" + path + ")");
+        LOG.trace("INVOKED (static) filius.software.system.Dateisystem, stripRoot(" + path + ")");
         if (path.indexOf(Dateisystem.FILE_SEPARATOR) >= 0) {
             return path.substring(path.indexOf(Dateisystem.FILE_SEPARATOR));
         } else {
@@ -580,7 +580,7 @@ public class Dateisystem implements Serializable {
 
     // get directory part in absolute file pathname
     public static String getDirectory(String path) {
-        LOG.debug("INVOKED (static) filius.software.system.Dateisystem, getDirectory(" + path + ")");
+        LOG.trace("INVOKED (static) filius.software.system.Dateisystem, getDirectory(" + path + ")");
         if (path.lastIndexOf(Dateisystem.FILE_SEPARATOR) >= 0)
             return path.substring(0, path.lastIndexOf(Dateisystem.FILE_SEPARATOR));
         else
@@ -589,7 +589,7 @@ public class Dateisystem implements Serializable {
 
     // get filename part in absolute file pathname
     public static String getBasename(String path) {
-        LOG.debug("INVOKED (static) filius.software.system.Dateisystem, getBasename(" + path + ")");
+        LOG.trace("INVOKED (static) filius.software.system.Dateisystem, getBasename(" + path + ")");
         if (path.lastIndexOf(Dateisystem.FILE_SEPARATOR) >= 0)
             return path.substring(path.lastIndexOf(Dateisystem.FILE_SEPARATOR) + 1);
         else

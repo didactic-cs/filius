@@ -51,7 +51,7 @@ public class SimplexVerbindung implements Runnable {
      *            es zwei Verbindungen, die die bidirektionale Verbindung zwischen den beiden Hardwares herstellt.
      */
     public SimplexVerbindung(Port anschluss1, Port anschluss2, Verbindung verbindung) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), constr: SimplexVerbindung("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), constr: SimplexVerbindung("
                 + anschluss1 + "," + anschluss2 + "," + verbindung + ")");
         this.anschluss1 = anschluss1;
         this.anschluss2 = anschluss2;
@@ -63,7 +63,7 @@ public class SimplexVerbindung implements Runnable {
      *         Verbindung in beide Richtungen
      */
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), run()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), run()");
         EthernetFrame frame;
 
         while (threadRunning) {
@@ -115,7 +115,7 @@ public class SimplexVerbindung implements Runnable {
     }
 
     public void anschluesseTrennen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), anschluesseTrennen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SimplexVerbindung), anschluesseTrennen()");
         anschluss1.entferneVerbindung();
         anschluss2.entferneVerbindung();
         this.setThreadRunning(false);

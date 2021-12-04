@@ -54,7 +54,7 @@ public class ModemSender extends ProtokollThread<EthernetFrame> {
      */
     public ModemSender(ModemFirmware firmware, OutputStream out) {
         super(((Modem) firmware.getKnoten()).getErstenAnschluss().holeEingangsPuffer());
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterIntern), constr: ModemAnschlussBeobachterIntern(" + firmware + "," + out
                 + ")");
 
@@ -70,7 +70,7 @@ public class ModemSender extends ProtokollThread<EthernetFrame> {
      * Hier werden eingehende Frames lediglich in den Stream geschrieben.
      */
     protected void verarbeiteDatenEinheit(EthernetFrame datenEinheit) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterIntern), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
 
         try {

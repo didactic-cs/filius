@@ -84,7 +84,7 @@ public class Resolver extends ClientAnwendung {
      */
     private DNSNachricht holeResourceRecord(String typ, String domainname, String dnsServer)
             throws java.util.concurrent.TimeoutException {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeResourceRecord(" + typ + "," + domainname + ")");
         DNSNachricht anfrage, antwort = null;
         String tmp;
@@ -139,7 +139,7 @@ public class Resolver extends ClientAnwendung {
      * @return
      */
     public String holeIPAdresse(String domainname, String dnsServer) throws TimeoutException {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeIPAdresse(" + domainname + ")");
         DNSNachricht antwort;
         String adresse, dnsServerDomain;
@@ -189,7 +189,7 @@ public class Resolver extends ClientAnwendung {
     }
 
     public String holeIPAdresseMailServer(String domainname) throws TimeoutException {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeIPAdressMailServer(" + domainname + ")");
         DNSNachricht antwort = null;
         String mailserver = null, adresse, dnsServerDomain;
@@ -247,7 +247,7 @@ public class Resolver extends ClientAnwendung {
     }
 
     private String durchsucheRecordListe(String typ, String domainname, LinkedList<ResourceRecord> liste) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), durchsucheRecordListe(" + typ + "," + domainname + "," + liste + ")");
 
         for (ResourceRecord rr : liste) {

@@ -65,7 +65,7 @@ public class LogEintrag {
      * @param schicht
      */
     public LogEintrag(String Aktion, int schicht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", LogEintrag(" + Aktion + "," + schicht + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", LogEintrag(" + Aktion + "," + schicht + ")");
         timestamp = Calendar.getInstance();
         timestamp.setTimeInMillis(new Date().getTime());
         logNachricht = Aktion;

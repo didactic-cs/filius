@@ -117,7 +117,7 @@ public class DHCPClient extends ClientAnwendung {
     }
 
     public void configure() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DHCPClient), starteDatenaustausch()");
         int fehlerzaehler = 0;
         zustand = INIT;

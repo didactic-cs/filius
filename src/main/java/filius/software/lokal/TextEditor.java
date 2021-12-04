@@ -43,11 +43,11 @@ public class TextEditor extends Anwendung {
     boolean abfrageVar;
 
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (TextEditor), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (TextEditor), beenden()");
     }
 
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (TextEditor), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (TextEditor), starten()");
     }
 
 }

@@ -40,7 +40,7 @@ public class PingPaket extends PeerToPeerPaket {
 
     public PingPaket() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (PingPaket), constr: PingPaket()");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (PingPaket), constr: PingPaket()");
         setPayload("0x00");
         this.setPayloadLength(0);
         this.setIp("");

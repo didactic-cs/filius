@@ -41,7 +41,7 @@ public class QueryPaket extends PeerToPeerPaket {
 
     public QueryPaket(String mg, String sk) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket(" + mg + ","
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket(" + mg + ","
                 + sk + ")");
 
         setPayload("0x80");
@@ -57,7 +57,7 @@ public class QueryPaket extends PeerToPeerPaket {
      *            der umzuwandelnde String
      */
     public QueryPaket(String string) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket(" + string
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryPaket), constr: QueryPaket(" + string
                 + ")");
         // String wird nach "//" getrennt
         StringTokenizer tk = new StringTokenizer(string, "//");
@@ -72,7 +72,7 @@ public class QueryPaket extends PeerToPeerPaket {
     }
 
     public int payloadLengthBerechnen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryPaket), payloadLengthBerechnen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryPaket), payloadLengthBerechnen()");
         int ergebnis = 0;
         ergebnis = ergebnis + minimaleGeschwindigkeit.length() * 8 + suchKriterien.length() * 8;
         return ergebnis;

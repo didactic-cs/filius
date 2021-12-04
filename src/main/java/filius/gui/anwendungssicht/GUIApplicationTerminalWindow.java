@@ -281,7 +281,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     public void internalFrameOpened(InternalFrameEvent e) {}
 
     public void update(Observable arg0, Object arg1) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationTerminalWindow), update(" + arg0
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationTerminalWindow), update(" + arg0
                 + "," + arg1 + ")");
         if (arg1 != null && jobRunning) {
             if (arg1 instanceof Boolean) {

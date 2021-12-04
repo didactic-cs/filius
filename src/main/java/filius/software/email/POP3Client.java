@@ -43,7 +43,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
 
     public POP3Client(EmailAnwendung anwendung) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), constr: POP3Client(" + anwendung + ")");
 
         this.anwendung = anwendung;
@@ -60,7 +60,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @param pw
      */
     public void emailsHolen(String pop3Server, String pop3Port, String benName, String pw) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), emailsHolen(" + pop3Server + "," + pop3Port + "," + benName + "," + pw + ")");
         Object[] args;
 
@@ -84,7 +84,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @param port
      */
     public void initialisiereSocket(String zielAdresse, Integer port) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), initialisiereSocket(" + zielAdresse + "," + port + ")");
         try {
             socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
@@ -103,7 +103,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @return boolean
      */
     public void starteVerarbeitung(String benName, String pw) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), starteVerarbeitung(" + benName + "," + pw + ")");
         boolean erfolg = true;
 
@@ -127,7 +127,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
     }
 
     private boolean alleEmailsAbrufen() throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), alleEmailsAbrufen()");
         String[] statusteile;
         int anzahlMails = 0;
@@ -174,7 +174,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * 
      */
     public void schliesseSocket() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), schliesseSocket()");
         if (socket != null) {
             socket.schliessen();
@@ -190,7 +190,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean eingabeBenutzername(String benutzername) throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), eingabeBenutzername(" + benutzername + ")");
         if (EingabenUeberpruefung.isGueltig(benutzername, EingabenUeberpruefung.musterMindEinZeichen)) {
             socket.senden("USER " + benutzername);
@@ -212,7 +212,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean eingabePasswort(String passwort) throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), eingabePasswort(" + passwort + ")");
         if (EingabenUeberpruefung.isGueltig(passwort, EingabenUeberpruefung.musterMindEinZeichen)) {
             socket.senden("PASS " + passwort);
@@ -234,7 +234,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * 
      */
     private String statusAbrufen() throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), statusAbrufen()");
         String antwort, ergebnis;
         String[] temp;
@@ -259,7 +259,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean emailsAuflisten(int i) throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), emailsAuflisten(" + i + ")");
         String ergebnis;
 
@@ -279,7 +279,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private String emailsAuflisten() throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), emailsAuflisten()");
         String ergebnis;
 
@@ -298,7 +298,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private void emailAbrufen(int i) throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), emailsAbrufen(" + i + ")");
         int pos;
         Email neMail;
@@ -327,7 +327,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * @throws Exception
      */
     private boolean emailLoeschen(int i) throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), emailLoeschen(" + i + ")");
         String ergebnis;
 
@@ -349,7 +349,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * 
      */
     private boolean sitzungBeenden() throws Exception {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (POP3Client), sitzungBeenden()");
         String ergebnis;
 
@@ -367,7 +367,7 @@ public class POP3Client extends ClientAnwendung implements I18n {
      * 
      */
     private String noop() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Client), noop()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (POP3Client), noop()");
         String ergebnis = "";
         try {
             socket.senden("NOOP");

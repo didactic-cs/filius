@@ -49,7 +49,7 @@ public class PongPaket extends PeerToPeerPaket {
     public PongPaket(String ip, int port, int anzahlZurVerfuegungStehenderDateien,
             long anzahlZurVerfuegungStehenderKBs) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (PongPaket), constr: PongPaket(" + ip + ","
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (PongPaket), constr: PongPaket(" + ip + ","
                 + port + "," + anzahlZurVerfuegungStehenderDateien + "," + anzahlZurVerfuegungStehenderKBs + ")");
         setPayload("0x01");
         this.ipAdresse = ip;
@@ -83,7 +83,7 @@ public class PongPaket extends PeerToPeerPaket {
     }
 
     public long payloadLengthBerechnen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PongPaket), payloadLengthBerechnen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (PongPaket), payloadLengthBerechnen()");
         long bits = 0;
         bits = ipAdresse.length() * 8 + anzahlBenoetigterBits(port)
                 + anzahlBenoetigterBits(anzahlZurVerfuegungStehenderDateien)

@@ -47,7 +47,7 @@ public abstract class Hardware extends Observable implements Serializable {
     }
 
     public void setAktiv(boolean aktiv) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Hardware), setAktiv(" + aktiv + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Hardware), setAktiv(" + aktiv + ")");
 
         if (this.aktiv != aktiv) {
             this.aktiv = aktiv;

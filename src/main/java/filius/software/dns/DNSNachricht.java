@@ -173,7 +173,7 @@ public class DNSNachricht {
      * Antwort handelt, muss als Parameter uebergeben werden. Dazu werden die Konstanten QUERY und RESPONSE verwendet.
      */
     public DNSNachricht(int queryResponse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", DNSNachricht(" + queryResponse + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", DNSNachricht(" + queryResponse + ")");
         this.queryResponse = queryResponse;
     }
 
@@ -185,7 +185,7 @@ public class DNSNachricht {
      *            ein String, der durch die Methode toString() erstellt wurde
      */
     public DNSNachricht(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSNachricht), constr: DNSNachricht(" + nachricht + ")");
         StringTokenizer lineTokenizer, tokenizer;
         String line, token;
@@ -281,7 +281,7 @@ public class DNSNachricht {
      * web.de. A IN)
      */
     public void hinzuQuery(String anfrage) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSNachricht), hinzuQuery(" + anfrage + ")");
         queries.add(new Query(anfrage));
         queryCount++;
@@ -318,7 +318,7 @@ public class DNSNachricht {
      * TYPE CLASS TTL RDATA (Bsp. web.de. A IN 3600 217.72.195.42)
      */
     public void hinzuAntwortResourceRecord(String record) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSNachricht), hinzuAntwortResourceRecord(" + record + ")");
         answerRecords.add(new ResourceRecord(record));
         answerCount++;
@@ -329,9 +329,9 @@ public class DNSNachricht {
      * TYPE CLASS TTL RDATA (Bsp. web.de. A IN 3600 217.72.195.42)
      */
     public void hinzuAuthoritativeResourceRecord(String record) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSNachricht), hinzuAuthoritativeResourceRecord(" + record + ")");
-        LOG.debug("INVOKED: " + getClass() + ", hinzuAuthoritativeResourceRecord(" + record + ")");
+        LOG.trace("INVOKED: " + getClass() + ", hinzuAuthoritativeResourceRecord(" + record + ")");
         authoratativeRecords.add(new ResourceRecord(record));
         nameServerCount++;
 

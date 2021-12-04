@@ -58,7 +58,7 @@ public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
      * aufgerufen.
      */
     public ModemEmpfaenger(ModemFirmware firmware, InputStream in) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterExtern), constr: ModemAnschlussBeobachterExtern(" + firmware + "," + in
                 + ")");
         this.firmware = firmware;
@@ -70,7 +70,7 @@ public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
      * Socket bzw. Stream ueberwacht wird.
      */
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterExtern), run()");
         ObjectInputStream in = null;
         try {
@@ -95,7 +95,7 @@ public class ModemEmpfaenger extends ProtokollThread<EthernetFrame> {
      * Hier werden ankommende Frames von einem Modem an das angeschlossene virtuelle Rechnernetz weitergegeben.
      */
     protected void verarbeiteDatenEinheit(EthernetFrame datenEinheit) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ModemAnschlussBeobachterExtern), verarbeiteDatenEinheit(" + datenEinheit.toString() + ")");
         if (firmware.isStarted()) {
             synchronized (((Modem) firmware.getKnoten()).getErstenAnschluss().holeAusgangsPuffer()) {

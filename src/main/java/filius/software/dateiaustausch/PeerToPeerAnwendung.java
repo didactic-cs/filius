@@ -107,7 +107,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      */
     public PeerToPeerAnwendung() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), constr: PeerToPeerAnwendung()");
 
         // maximale Teilnehmerzahl mit einem Zufallswert 3, 4 oder 5 belegen
@@ -119,7 +119,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * erstellt
      */
     public void setSystemSoftware(InternetKnotenBetriebssystem betriebssystem) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), setSystemSoftware(" + betriebssystem + ")");
         super.setSystemSoftware(betriebssystem);
 
@@ -134,7 +134,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Starten der Anwendung
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), starten()");
         super.starten();
 
@@ -154,7 +154,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Beenden der Anwendung
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), beenden()");
         super.beenden();
 
@@ -171,7 +171,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @return
      */
     PongPaket erstellePong(PingPaket ping) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), erstellePong(" + ping + ")");
         List<Datei> dateien;
         Datei aktuelle;
@@ -208,7 +208,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @param absender
      */
     void sendePing(PingPaket ping, String absender) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), sendePing(" + ping + "," + absender + ")");
         if (ping.getTtl() > 0 && !schonmalVerschicktListe.contains(ping.getGuid())) {
             schonmalVerschicktListe.add(ping.getGuid());
@@ -225,7 +225,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            die ampfangene Anfrage
      */
     LinkedList<Datei> verarbeiteAnfrage(String absender, QueryPaket anfrage) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeiteAnfrage(" + absender + "," + anfrage + ")");
         LinkedList<Datei> ergebnisListe;
         Datei ergebnis = null;
@@ -274,7 +274,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            Die IP des Servants, an den das Ping-Paket zuerst geschickt wird
      */
     public void beitretenNetzwerk(String teilnehmerIP) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), beitretenNetzwerk(" + teilnehmerIP + ")");
         Betriebssystem bs;
         PingPaket pingPaket;
@@ -302,7 +302,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            Der Index der angebotenen Datei in der Liste der Ergebnisse (Attribut 'ergebnisse').
      */
     public void herunterladenDatei(int ergebnisIndex) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), herunterladenDatei(" + ergebnisIndex + ")");
         StringTokenizer tempTokenizer;
         String tmpBesitzer;
@@ -326,7 +326,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            der Dateiname der zu suchenden Datei
      */
     public void sucheDatei(String datei) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), sucheDatei(" + datei + ")");
         Betriebssystem bs;
         QueryPaket anfragePaket;
@@ -341,14 +341,14 @@ public class PeerToPeerAnwendung extends Anwendung {
 
     /** Zum Abbruch aller Suchanfragen, die zuvor gestartet worden sind. */
     public void abbrechenSuche() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), abbrechenSuche()");
         peerToPeerClient.abbrechenSuche();
     }
 
     /** Methode zum Zuruecksetzen der Liste mit Suchergebnissen */
     public void loescheSuchergebnisse() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), loescheSuchergebnisse()");
         ergebnisse.clear();
     }
@@ -357,7 +357,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Hilfsmethode fuer den lesenden Zugriff auf die Dateien im Peer-To-Peer-Verzeichnis des eigenen Rechners.
      */
     Datei holeDatei(String dateiName) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), holeDatei()");
         Datei datei;
 
@@ -369,7 +369,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * Hilfsmethode fuer den schreibenden Zugriff auf die Dateien im Peer-To-Peer-Verzeichnis des eigenen Rechners.
      */
     void speicherDatei(Datei datei) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), speicherDatei(" + datei + ")");
         getSystemSoftware().getDateisystem().speicherDatei(verzeichnis, datei);
     }
@@ -382,7 +382,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      *            das eingegangene Antwortpaket
      */
     void verarbeiteQueryHit(QueryHitPaket antwortPaket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeiteQueryHit(" + antwortPaket + ")");
         // warte ich selbst auf diese Antwort?
         if (eigeneAnfragen.contains(antwortPaket.getGuid())) {
@@ -406,7 +406,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * das Pong-Paket mit dekrementierter TTL und inkrementierter Hop-Zahl weitergeleitet.
      */
     void verarbeitePong(PongPaket pongPaket) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), verarbeitePong(" + pongPaket + ")" + "\n\tPong-Nachricht bei '"
                 + getSystemSoftware().getKnoten().holeAnzeigeName() + "' eingetroffen: " + pongPaket.toString());
 
@@ -451,7 +451,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @param ergebnis
      */
     void hinzuErgebnis(QueryHitPaket ergebnis) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), hinzuErgebnis(" + ergebnis + ")");
         String neuesErgebnis;
 
@@ -470,7 +470,7 @@ public class PeerToPeerAnwendung extends Anwendung {
      * @param ipAdresse
      */
     void hinzuTeilnehmer(String ipAdresse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (PeerToPeerAnwendung), hinzuTeilnehmer(" + ipAdresse + ")");
         if (bekanntePeerToPeerTeilnehmer.contains(ipAdresse)) {
             // LOG.debug(getClass() + "\n\tAn Rechner "

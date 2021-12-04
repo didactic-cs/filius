@@ -1044,7 +1044,7 @@ public class Base64 {
      * @since 2.1
      */
     public static String encodeFromFile(String filename) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.Base64, encodeFromFile(" + filename + ")");
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.Base64, encodeFromFile(" + filename + ")");
         String encodedData = null;
         Base64.InputStream bis = null;
         try {

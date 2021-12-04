@@ -36,7 +36,7 @@ public class ImageViewer extends Anwendung {
     public ImageViewer() // Betriebssystem betriebssystem)
     {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ImageWriter), constr: ImageWriter()");
     }
 

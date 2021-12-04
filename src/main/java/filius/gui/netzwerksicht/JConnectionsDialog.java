@@ -509,7 +509,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
     }
 
     private Knoten getConnectedComponent(NetzwerkInterface nic) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), holeVerbundeneKomponente(" + nic + ")");
 
         if (nic.getPort().getVerbindung() == null) {
@@ -546,7 +546,7 @@ public class JConnectionsDialog extends JDialog implements I18n {
     }
 
     private Kabel getConnectedCable(NetzwerkInterface nic) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), getConnectedCable(" + nic + ")");
         Verbindung nicConn = nic.getPort().getVerbindung();
         if (nicConn == null) {

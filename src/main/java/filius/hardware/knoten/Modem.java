@@ -44,7 +44,7 @@ public class Modem extends LokalerKnoten {
 
     public Modem() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Modem), constr: Modem()");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Modem), constr: Modem()");
 
         this.setzeAnzahlAnschluesse(1);
         this.setSystemSoftware(new ModemFirmware());
@@ -53,7 +53,7 @@ public class Modem extends LokalerKnoten {
     }
 
     public void setzeModemVerbindungAktiv(boolean verbindungAktiv) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Modem), setzeVerbindungAktiv("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Modem), setzeVerbindungAktiv("
                 + verbindungAktiv + ")");
         this.modemVerbindungAktiv = verbindungAktiv;
         this.setChanged();

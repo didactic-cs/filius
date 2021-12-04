@@ -47,7 +47,7 @@ public abstract class Host extends InternetKnoten {
 
     public Host() {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Host), constr: Host()");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Host), constr: Host()");
 
         this.setzeAnzahlAnschluesse(1);
         this.setSystemSoftware(new Betriebssystem());
@@ -65,7 +65,7 @@ public abstract class Host extends InternetKnoten {
     }
 
     public void setIpAdresse(String ip) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Host), setIpAdresse(" + ip + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Host), setIpAdresse(" + ip + ")");
         NetzwerkInterface nic = (NetzwerkInterface) this.getNetzwerkInterfaces().get(0);
         nic.setIp(ip);
     }

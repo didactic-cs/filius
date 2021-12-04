@@ -66,7 +66,7 @@ public class PeerToPeerPaket {
      * einziger benoetiger Konstruktor
      */
     public PeerToPeerPaket() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), constr: PeerToPeerPaket()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), constr: PeerToPeerPaket()");
         this.guid = guidErstellen();
         this.payload = "";
         this.ttl = 8;
@@ -77,7 +77,7 @@ public class PeerToPeerPaket {
      * wandelt einen String (wenn möglich) in ein PeerToPeerPaket um
      */
     public PeerToPeerPaket(String string) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), constr: PeerToPeerPaket("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), constr: PeerToPeerPaket("
                 + string + ")");
         // String wird nach "//" getrennt
         StringTokenizer tk = new StringTokenizer(string, "//");
@@ -94,7 +94,7 @@ public class PeerToPeerPaket {
      */
 
     protected long anzahlBenoetigterBits(long zahl) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), anzahlBenoetigterBits("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), anzahlBenoetigterBits("
                 + zahl + ")");
         int exponent = 0;
         while (potenzieren(2, exponent) < zahl) {
@@ -104,7 +104,7 @@ public class PeerToPeerPaket {
     }
 
     private int potenzieren(int basis, int exponent) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), potenzieren(" + basis + ","
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), potenzieren(" + basis + ","
                 + exponent + ")");
         /*
          * int ergebnis=1; for (int i=0;i<exponent;i++){ ergebnis=ergebnis*basis; } return ergebnis;
@@ -119,7 +119,7 @@ public class PeerToPeerPaket {
      * @return erstellteGuid
      */
     public int guidErstellen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), guidErstellen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (PeerToPeerPaket), guidErstellen()");
         Random zufallszahl = new Random();
         int erstellteGuid = -1;
         while (erstellteGuid < 0) {

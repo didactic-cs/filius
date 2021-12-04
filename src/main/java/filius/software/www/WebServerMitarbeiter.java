@@ -46,7 +46,7 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
     }
 
     private HTTPNachricht verarbeiteAnfrage(HTTPNachricht anfrage) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServerMitarbeiter), verarbeiteAnfrage(" + anfrage + ")");
         HTTPNachricht antwort;
         WebServerPlugIn plugin;
@@ -120,7 +120,7 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
     }
 
     protected void verarbeiteNachricht(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServerMitarbeiter), verarbeiteNachricht(" + nachricht + ")");
         HTTPNachricht anfrage, antwort;
 

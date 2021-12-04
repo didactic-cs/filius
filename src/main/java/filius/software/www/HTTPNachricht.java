@@ -82,7 +82,7 @@ public class HTTPNachricht implements I18n {
      * @param nachricht
      */
     public HTTPNachricht(String nachricht) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (HTTPNachricht), constr: HTTPNachricht("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (HTTPNachricht), constr: HTTPNachricht("
                 + nachricht + ")");
         StringTokenizer tokenizer;
         String token;
@@ -187,7 +187,7 @@ public class HTTPNachricht implements I18n {
     }
 
     public static String holeStatusNachricht(int code) {
-        LOG.debug("INVOKED (static) filius.software.www.HTTPNachricht, holeStatusNachricht(" + code + ")");
+        LOG.trace("INVOKED (static) filius.software.www.HTTPNachricht, holeStatusNachricht(" + code + ")");
         if (code == 100)
             return "Continue";
         if (code == 101)

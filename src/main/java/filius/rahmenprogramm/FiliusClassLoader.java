@@ -51,11 +51,11 @@ public class FiliusClassLoader extends URLClassLoader {
 
     protected FiliusClassLoader(ClassLoader parent) throws MalformedURLException {
         super(new URL[] { new File(Information.getInformation().getAnwendungenPfad()).toURI().toURL() }, parent);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: FiliusClassLoader(" + parent + ")");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: FiliusClassLoader(" + parent + ")");
     }
 
     public static FiliusClassLoader getInstance(ClassLoader parent) {
-        LOG.debug("INVOKED (static) filius.rahmenprogramm.FiliusClassLoader, getInstance()");
+        LOG.trace("INVOKED (static) filius.rahmenprogramm.FiliusClassLoader, getInstance()");
         if (classLoader == null) {
             try {
                 classLoader = new FiliusClassLoader(parent);

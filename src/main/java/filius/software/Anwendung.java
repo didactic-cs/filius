@@ -72,7 +72,7 @@ public abstract class Anwendung extends Thread {
      * Der Konstruktur bewirkt eine Meldung auf der Standardausgabe, dass die Anwendung erzeugt wurde.
      */
     public Anwendung() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), constr: Anwendung()");
 
         try {
@@ -93,21 +93,21 @@ public abstract class Anwendung extends Thread {
      * @param beobachter
      */
     public void hinzuBeobachter(Observer beobachter) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), hinzuBeobachter(" + beobachter + ")");
         observable.addObserver(beobachter);
     }
 
     /** Methode zur Benachrichtigung der Beobachter. */
     public void benachrichtigeBeobachter(Object daten) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), benachrichtigeBeobachter(" + daten + ")");
         observable.notifyObservers(daten);
     }
 
     /** Methode zur Benachrichtigung der Beobachter. */
     public void benachrichtigeBeobachter() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Anwendung), benachrichtigeBeobachter()");
         observable.notifyObservers();
     }
@@ -116,7 +116,7 @@ public abstract class Anwendung extends Thread {
      * Methode zum Starten des Threads beim Wechsel vom Entwurfs- in den Aktionsmodus.
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), starten()");
         running = true;
 
         synchronized (kommandos) {
@@ -135,7 +135,7 @@ public abstract class Anwendung extends Thread {
      * Methode zum Anhalten des Threads.
      */
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), beenden()");
         running = false;
 
         if (kommandos != null) {
@@ -158,7 +158,7 @@ public abstract class Anwendung extends Thread {
      *            die Parameter der Methode
      */
     protected void ausfuehren(String methode, Object[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), ausfuehren("
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), ausfuehren("
                 + methode + "," + args + ")");
         Object[] aufruf;
 
@@ -177,7 +177,7 @@ public abstract class Anwendung extends Thread {
      * aufgerufen.
      */
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), run()");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Anwendung), run()");
         Class<?>[] argumentKlassen;
         Class<?> klasse;
         Method method;

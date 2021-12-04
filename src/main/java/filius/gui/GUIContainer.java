@@ -724,7 +724,7 @@ public class GUIContainer implements Serializable, I18n {
     }
 
     public void updateViewport() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateViewport()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateViewport()");
         networkPanel.updateViewport(nodeItems, cableItems);
         networkPanel.updateUI();
         if (activeSite == GUIMainMenu.MODUS_AKTION) {
@@ -743,7 +743,7 @@ public class GUIContainer implements Serializable, I18n {
      * 
      */
     public void updateCables() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateCables()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIContainer), updateCables()");
         ListIterator<GUIKabelItem> it = cableItems.listIterator();
         while (it.hasNext()) {
             GUIKabelItem tempCable = (GUIKabelItem) it.next();

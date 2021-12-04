@@ -149,7 +149,7 @@ public class Email implements Serializable {
      * </code>
      */
     public String toString() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Email), toString()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Email), toString()");
         String ergebnis;
         String toListe = "", ccListe = "";
 

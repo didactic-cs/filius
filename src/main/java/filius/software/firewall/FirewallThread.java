@@ -55,7 +55,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
 
     public FirewallThread(Firewall firewall, NetzwerkInterface nic) {
         super(new LinkedList<EthernetFrame>());
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), constr: FirewallThread(" + firewall + ")");
         this.firewall = firewall;
         this.netzwerkInterface = nic;
@@ -66,7 +66,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
      * Überwachung des Datenaustausches
      */
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), starten()");
 
         super.starten();
@@ -87,7 +87,7 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
 
     @Override
     protected void verarbeiteDatenEinheit(EthernetFrame frame) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), verarbeiteDatenEinheit(" + frame.toString() + ")");
         if (!(frame.getDaten() != null && frame.getDaten() instanceof IpPaket
                 && !firewall.acceptIPPacket((IpPaket) frame.getDaten()))) {

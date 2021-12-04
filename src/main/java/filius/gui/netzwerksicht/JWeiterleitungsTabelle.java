@@ -64,7 +64,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
 
     public JWeiterleitungsTabelle(JVermittlungsrechnerKonfiguration konfig) {
         super(new DefaultTableModel(1, 4));
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JWeiterleitungsTabelle(" + konfig
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: JWeiterleitungsTabelle(" + konfig
                 + ")");
 
         this.konfig = konfig;
@@ -118,7 +118,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     }
 
     public void aenderungenAnnehmen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", aenderungenAnnehmen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", aenderungenAnnehmen()");
         Vector<Object> rowData;
         Vector<Vector> tableData;
         Weiterleitungstabelle tabelle;
@@ -200,7 +200,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     }
 
     public void neuerEintrag() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", neuerEintrag()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", neuerEintrag()");
         Vector<String> eintrag = new Vector<String>();
         eintrag.add("");
         eintrag.add("");
@@ -251,7 +251,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     }
 
     public void updateAttribute() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateAttribute()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateAttribute()");
         ListIterator it, editableIt;
         Weiterleitungstabelle tabelle;
         LinkedList<String[]> routingTabelle;

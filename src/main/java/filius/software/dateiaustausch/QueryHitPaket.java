@@ -50,7 +50,7 @@ public class QueryHitPaket extends PeerToPeerPaket {
 
     public QueryHitPaket(int anzahlHips, int port, String ip, String speed, String ergebnisListe, String si) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), constr: QueryHitPaket("
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), constr: QueryHitPaket("
                 + anzahlHips + "," + port + "," + ip + "," + speed + "," + ergebnisListe + "," + si + ")");
         setPayload("0x81");
         this.anzahlHits = anzahlHips;
@@ -69,7 +69,7 @@ public class QueryHitPaket extends PeerToPeerPaket {
      *            der umzuwandelnde String
      */
     public QueryHitPaket(String string) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), constr: QueryHitPaket("
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), constr: QueryHitPaket("
                 + string + ")");
         // String wird nach "//" getrennt
         StringTokenizer tk = new StringTokenizer(string, "//");
@@ -88,7 +88,7 @@ public class QueryHitPaket extends PeerToPeerPaket {
     }
 
     public long payloadLengthBerechnen() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), payloadLengthBerechnen()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (QueryHitPaket), payloadLengthBerechnen()");
         long ergebnisZahl = 0;
         ergebnisZahl = ergebnisZahl + anzahlBenoetigterBits(anzahlHits) + anzahlBenoetigterBits(port)
                 + ipAdresse.length() * 8 + (geschwindigkeit.length() * 8) + ergebnis.length() * 8

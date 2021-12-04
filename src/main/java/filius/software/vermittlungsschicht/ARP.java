@@ -64,11 +64,11 @@ public class ARP extends VermittlungsProtokoll {
      */
     public ARP(SystemSoftware systemAnwendung) {
         super(systemAnwendung);
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ARP), constr: ARP(" + systemAnwendung + ")");
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (ARP), constr: ARP(" + systemAnwendung + ")");
     }
 
     public void starten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), starten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), starten()");
         arpTabelle = new HashMap<String, String[]>();
         hinzuARPTabellenEintrag("255.255.255.255", "FF:FF:FF:FF:FF:FF");
         thread = new ARPThread(this);
@@ -76,7 +76,7 @@ public class ARP extends VermittlungsProtokoll {
     }
 
     public void beenden() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), beenden()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), beenden()");
         if (thread != null)
             thread.beenden();
     }
@@ -90,7 +90,7 @@ public class ARP extends VermittlungsProtokoll {
      * @param macAdresse
      */
     public void hinzuARPTabellenEintrag(String ipAdresse, String macAdresse) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), hinzuARPTabellenEintrag(" + ipAdresse
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), hinzuARPTabellenEintrag(" + ipAdresse
                 + "," + macAdresse + ")");
         String tmpTime = "" + System.currentTimeMillis();
         String[] tmpString = { macAdresse, tmpTime };
@@ -129,7 +129,7 @@ public class ARP extends VermittlungsProtokoll {
      * @return MAC Adresse, zu der die IP Adresse gehoert, oder null, wenn keine MAC-Adresse bestimmt werden konnte
      */
     public String holeARPTabellenEintrag(String zielIp) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag(" + zielIp + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag(" + zielIp + ")");
         if (zielIp.equals("127.0.0.1")) {
             return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
         }

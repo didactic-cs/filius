@@ -70,7 +70,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
 
     public PanelCompiler(String[] quelltextDateien, String anwendungsName, String anwendungsKlasse) {
         super();
-        LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: PanelCompiler(" + quelltextDateien
+        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: PanelCompiler(" + quelltextDateien
                 + "," + anwendungsName + "," + anwendungsKlasse + ")");
         this.quelltextDateien = quelltextDateien;
         this.anwendungsKlasse = anwendungsKlasse;
@@ -83,7 +83,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
     }
 
     private void initKomponenten() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", initKomponenten()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", initKomponenten()");
         JScrollPane scrollPane;
 
         this.setBorder(new EtchedBorder());
@@ -104,7 +104,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
     }
 
     public void run() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", run()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", run()");
 
         progressBar.setString(messages.getString("panelcompiler_msg1") + " " + anwendungsName);
 
@@ -121,7 +121,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
     }
 
     public void speichern() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", speichern()");
         boolean vorhanden = false;
         FileWriter fw = null;
         ListIterator it;
@@ -164,7 +164,7 @@ public class PanelCompiler extends JPanel implements I18n, Runnable {
     }
 
     private boolean kompilieren(String[] quelltextDateien) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", kompilieren()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", kompilieren()");
         StringWriter strWriter = new StringWriter();
         StandardJavaFileManager fileManager;
         JavaCompiler jc;

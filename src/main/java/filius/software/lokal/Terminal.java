@@ -93,7 +93,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String mv(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), mv(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), mv(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -126,7 +126,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String del(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), del(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), del(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -158,7 +158,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      */
     // // common functionality for move and copy...
     private boolean pureCopy(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), pureCopy(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), pureCopy(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -204,7 +204,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String cp(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), cp(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Terminal), cp(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -228,7 +228,7 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     /* */
     public String ipconfig(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ipconfig(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ipconfig(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -255,7 +255,7 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     /* Entspricht route print unter windows */
     public String route(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), route(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), route(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -301,7 +301,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String dir(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), dir(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), dir(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -368,7 +368,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String touch(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), touch(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), touch(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -413,7 +413,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String mkdir(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), mkdir(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), mkdir(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -458,7 +458,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String cd(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), cd(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), cd(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -491,7 +491,7 @@ public class Terminal extends ClientAnwendung implements I18n {
 
     // Unix Tool 'pwd': print working directory
     public String pwd(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), pwd(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), pwd(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -655,7 +655,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String host(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), host(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), host(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -700,7 +700,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 'ping' command to check connectivity via ICMP echo request/reply
      */
     public String ping(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ping(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ping(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -803,7 +803,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 'tcpdump' simple tool to show data exchange
      */
     public String tcpdump(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), tcpdump(");
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), tcpdump(");
         for (int i = 0; i < args.length; i++) {
             LOG.debug(i + "='" + args[i] + "' ");
         }
@@ -952,7 +952,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public void terminalEingabeAuswerten(String enteredCommand, String[] enteredParameters) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
                 + " (Terminal), terminalEingabeAuswerten(" + enteredCommand + "," + enteredParameters + ")");
         Object[] args = new Object[1];
         args[0] = enteredParameters;
@@ -979,7 +979,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     public String addSlashes(String sl) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), addSlashes("
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), addSlashes("
                 + sl + ")");
         String slNeu = "";
         String letztesZ = "" + sl.charAt(sl.length() - 1);
@@ -1004,7 +1004,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     // // bisher war Implementierung exakt identisch --> Verweis aufeinander
     // eingefügt!
     private String stringFuellen(int a, String fueller) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass()
                 + " (Terminal), stringFuellen(" + a + "," + fueller + ")");
         String tmp = "";
         for (int i = 0; i < a; i++) {
@@ -1021,7 +1021,7 @@ public class Terminal extends ClientAnwendung implements I18n {
      * method to check for correct number of parameters
      */
     private int countParams(String[] args) {
-        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), countParams("
+        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), countParams("
                 + args + ")");
         int count = 0;
         for (int i = 0; i < args.length; i++) {

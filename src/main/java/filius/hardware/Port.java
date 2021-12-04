@@ -60,7 +60,7 @@ public class Port implements Serializable {
     }
 
     public boolean setVerbindung(Verbindung verbindung) {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), setVerbindung(" + verbindung + ")");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), setVerbindung(" + verbindung + ")");
         if (isPortFrei()) {
             this.verbindung = verbindung;
             return true;
@@ -70,7 +70,7 @@ public class Port implements Serializable {
     }
 
     public void entferneVerbindung() {
-        LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), entferneVerbindung()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Port), entferneVerbindung()");
         this.verbindung = null;
     }
 
