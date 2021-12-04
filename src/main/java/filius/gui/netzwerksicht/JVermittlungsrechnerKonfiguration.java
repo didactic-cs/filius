@@ -86,6 +86,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
 
     private JTextField gateway;
     private JCheckBox rip;
+    private JCheckBox ipForwarding;
 
     private JLabel[] verbundeneKomponente;
 
@@ -265,20 +266,43 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         tempBox = Box.createHorizontalBox();
         tempBox.setMaximumSize(new Dimension(400, 40));
 
-        tempLabel = new JLabel(messages.getString("jvermittlungsrechnerkonfiguration_msg26"));
-        tempLabel.setPreferredSize(new Dimension(140, 20));
-        tempLabel.setVisible(true);
-        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        tempBox.add(tempLabel);
-
-        tempBox.add(Box.createHorizontalStrut(20));
-
         rip = new JCheckBox();
         rip.setPreferredSize(new Dimension(160, 20));
         rip.addActionListener(actionListener);
         rip.addFocusListener(focusListener);
         rip.setOpaque(false);
         tempBox.add(rip);
+
+        tempBox.add(Box.createHorizontalStrut(10));
+
+        tempLabel = new JLabel(messages.getString("jvermittlungsrechnerkonfiguration_msg26"));
+        tempLabel.setPreferredSize(new Dimension(140, 20));
+        tempLabel.setVisible(true);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        tempBox.add(tempLabel);
+
+        vBox.add(tempBox);
+        vBox.add(Box.createVerticalStrut(5));
+
+        // IP forwarding status
+        tempBox = Box.createHorizontalBox();
+        tempBox.setMaximumSize(new Dimension(400, 40));
+
+        ipForwarding = new JCheckBox();
+        ipForwarding.setPreferredSize(new Dimension(160, 20));
+        ipForwarding.addActionListener(actionListener);
+        ipForwarding.addFocusListener(focusListener);
+        ipForwarding.setOpaque(false);
+        ipForwarding.setEnabled(false);
+        tempBox.add(ipForwarding);
+
+        tempBox.add(Box.createHorizontalStrut(10));
+
+        tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg11"));
+        tempLabel.setPreferredSize(new Dimension(140, 20));
+        tempLabel.setVisible(true);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        tempBox.add(tempLabel);
 
         vBox.add(tempBox);
         vBox.add(Box.createVerticalStrut(5));
@@ -551,6 +575,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
 
         name.setText(vRechner.holeAnzeigeName());
         gateway.setText(bs.getStandardGateway());
+        ipForwarding.setSelected(bs.isIpForwardingEnabled());
         rip.setSelected(bs.isRipEnabled());
 
         tpNetzwerkKarten.setEnabledAt(tpNetzwerkKarten.getTabCount() - 1, !bs.isRipEnabled());

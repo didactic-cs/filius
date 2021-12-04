@@ -76,6 +76,10 @@ public class IP extends VermittlungsProtokoll implements I18n {
         LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (IP), constr: IP(" + systemsoftware + ")");
     }
 
+    public boolean isIPForwardingEnabled() {
+        return ((InternetKnotenBetriebssystem) holeSystemSoftware()).isIpForwardingEnabled();
+    }
+
     public static long inetAton(String ipStr) {
         long ipAddr = 0;
         int octet;

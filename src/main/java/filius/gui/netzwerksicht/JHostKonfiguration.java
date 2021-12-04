@@ -66,6 +66,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     private JTextField gateway;
     private JTextField dns;
     private JCheckBox dhcp;
+    private JCheckBox ipForwarding;
     private JButton btDhcp;
     private JCheckBox useIpAsName;
 
@@ -100,6 +101,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             bs.setzeNetzmaske(netzmaske.getText());
             bs.setStandardGateway(gateway.getText());
             bs.setDNSServer(dns.getText());
+            bs.setIpForwardingEnabled(ipForwarding.isSelected());
             bs.setDHCPKonfiguration(dhcp.isSelected());
 
             if (dhcp.isSelected()) {
@@ -305,6 +307,28 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         rightBox.add(tempBox, BorderLayout.NORTH);
 
         // =======================================================
+        // Activation Status IP Forwarding
+        tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg11"));
+        tempLabel.setPreferredSize(new Dimension(LABEL_WIDTH, 10));
+        tempLabel.setVisible(true);
+        tempLabel.setOpaque(false);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        ipForwarding = new JCheckBox();
+        ipForwarding.setOpaque(false);
+        ipForwarding.addActionListener(actionListener);
+
+        tempBox = Box.createHorizontalBox();
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setPreferredSize(new Dimension(400, 35));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(ipForwarding);
+        tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
+        tempBox.add(tempLabel);
+        rightBox.add(tempBox, BorderLayout.NORTH);
+
+        // =======================================================
         // Attribut Verwendung von DHCP
         tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg7"));
         tempLabel.setPreferredSize(new Dimension(LABEL_WIDTH, 10));
@@ -394,6 +418,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             gateway.setText(bs.getStandardGateway());
             dns.setText(bs.getDNSServer());
 
+            ipForwarding.setSelected(bs.isIpForwardingEnabled());
             dhcp.setSelected(bs.isDHCPKonfiguration());
             btDhcp.setEnabled(!dhcp.isSelected());
 

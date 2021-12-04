@@ -63,7 +63,7 @@ public class VermittlungsrechnerBetriebssystem extends InternetKnotenBetriebssys
         super();
         LOG.debug("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (VermittlungsrechnerBetriebssystem), constr: VermittlungsrechnerBetriebssystem()");
-
+        setIpForwardingEnabled(true);
         initialisiereAnwendungen();
     }
 

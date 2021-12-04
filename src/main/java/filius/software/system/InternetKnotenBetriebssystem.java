@@ -82,6 +82,12 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     private HashMap<String, Anwendung> installierteAnwendung;
 
     /**
+     * Whether IP forwarding is enabled, i.e. if received ip pakets for another destination are sent again toward its
+     * destination.
+     */
+    private boolean ipForwardingEnabled;
+
+    /**
      * Mit Hilfe des DNS-Client werden Rechneradressen, die als Domainname uebergeben werden aufgeloest. Ausserdem wird
      * er benutzt, um jegliche Anfragen an den DNS-Server zu stellen.
      */
@@ -349,6 +355,14 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     public abstract RIPTable getRIPTable();
 
     public abstract boolean isRipEnabled();
+
+    public boolean isIpForwardingEnabled() {
+        return ipForwardingEnabled;
+    }
+
+    public void setIpForwardingEnabled(boolean ipForwardingEnabled) {
+        this.ipForwardingEnabled = ipForwardingEnabled;
+    }
 
     /**
      * Methode fuer den Zugriff auf die Hash-Map zur Verwaltung der installierten Anwendungen. Diese Methode wird
