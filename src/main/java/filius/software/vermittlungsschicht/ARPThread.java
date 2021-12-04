@@ -55,7 +55,7 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
                 + " (ARPThread), verarbeiteDatenEinheit(" + arpPaket.toString() + ")");
 
         // Aus jedem ARP-Paket wird ein neuer ARP-Eintrag erzeugt
-        if (!arpPaket.getSenderIP().equalsIgnoreCase("0.0.0.0")) {
+        if (arpPaket.getOperation() == ArpPaket.REPLY && !arpPaket.getSenderIP().equalsIgnoreCase("0.0.0.0")) {
             vermittlung.hinzuARPTabellenEintrag(arpPaket.getSenderIP(), arpPaket.getSenderMAC());
         }
 
