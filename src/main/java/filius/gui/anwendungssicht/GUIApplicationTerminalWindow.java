@@ -305,6 +305,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     }
 
     private void scrollDown() {
+        this.inputLabel.repaint();
+        this.terminalField.repaint();
         this.tpPane.repaint();
         this.tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
     }

@@ -823,11 +823,12 @@ public class Terminal extends ClientAnwendung implements I18n {
                 int nextFrameSerialNumber = data.length > i + 1 ? Integer.parseInt(data[i + 1][0].toString())
                         : Integer.MAX_VALUE;
                 if (currentFrameSerialNumber < nextFrameSerialNumber) {
-                    benachrichtigeBeobachter("\n  " + packetData[1] + " " + packetData[4] + " " + packetData[2] + " > "
-                            + packetData[3] + " " + packetData[6]);
+                    String message = packetData[1] + " " + packetData[4] + " " + packetData[2] + " > " + packetData[3]
+                            + " " + packetData[6];
+                    benachrichtigeBeobachter("\n  " + message.trim().replace("\n", " | "));
+                    offset++;
                 }
             }
-            offset += data.length;
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {}
