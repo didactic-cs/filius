@@ -292,7 +292,7 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
 
         public void update(Object messageNo) {
             if (messageNo != null) {
-                Object[][] daten = Lauscher.getLauscher().getDaten(macAddress, false);
+                Object[][] daten = Lauscher.getLauscher().getDaten(macAddress, false, 0);
                 int number = Integer.parseInt(messageNo.toString());
                 int dataSetNo = 0;
                 int currNo = 0;

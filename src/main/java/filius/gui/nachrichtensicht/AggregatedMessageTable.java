@@ -252,7 +252,7 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
         LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
         Object[][] daten;
 
-        daten = Lauscher.getLauscher().getDaten(interfaceId, true);
+        daten = Lauscher.getLauscher().getDaten(interfaceId, true, 0);
 
         if (daten.length == 0) {
             initTableModel();

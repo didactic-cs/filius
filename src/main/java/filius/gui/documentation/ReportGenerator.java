@@ -273,7 +273,7 @@ public class ReportGenerator {
                 table.addCell(header);
             }
 
-            Object[][] data = lauscher.getDaten(interfaceId, true);
+            Object[][] data = lauscher.getDaten(interfaceId, true, 0);
             for (int i = 0; i < data.length; i++) {
                 for (int j = 0; j < data[i].length; j++) {
                     PdfPCell cell = new PdfPCell(new Phrase((String) data[i][j], SMALL_FONT));

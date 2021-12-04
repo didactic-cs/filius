@@ -75,7 +75,6 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
 
     public GUIApplicationWebBrowserWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-
         HTMLEditorKit ek;
 
         browserPanel = new JPanel(new BorderLayout());

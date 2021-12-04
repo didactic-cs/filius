@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
+import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.dns.Resolver;
 import filius.software.system.Betriebssystem;
@@ -795,6 +796,43 @@ public class Terminal extends ClientAnwendung implements I18n {
                 + messages.getString("sw_terminal_msg47") + ", "
                 + ((int) Math.round((1 - (((double) receivedReplies) / ((double) num))) * 100)) + "% "
                 + messages.getString("sw_terminal_msg48") + "\n");
+        return "";
+    }
+
+    /**
+     * 'tcpdump' simple tool to show data exchange
+     */
+    public String tcpdump(String[] args) {
+        LOG.debug("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), tcpdump(");
+        for (int i = 0; i < args.length; i++) {
+            LOG.debug(i + "='" + args[i] + "' ");
+        }
+        LOG.debug(")");
+
+        benachrichtigeBeobachter(Boolean.TRUE);
+        benachrichtigeBeobachter(messages.getString("sw_terminal_msg55"));
+
+        Lauscher lauscher = Lauscher.getLauscher();
+        String localMacAddress = ((Betriebssystem) getSystemSoftware()).holeMACAdresse();
+        int offset = lauscher.getOffsetByTimestamp(localMacAddress, System.currentTimeMillis());
+        while (!interrupted) {
+            Object[][] data = lauscher.getDaten(localMacAddress, true, offset);
+            for (int i = 0; i < data.length; i++) {
+                Object[] packetData = data[i];
+                int currentFrameSerialNumber = Integer.parseInt(packetData[0].toString());
+                int nextFrameSerialNumber = data.length > i + 1 ? Integer.parseInt(data[i + 1][0].toString())
+                        : Integer.MAX_VALUE;
+                if (currentFrameSerialNumber < nextFrameSerialNumber) {
+                    benachrichtigeBeobachter("\n  " + packetData[1] + " " + packetData[4] + " " + packetData[2] + " > "
+                            + packetData[3] + " " + packetData[6]);
+                }
+            }
+            offset += data.length;
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {}
+        }
+        benachrichtigeBeobachter(Boolean.FALSE);
         return "";
     }
 

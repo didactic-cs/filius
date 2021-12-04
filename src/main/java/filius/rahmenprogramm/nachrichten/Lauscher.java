@@ -173,12 +173,12 @@ public class Lauscher implements I18n {
         benachrichtigeBeobachter(interfaceId);
     }
 
-    public Object[][] getDaten(String interfaceId, boolean inheritAddress) {
+    public Object[][] getDaten(String interfaceId, boolean inheritAddress, int offset) {
         LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", getDaten(" + interfaceId + ")");
         Vector<Object[]> vector;
         Object[][] daten;
 
-        vector = datenVorbereiten(interfaceId, inheritAddress);
+        vector = datenVorbereiten(interfaceId, inheritAddress, offset);
         if (vector == null) {
             daten = new Object[0][SPALTEN.length];
             return daten;
@@ -195,7 +195,7 @@ public class Lauscher implements I18n {
         LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", print(" + interfaceId + ")");
         Object[][] daten;
 
-        daten = getDaten(interfaceId, false);
+        daten = getDaten(interfaceId, false, 1);
         for (int i = 0; i < daten.length; i++) {
             for (int j = 0; j < daten[i].length; j++) {
                 LOG.debug("\t" + daten[i][j]);
@@ -203,7 +203,32 @@ public class Lauscher implements I18n {
         }
     }
 
-    private Vector<Object[]> datenVorbereiten(String interfaceId, boolean inheritAddress) {
+    public int getOffsetByTimestamp(String interfaceId, long offsetTimestamp) {
+        LinkedList<Object[]> liste = datenEinheiten.get(interfaceId);
+        int offset = 1;
+        if (liste != null) {
+            synchronized (liste) {
+                for (Object[] frameMitZeitstempel : liste) {
+                    long timestamp = ((Long) frameMitZeitstempel[0]).longValue();
+                    if (timestamp >= offsetTimestamp) {
+                        break;
+                    }
+                    offset++;
+                }
+            }
+        }
+        return offset;
+    }
+
+    /**
+     * 
+     * @param interfaceId
+     * @param inheritAddress
+     * @param offset
+     *            starts with 1
+     * @return
+     */
+    private Vector<Object[]> datenVorbereiten(String interfaceId, boolean inheritAddress, int offset) {
         LOG.debug("INVOKED (" + this.hashCode() + ") " + getClass() + ", datenVorbereiten(" + interfaceId + ")");
         Vector<Object[]> daten;
         LinkedList<Object[]> liste;
@@ -228,11 +253,15 @@ public class Lauscher implements I18n {
                 it = liste.listIterator();
                 for (int i = 1; it.hasNext(); i++) {
                     frameMitZeitstempel = (Object[]) it.next();
+                    if (i < offset) {
+                        continue;
+                    }
                     neuerEintrag = new Object[SPALTEN.length];
                     neuerEintrag[0] = "" + i;
 
                     zeit = new GregorianCalendar();
-                    zeit.setTimeInMillis(((Long) frameMitZeitstempel[0]).longValue());
+                    long timestamp = ((Long) frameMitZeitstempel[0]).longValue();
+                    zeit.setTimeInMillis(timestamp);
                     timestampStr = (zeit.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + zeit.get(Calendar.HOUR_OF_DAY)
                             : zeit.get(Calendar.HOUR_OF_DAY))
                             + ":"

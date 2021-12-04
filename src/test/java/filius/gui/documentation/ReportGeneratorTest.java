@@ -71,7 +71,7 @@ public class ReportGeneratorTest {
         String interfaceId = "My Interface";
         when(lauscherMock.getHeader()).thenReturn(COLUMNS);
         when(lauscherMock.getInterfaceIDs()).thenReturn(Arrays.asList(interfaceId));
-        when(lauscherMock.getDaten(interfaceId, true)).thenReturn(DATA);
+        when(lauscherMock.getDaten(interfaceId, true, 0)).thenReturn(DATA);
 
         generator.addNetworkTrafficSection(document);
 

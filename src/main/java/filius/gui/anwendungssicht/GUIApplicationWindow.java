@@ -65,7 +65,7 @@ public abstract class GUIApplicationWindow extends JInternalFrame implements I18
         this.anwendung = desktop.getBetriebssystem().holeSoftware(appKlasse);
         this.anwendung.hinzuBeobachter(this);
 
-        this.setPreferredSize(new Dimension(560, 415));
+        this.setPreferredSize(new Dimension(600, 415));
         this.setClosable(true);
         this.setMaximizable(true);
         this.setIconifiable(false);

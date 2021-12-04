@@ -83,8 +83,6 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
 
     public GUIApplicationTerminalWindow(GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-        this.setMaximizable(false);
-        this.setResizable(true);
         jobRunning = false;
         multipleObserverEvents = false;
 
@@ -96,13 +94,14 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         terminalField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
         terminalField.setFocusable(false);
         terminalField.setBorder(null);
+        terminalField.setLineWrap(true);
 
         JTextField inputField = initInput();
 
         inputLabel = new JLabel(">");
         inputLabel.setBackground(BACKGROUND);
         inputLabel.setForeground(FOREGROUND);
-        inputLabel.setFont(new Font("Courier New", Font.PLAIN, 11));
+        inputLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
 
         Box terminalBox = Box.createHorizontalBox();
         terminalBox.setBackground(BACKGROUND);
@@ -129,15 +128,20 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         this.getContentPane().add(tpPane);
 
         terminalField.setText("");
-        terminalField.append(MENU_LINE);
-        terminalField.append(messages.getString("sw_terminal_msg25"));
-        terminalField.append(MENU_LINE);
-
+        showHelpInfo();
         pack();
 
         inputField.requestFocusInWindow();
         this.inputLabel.setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
-        tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
+
+        scrollDown();
+    }
+
+    private void showHelpInfo() {
+        terminalField.append(messages.getString("sw_terminal_msg25"));
+        terminalField.append(MENU_LINE);
+        terminalField.append(messages.getString("sw_terminal_msg26") + "\n");
+        terminalField.append(MENU_LINE);
     }
 
     @Override
@@ -196,8 +200,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                             doDefaultCloseAction();
                         } else if (enteredCommand.equals("reset")) {
                             terminalField.setText("");
-                            terminalField.append(MENU_LINE);
-                            terminalField.append(messages.getString("sw_terminal_msg25") + MENU_LINE);
+                            showHelpInfo();
+                            scrollDown();
                         } else {
                             inputLabel.setVisible(false);
                             jobRunning = true;
@@ -211,12 +215,13 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                             .setValue(GUIApplicationTerminalWindow.this.tpPane.getVerticalScrollBar().getMaximum());
                 }
                 // [strg] + [c]
-                if (e.getKeyCode() == KeyEvent.VK_C
+                else if (e.getKeyCode() == KeyEvent.VK_C
                         && (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == KeyEvent.CTRL_DOWN_MASK) {
                     ((Terminal) holeAnwendung()).setInterrupt(true);
+                    LOG.debug("execution aborted with ctrl+c");
                 }
                 // 38 arrow-up / 40 arrow-down
-                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
                     if (e.getKeyCode() == KeyEvent.VK_UP) {
                         commandHistoryPointer++;
                     }
@@ -288,16 +293,20 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                     // new height
                     Thread.sleep(200);
                 } catch (InterruptedException e) {}
-                this.tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
-                this.tpPane.repaint();
-                if (!multipleObserverEvents) {
-                    this.inputLabel.setText(
-                            Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
-                    this.inputLabel.setVisible(true);
-                    jobRunning = false;
-                }
             }
+            if (!multipleObserverEvents) {
+                this.inputLabel
+                        .setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+                this.inputLabel.setVisible(true);
+                jobRunning = false;
+            }
+            scrollDown();
         }
+    }
+
+    private void scrollDown() {
+        this.tpPane.repaint();
+        this.tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
     }
 
 }
