@@ -128,7 +128,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         this.getContentPane().add(tpPane);
 
         terminalField.setText("");
-        showHelpInfo();
+        showStartScreen();
         pack();
 
         inputField.requestFocusInWindow();
@@ -137,8 +137,8 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         scrollDown();
     }
 
-    private void showHelpInfo() {
-        terminalField.append(messages.getString("sw_terminal_msg25"));
+    private void showStartScreen() {
+        terminalField.append(messages.getString("sw_terminal_msg57") + "\n");
         terminalField.append(MENU_LINE);
         terminalField.append(messages.getString("sw_terminal_msg26") + "\n");
         terminalField.append(MENU_LINE);
@@ -200,7 +200,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                             doDefaultCloseAction();
                         } else if (enteredCommand.equals("reset")) {
                             terminalField.setText("");
-                            showHelpInfo();
+                            showStartScreen();
                             scrollDown();
                         } else {
                             inputLabel.setVisible(false);
@@ -304,9 +304,9 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     }
 
     private void scrollDown() {
+        this.tpPane.repaint();
         this.terminalField.repaint();
         this.inputLabel.repaint();
-        this.tpPane.repaint();
         this.tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
     }
 

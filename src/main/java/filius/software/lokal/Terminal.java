@@ -990,10 +990,15 @@ public class Terminal extends ClientAnwendung implements I18n {
             setInterrupt(false);
             ausfuehren(enteredCommand, args);
         } catch (NoSuchMethodException e) {
-            benachrichtigeBeobachter(messages.getString("terminal_msg2") + "\n" + messages.getString("terminal_msg3"));
+            ausfuehren("usage", null);
         } catch (Exception e) {
             LOG.debug("", e);
         }
+    }
+
+    public void usage() {
+        benachrichtigeBeobachter(messages.getString("terminal_msg2") + "\n" + messages.getString("terminal_msg3"));
+
     }
 
     public DefaultMutableTreeNode getAktuellerOrdner() {
