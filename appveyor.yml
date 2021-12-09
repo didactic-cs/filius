@@ -1,4 +1,4 @@
-version: 1.12.5-{build}
+version: $(APPVEYOR_REPO_TAG_NAME)-{build}
 image: Visual Studio 2019
 environment:
   JAVA_HOME: C:\Program Files\Java\jdk13
@@ -22,6 +22,9 @@ artifacts:
   name: Debian Package
 deploy:
 - provider: Webhook
+  name: release
+    on:
+      APPVEYOR_REPO_TAG: true
   url: https://app.signpath.io/API/v1/15baf9fe-557e-4a33-92a1-afc9246f41d2/Integrations/AppVeyor?ProjectSlug=filius&SigningPolicySlug=release-signing
   authorization:
      secure: eQKEcW+1eqx1UQf1eDHSwUgEAxy6XOcv/Nwh0UhwSzpt+C1Zpd2GYMovP5t03CGUPQwxt20ysfJVp04zX4Au8A==
