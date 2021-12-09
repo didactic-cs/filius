@@ -332,7 +332,7 @@ public class AggregatedExchangeDialog extends JDialog implements ExchangeDialog,
                             contentLabel += " (" + dataSet[6].toString().length() + " Bytes)";
                         }
                         contentLabel += ": ";
-                        if (dataSet[6].toString().contains("\n")) {
+                        if (dataSet[6].toString().contains("\n") || dataSet[6].toString().length() > 60) {
                             labelNode = new DefaultMutableTreeNode(contentLabel);
                             dateNode = new DefaultMutableTreeNode(dataSet[6]);
                             labelNode.add(dateNode);

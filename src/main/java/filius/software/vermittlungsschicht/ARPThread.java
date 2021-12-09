@@ -54,12 +54,14 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (ARPThread), verarbeiteDatenEinheit(" + arpPaket.toString() + ")");
 
-        // Aus jedem ARP-Paket wird ein neuer ARP-Eintrag erzeugt
-        if (arpPaket.getOperation() == ArpPaket.REPLY && !arpPaket.getSenderIP().equalsIgnoreCase("0.0.0.0")) {
+        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware();
+        // Aus jedem ARP-Paket, mit dem eine eigene IP-Adresse abgefragt wird oder das eine Antwort ist, wird ein neuer
+        // ARP-Eintrag erzeugt
+        if (bs.holeIP().isLocalAddress(arpPaket.getTargetIP())
+                || arpPaket.getOperation() == ArpPaket.REPLY && !arpPaket.getSenderIP().equalsIgnoreCase("0.0.0.0")) {
             vermittlung.hinzuARPTabellenEintrag(arpPaket.getSenderIP(), arpPaket.getSenderMAC());
         }
 
-        InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware();
         NetzwerkInterface nic = vermittlung.getBroadcastNic(arpPaket.getSenderIP());
 
         // wenn die Anfrage eine Anfrage fuer eine eigene
