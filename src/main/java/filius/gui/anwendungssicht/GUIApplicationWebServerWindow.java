@@ -68,8 +68,6 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
         super(desktop, appName);
         LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: GUIApplicationWebServerWindow("
                 + desktop + "," + appName + ")");
-        this.setResizable(true);
-        this.setMaximizable(false);
 
         backPanel = new JPanel(new BorderLayout());
 
@@ -142,7 +140,6 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
         backPanel.add(logBox, BorderLayout.SOUTH);
 
         this.getContentPane().add(backPanel);
-        this.setClosable(true);
 
         this.setVHostTableVisible(this.isVHostAvailable());
 
@@ -157,7 +154,9 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
             backPanel.remove(vHostBox);
             logBox.setPreferredSize(new Dimension(300, 350));
         }
+        Dimension size = getSize();
         pack();
+        setSize(size);
     }
 
     private boolean isVHostAvailable() {

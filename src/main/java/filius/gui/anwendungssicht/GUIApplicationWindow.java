@@ -27,6 +27,7 @@ package filius.gui.anwendungssicht;
 
 import java.awt.Dimension;
 import java.awt.Image;
+import java.beans.PropertyVetoException;
 import java.util.Map;
 import java.util.Observer;
 
@@ -65,14 +66,35 @@ public abstract class GUIApplicationWindow extends JInternalFrame implements I18
         this.anwendung = desktop.getBetriebssystem().holeSoftware(appKlasse);
         this.anwendung.hinzuBeobachter(this);
 
-        this.setPreferredSize(new Dimension(600, 415));
+        this.setPreferredSize(new Dimension(600, 410));
         this.setClosable(true);
         this.setMaximizable(true);
         this.setIconifiable(false);
         this.setResizable(true);
+        this.setMaximum(true);
 
         this.setTitle(anwendung.holeAnwendungsName());
         this.initIcon();
+    }
+
+    /** Wrapper on JInternalFrame.pack() that retains the isMaximum property. */
+    @Override
+    public void pack() {
+        boolean max = this.isMaximum();
+        super.pack();
+        this.setMaximum(max);
+    }
+
+    /** Wrapper on JInternalFrame.setMaximum(boolean) that ensures that the actual size is not 0 width/height. */
+    @Override
+    public void setMaximum(boolean max) {
+        try {
+            super.setMaximum(max);
+        } catch (PropertyVetoException e) {}
+        Dimension size = getSize();
+        if (!max && (size.getHeight() <= 0 || size.getWidth() <= 0)) {
+            pack();
+        }
     }
 
     private void initIcon() {
