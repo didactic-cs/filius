@@ -1,5 +1,24 @@
 # Changelog Filius
 
+## [1.13.0] - 2021-12-11
+### Added
+ * IP forwarding can now activated/deactivated (formerly always on). Default: Router activated, computer deactivated.
+ * New command line tool tcpdump.
+ * New command line tool arpsend (e.g. to simulate ARP spoofing).
+ * Detect and show application layer protocol in data exchange.
+ 
+### Changed
+ * Firewall behavior changed with respect to sender and target address.
+ * Simulation speed can now be adapted more fine grained. The new 90% correlates to the former 100%.
+ * The last column in data exchange dialog is renamed from 'Description' to 'Description / details'.
+ * ARP requests are only used as source for new ARP entries if they are directed to the node itself.
+ * New initial screen for Terminal.
+ * Application windows on desktop: support maximizable, set to maximized by default. 
+
+### Fixed
+* Some linux distributions could not be started directly with Filius files via desktop file managers.
+* URL encoding in case of html forms with method GET is fixed.
+
 ## [1.12.5] - 2021-09-01
 ### Fixed
  * Templates for new applications work now with the new log framework
