@@ -1,5 +1,13 @@
 # Changelog Filius
 
+## [1.13.1] - 2021-12-12
+### Changed
+* Rename label for DNS A records from 'domain name' to 'host/domain name'
+
+### Fixed
+* Fix response for non-resolvable domain with recursive dns resolver
+* Fix http request processing with query params in URL
+
 ## [1.13.0] - 2021-12-11
 ### Added
  * IP forwarding can now activated/deactivated (formerly always on). Default: Router activated, computer deactivated.
