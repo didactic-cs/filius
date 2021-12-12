@@ -367,10 +367,12 @@ public class HTTPNachricht implements I18n {
      * @return the pfad
      */
     public String getPfad() {
-        if (pfad.trim().equals(""))
+        if (pfad.trim().equals("")) {
             return "/";
-        else
-            return pfad;
+        } else {
+            int queryStartIndex = pfad.indexOf('?');
+            return pfad.substring(0, queryStartIndex > 0 ? queryStartIndex : pfad.length());
+        }
     }
 
     /**

@@ -70,8 +70,11 @@ public class DNSServerMitarbeiter extends ServerMitarbeiter {
                         if (record != null) {
                             try {
                                 String ipAdresse = resolver.holeIPAdresse(query.holeDomainname(), record.getRdata());
-                                record = new ResourceRecord(query.holeDomainname(), ResourceRecord.ADDRESS, ipAdresse);
-                                antwort.hinzuAntwortResourceRecord(record.toString());
+                                if (null != ipAdresse) {
+                                    record = new ResourceRecord(query.holeDomainname(), ResourceRecord.ADDRESS,
+                                            ipAdresse);
+                                    antwort.hinzuAntwortResourceRecord(record.toString());
+                                }
                             } catch (TimeoutException e) {
                                 antwort.hinzuAntwortResourceRecord(record.toString());
                                 record = ((DNSServer) server).holeRecord(record.getRdata(), ResourceRecord.ADDRESS);
