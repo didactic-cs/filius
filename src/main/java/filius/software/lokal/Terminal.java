@@ -790,15 +790,13 @@ public class Terminal extends ClientAnwendung implements I18n {
                 LOG.debug("", e);
             }
         }
-        benachrichtigeBeobachter(Boolean.FALSE); // inform about a multiple
-                                                 // data transmission to
-                                                 // the observer
         // print statistics
         benachrichtigeBeobachter("\n--- " + args[0] + " " + messages.getString("sw_terminal_msg45") + " ---\n" + num
                 + " " + messages.getString("sw_terminal_msg46") + ", " + receivedReplies + " "
                 + messages.getString("sw_terminal_msg47") + ", "
                 + ((int) Math.round((1 - (((double) receivedReplies) / ((double) num))) * 100)) + "% "
                 + messages.getString("sw_terminal_msg48") + "\n");
+        benachrichtigeBeobachter(Boolean.FALSE);
         return "";
     }
 
