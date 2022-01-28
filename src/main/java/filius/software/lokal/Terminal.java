@@ -238,17 +238,14 @@ public class Terminal extends ClientAnwendung implements I18n {
         LOG.debug(")");
         if (!numParams(args, 0)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"));
-            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42"); // wrong
-                                                                                                      // number
-                                                                                                      // of
-                                                                                                      // parameters
+            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg42");
         }
         Betriebssystem bs = (Betriebssystem) getSystemSoftware();
         String ausgabe = "";
 
         ausgabe += messages.getString("sw_terminal_msg4") + " " + bs.holeIPAdresse() + "\n";
         ausgabe += messages.getString("sw_terminal_msg5") + " " + bs.holeNetzmaske() + "\n";
-        ausgabe += messages.getString("sw_terminal_msg26") + " " + bs.holeMACAdresse() + "\n";
+        ausgabe += messages.getString("sw_terminal_msg6666") + " " + bs.holeMACAdresse() + "\n";
         ausgabe += messages.getString("sw_terminal_msg6") + " " + bs.getStandardGateway() + "\n";
         ausgabe += messages.getString("sw_terminal_msg27") + " " + bs.getDNSServer() + "\n";
 
