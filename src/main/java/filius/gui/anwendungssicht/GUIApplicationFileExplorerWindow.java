@@ -199,30 +199,22 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                                 }
                                 /* Ausschneiden */
                                 if (e.getActionCommand().equals(miAusschneiden.getActionCommand())) {
-                                    try {
-                                        zwischenAblageNode = tiefesKopieren(selektierteNode);
-                                    } catch (IOException e1) {
-                                        LOG.debug("", e1);
-                                    } catch (ClassNotFoundException e1) {
-                                        LOG.debug("", e1);
-                                    }
+                                    zwischenAblageNode = selektierteNode;
                                     aktuellerOrdner.remove(selektierteNode);
                                     aktualisieren();
                                 }
                                 /* Kopieren */
                                 if (e.getActionCommand().equals(miKopieren.getActionCommand())) {
-                                    try {
-                                        zwischenAblageNode = tiefesKopieren(selektierteNode);
-                                    } catch (IOException e1) {
-                                        LOG.debug("", e);
-                                    } catch (ClassNotFoundException e1) {
-                                        LOG.debug("", e);
-                                    }
+                                    zwischenAblageNode = selektierteNode;
                                     aktualisieren();
                                 }
                                 /* Einfuegen */
                                 if (e.getActionCommand().equals(miEinfuegen.getActionCommand())) {
-                                    aktuellerOrdner.add(zwischenAblageNode);
+                                    try {
+                                        aktuellerOrdner.add(tiefesKopieren(zwischenAblageNode));
+                                    } catch (ClassNotFoundException | IOException e1) {
+                                        LOG.debug("Error inserting file/dir", e);
+                                    }
                                     aktualisieren();
                                 }
                                 /* Umbenennen */
