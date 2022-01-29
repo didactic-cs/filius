@@ -1,5 +1,15 @@
 # Changelog Filius
 
+## [1.13.2] - 2022-01-29
+### Changed
+* Improved cut and paste resp. copy and paste function in file explorer
+
+### Fixed
+* Status line of ping command was missing.
+* Wrong text in ipconfig output on command line fixed.
+* Multiple copy and past in file explorer lead to moving the same file instead of creating multiple copies.
+* Handle spaces in installation path (Linux) correctly.
+
 ## [1.13.1] - 2021-12-12
 ### Changed
 * Rename label for DNS A records from 'domain name' to 'host/domain name'
