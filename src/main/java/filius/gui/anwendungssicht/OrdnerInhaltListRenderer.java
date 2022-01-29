@@ -44,7 +44,8 @@ import filius.rahmenprogramm.I18n;
  * @author Hannes
  * 
  */
-public class OrdnerInhaltListRenderer extends JLabel implements ListCellRenderer, I18n {
+@SuppressWarnings("serial")
+public class OrdnerInhaltListRenderer extends JLabel implements ListCellRenderer<String>, I18n {
 
     private ImageIcon dateiIcon, ordnerIcon;
 
@@ -55,11 +56,11 @@ public class OrdnerInhaltListRenderer extends JLabel implements ListCellRenderer
 
     }
 
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-            boolean cellHasFocus) {
-        String[] teile = value.toString().split(";");
+    @Override
+    public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
+            boolean isSelected, boolean cellHasFocus) {
+        String[] teile = value.split(";");
 
-        String text = value.toString();
         if (teile.length > 0) {
             if (teile[0].equals(messages.getString("fileexplorer_msg10"))) {
                 setIcon(dateiIcon);
@@ -85,5 +86,4 @@ public class OrdnerInhaltListRenderer extends JLabel implements ListCellRenderer
 
         return this;
     }
-
 }

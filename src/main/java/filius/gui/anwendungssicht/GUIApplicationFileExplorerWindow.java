@@ -59,10 +59,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.ListModel;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +74,10 @@ import filius.software.system.Datei;
 import filius.software.system.Dateisystem;
 
 public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
+    private enum OpType {
+        CUT_AND_PASTE, COPY_AND_PASTE
+    }
+
     private static Logger LOG = LoggerFactory.getLogger(GUIApplicationFileExplorerWindow.class);
 
     private static final long serialVersionUID = 1L;
@@ -81,8 +87,10 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     private JPanel backPanel;
     private JTree tv;
     private DefaultMutableTreeNode aktuellerOrdner;
-    private JList dateiListe;
-    private DefaultMutableTreeNode selektierteNode, zwischenAblageNode;
+    private JList<String> dateiListe;
+    private DefaultMutableTreeNode selektierteNode;
+    private DefaultMutableTreeNode zwischenAblageNode;
+    private OpType lastSelectedPasteOperation;
     private JButton btImportieren;
     private String datei;
     private String pfad;
@@ -144,8 +152,8 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         Box horBox = Box.createHorizontalBox();
         horBox.add(scrollpane);
         horBox.setPreferredSize(new Dimension(180, 240));
-        DefaultListModel lmDateiListe = new DefaultListModel();
-        dateiListe = new JList(lmDateiListe);
+        ListModel<String> lmDateiListe = new DefaultListModel<>();
+        dateiListe = new JList<String>(lmDateiListe);
         dateiListe.setFixedCellHeight(16);
         JScrollPane dateiListenScrollPane = new JScrollPane(dateiListe);
         dateiListenScrollPane.setPreferredSize(new Dimension(10, 240));
@@ -156,9 +164,9 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == 3) {
                     if (aktuellerOrdner != null) {
-                        int index = ((JList) e.getSource()).locationToIndex(e.getPoint());
+                        int index = ((JList<?>) e.getSource()).locationToIndex(e.getPoint());
 
-                        DefaultListModel lm = (DefaultListModel) dateiListe.getModel();
+                        ListModel<String> lm = dateiListe.getModel();
                         int selektiert = selektierteZelle(index, e.getPoint());
                         JPopupMenu popmen = new JPopupMenu();
                         final JMenuItem miNeuerOrdner = new JMenuItem(messages.getString("fileexplorer_msg3"));
@@ -178,7 +186,8 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                             public void actionPerformed(ActionEvent e) {
                                 /* Neuer Ordner */
                                 if (e.getActionCommand().equals(miNeuerOrdner.getActionCommand())) {
-                                    String ordnerName = JOptionPane.showInputDialog("");
+                                    String ordnerName = JOptionPane
+                                            .showInputDialog(GUIApplicationFileExplorerWindow.this, "");
                                     if (!ordnerName.equals("")) {
                                         holeAnwendung().getSystemSoftware().getDateisystem()
                                                 .erstelleVerzeichnis(aktuellerOrdner, ordnerName);
@@ -200,22 +209,34 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                                 /* Ausschneiden */
                                 if (e.getActionCommand().equals(miAusschneiden.getActionCommand())) {
                                     zwischenAblageNode = selektierteNode;
-                                    aktuellerOrdner.remove(selektierteNode);
+                                    lastSelectedPasteOperation = OpType.CUT_AND_PASTE;
                                     aktualisieren();
                                 }
                                 /* Kopieren */
                                 if (e.getActionCommand().equals(miKopieren.getActionCommand())) {
                                     zwischenAblageNode = selektierteNode;
+                                    lastSelectedPasteOperation = OpType.COPY_AND_PASTE;
                                     aktualisieren();
                                 }
                                 /* Einfuegen */
                                 if (e.getActionCommand().equals(miEinfuegen.getActionCommand())) {
-                                    try {
-                                        aktuellerOrdner.add(tiefesKopieren(zwischenAblageNode));
-                                    } catch (ClassNotFoundException | IOException e1) {
-                                        LOG.debug("Error inserting file/dir", e);
+                                    if (zwischenAblageNode.isNodeDescendant(aktuellerOrdner)) {
+                                        JOptionPane.showMessageDialog(GUIApplicationFileExplorerWindow.this,
+                                                messages.getString("fileexplorer_msg19"), "",
+                                                JOptionPane.ERROR_MESSAGE);
+                                    } else {
+                                        try {
+                                            aktuellerOrdner.add(tiefesKopieren(zwischenAblageNode));
+                                            if (lastSelectedPasteOperation == OpType.CUT_AND_PASTE) {
+                                                ((DefaultMutableTreeNode) zwischenAblageNode.getParent())
+                                                        .remove(zwischenAblageNode);
+                                                zwischenAblageNode = null;
+                                            }
+                                        } catch (ClassNotFoundException | IOException e1) {
+                                            LOG.debug("Error inserting file/dir", e);
+                                        }
+                                        aktualisieren();
                                     }
-                                    aktualisieren();
                                 }
                                 /* Umbenennen */
                                 if (e.getActionCommand().equals(miUmbenennen.getActionCommand())) {
@@ -287,10 +308,10 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
      *            Die DefaultMutableTreeNode deren Inhalt angezeigt werden soll.
      */
     public void ordnerInhaltAnzeigen(DefaultMutableTreeNode node) {
-        DefaultListModel lm = (DefaultListModel) dateiListe.getModel();
+        DefaultListModel<String> lm = (DefaultListModel<String>) dateiListe.getModel();
         lm.clear();
         dateiListe.setCellRenderer(new OrdnerInhaltListRenderer());
-        for (Enumeration e = node.children(); e.hasMoreElements();) {
+        for (Enumeration<TreeNode> e = node.children(); e.hasMoreElements();) {
             DefaultMutableTreeNode enode = (DefaultMutableTreeNode) e.nextElement();
             if (enode.getUserObject().getClass().equals(Datei.class)) {
                 Datei dat = (Datei) enode.getUserObject();
