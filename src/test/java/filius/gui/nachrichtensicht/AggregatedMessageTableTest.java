@@ -11,23 +11,19 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.junit.Test;
-
-import filius.rahmenprogramm.Information;
 
 public class AggregatedMessageTableTest {
 
     private static final String EMPTY_TABLE_EXPORT = "+============+======================+======================+======================+======================+======================+==========================================+\r\n"
-            + "| Nr.        | Zeit                 | Quelle               | Ziel                 | Protokoll            | Schicht              | Bemerkungen                              | \r\n"
+            + "| Nr.        | Zeit                 | Quelle               | Ziel                 | Protokoll            | Schicht              | Bemerkungen / Details                    | \r\n"
             + "+============+======================+======================+======================+======================+======================+==========================================+\r\n";
 
     @Test
     public void testWriteToStream() throws Exception {
         PipedOutputStream outputStream = new PipedOutputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(new PipedInputStream(outputStream), "UTF8"));
-        Information.getInformation().setLocale(Locale.GERMANY);
 
         AggregatedMessageTable messageTable = new AggregatedMessageTable(new AggregatedExchangeDialog(), null);
         messageTable.writeToStream(outputStream);

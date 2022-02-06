@@ -1,5 +1,8 @@
 package filius.gui.documentation;
 
+import static org.mockito.Mockito.when;
+
+import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import org.junit.Before;
@@ -7,11 +10,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.itextpdf.text.Document;
 
 import filius.Main;
+import filius.gui.GUIContainer;
 
 @RunWith(JUnit4.class)
 public class ReportGenerator2Test {
@@ -19,10 +24,13 @@ public class ReportGenerator2Test {
     public static final String[] COLUMNS = { "No.", "Time", "Source", "Destination", "Protocol", "Layer", "Comment" };
     @InjectMocks
     private ReportGenerator generator;
+    @Mock
+    private GUIContainer guiContainer;
 
     @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    public void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this).close();
+        when(guiContainer.createNetworkImage()).thenReturn(new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB));
     }
 
     private void initScenario(String filiusProject) {

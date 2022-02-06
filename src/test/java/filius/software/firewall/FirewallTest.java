@@ -5,13 +5,9 @@ import static filius.software.firewall.FirewallRule.DROP;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Locale;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import filius.hardware.knoten.Rechner;
-import filius.rahmenprogramm.Information;
 import filius.software.system.Betriebssystem;
 import filius.software.transportschicht.TcpSegment;
 import filius.software.transportschicht.UdpSegment;
@@ -22,11 +18,6 @@ public class FirewallTest {
 
     private static final String DEST_IP_ADDRESS = "192.168.1.2";
     private static final String SENDER_IP_ADDRESS = "10.10.10.1";
-
-    @BeforeClass
-    public static void initI18N() {
-        Information.getInformation().setLocale(Locale.GERMANY);
-    }
 
     @Test
     public void testAcceptIPPacket_Syn_Accept() throws Exception {

@@ -133,7 +133,6 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 + " (ClientBaustein), trennen()");
         if (socket != null) {
             socket.schliessen();
-            socket = null;
             benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3"));
         }
     }
@@ -182,6 +181,8 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
             } catch (Exception e) {
                 benachrichtigeBeobachter(e.getMessage());
                 LOG.debug("", e);
+            } finally {
+                socket = null;
             }
         }
     }

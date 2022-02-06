@@ -2,6 +2,7 @@ package filius.gui.documentation;
 
 import static org.mockito.Mockito.when;
 
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -17,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import com.itextpdf.text.Document;
 
 import filius.Main;
+import filius.gui.GUIContainer;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 
 @RunWith(JUnit4.class)
@@ -34,10 +36,13 @@ public class ReportGeneratorTest {
     private ReportGenerator generator;
     @Mock
     private Lauscher lauscherMock;
+    @Mock
+    private GUIContainer guiContainer;
 
     @Before
     public void initMocks() throws Exception {
         MockitoAnnotations.openMocks(this).close();
+        when(guiContainer.createNetworkImage()).thenReturn(new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB));
     }
 
     @BeforeClass
