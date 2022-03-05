@@ -196,7 +196,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
                 if (segmentListe.size() > 0) {
                     temp = (Object[]) segmentListe.removeFirst();
                     bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
-                    bs.holeIP().senden((String) temp[0], (String) temp[1], holeTyp(), TTL, temp[2]);
+                    bs.holeIP().senden((String) temp[0], (String) temp[1], holeTyp(), TTL, (Segment) temp[2]);
                 }
             }
         }

@@ -368,7 +368,8 @@ public class Lauscher implements I18n {
                         }
                         String payload = (String) neuerEintrag[6];
                         if (payload != null && !payload.trim().equals("")) {
-                            neuerEintrag[4] = classifyApplicationLayerProtocol(payload);
+                            neuerEintrag[4] = classifyApplicationLayerProtocol(payload, ipPaket.getProtocol(),
+                                    ipPaket.getSegment().getQuellPort(), ipPaket.getSegment().getZielPort());
                             daten.addElement(neuerEintrag);
                         }
                     } else if (frame.getTyp().equals(EthernetFrame.ARP)) {
@@ -429,41 +430,40 @@ public class Lauscher implements I18n {
         return daten;
     }
 
-    private String classifyApplicationLayerProtocol(String payload) {
+    private String classifyApplicationLayerProtocol(String payload, int transport, int sourcePort, int destPort) {
         String protocol = "";
-        if (StringUtils.containsIgnoreCase(payload, "http/")) {
-            protocol = "HTTP";
-        } else if (StringUtils.contains(payload, "//0x00//") || StringUtils.contains(payload, "//0x01//")
+        if (StringUtils.contains(payload, "//0x00//") || StringUtils.contains(payload, "//0x01//")
                 || StringUtils.contains(payload, "//0x80//") || StringUtils.contains(payload, "//0x81//")
                 || StringUtils.contains(payload, "//0x40//")) {
             protocol = "GNT";
-        } else if (StringUtils.startsWithIgnoreCase(payload, "+OK") || StringUtils.startsWithIgnoreCase(payload, "-ERR")
-                || StringUtils.startsWithIgnoreCase(payload, "USER ")
-                || StringUtils.startsWithIgnoreCase(payload, "PASS ")
-                || StringUtils.startsWithIgnoreCase(payload, "STAT ")
-                || StringUtils.startsWithIgnoreCase(payload, "LIST ")
-                || StringUtils.startsWithIgnoreCase(payload, "RETR ")
-                || StringUtils.startsWithIgnoreCase(payload, "DELE ")
-                || StringUtils.startsWithIgnoreCase(payload, "NOOP")
-                || StringUtils.startsWithIgnoreCase(payload, "RSET")
-                || StringUtils.startsWithIgnoreCase(payload, "QUIT")
-                || StringUtils.startsWithIgnoreCase(payload, "TOP")) {
+        } else if (sourcePort == 110
+                && (StringUtils.startsWithIgnoreCase(payload, "+OK")
+                        || StringUtils.startsWithIgnoreCase(payload, "-ERR"))
+                || destPort == 110 && (StringUtils.startsWithIgnoreCase(payload, "USER ")
+                        || StringUtils.startsWithIgnoreCase(payload, "PASS ")
+                        || StringUtils.startsWithIgnoreCase(payload, "STAT ")
+                        || StringUtils.startsWithIgnoreCase(payload, "LIST ")
+                        || StringUtils.startsWithIgnoreCase(payload, "RETR ")
+                        || StringUtils.startsWithIgnoreCase(payload, "DELE ")
+                        || StringUtils.startsWithIgnoreCase(payload, "NOOP")
+                        || StringUtils.startsWithIgnoreCase(payload, "RSET")
+                        || StringUtils.startsWithIgnoreCase(payload, "QUIT")
+                        || StringUtils.startsWithIgnoreCase(payload, "TOP"))) {
             protocol = "POP3";
-        } else if (StringUtils.startsWithIgnoreCase(payload, "1") || StringUtils.startsWithIgnoreCase(payload, "2")
-                || StringUtils.startsWithIgnoreCase(payload, "3") || StringUtils.startsWithIgnoreCase(payload, "4")
-                || StringUtils.startsWithIgnoreCase(payload, "5") || StringUtils.startsWithIgnoreCase(payload, "HELO")
-                || StringUtils.startsWithIgnoreCase(payload, "EHELO")
-                || StringUtils.startsWithIgnoreCase(payload, "MAIL FROM")
-                || StringUtils.startsWithIgnoreCase(payload, "RCPT TO")
-                || StringUtils.startsWithIgnoreCase(payload, "DATA")
-                || StringUtils.startsWithIgnoreCase(payload, "From")
-                || StringUtils.startsWithIgnoreCase(payload, "QUIT")) {
+        } else if (sourcePort == 25 && (StringUtils.startsWithIgnoreCase(payload, "1")
+                || StringUtils.startsWithIgnoreCase(payload, "2") || StringUtils.startsWithIgnoreCase(payload, "3")
+                || StringUtils.startsWithIgnoreCase(payload, "4") || StringUtils.startsWithIgnoreCase(payload, "5"))
+                || destPort == 25) {
             protocol = "SMTP";
         } else if (StringUtils.contains(payload, "ID=") && StringUtils.contains(payload, "QR=")
                 && StringUtils.contains(payload, "RCODE=")) {
             protocol = "DNS";
         } else if (StringUtils.contains(payload, "DHCP")) {
             protocol = "DHCP";
+        } else if (sourcePort == 521 && destPort == 520 || sourcePort == 520 && destPort == 521) {
+            protocol = "RIP";
+        } else if (destPort == 80 && StringUtils.containsIgnoreCase(payload, "http/") || sourcePort == 80) {
+            protocol = "HTTP";
         }
         return protocol;
     }

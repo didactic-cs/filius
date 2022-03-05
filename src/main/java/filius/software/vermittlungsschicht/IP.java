@@ -40,6 +40,7 @@ import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.transportschicht.Segment;
 import filius.software.transportschicht.TcpSegment;
 import filius.software.transportschicht.UdpSegment;
 
@@ -232,7 +233,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      *            - Enthaellt das erzeugte Segment mit den Nutzdaten.
      * @throws VerbindungsException
      */
-    public void senden(String zielIp, String quellIp, int protokoll, int ttl, Object segment) {
+    public void senden(String zielIp, String quellIp, int protokoll, int ttl, Segment segment) {
         IpPaket paket = new IpPaket(protokoll);
         paket.setEmpfaenger(zielIp);
         paket.setTtl(ttl);

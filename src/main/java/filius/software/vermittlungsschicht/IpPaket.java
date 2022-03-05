@@ -27,6 +27,8 @@ package filius.software.vermittlungsschicht;
 
 import java.io.Serializable;
 
+import filius.software.transportschicht.Segment;
+
 /**
  * Diese Klasse umfasst die Attribute bzw. Felder eines IP-Pakets
  */
@@ -41,7 +43,7 @@ public class IpPaket implements Serializable, Cloneable {
     /** Time-to-Live */
     private int ttl;
     final private int protocol;
-    private Object data;
+    private Segment data;
 
     public IpPaket(int protocol) {
         this.protocol = protocol;
@@ -85,11 +87,11 @@ public class IpPaket implements Serializable, Cloneable {
         this.ttl = ttl;
     }
 
-    public Object getSegment() {
+    public Segment getSegment() {
         return data;
     }
 
-    public void setSegment(Object data) {
+    public void setSegment(Segment data) {
         this.data = data;
     }
 
