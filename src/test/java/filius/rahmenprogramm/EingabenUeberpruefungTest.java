@@ -1,5 +1,6 @@
 package filius.rahmenprogramm;
 
+import static filius.rahmenprogramm.EingabenUeberpruefung.musterDomain;
 import static filius.rahmenprogramm.EingabenUeberpruefung.musterEmailAdresse;
 import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresse;
 import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresseAuchLeer;
@@ -58,5 +59,53 @@ public class EingabenUeberpruefungTest {
     @Test
     public void testIpAdresseAuchLeer_AktuellesNetzwerk() throws Exception {
         assertTrue(EingabenUeberpruefung.isGueltig("0.0.0.0", musterIpAdresseAuchLeer));
+    }
+    
+    @Test
+    public void testDomain_StartsWithLetter() throws Exception {
+        assertFalse(EingabenUeberpruefung.isGueltig("0a2b3c.a4b5c6", musterDomain));
+        assertFalse(EingabenUeberpruefung.isGueltig("a2b3c.0a4b5c6", musterDomain));
+        assertFalse(EingabenUeberpruefung.isGueltig("-a2b3c.a4b5c6", musterDomain));
+        assertFalse(EingabenUeberpruefung.isGueltig("a2b3c.-a4b5c6", musterDomain));
+    }
+
+    @Test
+    public void testDomain_WithDigitsAtArbitraryPos() throws Exception {
+        assertTrue(EingabenUeberpruefung.isGueltig("a2b3c.a4b5c6", musterDomain));
+    }
+
+    @Test
+    public void testDomain_NoHyphenAtEnd() throws Exception {
+        assertFalse(EingabenUeberpruefung.isGueltig("abc-.def", musterDomain));
+        assertFalse(EingabenUeberpruefung.isGueltig("abc.def-", musterDomain));
+    }
+
+    @Test
+    public void testDomain_WithHypenAtArbitraryPos() throws Exception {
+        assertTrue(EingabenUeberpruefung.isGueltig("a-b-c.d-e-f", musterDomain));
+    }
+
+    @Test
+    public void testDomain_DoNotAllowUnderscore() throws Exception {
+        assertFalse(EingabenUeberpruefung.isGueltig("a_b.a_b", musterDomain));
+    }
+
+    @Test
+    public void testDomain_AllowEmptyLabelAkaRootDomain() throws Exception {
+        assertTrue(EingabenUeberpruefung.isGueltig("", musterDomain));
+        assertTrue(EingabenUeberpruefung.isGueltig(".", musterDomain));
+    }
+
+    @Test
+    public void testDomain_AllowUpTo63Characters() throws Exception {
+        assertTrue(EingabenUeberpruefung.isGueltig("a12345678901234567890123456789012345678901234567890123456789012."
+                + "a12345678901234567890123456789012345678901234567890123456789012.", musterDomain));
+    }
+
+    @Test
+    public void testDomain_DoNOTAllow64Characters() throws Exception {
+        assertFalse(EingabenUeberpruefung.isGueltig("a123456789012345678901234567890123456789012345678901234567890123."
+                + "a123456789012345678901234567890123456789012345678901234567890123.",
+                musterDomain));
     }
 }
