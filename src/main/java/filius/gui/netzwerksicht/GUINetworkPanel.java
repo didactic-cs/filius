@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import filius.hardware.knoten.Gateway;
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Modem;
@@ -79,6 +80,8 @@ public class GUINetworkPanel extends GUIMainArea {
                 templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK)));
             } else if (tempitem.getKnoten() instanceof Modem) {
                 templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM)));
+            } else if (tempitem.getKnoten() instanceof Gateway) {
+                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.GATEWAY)));
             }
 
             templabel.setBounds(tempitem.getImageLabel().getBounds());

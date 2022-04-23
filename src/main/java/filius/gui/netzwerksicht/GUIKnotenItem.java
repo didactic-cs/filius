@@ -29,6 +29,9 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.event.MouseInputAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
 import filius.gui.GUIMainMenu;
@@ -40,6 +43,7 @@ import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 
 public class GUIKnotenItem {
+    private static Logger LOG = LoggerFactory.getLogger(GUIKnotenItem.class);
 
     private Knoten knoten;
     private JSidebarButton imageLabel;

@@ -135,7 +135,13 @@ public class Information implements Serializable {
 
     private FeatureMode softwareWizardMode = FeatureMode.FORCE_ENABLE;
 
+    private boolean gatewayAvailable = false;
+
     // private Locale locale = new Locale("en", "GB");
+
+    public boolean isGatewayAvailable() {
+        return gatewayAvailable;
+    }
 
     public FeatureMode getSoftwareWizardMode() {
         return softwareWizardMode;
@@ -654,6 +660,12 @@ LOG.debug("",e);
                                     try {
                                         height = Integer.parseInt(configValue);
                                     } catch (NumberFormatException e) {}
+                                } else if (configKey.equalsIgnoreCase("gateway")) {
+                                    if (configValue.trim().equals("1")) {
+                                        this.gatewayAvailable = true;
+                                    } else if (configValue.trim().equals("0")) {
+                                        this.gatewayAvailable = false;
+                                    }
                                 }
                             }
 

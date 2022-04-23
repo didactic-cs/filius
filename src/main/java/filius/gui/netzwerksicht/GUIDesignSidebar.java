@@ -35,94 +35,89 @@ import javax.swing.event.MouseInputAdapter;
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
 import filius.hardware.Kabel;
+import filius.hardware.knoten.Gateway;
 import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
 import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
+import filius.rahmenprogramm.Information;
 
 /**
- * Klasse für das linke Panel in der Entwurfsansicht. Darin werden alle
- * nutzbaren Elemente für den Netzwerkentwurf angezeigt und können per Drag&Drop
- * in den Entwurfsbildschirm gezogen werden.
+ * Klasse für das linke Panel in der Entwurfsansicht. Darin werden alle nutzbaren Elemente für den Netzwerkentwurf
+ * angezeigt und können per Drag&Drop in den Entwurfsbildschirm gezogen werden.
  * 
  * @author Johannes Bade & Thomas Gerding
  */
 public class GUIDesignSidebar extends GUISidebar {
 
-	public static final String KABEL = "gfx/hardware/kabel.png";
-	public static final String RECHNER = "gfx/hardware/server.png";
-	public static final String SWITCH = "gfx/hardware/switch.png";
-	public static final String SWITCH_CLOUD = "gfx/hardware/cloud.png";
-	public static final String VERMITTLUNGSRECHNER = "gfx/hardware/router.png";
-	public static final String NOTEBOOK = "gfx/hardware/laptop.png";
-	public static final String MODEM = "gfx/hardware/vermittlungsrechner-out.png";
+    public static final String KABEL = "gfx/hardware/kabel.png";
+    public static final String RECHNER = "gfx/hardware/server.png";
+    public static final String SWITCH = "gfx/hardware/switch.png";
+    public static final String SWITCH_CLOUD = "gfx/hardware/cloud.png";
+    public static final String VERMITTLUNGSRECHNER = "gfx/hardware/router.png";
+    public static final String NOTEBOOK = "gfx/hardware/laptop.png";
+    public static final String MODEM = "gfx/hardware/vermittlungsrechner-out.png";
+    public static final String GATEWAY = "gfx/hardware/gateway.png";
 
-	private JLabel newCableCursor;
+    private JLabel newCableCursor;
 
-	private static GUIDesignSidebar sidebar;
+    private static GUIDesignSidebar sidebar;
 
-	public static GUIDesignSidebar getGUIDesignSidebar() {
-		if (sidebar == null) {
-			sidebar = new GUIDesignSidebar();
-		}
-		return sidebar;
-	}
+    public static GUIDesignSidebar getGUIDesignSidebar() {
+        if (sidebar == null) {
+            sidebar = new GUIDesignSidebar();
+        }
+        return sidebar;
+    }
 
-	private void addCableItemToSidebar() {
-		newCableCursor = new JLabel(new ImageIcon(getClass().getResource("/" + KABEL)));
-		newCableCursor.setText(Kabel.TYPE);
-		newCableCursor.setVerticalTextPosition(SwingConstants.BOTTOM);
-		newCableCursor.setHorizontalTextPosition(SwingConstants.CENTER);
-		newCableCursor.setAlignmentX(0.5f);
+    private void addCableItemToSidebar() {
+        newCableCursor = new JLabel(new ImageIcon(getClass().getResource("/" + KABEL)));
+        newCableCursor.setText(Kabel.TYPE);
+        newCableCursor.setVerticalTextPosition(SwingConstants.BOTTOM);
+        newCableCursor.setHorizontalTextPosition(SwingConstants.CENTER);
+        newCableCursor.setAlignmentX(0.5f);
 
-		newCableCursor.setVerticalTextPosition(SwingConstants.BOTTOM);
-		newCableCursor.setHorizontalTextPosition(SwingConstants.CENTER);
+        newCableCursor.setVerticalTextPosition(SwingConstants.BOTTOM);
+        newCableCursor.setHorizontalTextPosition(SwingConstants.CENTER);
 
-		newCableCursor.setToolTipText("<Alt>+1");
+        newCableCursor.setToolTipText("<Alt>+1");
 
-		leistenpanel.add(newCableCursor);
+        leistenpanel.add(newCableCursor);
 
-		newCableCursor.addMouseListener(new MouseInputAdapter() {
-			public void mousePressed(MouseEvent e) {
-				GUIEvents.getGUIEvents().resetAndShowCablePreview(
-				        e.getX() - GUIContainer.getGUIContainer().getSidebarScrollpane().getWidth(), e.getY());
-			}
-		});
-	}
+        newCableCursor.addMouseListener(new MouseInputAdapter() {
+            public void mousePressed(MouseEvent e) {
+                GUIEvents.getGUIEvents().resetAndShowCablePreview(
+                        e.getX() - GUIContainer.getGUIContainer().getSidebarScrollpane().getWidth(), e.getY());
+            }
+        });
+    }
 
-	@Override
-	protected void addItemsToSidebar() {
-		addCableItemToSidebar();
-		addComponentItemsToSidebar();
-	}
+    @Override
+    protected void addItemsToSidebar() {
+        addCableItemToSidebar();
+        addComponentItemsToSidebar();
+    }
 
-	private void addComponentItemsToSidebar() {
-		String[] bildDateien;
-		String[] hardwareTypen;
-		JSidebarButton newLabel;
-		ImageIcon icon;
+    private void addComponentItemsToSidebar() {
+        addHardwareComponent(RECHNER, Rechner.TYPE);
+        addHardwareComponent(NOTEBOOK, Notebook.TYPE);
+        addHardwareComponent(SWITCH, Switch.TYPE);
+        addHardwareComponent(VERMITTLUNGSRECHNER, Vermittlungsrechner.TYPE);
+        addHardwareComponent(MODEM, Modem.TYPE);
+        if (Information.getInformation().isGatewayAvailable()) {
+            addHardwareComponent(GATEWAY, Gateway.TYPE);
+        }
+    }
 
-		bildDateien = new String[5];
-		hardwareTypen = new String[5];
-		bildDateien[0] = RECHNER;
-		hardwareTypen[0] = Rechner.TYPE;
-		bildDateien[1] = NOTEBOOK;
-		hardwareTypen[1] = Notebook.TYPE;
-		bildDateien[2] = SWITCH;
-		hardwareTypen[2] = Switch.TYPE;
-		bildDateien[3] = VERMITTLUNGSRECHNER;
-		hardwareTypen[3] = Vermittlungsrechner.TYPE;
-		bildDateien[4] = MODEM;
-		hardwareTypen[4] = Modem.TYPE;
+    private void addHardwareComponent(String imageResourcePath, String hardwareType) {
+        JSidebarButton newLabel;
+        ImageIcon icon;
+        icon = new ImageIcon(getClass().getResource("/" + imageResourcePath));
+        newLabel = new JSidebarButton(hardwareType, icon, hardwareType);
 
-		for (int i = 0; i < bildDateien.length && i < hardwareTypen.length; i++) {
-			icon = new ImageIcon(getClass().getResource("/" + bildDateien[i]));
-			newLabel = new JSidebarButton(hardwareTypen[i], icon, hardwareTypen[i]);
-
-			/* Label wird liste und Leiste hinzugefuegt */
-			buttonList.add(newLabel);
-			leistenpanel.add(newLabel);
-		}
-	}
+        /* Label wird liste und Leiste hinzugefuegt */
+        buttonList.add(newLabel);
+        leistenpanel.add(newLabel);
+    }
 }

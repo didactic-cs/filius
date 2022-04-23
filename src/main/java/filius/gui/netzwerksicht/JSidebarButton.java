@@ -58,6 +58,9 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
     private String typ;
     private boolean selektiert;
     private boolean modemVerbunden;
+    private boolean isTemporaryText;
+    private String originalText;
+    private Color originalTextColor;
 
     public boolean isSelektiert() {
         return selektiert;
@@ -218,5 +221,21 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
 
         tooltip.append("</pre></html>");
         setToolTipText(tooltip.toString());
+    }
+
+    public void setTemporaryText(String text) {
+        if (!isTemporaryText) {
+            originalText = getText();
+            originalTextColor = getForeground();
+            isTemporaryText = true;
+        }
+        setForeground(Color.GRAY);
+        setTextAndUpdateLocation(text);
+    }
+
+    public void resetText() {
+        setForeground(originalTextColor);
+        setTextAndUpdateLocation(originalText);
+        isTemporaryText = false;
     }
 }

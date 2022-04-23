@@ -28,9 +28,11 @@ package filius.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -50,6 +52,7 @@ import filius.gui.netzwerksicht.JSidebarButton;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
+import filius.hardware.knoten.Gateway;
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Modem;
@@ -82,10 +85,13 @@ public class GUIEvents implements I18n {
     private List<GUIKnotenItem> markedlist;
 
     private GUIKnotenItem loeschitem, aktivesItem, ziel2;
+    private Map<Knoten, Boolean> statusIsWANPort = new HashMap<>();
 
     private JSidebarButton loeschlabel;
 
     private JCablePanel kabelPanelVorschau;
+
+    private JSidebarButton lastGateway;
 
     private GUIEvents() {
         markedlist = new LinkedList<GUIKnotenItem>();
@@ -286,8 +292,19 @@ public class GUIEvents implements I18n {
                         if (aktivesItem.getKnoten() instanceof Knoten) {
                             Knoten tempKnoten = (Knoten) aktivesItem.getKnoten();
                             boolean success = true;
-                            if (aktivesItem.getKnoten() instanceof Knoten) {
-                                tempKnoten = (Knoten) aktivesItem.getKnoten();
+                            if (tempKnoten instanceof Gateway) {
+                                if (statusIsWANPort.getOrDefault(aktivesItem.getKnoten(), Boolean.TRUE)
+                                        && !((Gateway) tempKnoten).checkWANPortUnconnected()) {
+                                    GUIErrorHandler.getGUIErrorHandler()
+                                            .DisplayError(messages.getString("guievents_msg22"));
+                                    success = false;
+                                } else if (!statusIsWANPort.getOrDefault(aktivesItem.getKnoten(), Boolean.TRUE)
+                                        && !((Gateway) tempKnoten).checkLANPortUnconnected()) {
+                                    GUIErrorHandler.getGUIErrorHandler()
+                                            .DisplayError(messages.getString("guievents_msg23"));
+                                    success = false;
+                                }
+                            } else {
                                 Port anschluss = tempKnoten.holeFreienPort();
                                 if (anschluss == null) {
                                     success = false;
@@ -412,6 +429,26 @@ public class GUIEvents implements I18n {
         }
     }
 
+    public void updateGatewayPort(int posX, int posY) {
+        for (GUIKnotenItem tempitem : GUIContainer.getGUIContainer().getKnotenItems()) {
+            JSidebarButton templabel = tempitem.getImageLabel();
+            if (templabel.inBounds(posX, posY) && tempitem.getKnoten() instanceof Gateway) {
+                if (posX - templabel.getX() < templabel.getWidth() / 2) {
+                    statusIsWANPort.put(tempitem.getKnoten(), Boolean.TRUE);
+                    templabel.setTemporaryText(messages.getString("guievents_msg24"));
+                } else {
+                    statusIsWANPort.put(tempitem.getKnoten(), Boolean.FALSE);
+                    templabel.setTemporaryText(messages.getString("guievents_msg25"));
+                }
+                LOG.trace(posX - templabel.getX() + " / " + templabel.getWidth());
+                lastGateway = templabel;
+            } else if (templabel.equals(lastGateway)) {
+                templabel.resetText();
+                lastGateway = null;
+            }
+        }
+    }
+
     public GUIKnotenItem getActiveItem() {
         return aktivesItem;
     }
@@ -427,7 +464,6 @@ public class GUIEvents implements I18n {
     private void connectCableToSecondComponent(GUIKnotenItem tempitem) {
         GUIContainer c = GUIContainer.getGUIContainer();
         GUINetworkPanel draftpanel = c.getDesignpanel();
-        NetzwerkInterface nic1, nic2;
         Port anschluss1 = null;
         Port anschluss2 = null;
 
@@ -439,33 +475,45 @@ public class GUIEvents implements I18n {
         neuesKabel.getKabelpanel().updateBounds();
         draftpanel.updateUI();
         c.getCableItems().add(neuesKabel);
-        if (neuesKabel.getKabelpanel().getZiel1().getKnoten() instanceof Modem) {
-            Modem vrOut = (Modem) neuesKabel.getKabelpanel().getZiel1().getKnoten();
+        Knoten component1 = neuesKabel.getKabelpanel().getZiel1().getKnoten();
+        if (component1 instanceof Modem) {
+            Modem vrOut = (Modem) component1;
             anschluss1 = vrOut.getErstenAnschluss();
-        } else if (neuesKabel.getKabelpanel().getZiel1().getKnoten() instanceof Vermittlungsrechner) {
-            Vermittlungsrechner r = (Vermittlungsrechner) neuesKabel.getKabelpanel().getZiel1().getKnoten();
+        } else if (component1 instanceof Vermittlungsrechner) {
+            Vermittlungsrechner r = (Vermittlungsrechner) component1;
             anschluss1 = r.holeFreienPort();
-        } else if (neuesKabel.getKabelpanel().getZiel1().getKnoten() instanceof Switch) {
-            Switch sw = (Switch) neuesKabel.getKabelpanel().getZiel1().getKnoten();
+        } else if (component1 instanceof Switch) {
+            Switch sw = (Switch) component1;
             anschluss1 = ((SwitchFirmware) sw.getSystemSoftware()).getKnoten().holeFreienPort();
-        } else if (neuesKabel.getKabelpanel().getZiel1().getKnoten() instanceof InternetKnoten) {
-            nic1 = (NetzwerkInterface) ((InternetKnoten) neuesKabel.getKabelpanel().getZiel1().getKnoten())
-                    .getNetzwerkInterfaces().get(0);
+        } else if (component1 instanceof Gateway) {
+            if (statusIsWANPort.getOrDefault(component1, Boolean.TRUE)) {
+                anschluss1 = ((Gateway) component1).holeWANInterface().getPort();
+            } else {
+                anschluss1 = ((Gateway) component1).holeLANInterface().getPort();
+            }
+        } else if (component1 instanceof InternetKnoten) {
+            NetzwerkInterface nic1 = (NetzwerkInterface) ((InternetKnoten) component1).getNetzwerkInterfaces().get(0);
             anschluss1 = nic1.getPort();
         }
 
-        if (neuesKabel.getKabelpanel().getZiel2().getKnoten() instanceof Modem) {
-            Modem vrOut = (Modem) neuesKabel.getKabelpanel().getZiel2().getKnoten();
+        Knoten component2 = neuesKabel.getKabelpanel().getZiel2().getKnoten();
+        if (component2 instanceof Modem) {
+            Modem vrOut = (Modem) component2;
             anschluss2 = vrOut.getErstenAnschluss();
-        } else if (neuesKabel.getKabelpanel().getZiel2().getKnoten() instanceof Vermittlungsrechner) {
-            Vermittlungsrechner r = (Vermittlungsrechner) neuesKabel.getKabelpanel().getZiel2().getKnoten();
+        } else if (component2 instanceof Vermittlungsrechner) {
+            Vermittlungsrechner r = (Vermittlungsrechner) component2;
             anschluss2 = r.holeFreienPort();
-        } else if (neuesKabel.getKabelpanel().getZiel2().getKnoten() instanceof Switch) {
-            Switch sw = (Switch) neuesKabel.getKabelpanel().getZiel2().getKnoten();
+        } else if (component2 instanceof Switch) {
+            Switch sw = (Switch) component2;
             anschluss2 = ((SwitchFirmware) sw.getSystemSoftware()).getKnoten().holeFreienPort();
-        } else if (neuesKabel.getKabelpanel().getZiel2().getKnoten() instanceof InternetKnoten) {
-            nic2 = (NetzwerkInterface) ((InternetKnoten) neuesKabel.getKabelpanel().getZiel2().getKnoten())
-                    .getNetzwerkInterfaces().get(0);
+        } else if (component2 instanceof Gateway) {
+            if (statusIsWANPort.getOrDefault(component2, Boolean.TRUE)) {
+                anschluss2 = ((Gateway) component2).holeWANInterface().getPort();
+            } else {
+                anschluss2 = ((Gateway) component2).holeLANInterface().getPort();
+            }
+        } else if (component2 instanceof InternetKnoten) {
+            NetzwerkInterface nic2 = (NetzwerkInterface) ((InternetKnoten) component2).getNetzwerkInterfaces().get(0);
             anschluss2 = nic2.getPort();
         }
 

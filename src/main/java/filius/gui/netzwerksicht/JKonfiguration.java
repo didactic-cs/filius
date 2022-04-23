@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import filius.gui.JBackgroundPanel;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
+import filius.hardware.knoten.Gateway;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.Modem;
 import filius.hardware.knoten.Switch;
@@ -102,6 +103,8 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
                 newInstance = new JSwitchKonfiguration(hardware);
             } else if (hardware instanceof Vermittlungsrechner) {
                 newInstance = new JVermittlungsrechnerKonfiguration(hardware);
+            } else if (hardware instanceof Gateway) {
+                newInstance = new JGatewayConfiguration(hardware);
             } else {
                 newInstance = new JKonfiguration(null);
             }

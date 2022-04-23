@@ -91,6 +91,7 @@ import filius.gui.netzwerksicht.JKonfiguration;
 import filius.gui.netzwerksicht.JSidebarButton;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
+import filius.hardware.knoten.Gateway;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
@@ -447,7 +448,8 @@ public class GUIContainer implements Serializable, I18n {
                     if (kabelPanelVorschau != null) {
                         kabelPanelVorschau.updateBounds();
                     }
-
+                    LOG.trace(e.getX() + " / " + e.getY());
+                    GUIEvents.getGUIEvents().updateGatewayPort(e.getX(), e.getY());
                 }
             }
         });
@@ -605,6 +607,9 @@ public class GUIContainer implements Serializable, I18n {
         } else if (label.getTyp().equals(Modem.TYPE)) {
             neuerKnoten = new Modem();
             tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM));
+        } else if (label.getTyp().equals(Gateway.TYPE)) {
+            neuerKnoten = new Gateway();
+            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.GATEWAY));
         } else {
             LOG.debug("ERROR (" + this.hashCode() + "): " + "unbekannter Hardwaretyp " + label.getTyp()
                     + " konnte nicht erzeugt werden.");
@@ -683,6 +688,8 @@ public class GUIContainer implements Serializable, I18n {
             tmp = GUIDesignSidebar.VERMITTLUNGSRECHNER;
         } else if (hardwareTyp.equals(Modem.TYPE)) {
             tmp = GUIDesignSidebar.MODEM;
+        } else if (hardwareTyp.equals(Gateway.TYPE)) {
+            tmp = GUIDesignSidebar.GATEWAY;
         } else {
             tmp = null;
             LOG.debug("GUIContainer: ausgewaehlte Hardware-Komponente unbekannt!");
