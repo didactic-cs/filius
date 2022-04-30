@@ -30,7 +30,12 @@ public class Kabel extends Verbindung {
 
     public static final String TYPE = messages.getString("hw_kabel_msg1");
 
+    public Kabel() {
+        super();
+    }
+
     public Kabel(Port anschluss1, Port anschluss2) {
+        super();
         setAnschluesse(new Port[] { anschluss1, anschluss2 });
     }
 
