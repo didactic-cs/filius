@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Johannes Bade
  */
+@SuppressWarnings("deprecation")
 public class JCablePanel extends JPanel implements Observer {
     private static Logger LOG = LoggerFactory.getLogger(JCablePanel.class);
 
@@ -91,7 +92,7 @@ public class JCablePanel extends JPanel implements Observer {
 
         // add 2 for each direction to take care of linewidth
         setBounds(x1 - 2, y1 - 2, x2 - x1 + 4, y2 - y1 + 4);
-        LOG.debug("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2 + "  (W:"
+        LOG.trace("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2 + "  (W:"
                 + (x2 - x1) + ", H:" + (y2 - y1) + ")");
     }
 

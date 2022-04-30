@@ -23,19 +23,53 @@
  ** You should have received a copy of the GNU General Public License
  ** along with Filius.  If not, see <http://www.gnu.org/licenses/>.
  */
-package filius.hardware;
+package filius.software.nat;
 
-@SuppressWarnings("serial")
-public class Kabel extends Verbindung {
+import java.util.Objects;
 
-    public static final String TYPE = messages.getString("hw_kabel_msg1");
+public class PortProtocolPair {
+    private int port;
+    private int protocol;
 
-    public Kabel(Port anschluss1, Port anschluss2) {
-        setAnschluesse(new Port[] { anschluss1, anschluss2 });
+    public PortProtocolPair(int port, int protocol) {
+        super();
+        this.port = port;
+        this.protocol = protocol;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public int getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(int protocol) {
+        this.protocol = protocol;
     }
 
     @Override
-    public String holeHardwareTyp() {
-        return TYPE;
+    public boolean equals(Object other) {
+        boolean result = true;
+        if (null == other) {
+            result = false;
+        } else if (!(other instanceof PortProtocolPair)) {
+            result = false;
+        } else if (port != ((PortProtocolPair) other).port) {
+            return false;
+        } else if (protocol != ((PortProtocolPair) other).protocol) {
+            return false;
+        }
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(port, protocol);
     }
 }

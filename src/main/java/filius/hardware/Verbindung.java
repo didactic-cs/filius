@@ -78,8 +78,7 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
         try {
             verbinde();
         } catch (VerbindungsException e) {
-            // TODO Auto-generated catch block
-            LOG.debug("", e);
+            LOG.debug("Unexpected error when connectiong two ports", e);
         }
     }
 

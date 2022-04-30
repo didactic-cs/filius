@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
+import filius.gui.netzwerksicht.JGatewayConfiguration;
 import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
 import filius.gui.quelltextsicht.FrameSoftwareWizard;
 import filius.hardware.Verbindung;
@@ -418,6 +419,9 @@ public class GUIMainMenu implements Serializable, I18n {
                  // for 'Vermittlungsrechner' configuration
             if (GUIContainer.getGUIContainer().getProperty() instanceof JVermittlungsrechnerKonfiguration) {
                 ((JVermittlungsrechnerKonfiguration) GUIContainer.getGUIContainer().getProperty()).highlightConnCable();
+            }
+            if (GUIContainer.getGUIContainer().getProperty() instanceof JGatewayConfiguration) {
+                ((JGatewayConfiguration) GUIContainer.getGUIContainer().getProperty()).highlightConnCable();
             }
         }
     }

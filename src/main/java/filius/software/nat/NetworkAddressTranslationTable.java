@@ -23,19 +23,30 @@
  ** You should have received a copy of the GNU General Public License
  ** along with Filius.  If not, see <http://www.gnu.org/licenses/>.
  */
-package filius.hardware;
+package filius.software.nat;
 
-@SuppressWarnings("serial")
-public class Kabel extends Verbindung {
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-    public static final String TYPE = messages.getString("hw_kabel_msg1");
+public class NetworkAddressTranslationTable {
+    private Map<PortProtocolPair, InetAddress> dynamicNATTable = new HashMap<>();
+    private Map<PortProtocolPair, InetAddress> staticNATTable = new HashMap<>();
 
-    public Kabel(Port anschluss1, Port anschluss2) {
-        setAnschluesse(new Port[] { anschluss1, anschluss2 });
+    public Map<PortProtocolPair, InetAddress> getStaticNATTable() {
+        return Collections.unmodifiableMap(staticNATTable);
     }
 
-    @Override
-    public String holeHardwareTyp() {
-        return TYPE;
+    public void setStaticNATTable(Map<PortProtocolPair, InetAddress> staticNATTable) {
+        this.staticNATTable = new HashMap<PortProtocolPair, InetAddress>(staticNATTable);
+    }
+
+    void addDynamic(int port, int protocol, InetAddress address) {
+        dynamicNATTable.put(new PortProtocolPair(port, protocol), address);
+    }
+
+    public InetAddress find(int port, int protocol) {
+        PortProtocolPair lookup = new PortProtocolPair(port, protocol);
+        return dynamicNATTable.get(lookup);
     }
 }

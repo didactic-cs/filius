@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>Administration des Gateways</title>
+  </head>
+  <body>
+    <h1>Firewall-Administration</h1>
+    <p> <a href="konfig">Konfiguration</a> </p>
+    <p> <a href="log">Log-Eintr&auml;ge anzeigen</a> </p>
+  </body>
+</html>

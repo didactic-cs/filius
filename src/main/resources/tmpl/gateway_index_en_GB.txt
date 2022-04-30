@@ -1,0 +1,10 @@
+<html>
+  <head>
+    <title>Gateway Administration</title>
+  </head>
+  <body>
+    <h1>Firewall Administration</h1>
+    <p> <a href="konfig">Configuration</a> </p>
+    <p> <a href="log">Show Log</a> </p>    
+  </body>
+</html>

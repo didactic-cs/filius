@@ -119,8 +119,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
     }
 
     private void showFirewallDialog() {
-        Firewall firewall = ((GatewayFirmware) ((Gateway) holeHardware())
-                .getSystemSoftware()).holeFirewall();
+        Firewall firewall = ((GatewayFirmware) ((Gateway) holeHardware()).getSystemSoftware()).holeFirewall();
 
         JFirewallDialog firewallDialog = new JFirewallDialog(firewall, JMainFrame.getJMainFrame());
         firewallDialog.setBounds(100, 100, 850, 340);
@@ -267,28 +266,27 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         netmaskWANPort = new JTextField();
         macAddressWANPort = new JTextField();
         connectedComponentWAN = new JLabel();
-        initNICConfigPane(ipAdresseKeyAdapter, netzmaskeKeyAdapter, focusListener, actionListener,
-                ipAddressWANPort, macAddressWANPort, netmaskWANPort, connectedComponentWAN);
+        initNICConfigPane(ipAdresseKeyAdapter, netzmaskeKeyAdapter, focusListener, actionListener, ipAddressWANPort,
+                macAddressWANPort, netmaskWANPort, connectedComponentWAN);
 
         ipAddressLANPort = new JTextField();
         netmaskLANPort = new JTextField();
         macAddressLANPort = new JTextField();
         connectedComponentLAN = new JLabel();
-        initNICConfigPane(ipAdresseKeyAdapter, netzmaskeKeyAdapter, focusListener, actionListener,
-                ipAddressLANPort, macAddressLANPort, netmaskLANPort, connectedComponentLAN);
+        initNICConfigPane(ipAdresseKeyAdapter, netzmaskeKeyAdapter, focusListener, actionListener, ipAddressLANPort,
+                macAddressLANPort, netmaskLANPort, connectedComponentLAN);
 
         tpNetzwerkKarten.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent arg0) {
                 JTabbedPane pane = (JTabbedPane) arg0.getSource();
                 // Get current tab
                 int sel = pane.getSelectedIndex();
-                // LOG.debug("\tsource: "+pane+", index="+sel+", getComponentCount="+pane.getComponentCount());
                 if (highlightedCable != null) {
                     highlightedCable.setAktiv(false);
                 }
-                if (sel > 0 && sel < pane.getComponentCount() - 1) {
-                    Verbindung conn = ((NetzwerkInterface) ((Gateway) holeHardware())
-                            .getNetzwerkInterfaces().get(sel - 1)).getPort().getVerbindung();
+                if (sel > 0 && sel <= pane.getComponentCount() - 1) {
+                    Verbindung conn = ((NetzwerkInterface) ((Gateway) holeHardware()).getNetzwerkInterfaces()
+                            .get(sel - 1)).getPort().getVerbindung();
                     if (conn != null) {
                         conn.setAktiv(true);
                         highlightedCable = (Kabel) conn;
@@ -357,7 +355,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         boxNic.add(boxMacAdresse);
 
         tpNetzwerkKarten.addTab(messages.getString("jgatewayconfiguration_msg10"),
-                    new ImageIcon(getClass().getResource("/gfx/allgemein/conn_fail.png")), boxNic);
+                new ImageIcon(getClass().getResource("/gfx/allgemein/conn_fail.png")), boxNic);
 
         ipAddressTextfield.addKeyListener(ipAdresseKeyAdapter);
         ipAddressTextfield.addActionListener(actionListener);
@@ -369,8 +367,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
     }
 
     public void doUnselectAction() {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (jgatewayconfiguration), doUnselectAction()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (jgatewayconfiguration), doUnselectAction()");
         if (highlightedCable != null) {
             highlightedCable.setAktiv(false);
             highlightedCable = null;
@@ -391,8 +388,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
     }
 
     public void updateAttribute() {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (jgatewayconfiguration), updateAttribute()");
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (jgatewayconfiguration), updateAttribute()");
 
         Gateway vRechner = (Gateway) holeHardware();
         GatewayFirmware bs = (GatewayFirmware) vRechner.getSystemSoftware();
@@ -400,8 +396,6 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         name.setText(vRechner.holeAnzeigeName());
         gatewayName.setText(bs.getStandardGateway());
         ipForwarding.setSelected(bs.isIpForwardingEnabled());
-
-        tpNetzwerkKarten.setEnabledAt(tpNetzwerkKarten.getTabCount() - 1, !bs.isRipEnabled());
 
         updateNICConfigPane("WAN", vRechner.holeWANInterface(), ipAddressWANPort, macAddressWANPort, netmaskWANPort,
                 connectedComponentWAN, 1);
@@ -455,7 +449,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
                         return node.getKnoten();
                 }
             } else {
-                LOG.debug("ERROR (" + this.hashCode() + "): Knotentyp unbekannt.");
+                LOG.debug("Knotentyp unbekannt.");
             }
         }
         return null;

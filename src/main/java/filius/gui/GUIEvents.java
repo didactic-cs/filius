@@ -84,14 +84,14 @@ public class GUIEvents implements I18n {
 
     private List<GUIKnotenItem> markedlist;
 
-    private GUIKnotenItem loeschitem, aktivesItem, ziel2;
+    private GUIKnotenItem loeschitem, aktivesItem;
     private Map<Knoten, Boolean> statusIsWANPort = new HashMap<>();
+    private boolean lastStatusIsWANPort;
+    private GUIKnotenItem lastGateway;
 
     private JSidebarButton loeschlabel;
 
     private JCablePanel kabelPanelVorschau;
-
-    private JSidebarButton lastGateway;
 
     private GUIEvents() {
         markedlist = new LinkedList<GUIKnotenItem>();
@@ -293,16 +293,16 @@ public class GUIEvents implements I18n {
                             Knoten tempKnoten = (Knoten) aktivesItem.getKnoten();
                             boolean success = true;
                             if (tempKnoten instanceof Gateway) {
-                                if (statusIsWANPort.getOrDefault(aktivesItem.getKnoten(), Boolean.TRUE)
-                                        && !((Gateway) tempKnoten).checkWANPortUnconnected()) {
+                                if (lastStatusIsWANPort && !((Gateway) tempKnoten).checkWANPortUnconnected()) {
                                     GUIErrorHandler.getGUIErrorHandler()
                                             .DisplayError(messages.getString("guievents_msg22"));
                                     success = false;
-                                } else if (!statusIsWANPort.getOrDefault(aktivesItem.getKnoten(), Boolean.TRUE)
-                                        && !((Gateway) tempKnoten).checkLANPortUnconnected()) {
+                                } else if (!lastStatusIsWANPort && !((Gateway) tempKnoten).checkLANPortUnconnected()) {
                                     GUIErrorHandler.getGUIErrorHandler()
                                             .DisplayError(messages.getString("guievents_msg23"));
                                     success = false;
+                                } else {
+                                    statusIsWANPort.put(lastGateway.getKnoten(), lastStatusIsWANPort);
                                 }
                             } else {
                                 Port anschluss = tempKnoten.holeFreienPort();
@@ -361,19 +361,19 @@ public class GUIEvents implements I18n {
 
     public void processCableConnection(int currentPosX, int currentPosY) {
         if (neuesKabel.getKabelpanel().getZiel1() == null) {
-            connectCableToFirstComponent(currentPosX, currentPosY);
-        } else {
-            if (neuesKabel.getKabelpanel().getZiel2() == null && neuesKabel.getKabelpanel().getZiel1() != aktivesItem) {
-                connectCableToSecondComponent(aktivesItem);
-            }
-            int posX = currentPosX;
-            int posY = currentPosY;
-            resetAndShowCablePreview(posX, posY);
+            plugCableToFirstComponent(currentPosX, currentPosY);
+        } else if (neuesKabel.getKabelpanel().getZiel1() != null && neuesKabel.getKabelpanel().getZiel2() == null
+                && neuesKabel.getKabelpanel().getZiel1() != aktivesItem) {
+            plugCableToSecondComponent();
+            Kabel newCable = createConnection(neuesKabel.getKabelpanel().getZiel1().getKnoten(),
+                    neuesKabel.getKabelpanel().getZiel2().getKnoten());
+            neuesKabel.setDasKabel(newCable);
+            resetAndShowCablePreview(currentPosX, currentPosY);
         }
     }
 
-    private void connectCableToFirstComponent(int currentPosX, int currentPosY) {
-        // LOG.debug("\tmausPressed: IF-2.2.1.2.1");
+    private void plugCableToFirstComponent(int currentPosX, int currentPosY) {
+        LOG.debug("plug cable to first component {}", aktivesItem.getKnoten().getName());
         neuesKabel.getKabelpanel().setZiel1(aktivesItem);
         GUIContainer.getGUIContainer().getKabelvorschau()
                 .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel2.png")));
@@ -381,11 +381,11 @@ public class GUIEvents implements I18n {
         GUIContainer.getGUIContainer().getDesignpanel().add(kabelPanelVorschau);
         kabelPanelVorschau.setZiel1(aktivesItem);
         GUIContainer.getGUIContainer().setZiel2Label(new JSidebarButton());
-        ziel2 = new GUIKnotenItem();
-        ziel2.setImageLabel(GUIContainer.getGUIContainer().getZiel2Label());
+        GUIKnotenItem pseudoItem = new GUIKnotenItem();
+        pseudoItem.setImageLabel(GUIContainer.getGUIContainer().getZiel2Label());
 
         GUIContainer.getGUIContainer().getZiel2Label().setBounds(currentPosX, currentPosY, 8, 8);
-        kabelPanelVorschau.setZiel2(ziel2);
+        kabelPanelVorschau.setZiel2(pseudoItem);
         kabelPanelVorschau.setVisible(true);
         GUIContainer.getGUIContainer().setKabelPanelVorschau(kabelPanelVorschau);
     }
@@ -434,15 +434,15 @@ public class GUIEvents implements I18n {
             JSidebarButton templabel = tempitem.getImageLabel();
             if (templabel.inBounds(posX, posY) && tempitem.getKnoten() instanceof Gateway) {
                 if (posX - templabel.getX() < templabel.getWidth() / 2) {
-                    statusIsWANPort.put(tempitem.getKnoten(), Boolean.TRUE);
+                    lastStatusIsWANPort = true;
                     templabel.setTemporaryText(messages.getString("guievents_msg24"));
                 } else {
-                    statusIsWANPort.put(tempitem.getKnoten(), Boolean.FALSE);
+                    lastStatusIsWANPort = false;
                     templabel.setTemporaryText(messages.getString("guievents_msg25"));
                 }
                 LOG.trace(posX - templabel.getX() + " / " + templabel.getWidth());
-                lastGateway = templabel;
-            } else if (templabel.equals(lastGateway)) {
+                lastGateway = tempitem;
+            } else if (lastGateway != null && templabel.equals(lastGateway.getImageLabel())) {
                 templabel.resetText();
                 lastGateway = null;
             }
@@ -461,21 +461,22 @@ public class GUIEvents implements I18n {
         aktivesItem = item;
     }
 
-    private void connectCableToSecondComponent(GUIKnotenItem tempitem) {
+    private void plugCableToSecondComponent() {
+        LOG.debug("plug cable to second component {}", aktivesItem.getKnoten().getName());
         GUIContainer c = GUIContainer.getGUIContainer();
         GUINetworkPanel draftpanel = c.getDesignpanel();
-        Port anschluss1 = null;
-        Port anschluss2 = null;
 
-        neuesKabel.getKabelpanel().setZiel2(tempitem);
+        neuesKabel.getKabelpanel().setZiel2(aktivesItem);
         draftpanel.remove(kabelPanelVorschau);
-        ziel2 = null;
-
         draftpanel.add(neuesKabel.getKabelpanel());
         neuesKabel.getKabelpanel().updateBounds();
         draftpanel.updateUI();
         c.getCableItems().add(neuesKabel);
-        Knoten component1 = neuesKabel.getKabelpanel().getZiel1().getKnoten();
+    }
+
+    private Kabel createConnection(Knoten component1, Knoten component2) {
+        LOG.debug("connect componente {} <-> {}", component1.getName(), component2.getName());
+        Port anschluss1 = null;
         if (component1 instanceof Modem) {
             Modem vrOut = (Modem) component1;
             anschluss1 = vrOut.getErstenAnschluss();
@@ -496,7 +497,7 @@ public class GUIEvents implements I18n {
             anschluss1 = nic1.getPort();
         }
 
-        Knoten component2 = neuesKabel.getKabelpanel().getZiel2().getKnoten();
+        Port anschluss2 = null;
         if (component2 instanceof Modem) {
             Modem vrOut = (Modem) component2;
             anschluss2 = vrOut.getErstenAnschluss();
@@ -517,10 +518,7 @@ public class GUIEvents implements I18n {
             anschluss2 = nic2.getPort();
         }
 
-        neuesKabel.setDasKabel(new Kabel());
-        neuesKabel.getDasKabel().setAnschluesse(new Port[] { anschluss1, anschluss2 });
-
-        resetAndHideCablePreview();
+        return new Kabel(anschluss1, anschluss2);
     }
 
     public void resetAndHideCablePreview() {
@@ -536,7 +534,6 @@ public class GUIEvents implements I18n {
         neuesKabel = new GUIKabelItem();
         GUIContainer.getGUIContainer().getKabelvorschau()
                 .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel1.png")));
-        ziel2 = null;
 
         if (kabelPanelVorschau != null) {
             kabelPanelVorschau.setVisible(false);
@@ -804,7 +801,6 @@ public class GUIEvents implements I18n {
 
             if (tempKabel.getKabelpanel().getZiel2().equals(loeschitem)) {
                 loeschListe.add(tempKabel);
-                ziel2 = loeschitem;
             }
         }
 
