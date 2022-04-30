@@ -106,6 +106,36 @@ public class FirewallTest {
     }
 
     @Test
+    public void testCheckAcceptTCP_FirstRuleApplies_DROP() throws Exception {
+        IpPaket paket = createIPPacketTcp(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
+
+        Firewall firewall = createActiveFirewall(ACCEPT);
+        firewall.setFilterSYNSegmentsOnly(false);
+        FirewallRule ruleDrop = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP, DROP);
+        FirewallRule ruleAccept = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP, ACCEPT);
+
+        firewall.addRule(ruleDrop);
+        firewall.addRule(ruleAccept);
+
+        assertFalse(firewall.checkAcceptTCP(paket));
+    }
+
+    @Test
+    public void testCheckAcceptTCP_FirstRuleApplies_ACCEPT() throws Exception {
+        IpPaket paket = createIPPacketTcp(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
+
+        Firewall firewall = createActiveFirewall(ACCEPT);
+        firewall.setFilterSYNSegmentsOnly(false);
+        FirewallRule ruleDrop = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP, DROP);
+        FirewallRule ruleAccept = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.TCP, ACCEPT);
+
+        firewall.addRule(ruleAccept);
+        firewall.addRule(ruleDrop);
+
+        assertTrue(firewall.checkAcceptTCP(paket));
+    }
+
+    @Test
     public void testCheckAcceptTCP_IsTCPRuleAppliesNOSync_Accept() throws Exception {
         IpPaket paket = createIPPacketTcp(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
 
@@ -190,6 +220,36 @@ public class FirewallTest {
         firewall.setFilterUdp(false);
         FirewallRule rule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP, DROP);
         firewall.addRule(rule);
+
+        assertTrue(firewall.checkAcceptUDP(paket));
+    }
+
+    @Test
+    public void testCheckAcceptUDP_FirstRuleApplies_Drop() throws Exception {
+        IpPaket paket = createIPPacketUDP(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
+
+        Firewall firewall = createActiveFirewall(ACCEPT);
+        firewall.setFilterUdp(true);
+        FirewallRule dropRule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP, DROP);
+        FirewallRule acceptRule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP, ACCEPT);
+
+        firewall.addRule(dropRule);
+        firewall.addRule(acceptRule);
+
+        assertFalse(firewall.checkAcceptUDP(paket));
+    }
+
+    @Test
+    public void testCheckAcceptUDP_FirstRuleApplies_Accept() throws Exception {
+        IpPaket paket = createIPPacketUDP(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80);
+
+        Firewall firewall = createActiveFirewall(ACCEPT);
+        firewall.setFilterUdp(true);
+        FirewallRule dropRule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP, DROP);
+        FirewallRule acceptRule = createRule(SENDER_IP_ADDRESS, DEST_IP_ADDRESS, 80, FirewallRule.UDP, ACCEPT);
+
+        firewall.addRule(acceptRule);
+        firewall.addRule(dropRule);
 
         assertTrue(firewall.checkAcceptUDP(paket));
     }
