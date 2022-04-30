@@ -372,20 +372,17 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), setInstallierteAnwendungen()");
         this.installierteAnwendung = anwendungen;
-        // printInstallierteAnwendungen();
     }
 
     /**
      * Methode zur Ausgabe auf der aktuell installierten Anwendungen auf der Standardausgabe
      */
     private void printInstallierteAnwendungen() {
-        Iterator it = installierteAnwendung.entrySet().iterator();
-
         LOG.debug("\tInternetKnotenBetriebssystem: installierte Anwendungen:");
-        while (it.hasNext()) {
-            LOG.debug("\t  - " + ((Entry) it.next()).getKey().toString());
+        for (String app : installierteAnwendung.keySet()) {
+            LOG.debug("\t  - {}", app);
         }
-        LOG.debug("\t  ges: " + installierteAnwendung.toString());
+        LOG.debug("\t  ges: {}", installierteAnwendung);
     }
 
     /**
@@ -442,51 +439,54 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         return entfernt;
     }
 
-    public boolean installiereSoftware(String klassenname) {
+    public boolean installAppIfAvailable(String klassenname) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (InternetKnotenBetriebssystem), installiereSoftware(" + klassenname + ")");
         printInstallierteAnwendungen(); // DEBUG
-        Anwendung neueAnwendung = null;
+
         boolean erfolg = false;
-        List<Map<String, String>> liste = null;
-        Map<String, String> tmpMap;
-        Class<?> cl;
-        ListIterator<Map<String, String>> it;
-
-        if (holeSoftware(klassenname) != null) {
-            // LOG.debug(klassenname + " ist bereits installiert!");
-            return false;
+        if (checkAlreadyInstalled(klassenname)) {
+            LOG.info("App {} could not be installed because app is already installed.", klassenname);
+        } else if (!checkAppAvailable(klassenname)) {
+            LOG.info("{} could not be installed because app is not in list of available software.", klassenname);
+        } else if (installApp(klassenname)) {
+            LOG.info("App {} installed.", klassenname);
+            erfolg = true;
         } else {
-            try {
-                liste = Information.getInformation().ladeProgrammListe();
-            } catch (Exception e) {
-                LOG.debug("", e);
-                return false;
-            }
+            LOG.info("App {} could not be installed. An error occurred.", klassenname);
+        }
+        return erfolg;
+    }
 
-            it = liste.listIterator();
-            while (it.hasNext() && !erfolg) {
-                tmpMap = it.next();
-                if (klassenname.equals((String) tmpMap.get("Klasse"))) {
+    private boolean checkAlreadyInstalled(String klassenname) {
+        return holeSoftware(klassenname) != null;
+    }
 
-                    try {
-                        cl = Class.forName(klassenname, true,
-                                FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
-                        try {
-                            neueAnwendung = (Anwendung) cl.getConstructor().newInstance();
-                            neueAnwendung.setSystemSoftware(this);
-                        } catch (Exception e) {
-                            LOG.debug("", e);
-                        }
-                    } catch (ClassNotFoundException e) {
-                        LOG.debug("", e);
-                    }
-                    if (neueAnwendung != null) {
-                        installierteAnwendung.put(klassenname, neueAnwendung);
-                        erfolg = true;
-                    }
+    private boolean checkAppAvailable(String klassenname) {
+        boolean available = false;
+        try {
+            for (Map<String, String> app : Information.getInformation().ladeProgrammListe()) {
+                if (klassenname.equals(app.get("Klasse"))) {
+                    available = true;
                 }
             }
+        } catch (Exception e) {
+            LOG.debug("list of applications could not be read.", e);
+        }
+        return available;
+    }
+
+    public boolean installApp(String klassenname) {
+        boolean erfolg = true;
+        try {
+            Class<?> cl = Class.forName(klassenname, true,
+                    FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
+            Anwendung neueAnwendung = (Anwendung) cl.getConstructor().newInstance();
+            neueAnwendung.setSystemSoftware(this);
+            installierteAnwendung.put(klassenname, neueAnwendung);
+        } catch (Exception e) {
+            LOG.debug("App could not be instantiated. Probably because class could not be found.", e);
+            erfolg = false;
         }
         return erfolg;
     }

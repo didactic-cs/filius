@@ -294,7 +294,7 @@ public class Information implements Serializable {
         try {
             initialisiereVerzeichnisse();
         } catch (Exception e) {
-LOG.debug("",e);
+            LOG.debug("", e);
         }
 
         SzenarioVerwaltung.loescheVerzeichnisInhalt(getTempPfad());
@@ -375,9 +375,7 @@ LOG.debug("",e);
                 }
             }
         }
-
         tmpList.addAll(ladePersoenlicheProgrammListe());
-
         return tmpList;
     }
 

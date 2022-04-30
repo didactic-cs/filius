@@ -529,7 +529,7 @@ public class Terminal extends ClientAnwendung implements I18n {
     }
 
     private void processSockets(StringBuffer ergebnis, TransportProtokoll transport, String protocol) {
-        for (SocketSchnittstelle socket : transport.holeAktiveSockets().values()) {
+        for (SocketSchnittstelle socket : transport.holeAktiveSockets()) {
             for (SocketInformation info : getSocketInfo(socket)) {
                 ergebnis.append(String.format("| %-7s ", protocol));
                 ergebnis.append(String.format("| %15s:%-5s ", info.localHost, info.localPort));

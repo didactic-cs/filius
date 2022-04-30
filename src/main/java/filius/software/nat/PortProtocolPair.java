@@ -72,4 +72,9 @@ public class PortProtocolPair {
     public int hashCode() {
         return Objects.hash(port, protocol);
     }
+
+    @Override
+    public String toString() {
+        return "prot=" + protocol + " / " + port;
+    }
 }

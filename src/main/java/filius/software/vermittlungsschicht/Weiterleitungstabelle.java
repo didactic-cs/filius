@@ -134,10 +134,10 @@ public class Weiterleitungstabelle implements I18n {
      *            die auszugebende Tabelle
      */
     public void printTabelle(String name) {
-        LOG.debug("DEBUG (" + name + ") Weiterleitungstabelle (IP,mask,gw,if):");
+        LOG.info("Weiterleitungstabelle {} (IP,mask,gw,if):", name);
         for (String[] eintrag : holeTabelle()) {
-            LOG.debug("DEBUG (%s)  '%15s' | '%15s' | '%15s' | '%15s'\n", name, eintrag[0], eintrag[1], eintrag[2],
-                    eintrag[3]);
+            LOG.debug(String.format(" '%15s' | '%15s' | '%15s' | '%15s'", eintrag[0], eintrag[1], eintrag[2],
+                    eintrag[3]));
         }
     }
 

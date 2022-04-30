@@ -81,13 +81,17 @@ public class Firewall extends Anwendung implements I18n {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (Firewall), starten()");
         super.starten();
 
+        initFirewallThreads();
+    }
+
+    protected void initFirewallThreads() {
         for (NetzwerkInterface nic : getAllNetworkInterfaces()) {
-            starteFirewallThread(nic);
+            FirewallThread thread = new FirewallThread(this, nic);
+            addAndStartThread(thread);
         }
     }
 
-    private void starteFirewallThread(NetzwerkInterface nic) {
-        FirewallThread thread = new FirewallThread(this, nic);
+    protected void addAndStartThread(FirewallThread thread) {
         thread.starten();
         firewallThreads.add(thread);
     }
@@ -343,7 +347,7 @@ public class Firewall extends Anwendung implements I18n {
         return filterUdp;
     }
 
-    private List<NetzwerkInterface> getAllNetworkInterfaces() {
+    protected List<NetzwerkInterface> getAllNetworkInterfaces() {
         InternetKnoten host = (InternetKnoten) this.getSystemSoftware().getKnoten();
         return host.getNetzwerkInterfaces();
     }

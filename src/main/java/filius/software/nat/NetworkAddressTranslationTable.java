@@ -28,8 +28,14 @@ package filius.software.nat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetworkAddressTranslationTable {
+    private static Logger LOG = LoggerFactory.getLogger(NetworkAddressTranslationTable.class);
+
     private Map<PortProtocolPair, InetAddress> dynamicNATTable = new HashMap<>();
     private Map<PortProtocolPair, InetAddress> staticNATTable = new HashMap<>();
 
@@ -48,5 +54,33 @@ public class NetworkAddressTranslationTable {
     public InetAddress find(int port, int protocol) {
         PortProtocolPair lookup = new PortProtocolPair(port, protocol);
         return dynamicNATTable.get(lookup);
+    }
+
+    public boolean hasConnection(InetAddress lanAddress) {
+        boolean exists = false;
+        for (PortProtocolPair key : dynamicNATTable.keySet()) {
+            if (dynamicNATTable.get(key).equals(lanAddress)) {
+                exists = true;
+                break;
+            }
+        }
+        return exists;
+    }
+
+    public int findPort(InetAddress lanAddress) {
+        int port = 0;
+        for (PortProtocolPair key : dynamicNATTable.keySet()) {
+            if (dynamicNATTable.get(key).equals(lanAddress)) {
+                port = key.getPort();
+                break;
+            }
+        }
+        return port;
+    }
+
+    public void print() {
+        for (Entry<PortProtocolPair, InetAddress> entry : dynamicNATTable.entrySet()) {
+            LOG.debug("{} -> {}", entry.getKey(), entry.getValue());
+        }
     }
 }

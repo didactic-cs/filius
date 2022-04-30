@@ -86,4 +86,9 @@ public class InetAddress {
     public int hashCode() {
         return Objects.hash(ipAddress, port, protocol);
     }
+
+    @Override
+    public String toString() {
+        return ipAddress + ":" + port;
+    }
 }

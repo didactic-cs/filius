@@ -35,6 +35,7 @@ import filius.software.firewall.Firewall;
 import filius.software.firewall.FirewallRule;
 import filius.software.firewall.FirewallWebKonfig;
 import filius.software.firewall.FirewallWebLog;
+import filius.software.nat.NatGateway;
 import filius.software.rip.RIPTable;
 import filius.software.www.WebServer;
 
@@ -72,8 +73,8 @@ public class GatewayFirmware extends InternetKnotenBetriebssystem {
         Firewall firewall = null;
 
         // Installation von Firewall und Webserver
-        installiereSoftware("filius.software.firewall.Firewall");
-        installiereSoftware("filius.software.www.WebServer");
+        installApp("filius.software.nat.NatGateway");
+        installApp("filius.software.www.WebServer");
         firewall = this.holeFirewall();
         server = this.holeWebServer();
         firewall.setDefaultPolicy(FirewallRule.DROP);
@@ -117,7 +118,11 @@ public class GatewayFirmware extends InternetKnotenBetriebssystem {
      * Firewall als eine Anwendung durch die Oberklasse erfolgt.
      */
     public Firewall holeFirewall() {
-        return (Firewall) holeSoftware("filius.software.firewall.Firewall");
+        Firewall firewall = (Firewall) holeSoftware("filius.software.firewall.Firewall");
+        if (null == firewall) {
+            firewall = (NatGateway) holeSoftware("filius.software.nat.NatGateway");
+        }
+        return firewall;
     }
 
     /**

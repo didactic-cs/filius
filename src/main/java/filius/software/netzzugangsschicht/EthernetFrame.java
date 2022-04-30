@@ -26,6 +26,8 @@
 package filius.software.netzzugangsschicht;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,8 @@ public class EthernetFrame implements Serializable {
     /** die Nutzdaten */
     private Object daten;
 
+    private Set<String> readByLauscherForMac = new HashSet<>();
+
     /** Konstruktor zur Initialisierung der Attribute des Frames */
     public EthernetFrame(Object daten, String quellMacAdresse, String zielMacAdresse, String typ) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (EthernetFrame), constr: EthernetFrame(" + daten
@@ -61,6 +65,14 @@ public class EthernetFrame implements Serializable {
         this.quellMacAdresse = quellMacAdresse;
         this.typ = typ;
         this.daten = daten;
+    }
+
+    public void setReadByLauscherForMac(String mac) {
+        readByLauscherForMac.add(mac);
+    }
+
+    public boolean isReadByLauscherForMac(String mac) {
+        return readByLauscherForMac.contains(mac);
     }
 
     /** Zugriff auf die Daten, die mit dem Frame verschickt werden */

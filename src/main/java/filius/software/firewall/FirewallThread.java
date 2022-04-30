@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import filius.hardware.NetzwerkInterface;
 import filius.rahmenprogramm.I18n;
+import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.ProtokollThread;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.vermittlungsschicht.IpPaket;
@@ -68,13 +69,11 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
     public void starten() {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), starten()");
-
         super.starten();
 
         this.ausgangsPuffer = netzwerkInterface.getPort().holeEingangsPuffer();
         LinkedList<EthernetFrame> eingangsPuffer = holeEingangsPuffer();
         netzwerkInterface.getPort().setzeEingangsPuffer(eingangsPuffer);
-
     }
 
     public void beenden() {
@@ -83,19 +82,25 @@ public class FirewallThread extends ProtokollThread<EthernetFrame> implements I1
         netzwerkInterface.getPort().setzeEingangsPuffer(this.ausgangsPuffer);
     }
 
-    // getter und setter:
-
     @Override
     protected void verarbeiteDatenEinheit(EthernetFrame frame) {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FirewallThread), verarbeiteDatenEinheit(" + frame.toString() + ")");
-        if (!(frame.getDaten() != null && frame.getDaten() instanceof IpPaket
-                && !firewall.acceptIPPacket((IpPaket) frame.getDaten()))) {
-            synchronized (ausgangsPuffer) {
-                ausgangsPuffer.add(frame);
-                ausgangsPuffer.notify();
-            }
+        Lauscher.getLauscher().addDatenEinheit(netzwerkInterface.getMac(), frame);
+        if (!checkDiscardByFirewall(frame)) {
+            forwardFrame(frame);
         }
     }
 
+    protected void forwardFrame(EthernetFrame frame) {
+        synchronized (ausgangsPuffer) {
+            ausgangsPuffer.add(frame);
+            ausgangsPuffer.notify();
+        }
+    }
+
+    protected boolean checkDiscardByFirewall(EthernetFrame frame) {
+        return frame.getDaten() != null && frame.getDaten() instanceof IpPaket
+                && !firewall.acceptIPPacket((IpPaket) frame.getDaten());
+    }
 }

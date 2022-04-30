@@ -26,8 +26,11 @@
 package filius.software.transportschicht;
 
 import java.lang.Thread.State;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -52,7 +55,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     /** IP-Adresse und Segment, das in einem neuen Thread verschickt wird */
     private LinkedList<Object[]> segmentListe = new LinkedList<Object[]>();
 
-    private Hashtable<Integer, SocketSchnittstelle> portTabelle;
+    private Map<Integer, SocketSchnittstelle> portTabelle = new HashMap<Integer, SocketSchnittstelle>();
 
     private TransportProtokollThread thread;
 
@@ -74,15 +77,24 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
         LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass()
                 + " (TransportProtokoll), constr: TransportProtokoll(" + betriebssystem + "," + typ + ")");
         this.typ = typ;
-        portTabelle = new Hashtable<Integer, SocketSchnittstelle>();
     }
 
-    public Hashtable<Integer, SocketSchnittstelle> holeAktiveSockets() {
-        return this.portTabelle;
+    public List<SocketSchnittstelle> holeAktiveSockets() {
+        List<SocketSchnittstelle> sockets = new ArrayList<>();
+        for (SocketSchnittstelle socket : portTabelle.values()) {
+            if (null != socket) {
+                sockets.add(socket);
+            }
+        }
+        return sockets;
     }
 
     public int holeTyp() {
         return typ;
+    }
+
+    public int reserviereFreienPort() {
+        return reserviereFreienPort(null);
     }
 
     public int reserviereFreienPort(Socket socket) {
@@ -204,7 +216,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
 
     public void starten() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), starten()");
-        portTabelle = new Hashtable<Integer, SocketSchnittstelle>();
+        portTabelle.clear();
 
         thread = new TransportProtokollThread(this);
         thread.starten();

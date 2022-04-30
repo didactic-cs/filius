@@ -201,7 +201,7 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
             for (int i = 0; i < lmInstalliert.getSize(); i++) {
                 if (lmInstalliert.getElementAt(i).equals(appInfo.get("Anwendung"))
                         && bs.holeSoftware(appInfo.get("Klasse").toString()) == null) {
-                    bs.installiereSoftware(appInfo.get("Klasse").toString());
+                    bs.installAppIfAvailable(appInfo.get("Klasse").toString());
 
                     anwendung = bs.holeSoftware(appInfo.get("Klasse").toString());
                     anwendung.starten();

@@ -155,23 +155,23 @@ public class Lauscher implements I18n {
     public void addDatenEinheit(String interfaceId, EthernetFrame frame) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", addDatenEinheit(" + interfaceId + "," + frame
                 + ")");
-        LinkedList<Object[]> liste;
-        Object[] frameMitZeitstempel;
+        if (!frame.isReadByLauscherForMac(interfaceId)) {
+            Object[] frameMitZeitstempel = new Object[2];
+            frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
+            frameMitZeitstempel[1] = SerializationUtils.clone(frame);
 
-        frameMitZeitstempel = new Object[2];
-        frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
-        frameMitZeitstempel[1] = SerializationUtils.clone(frame);
+            LinkedList<Object[]> liste = (LinkedList<Object[]>) datenEinheiten.get(interfaceId);
+            if (liste == null) {
+                liste = new LinkedList<Object[]>();
+            }
+            synchronized (liste) {
+                liste.addLast(frameMitZeitstempel);
+            }
 
-        liste = (LinkedList<Object[]>) datenEinheiten.get(interfaceId);
-        if (liste == null) {
-            liste = new LinkedList<Object[]>();
+            datenEinheiten.put(interfaceId, liste);
+            frame.setReadByLauscherForMac(interfaceId);
+            benachrichtigeBeobachter(interfaceId);
         }
-        synchronized (liste) {
-            liste.addLast(frameMitZeitstempel);
-        }
-
-        datenEinheiten.put(interfaceId, liste);
-        benachrichtigeBeobachter(interfaceId);
     }
 
     public Object[][] getDaten(String interfaceId, boolean inheritAddress, int offset) {
