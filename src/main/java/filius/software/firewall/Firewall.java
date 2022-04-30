@@ -220,7 +220,7 @@ public class Firewall extends Anwendung implements I18n {
         if (packet.getProtocol() == IpPaket.UDP && isSegmentApplicable(packet)) {
             boolean foundRule = false;
             Segment segment = (Segment) packet.getSegment();
-            for (int i = 0; i < ruleset.size(); i++) {
+            for (int i = 0; i < ruleset.size() && !foundRule; i++) {
                 FirewallRule firewallRule = ruleset.get(i);
                 boolean ruleToBeApplied = isProtocolApplicable(packet, firewallRule)
                         && (isEndpointsApplicable(packet.getSender(), packet.getEmpfaenger(), segment.getZielPort(),
