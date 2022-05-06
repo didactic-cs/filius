@@ -84,8 +84,6 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         updateAttribute();
     }
 
-    /** Diese Methode wird vom JAendernButton aufgerufen */
-    @Override
     public void aenderungenAnnehmen() {
         Host host;
         Betriebssystem bs;
@@ -116,7 +114,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         updateAttribute();
     }
 
-    protected void initAttributEingabeBox(Box box, Box rightBox) {
+    protected void initContents(Box box, Box rightBox) {
         JLabel tempLabel;
         Box tempBox;
         FocusListener focusListener;
@@ -151,7 +149,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setMaximumSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
@@ -171,7 +169,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setMaximumSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
@@ -197,7 +195,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setMaximumSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
@@ -223,7 +221,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setMaximumSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
@@ -249,7 +247,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setMaximumSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
@@ -275,7 +273,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setMaximumSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
@@ -371,7 +369,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
 
         tempBox = Box.createVerticalBox();
         tempBox.setOpaque(false);
-        tempBox.setPreferredSize(new Dimension(400, 120));
+        tempBox.setPreferredSize(new Dimension(400, 80));
         rightBox.add(tempBox);
 
         updateAttribute();

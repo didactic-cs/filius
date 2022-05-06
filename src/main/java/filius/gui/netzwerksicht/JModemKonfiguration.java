@@ -52,7 +52,7 @@ import filius.hardware.knoten.Modem;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.ModemFirmware;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public class JModemKonfiguration extends JKonfiguration implements I18n, Observer {
     private static Logger LOG = LoggerFactory.getLogger(JModemKonfiguration.class);
 
@@ -72,8 +72,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         ((Modem) holeHardware()).getSystemSoftware().addObserver(this);
     }
 
-    @Override
-    public void aenderungenAnnehmen() {
+    private void aenderungenAnnehmen() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), aenderungenAnnehmen()");
         Modem modem;
         ModemFirmware firmware;
@@ -96,7 +95,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         GUIContainer.getGUIContainer().updateViewport();
     }
 
-    protected void initAttributEingabeBox(Box box, Box rightBox) {
+    protected void initContents(Box box, Box rightBox) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), initAttributEingabeBox("
                 + box + ")");
 

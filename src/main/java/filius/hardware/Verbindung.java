@@ -50,6 +50,17 @@ public abstract class Verbindung extends Hardware implements Serializable, I18n 
     /** Faktor der Verzoegerungszeit, der zwischen 1 und 100 */
     private static int verzoegerungsFaktor = 10;
 
+    private static boolean drop = false;
+
+    public static boolean isDrop() {
+        return drop;
+    }
+
+    public static void setDrop(boolean drop) {
+        LOG.debug("Drop data: {}", drop);
+        Verbindung.drop = drop;
+    }
+
     /**
      * maximale Anzahl von Hops zum Datenaustausch. Diese Zahl wird verwendet, um eine Round-Trip-Time (RTT) zu
      * berechnen. Da es auch möglich ist, Datenaustausch mit einem einem virtuellen Rechnernetz ueber eine

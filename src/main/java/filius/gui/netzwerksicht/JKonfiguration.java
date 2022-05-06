@@ -25,29 +25,12 @@
  */
 package filius.gui.netzwerksicht;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.event.MouseEvent;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.regex.Pattern;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.event.MouseInputAdapter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import filius.gui.JBackgroundPanel;
-import filius.gui.JMainFrame;
+import filius.gui.ControlPanel;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Gateway;
 import filius.hardware.knoten.Host;
@@ -56,35 +39,20 @@ import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 
-public class JKonfiguration extends JBackgroundPanel implements Observer {
-    private static Logger LOG = LoggerFactory.getLogger(JKonfiguration.class);
-
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Panel mit den spezifischen Attributen der Komponenten zur Anzeige und Konfiguration
-     */
-    private JBackgroundPanel attributPanel;
-
-    private JLabel minimierenButton;
-
+@SuppressWarnings({ "deprecation", "serial" })
+public class JKonfiguration extends ControlPanel {
     private Hardware hardware;
 
     protected static HashMap<Hardware, JKonfiguration> instances = new HashMap<Hardware, JKonfiguration>();
 
-    /** unveraenderbare Hoehe des Konfigurations-Panels (konfigPanel) */
-    private static final int HOEHE = 250;
-
     protected JKonfiguration(Hardware hardware) {
+        super();
         this.hardware = hardware;
-
-        initKonfigPanel();
         if (hardware != null) {
             hardware.addObserver(this);
-            initAttributPanel();
+            reInit();
             updateAttribute();
         }
-
         minimieren();
     }
 
@@ -118,132 +86,6 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
     }
 
     /**
-     * Zur Initialisierung des Konfigurations-Panels (konfigPanel), das ausgeblendet werden kann
-     */
-    private void initKonfigPanel() {
-        Container c = JMainFrame.getJMainFrame().getContentPane();
-        final JKonfiguration konfigPanel = this;
-
-        this.setLayout(null);
-        this.setBounds(0, 0, c.getWidth(), 100); // WAR 300
-        this.setEnabled(false);
-        this.setBackgroundImage("gfx/allgemein/konfigPanel_hg.png");
-        this.setPreferredSize(new Dimension(100, HOEHE));
-        this.setLayout(new BorderLayout());
-
-        attributPanel = new JBackgroundPanel();
-        attributPanel.setBackgroundImage("gfx/allgemein/konfigPanel_hg.png");
-        attributPanel.setOpaque(false);
-        attributPanel.setVisible(true);
-        attributPanel.setBounds(0, 0, c.getWidth(), 300);
-        this.add(new JScrollPane(attributPanel), BorderLayout.CENTER);
-
-        minimierenButton = new JLabel(new ImageIcon(getClass().getResource("/gfx/allgemein/minimieren.png")));
-        minimierenButton.setBounds(0, 0, minimierenButton.getIcon().getIconWidth(),
-                minimierenButton.getIcon().getIconHeight());
-        minimierenButton.addMouseListener(new MouseInputAdapter() {
-            public void mousePressed(MouseEvent e) {
-                {
-                    if (konfigPanel.getHeight() > 20) {
-                        konfigPanel.minimieren();
-                    } else {
-                        konfigPanel.maximieren();
-                    }
-
-                }
-            }
-        });
-        this.add(minimierenButton, BorderLayout.NORTH);
-    }
-
-    /**
-     * Zur Initialisierung des Attribut-Panels. Hierin wird die in den Unterklassen implementierte Methode
-     * initAttributEingabeBox() aufgerufen.
-     * 
-     */
-    private void initAttributPanel() {
-        Box hauptBox;
-
-        attributPanel.removeAll();
-        attributPanel.updateUI();
-        attributPanel.setLayout(new BorderLayout());
-
-        hauptBox = Box.createVerticalBox();
-        hauptBox.add(Box.createHorizontalGlue());
-        hauptBox.setOpaque(false);
-        hauptBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        hauptBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-
-        Box auxBox = Box.createVerticalBox();
-        auxBox.add(Box.createHorizontalGlue());
-        auxBox.setOpaque(false);
-        auxBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        auxBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-
-        initAttributEingabeBox(hauptBox, auxBox);
-
-        attributPanel.add(hauptBox, BorderLayout.CENTER);
-        attributPanel.add(auxBox, BorderLayout.LINE_END);
-        attributPanel.updateUI();
-        attributPanel.invalidate();
-        attributPanel.validate();
-    }
-
-    // manually re-start initiation process (in case of significant changes)
-    public void reInit() {
-        initAttributPanel();
-    }
-
-    public void minimieren() {
-        this.setPreferredSize(new Dimension(this.getWidth(), 20));
-        minimierenButton.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/maximieren.png")));
-        attributPanel.setVisible(false);
-        this.updateUI();
-    }
-
-    // method for conducting specific updates (also in sub-classes)
-    public void updateSettings() {}
-
-    // method for doing postprocessing prior to being unselected (also in
-    // sub-classes)
-    public void doUnselectAction() {}
-
-    public void maximieren() {
-        this.setPreferredSize(new Dimension(this.getWidth(), HOEHE));
-        minimierenButton.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/minimieren.png")));
-        updateSettings();
-        attributPanel.setVisible(true);
-        this.updateUI();
-    }
-
-    public boolean isMaximiert() {
-        return attributPanel.isVisible();
-    }
-
-    /**
-     * Diese Methode wird vom JAendernButton aufgerufen und muss durch die Unterklassen fuer die jeweilige
-     * Hardware-Komponente spezifisch implementiert werden.
-     * 
-     */
-    public void aenderungenAnnehmen() {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JKonfiguration), aenderungenAnnehmen()");
-    }
-
-    /**
-     * Mit dieser Methode werden die hardwarespezifischen Eingabe- und Anzeigekomponenten initialisiert.
-     * 
-     * @param rightBox
-     *            TODO
-     */
-    protected void initAttributEingabeBox(Box box, Box rightBox) {}
-
-    /**
-     * Mit dieser Methode wird die Anzeige entsprechend der Attributwerte der Hardwarekomponente aktualisiert.
-     * 
-     */
-    public void updateAttribute() {}
-
-    /**
      * Funktion die waehrend der Eingabe ueberprueft ob die bisherige Eingabe einen korrekten Wert darstellt.
      * 
      * @author Johannes Bade & Thomas Gerding
@@ -258,10 +100,5 @@ public class JKonfiguration extends JBackgroundPanel implements Observer {
             feld.setForeground(EingabenUeberpruefung.farbeFalsch);
             return false;
         }
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        updateAttribute();
     }
 }

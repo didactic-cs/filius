@@ -31,33 +31,38 @@ import java.util.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public abstract class Hardware extends Observable implements Serializable {
     private static Logger LOG = LoggerFactory.getLogger(Hardware.class);
 
-    private boolean aktiv = false; // ist die Hardware gerade aktiv? vor allem
-                                   // wichtig fuer die GUI
+    public static Boolean ACTIVE = Boolean.TRUE;
+    public static Boolean INACTIVE = Boolean.FALSE;
+    public static String FAILURE = "Failure";
+
+    private Object state = Boolean.FALSE;
 
     public String holeHardwareTyp() {
         return "";
     }
 
-    public boolean isAktiv() {
-        return aktiv;
+    public void setAktiv(boolean aktiv) {
+        setState(aktiv);
     }
 
-    public void setAktiv(boolean aktiv) {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Hardware), setAktiv(" + aktiv + ")");
+    public void setFailure() {
+        setState(FAILURE);
+    }
 
-        if (this.aktiv != aktiv) {
-            this.aktiv = aktiv;
-
+    private void setState(Object newState) {
+        LOG.trace("new hardware state: {}", newState);
+        if (!state.equals(newState)) {
+            state = newState;
             benachrichtigeBeobachter();
         }
     }
 
     public void benachrichtigeBeobachter() {
         setChanged();
-        notifyObservers(aktiv);
+        notifyObservers(state);
     }
 }

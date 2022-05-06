@@ -147,7 +147,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         firewallDialog.setVisible(true);
     }
 
-    protected void initAttributEingabeBox(Box box, Box rightBox) {
+    protected void initContents(Box box, Box rightBox) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
                 + " (JVermittlungsrechnerKonfiguration), initAttributEingabeBox(" + box + ")");
         Vermittlungsrechner vRechner;

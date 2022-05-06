@@ -74,6 +74,7 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
 import filius.gui.anwendungssicht.GUIDesktopWindow;
+import filius.gui.anwendungssicht.SimulationControl;
 import filius.gui.nachrichtensicht.AggregatedExchangeDialog;
 import filius.gui.nachrichtensicht.ExchangeDialog;
 import filius.gui.nachrichtensicht.LayeredExchangeDialog;
@@ -89,6 +90,7 @@ import filius.gui.netzwerksicht.JCablePanel;
 import filius.gui.netzwerksicht.JDocuElement;
 import filius.gui.netzwerksicht.JKonfiguration;
 import filius.gui.netzwerksicht.JSidebarButton;
+import filius.hardware.Hardware;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.Gateway;
@@ -148,7 +150,7 @@ public class GUIContainer implements Serializable, I18n {
 
     private GUIDesignSidebar designSidebar;
     private JBackgroundPanel designBackgroundPanel = new JBackgroundPanel();
-    private JKonfiguration designItemConfig = JKonfiguration.getInstance(null);
+    private ControlPanel designItemConfig = JKonfiguration.getInstance(null);
     private JScrollPane designView;
     private JScrollPane designSidebarScrollpane;
     private JSidebarButton designDragPreview, designCablePreview;
@@ -169,6 +171,8 @@ public class GUIContainer implements Serializable, I18n {
     private List<GUIKabelItem> cableItems = new LinkedList<GUIKabelItem>();
     private List<GUIDocuItem> docuItems = new ArrayList<GUIDocuItem>();
     private Set<SystemSoftware> visibleSystems = new HashSet<>();
+    private Hardware lastOpenDesignComponent;
+    private boolean lastSimulationControlMaximized;
 
     private GUIContainer(int width, int height) {
         this.width = width;
@@ -179,6 +183,14 @@ public class GUIContainer implements Serializable, I18n {
 
         docuPanel = new GUIDocumentationPanel(width, height);
         networkPanel = new GUINetworkPanel(width, height);
+
+        networkPanel.addMouseListener(new MouseInputAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (activeSite == GUIMainMenu.MODUS_AKTION) {
+                    GUIEvents.getGUIEvents().mausPressedActionMode(e);
+                }
+            }
+        });
     }
 
     public List<GUIKnotenItem> getKnotenItems() {
@@ -627,7 +639,7 @@ public class GUIContainer implements Serializable, I18n {
             item.setKnoten(neuerKnoten);
             item.setImageLabel(templabel);
 
-            setProperty(item);
+            setProperty(neuerKnoten);
             item.getImageLabel().setSelektiert(true);
             nodeItems.add(item);
 
@@ -785,10 +797,10 @@ public class GUIContainer implements Serializable, I18n {
             designView.setViewportView(layeredPane);
             JMainFrame.getJMainFrame().addToContentPane(this.designView, BorderLayout.CENTER);
             JMainFrame.getJMainFrame().addToContentPane(designItemConfig, BorderLayout.SOUTH);
+            setProperty(lastOpenDesignComponent);
             docuDragPanel.setVisible(false);
             designSidebarScrollpane.updateUI();
             designView.updateUI();
-            designItemConfig.updateUI();
         } else if (activeSite == GUIMainMenu.MODUS_DOKUMENTATION) {
             closeDialogs();
             designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
@@ -822,7 +834,8 @@ public class GUIContainer implements Serializable, I18n {
             docuDragPanel.setVisible(false);
             JMainFrame.getJMainFrame().removeFromContentPane(this.designView);
             JMainFrame.getJMainFrame().addToContentPane(this.simulationView, BorderLayout.CENTER);
-            JMainFrame.getJMainFrame().removeFromContentPane(designItemConfig);
+            JMainFrame.getJMainFrame().addToContentPane(designItemConfig, BorderLayout.SOUTH);
+            setProperty(null);
             simulationView.updateUI();
         }
         GUIEvents.getGUIEvents().resetAndHideCablePreview();
@@ -891,7 +904,7 @@ public class GUIContainer implements Serializable, I18n {
         return designDragPreview;
     }
 
-    public JKonfiguration getProperty() {
+    public ControlPanel getProperty() {
         return designItemConfig;
     }
 
@@ -1002,29 +1015,31 @@ public class GUIContainer implements Serializable, I18n {
         JMainFrame.getJMainFrame().setVisible(true);
     }
 
-    public void setProperty(GUIKnotenItem hardwareItem) {
-        boolean maximieren = false;
-
+    public void setProperty(Hardware hardwareItem) {
         if (designItemConfig != null) {
-            // do actions required prior to getting unselected (i.e.,
-            // postprocessing)
             designItemConfig.doUnselectAction();
-            maximieren = designItemConfig.isMaximiert();
             JMainFrame.getJMainFrame().removeFromContentPane(designItemConfig);
         }
-
-        if (hardwareItem == null) {
-            designItemConfig = JKonfiguration.getInstance(null);
+        if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
+            if (designItemConfig instanceof SimulationControl) {
+                lastSimulationControlMaximized = designItemConfig.isMaximiert();
+            }
+            designItemConfig = JKonfiguration.getInstance(hardwareItem);
         } else {
-            designItemConfig = JKonfiguration.getInstance(hardwareItem.getKnoten());
+            if (designItemConfig instanceof JKonfiguration && designItemConfig.isMaximiert()) {
+                lastOpenDesignComponent = ((JKonfiguration) designItemConfig).holeHardware();
+            } else {
+                lastOpenDesignComponent = null;
+            }
+            designItemConfig = new SimulationControl();
         }
         JMainFrame.getJMainFrame().addToContentPane(designItemConfig, BorderLayout.SOUTH);
         designItemConfig.updateAttribute();
         designItemConfig.updateUI();
-        if (hardwareItem == null || !maximieren) {
-            designItemConfig.minimieren();
-        } else {
+        if (hardwareItem != null || (designItemConfig instanceof SimulationControl && lastSimulationControlMaximized)) {
             designItemConfig.maximieren();
+        } else {
+            designItemConfig.minimieren();
         }
     }
 

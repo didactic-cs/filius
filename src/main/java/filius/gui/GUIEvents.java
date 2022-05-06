@@ -261,8 +261,7 @@ public class GUIEvents implements I18n {
         // Wurde die rechte Maustaste betaetigt?
         if (e.getButton() == 3) {
             if (aktivesItem != null && aktiveslabel != null) {
-                GUIContainer.getGUIContainer().getProperty().minimieren();
-                GUIContainer.getGUIContainer().setProperty(null);
+                hideControlPanel();
 
                 if (!c.getKabelvorschau().isVisible()) {
                     kontextMenueEntwurfsmodus(aktiveslabel, e.getX(), e.getY());
@@ -281,76 +280,76 @@ public class GUIEvents implements I18n {
             }
         }
         // Wurde die linke Maustaste betaetigt?
-        else {
-            if (e.getButton() == 1) {
-                // eine neue Kabelverbindung erstellen
-                if (aktivesItem != null && aktiveslabel != null) {
-                    if (GUIContainer.getGUIContainer().getKabelvorschau().isVisible()) {
-                        // hide property panel (JKonfiguration)
-                        GUIContainer.getGUIContainer().getProperty().minimieren();
+        else if (e.getButton() == 1) {
+            // eine neue Kabelverbindung erstellen
+            if (aktivesItem != null && aktiveslabel != null) {
+                if (GUIContainer.getGUIContainer().getKabelvorschau().isVisible()) {
+                    // hide property panel (JKonfiguration)
+                    GUIContainer.getGUIContainer().getProperty().minimieren();
 
-                        if (aktivesItem.getKnoten() instanceof Knoten) {
-                            Knoten tempKnoten = (Knoten) aktivesItem.getKnoten();
-                            boolean success = true;
-                            if (tempKnoten instanceof Gateway) {
-                                if (lastStatusIsWANPort && !((Gateway) tempKnoten).checkWANPortUnconnected()) {
-                                    GUIErrorHandler.getGUIErrorHandler()
-                                            .DisplayError(messages.getString("guievents_msg22"));
-                                    success = false;
-                                } else if (!lastStatusIsWANPort && !((Gateway) tempKnoten).checkLANPortUnconnected()) {
-                                    GUIErrorHandler.getGUIErrorHandler()
-                                            .DisplayError(messages.getString("guievents_msg23"));
-                                    success = false;
-                                } else {
-                                    statusIsWANPort.put(lastGateway.getKnoten(), lastStatusIsWANPort);
-                                }
+                    if (aktivesItem.getKnoten() instanceof Knoten) {
+                        Knoten tempKnoten = (Knoten) aktivesItem.getKnoten();
+                        boolean success = true;
+                        if (tempKnoten instanceof Gateway) {
+                            if (lastStatusIsWANPort && !((Gateway) tempKnoten).checkWANPortUnconnected()) {
+                                GUIErrorHandler.getGUIErrorHandler()
+                                        .DisplayError(messages.getString("guievents_msg22"));
+                                success = false;
+                            } else if (!lastStatusIsWANPort && !((Gateway) tempKnoten).checkLANPortUnconnected()) {
+                                GUIErrorHandler.getGUIErrorHandler()
+                                        .DisplayError(messages.getString("guievents_msg23"));
+                                success = false;
                             } else {
-                                Port anschluss = tempKnoten.holeFreienPort();
-                                if (anschluss == null) {
-                                    success = false;
-                                    GUIErrorHandler.getGUIErrorHandler()
-                                            .DisplayError(messages.getString("guievents_msg1"));
-                                }
+                                statusIsWANPort.put(lastGateway.getKnoten(), lastStatusIsWANPort);
                             }
-                            if (success && neuesKabel.getKabelpanel().getZiel1() != null) {
-                                Knoten quellKnoten = neuesKabel.getKabelpanel().getZiel1().getKnoten();
-                                if (tempKnoten.checkConnected(quellKnoten)) {
-                                    success = false;
-                                    GUIErrorHandler.getGUIErrorHandler()
-                                            .DisplayError(messages.getString("guievents_msg12"));
-                                }
-                            }
-                            if (success) {
-                                processCableConnection(e.getX(), e.getY());
+                        } else {
+                            Port anschluss = tempKnoten.holeFreienPort();
+                            if (anschluss == null) {
+                                success = false;
+                                GUIErrorHandler.getGUIErrorHandler().DisplayError(messages.getString("guievents_msg1"));
                             }
                         }
-                    } else {
-                        // einen Knoten zur Bearbeitung der Eigenschaften
-                        // auswaehlen
-                        if (GUIContainer.getGUIContainer().getKabelvorschau().isVisible()) {
-                            resetAndHideCablePreview();
+                        if (success && neuesKabel.getKabelpanel().getZiel1() != null) {
+                            Knoten quellKnoten = neuesKabel.getKabelpanel().getZiel1().getKnoten();
+                            if (tempKnoten.checkConnected(quellKnoten)) {
+                                success = false;
+                                GUIErrorHandler.getGUIErrorHandler()
+                                        .DisplayError(messages.getString("guievents_msg12"));
+                            }
                         }
-
-                        c.setProperty(aktivesItem);
-                        if (e.getClickCount() == 2) {
-                            GUIContainer.getGUIContainer().getProperty().maximieren();
-                        }
-                        if (!aktiveslabel.isSelektiert()) {
-                            aktiveslabel.setSelektiert(true);
-                            // Die Verschiebung speichern für spätere Verwendung in mausDragged
-                            shiftX = aktiveslabel.getX() - e.getX();
-                            shiftY = aktiveslabel.getY() - e.getY();
+                        if (success) {
+                            processCableConnection(e.getX(), e.getY());
                         }
                     }
                 } else {
-                    // wurde Maus ueber leerem Bereich betaetigt? -> Markierung
-                    // sichtbar machen
-                    auswahl.setVisible(false);
-                    GUIContainer.getGUIContainer().getProperty().minimieren();
-                    GUIContainer.getGUIContainer().setProperty(null);
+                    // einen Knoten zur Bearbeitung der Eigenschaften
+                    // auswaehlen
+                    if (GUIContainer.getGUIContainer().getKabelvorschau().isVisible()) {
+                        resetAndHideCablePreview();
+                    }
+
+                    c.setProperty(aktivesItem.getKnoten());
+                    if (e.getClickCount() == 2) {
+                        GUIContainer.getGUIContainer().getProperty().maximieren();
+                    }
+                    if (!aktiveslabel.isSelektiert()) {
+                        aktiveslabel.setSelektiert(true);
+                        // Die Verschiebung speichern für spätere Verwendung in mausDragged
+                        shiftX = aktiveslabel.getX() - e.getX();
+                        shiftY = aktiveslabel.getY() - e.getY();
+                    }
                 }
+            } else {
+                // wurde Maus ueber leerem Bereich betaetigt? -> Markierung
+                // sichtbar machen
+                auswahl.setVisible(false);
+                hideControlPanel();
             }
         }
+    }
+
+    protected void hideControlPanel() {
+        GUIContainer.getGUIContainer().getProperty().minimieren();
     }
 
     public void cancelMultipleSelection() {
@@ -661,7 +660,7 @@ public class GUIEvents implements I18n {
                     } else if (e.getActionCommand() == pmKabelEntfernen.getActionCommand()) {
                         kabelEntfernen();
                     } else if (e.getActionCommand() == pmShowConfig.getActionCommand()) {
-                        GUIContainer.getGUIContainer().setProperty(aktivesItem);
+                        GUIContainer.getGUIContainer().setProperty(aktivesItem.getKnoten());
                         GUIContainer.getGUIContainer().getProperty().maximieren();
                     }
                 }
@@ -815,5 +814,11 @@ public class GUIEvents implements I18n {
 
         GUIContainer.getGUIContainer().updateViewport();
 
+    }
+
+    public void mausPressedActionMode(MouseEvent e) {
+        if (e.getButton() == 1) {
+            hideControlPanel();
+        }
     }
 }

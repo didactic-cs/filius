@@ -70,16 +70,16 @@ public class SimplexVerbindung implements Runnable {
             synchronized (anschluss1.holeAusgangsPuffer()) {
                 if (anschluss1.holeAusgangsPuffer().size() < 1) {
                     try {
-                        // LOG.debug("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run:
-                        // set wait()");
                         verbindung.setAktiv(false);
                         anschluss1.holeAusgangsPuffer().wait();
                     } catch (InterruptedException e) {}
                 }
                 if (anschluss1.holeAusgangsPuffer().size() > 0) {
-                    // LOG.debug("DEBUG ("+this.hashCode()+", K"+verbindung.hashCode()+"): SimplexVerbindung, run: set
-                    // wait()");
-                    verbindung.setAktiv(true);
+                    if (Verbindung.isDrop()) {
+                        verbindung.setFailure();
+                    } else {
+                        verbindung.setAktiv(true);
+                    }
                     frame = (EthernetFrame) anschluss1.holeAusgangsPuffer().getFirst();
                     anschluss1.holeAusgangsPuffer().remove(frame);
 
@@ -88,10 +88,13 @@ public class SimplexVerbindung implements Runnable {
                             Thread.sleep(Verbindung.holeVerzoegerung());
                         } catch (InterruptedException e) {}
                     }
-
-                    synchronized (anschluss2.holeEingangsPuffer()) {
-                        anschluss2.holeEingangsPuffer().add(frame);
-                        anschluss2.holeEingangsPuffer().notify();
+                    if (!Verbindung.isDrop()) {
+                        synchronized (anschluss2.holeEingangsPuffer()) {
+                            anschluss2.holeEingangsPuffer().add(frame);
+                            anschluss2.holeEingangsPuffer().notify();
+                        }
+                    } else {
+                        LOG.debug("Frame dropped.");
                     }
                 }
             }

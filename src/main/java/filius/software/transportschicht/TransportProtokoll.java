@@ -121,10 +121,10 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
         if (port == -1) {
             throw new SocketException(messages.getString("sw_transportprotokoll_msg3"));
         }
-        if (!portTabelle.containsKey(port))
+        if (!portTabelle.containsKey(port)) {
             throw new SocketException(messages.getString("sw_transportprotokoll_msg1") + " " + port + " "
                     + messages.getString("sw_transportprotokoll_msg2"));
-
+        }
         return (SocketSchnittstelle) portTabelle.get(port);
     }
 
