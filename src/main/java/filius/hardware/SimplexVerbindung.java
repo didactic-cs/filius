@@ -25,6 +25,7 @@
  */
 package filius.hardware;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +81,7 @@ public class SimplexVerbindung implements Runnable {
                     } else {
                         verbindung.setAktiv(true);
                     }
-                    frame = (EthernetFrame) anschluss1.holeAusgangsPuffer().getFirst();
-                    anschluss1.holeAusgangsPuffer().remove(frame);
+                    frame = (EthernetFrame) anschluss1.holeAusgangsPuffer().removeFirst();
 
                     synchronized (this) {
                         try {
@@ -90,7 +90,7 @@ public class SimplexVerbindung implements Runnable {
                     }
                     if (!Verbindung.isDrop()) {
                         synchronized (anschluss2.holeEingangsPuffer()) {
-                            anschluss2.holeEingangsPuffer().add(frame);
+                            anschluss2.holeEingangsPuffer().add(SerializationUtils.clone(frame));
                             anschluss2.holeEingangsPuffer().notify();
                         }
                     } else {

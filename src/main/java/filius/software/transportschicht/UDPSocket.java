@@ -49,7 +49,8 @@ public class UDPSocket extends Socket {
      * Ob der Socket verbunden ist, d. h. Aufruf von verbinden() war erfolgreich und Socket wurde noch nicht durch
      * schliessen() geschlossen.
      */
-    private boolean verbunden = false;
+    private boolean verbunden;
+    private boolean stopListening;
 
     /**
      * Konstruktor zur Initialisierung des Sockets. Dazu wird das mit dem Socket verbundene Transport-Protokoll
@@ -197,11 +198,14 @@ public class UDPSocket extends Socket {
      */
     public void schliessen() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), schliessen()");
+        stopListening = true;
         synchronized (puffer) {
             puffer.notifyAll();
         }
-        austragenPort();
-        verbunden = false;
+        if (verbunden) {
+            austragenPort();
+            verbunden = false;
+        }
     }
 
     /**
@@ -211,33 +215,35 @@ public class UDPSocket extends Socket {
      */
     public void beenden() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), beenden()");
+        stopListening = true;
         synchronized (puffer) {
             puffer.notifyAll();
         }
     }
 
     public void verbinden() {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), verbinden()");
+        LOG.debug("[port={}] start listening UDP", lokalerPort);
 
         if (!verbunden) {
             if (modus == PASSIV) {
                 synchronized (puffer) {
-                    if (puffer.size() <= 0) {
+                    while (puffer.size() <= 0 && !stopListening) {
                         try {
-                            puffer.wait();
+                            puffer.wait(100);
                         } catch (InterruptedException e) {}
                     }
                 }
             }
-
-            try {
-                eintragenPort();
-                verbunden = true;
-            } catch (SocketException e) {
-                LOG.debug("EXCEPTION (" + this.hashCode() + "): verbinden() NICHT erfolgreich");
-                LOG.debug("", e);
+            if (!stopListening) {
+                try {
+                    eintragenPort();
+                    verbunden = true;
+                } catch (SocketException e) {
+                    LOG.debug("EXCEPTION (" + this.hashCode() + "): verbinden() NICHT erfolgreich", e);
+                }
             }
         }
+        LOG.debug("[port={}] stop listening UDP", lokalerPort);
     }
 
     public boolean istVerbunden() {

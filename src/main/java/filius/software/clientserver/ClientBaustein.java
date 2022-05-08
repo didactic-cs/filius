@@ -107,13 +107,11 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Methode zum Aufbau einer Verbindung mit einem TCP-Socket. Diese Methode ist blockierend.
      */
     public synchronized void initialisiereSocket(String zielAdresse, Integer port) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (ClientBaustein), initialisiereSocket(" + zielAdresse + "," + port + ")");
+        LOG.debug("connect client {}:{}", zielAdresse, port);
         if (!istVerbunden()) {
             try {
                 socket = new TCPSocket(getSystemSoftware(), zielAdresse, port);
                 socket.verbinden();
-
                 benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg2"));
             } catch (Exception e) {
                 LOG.debug("", e);
@@ -129,8 +127,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
      * Diese Methode ist <b> blockierend</b>.
      */
     public void trennen() {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (ClientBaustein), trennen()");
+        LOG.debug("disconnect client");
         if (socket != null) {
             socket.schliessen();
             benachrichtigeBeobachter(messages.getString("sw_clientbaustein_msg3"));
@@ -181,7 +178,6 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
             } catch (Exception e) {
                 benachrichtigeBeobachter(e.getMessage());
                 LOG.debug("", e);
-            } finally {
                 socket = null;
             }
         }

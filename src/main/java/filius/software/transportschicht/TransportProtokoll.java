@@ -116,7 +116,7 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     }
 
     public SocketSchnittstelle holeSocket(int port) throws SocketException {
-        LOG.debug(
+        LOG.trace(
                 "INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), holeSocket(" + port + ")");
         if (port == -1) {
             throw new SocketException(messages.getString("sw_transportprotokoll_msg3"));
@@ -145,21 +145,24 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
     public boolean reservierePort(int port, SocketSchnittstelle socket) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), reservierePort(" + port
                 + "," + socket + ")");
+        boolean portIsSubscribed = false;
         synchronized (portTabelle) {
-            if (portTabelle.containsKey(port)) {
-                LOG.debug("ERROR (" + this.hashCode() + "): Port " + port + " ist bereits belegt!");
-                return false;
+            if (portTabelle.containsKey(port) && !socket.equals(portTabelle.get(port))) {
+                LOG.debug("Port " + port + " cannot be subscribed for. It is already in use.");
+            } else if (socket.equals(portTabelle.get(port))) {
+                LOG.debug("Port {} already subscribed for the socket. Nothing to do.", port);
+                portIsSubscribed = true;
             } else {
+                LOG.debug("Port {} is subscribed for.", port);
                 portTabelle.put(port, socket);
-                return true;
+                portIsSubscribed = true;
             }
         }
+        return portIsSubscribed;
     }
 
     public boolean gibPortFrei(int port) {
-        LOG.debug(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), gibPortFrei(" + port + ")");
-
+        LOG.debug("remove port {} from list of registered ports.", port);
         synchronized (portTabelle) {
             if (portTabelle.containsKey(port)) {
                 portTabelle.remove(port);
@@ -216,7 +219,6 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
 
     public void starten() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TransportProtokoll), starten()");
-        portTabelle.clear();
 
         thread = new TransportProtokollThread(this);
         thread.starten();
@@ -240,5 +242,6 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
                 && (sendeThread.getState().equals(State.WAITING) || sendeThread.getState().equals(State.BLOCKED))) {
             sendeThread.interrupt();
         }
+        portTabelle.clear();
     }
 }

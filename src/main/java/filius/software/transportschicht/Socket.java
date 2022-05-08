@@ -146,15 +146,12 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
             throws VerbindungsException {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), constr: Socket(" + betriebssystem
                 + "," + lokalerPort + "," + transportProtokoll + ")");
-
         modus = PASSIV;
-
         if (transportProtokoll == IpPaket.TCP) {
             protokoll = betriebssystem.holeTcp();
         } else {
             protokoll = betriebssystem.holeUdp();
         }
-
         this.lokalerPort = lokalerPort;
     }
 
@@ -230,20 +227,18 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
 
         if (lokalerPort == -1) {
             lokalerPort = protokoll.reserviereFreienPort(this);
+            LOG.debug("[port={}] new client port registered.", lokalerPort);
         } else {
-            try {
-                if (protokoll.isUsed(lokalerPort)) {
-                    socket = protokoll.holeSocket(lokalerPort);
-                }
-            } catch (SocketException e) {
-                LOG.debug("", e);
+            if (protokoll.isUsed(lokalerPort)) {
+                socket = protokoll.holeSocket(lokalerPort);
             }
             if (socket != null && socket instanceof ServerSocket) {
                 ServerSocket serverSocket = (ServerSocket) socket;
                 serverSocket.eintragenSocket(this);
-            } else {
-                if (!protokoll.reservierePort(lokalerPort, this))
-                    throw new SocketException();
+                LOG.debug("[port={}] new server port registered for remote endpoint {}:{}.", lokalerPort,
+                        holeZielIPAdresse(), holeZielPort());
+            } else if (!protokoll.reservierePort(lokalerPort, this)) {
+                throw new SocketException();
             }
         }
     }
@@ -252,7 +247,6 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
      * Methode zum austragen des Ports des Sockets. Entweder wird der Port im Betriebssystem freigegeben (modus ==
      * AKTIV) oder der Socket wird in der Liste, die durch einen Server-Socket verwaltet wird, entfernt (modus ==
      * PASSIV).
-     * 
      */
     protected void austragenPort() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Socket), austragenPort()");
@@ -260,9 +254,7 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
 
         try {
             socket = protokoll.holeSocket(lokalerPort);
-        } catch (SocketException e) {
-            LOG.debug("", e);
-        }
+        } catch (SocketException e) {}
 
         if (socket != null && socket instanceof ServerSocket) {
             ServerSocket serverSocket = (ServerSocket) socket;

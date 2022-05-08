@@ -280,8 +280,6 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         tcp.starten();
         udp.starten();
 
-        printDebugInfo();
-
         for (Anwendung anwendung : installierteAnwendung.values()) {
             if (anwendung != null) {
                 anwendung.starten();

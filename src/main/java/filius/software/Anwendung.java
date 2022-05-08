@@ -187,9 +187,7 @@ public abstract class Anwendung extends Thread {
 
         while (true) {
             if (running) {
-                synchronized (kommandos) { // first block, then check size!
-                                           // (otherwise: prone to race
-                                           // conditions)
+                synchronized (kommandos) {
                     if (kommandos.size() < 1) {
                         try {
                             kommandos.wait();
@@ -219,14 +217,12 @@ public abstract class Anwendung extends Thread {
                     while (klasse != null) {
                         try {
                             method = klasse.getDeclaredMethod(methodenName, argumentKlassen);
-
                             method.invoke(this, args);
-
                             klasse = null;
                         } catch (NoSuchMethodException e) {
                             klasse = klasse.getSuperclass();
                         } catch (Exception e) {
-                            LOG.debug("", e);
+                            LOG.debug("an unexpected error occurred during processing in application.", e);
                             klasse = null;
                         }
                     }

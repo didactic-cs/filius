@@ -82,11 +82,8 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * @param betriebssystem
      * @param lokalerPort
      *            - Lokaler Port, auf dem der Server laufen soll. Bsp.: http-Anwendungen zumeist auf Port 80
-     * @throws ServerSocketException
-     *             - Diese Exception wird geworfen, wenn auf dem angeforderten Port schon eine Anwendung laeuft.
      */
-    public ServerSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll)
-            throws ServerSocketException {
+    public ServerSocket(InternetKnotenBetriebssystem betriebssystem, int lokalerPort, int transportProtokoll) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), constr: ServerSocket("
                 + betriebssystem + "," + lokalerPort + "," + transportProtokoll + ")");
         this.betriebssystem = betriebssystem;
@@ -96,13 +93,6 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
             protokoll = betriebssystem.holeTcp();
         } else {
             protokoll = betriebssystem.holeUdp();
-        }
-
-        // Falls schon eine Anwendung auf dem vorgeschlagenen Port laeuft
-        // wird eine Exception ausgeloest
-        if (!protokoll.reservierePort(lokalerPort, this)) {
-            throw new ServerSocketException(messages.getString("sw_serversocket_msg1") + " " + lokalerPort + " "
-                    + messages.getString("sw_serversocket_msg2"));
         }
     }
 
@@ -118,12 +108,9 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * Methode zum Eintragen eines neuen Sockets in die Socket-Liste
      */
     public void eintragenSocket(Socket socket) {
-        LOG.debug(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), eintragenSocket(" + socket + ")");
-        String ziel;
-
-        ziel = socket.holeZielIPAdresse() + ":" + socket.holeZielPort();
+        String ziel = socket.holeZielIPAdresse() + ":" + socket.holeZielPort();
         socketListe.put(ziel, socket);
+        LOG.debug("[port={}] socket for remote client {} added.", lokalerPort, ziel);
     }
 
     /**
@@ -132,13 +119,9 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * dann freigegeben.
      */
     public void austragenSocket(Socket socket) {
-        LOG.debug(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), austragenSocket(" + socket + ")");
-        String ziel;
-
-        ziel = socket.holeZielIPAdresse() + ":" + socket.holeZielPort();
+        String ziel = socket.holeZielIPAdresse() + ":" + socket.holeZielPort();
         socketListe.remove(ziel);
-        // LOG.debug(socketListe);
+        LOG.debug("[port={}] socket for remote client {} removed.", lokalerPort, ziel);
 
         if (socketListe.isEmpty() && aktuellerSocket == null) {
             protokoll.gibPortFrei(lokalerPort);
@@ -150,29 +133,34 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
      * <b>blockiert</b> den Thread, bis eine Verbindung zu dem Socket aufgebaut wurde! Der Eintrag in die Socketliste
      * wird vom TCP-Socket nach erfolgreichem Verbindungsaufbau initiiert.
      * 
-     * @return
+     * @throws ServerSocketException
+     *             - Diese Exception wird geworfen, wenn auf dem angeforderten Port schon eine Anwendung laeuft.
      */
-    public synchronized Socket oeffnen() throws VerbindungsException {
+    public synchronized Socket oeffnen() throws VerbindungsException, ServerSocketException {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), oeffnen()");
-        Socket socket = null;
+        // Falls schon eine Anwendung auf dem vorgeschlagenen Port laeuft
+        // wird eine Exception ausgeloest
+        if (!protokoll.reservierePort(lokalerPort, this)) {
+            throw new ServerSocketException(messages.getString("sw_serversocket_msg1") + " " + lokalerPort + " "
+                    + messages.getString("sw_serversocket_msg2"));
+        }
 
         if (protokoll instanceof TCP) {
-            socket = new TCPSocket(betriebssystem, lokalerPort);
+            aktuellerSocket = new TCPSocket(betriebssystem, lokalerPort);
         } else {
-            socket = new UDPSocket(betriebssystem, lokalerPort);
+            aktuellerSocket = new UDPSocket(betriebssystem, lokalerPort);
         }
 
-        aktuellerSocket = socket;
         try {
-            socket.verbinden();
+            aktuellerSocket.verbinden();
         } catch (TimeOutException e) {
-            socket = null;
             aktuellerSocket = null;
-            LOG.debug("", e);
+            LOG.debug("[port={}] unexpected timeout exception while listening for incoming connection.", lokalerPort,
+                    e);
         }
 
-        if (socket != null && socket.istVerbunden()) {
-            return socket;
+        if (aktuellerSocket != null && aktuellerSocket.istVerbunden()) {
+            return aktuellerSocket;
         } else {
             return null;
         }
@@ -210,8 +198,9 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
     public void schliessen() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ServerSocket), schliessen()");
 
-        if (aktuellerSocket != null)
+        if (aktuellerSocket != null) {
             aktuellerSocket.schliessen();
+        }
         protokoll.gibPortFrei(lokalerPort);
     }
 

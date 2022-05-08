@@ -148,17 +148,21 @@ public class TCPSocket extends Socket implements Runnable {
      * hinzufuegen() ausgeloest.
      */
     private int zustand = CLOSED;
+    private boolean timeout;
+    private boolean stopThread;
+    private boolean closeSocket;
 
     /**
      * Anzahl der maximalen Sendeversuche, in Fehlersituationen, d. h., dass ein Segment nicht bestaetigt wurde.
      */
-    protected static final int MAX_SENDEVERSUCHE = 1;
+    protected static final int MAX_SENDEVERSUCHE = 3;
 
     /** Maximum Segment Size (MSS) */
     protected final static int MSS = 1460;
 
     /** Puffer fuer eingegangene Segmente. */
-    private LinkedList<TcpSegment> puffer = new LinkedList<TcpSegment>();
+    private LinkedList<TcpSegment> puffer = new LinkedList<>();
+    private LinkedList<String> receivedPayload = new LinkedList<>();
 
     private static long synInitValue = 1l;
     /**
@@ -260,132 +264,133 @@ public class TCPSocket extends Socket implements Runnable {
      *             wenn eine Antwort nicht innerhalb der maximalen Round-Trip-Time empfangen wird.
      */
     public synchronized void verbinden() throws VerbindungsException, TimeOutException {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), verbinden()");
-        TcpSegment tmp, segment;
-        long sendezeit = Long.MAX_VALUE;
+        LOG.debug("initiate new tcp socket connection");
+        stopThread = false;
+        closeSocket = false;
+        new Thread(this).start();
 
-        // Wenn der Socket schon einmal geoeffnet war, koennen im Puffer
-        // noch Segmente von der alten Verbindung vorhanden sein.
+        while (zustand != ESTABLISHED && !closeSocket && !stopThread) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {}
+        }
+        if (closeSocket) {
+            if (timeout) {
+                throw new TimeOutException(messages.getString("sw_tcpsocket_msg2"));
+            } else if (modus == AKTIV) {
+                throw new VerbindungsException(messages.getString("sw_tcpsocket_msg3"));
+            }
+        } else if (zustand == ESTABLISHED) {
+            LOG.debug("[port={}] connection established.", lokalerPort);
+        }
+    }
+
+    protected void connect() {
         puffer.clear();
-
-        // -----------------------------------------------
-        // passiver Verbindungsaufbau ohne Timeout
         if (modus == PASSIV) {
-            zustand = LISTEN;
+            connectServerMode();
+        } else {
+            connectClientMode();
+        }
+    }
 
-            LOG.debug("INFO (" + this.hashCode() + "): verbinden() [passiver Modus], Socket: " + this.toString());
+    protected void connectServerMode() {
+        zustand = LISTEN;
+        LOG.debug("INFO (" + this.hashCode() + "): verbinden() [passiver Modus], Socket: " + this.toString());
+        while (!closeSocket && !stopThread && zustand == LISTEN) {
+            synchronized (puffer) {
+                if (puffer.size() < 1) {
+                    try {
+                        puffer.wait();
+                    } catch (InterruptedException e) {}
+                } else
+                    break;
+            }
+        }
 
-            while (zustand == LISTEN) {
-                synchronized (puffer) {
-                    if (puffer.size() < 1) {
-                        try {
-                            puffer.wait();
-                        } catch (InterruptedException e) {}
-                    } else
-                        break;
+        long sendezeit = Long.MAX_VALUE;
+        for (int i = 0; !closeSocket && !stopThread && i <= MAX_SENDEVERSUCHE && zustand != ESTABLISHED; i++) {
+            synchronized (puffer) {
+                if (puffer.size() < 1) {
+                    try {
+                        puffer.wait(defaultTimeout());
+                    } catch (InterruptedException e) {}
                 }
             }
 
-            for (int i = 0; i < MAX_SENDEVERSUCHE + 1 && zustand != ESTABLISHED && zustand != CLOSED; i++) {
+            if (puffer.size() >= 1) {
+                sendezeit = System.currentTimeMillis();
+
+                TcpSegment segment = (TcpSegment) puffer.removeFirst();
+                if (zustand == LISTEN && segment.isSyn()) {
+                    // Initialisierung der zunaechst zu sendenden
+                    // ACK-Nummer anhand der empfangenen
+                    // Sequenznummer
+                    remoteSequenceNumber = nextSequenceNumber(segment);
+
+                    zustand = SYN_RCVD;
+
+                    TcpSegment tmp = new TcpSegment();
+                    tmp.setSyn(true);
+                    sendeAck(segment, tmp);
+                } else if (zustand == SYN_RCVD && segment.isAck()) {
+                    try {
+                        eintragenPort();
+                        zustand = ESTABLISHED;
+                    } catch (SocketException e) {
+                        LOG.debug("Port for new socket could not be registered.", e);
+                        closeSocket = true;
+                    }
+                } else {
+                    closeSocket = true;
+                }
+            } else if (System.currentTimeMillis() - sendezeit > defaultTimeout()) {
+                timeout = true;
+                closeSocket = true;
+            }
+        }
+    }
+
+    protected void connectClientMode() {
+        try {
+            eintragenPort();
+            LOG.debug("INFO (" + this.hashCode() + "): verbinden() [aktiver Modus], Socket: " + this.toString());
+            for (int i = 0; !closeSocket && !stopThread && zustand != ESTABLISHED && i < MAX_SENDEVERSUCHE; i++) {
+                TcpSegment tmp = new TcpSegment();
+                tmp.setSyn(true);
+
+                sendeSegment(tmp, i > 0);
+                zustand = SYN_SENT;
                 synchronized (puffer) {
                     if (puffer.size() < 1) {
                         try {
-                            puffer.wait(Verbindung.holeRTT());
+                            puffer.wait(defaultTimeout());
                         } catch (InterruptedException e) {}
                     }
                 }
-
-                if (puffer.size() >= 1) {
-                    sendezeit = System.currentTimeMillis();
-
-                    segment = (TcpSegment) puffer.removeFirst();
-                    if (zustand == LISTEN && segment.isSyn()) {
+                if (!closeSocket && !stopThread && puffer.size() >= 1) {
+                    TcpSegment segment = (TcpSegment) puffer.removeFirst();
+                    if (zustand == SYN_SENT && segment.isAck() && segment.isSyn()) {
                         // Initialisierung der zunaechst zu sendenden
                         // ACK-Nummer anhand der empfangenen
                         // Sequenznummer
                         remoteSequenceNumber = nextSequenceNumber(segment);
-
-                        zustand = SYN_RCVD;
-
-                        tmp = new TcpSegment();
-                        tmp.setSyn(true);
-                        sendeAck(segment, tmp);
-                    } else if (zustand == SYN_RCVD && segment.isAck()) {
                         zustand = ESTABLISHED;
+                        sendeAck(segment, null);
                     } else {
                         beenden();
-                        throw new VerbindungsException(messages.getString("sw_tcpsocket_msg1"));
                     }
-                } else if (System.currentTimeMillis() - sendezeit > Verbindung.holeRTT()) {
-                    beenden();
-                    throw new TimeOutException(messages.getString("sw_tcpsocket_msg2"));
+                } else if (zustand != CLOSED) {
+                    timeout = true;
+                    closeSocket = true;
                 }
             }
-            if (zustand == ESTABLISHED) {
-                try {
-                    eintragenPort();
-                } catch (SocketException e) {
-                    LOG.debug("", e);
-                }
+            if (zustand != ESTABLISHED) {
+                closeSocket = true;
             }
-        }
-
-        // -----------------------------------------------
-        // aktiver Verbindungsaufbau mit Timeout
-        else {
-            try {
-                eintragenPort();
-
-                LOG.debug("INFO (" + this.hashCode() + "): verbinden() [aktiver Modus], Socket: " + this.toString());
-
-                for (int i = 0; zustand != ESTABLISHED && i < MAX_SENDEVERSUCHE; i++) {
-                    tmp = new TcpSegment();
-                    tmp.setSyn(true);
-
-                    sendeSegment(tmp, i > 0);
-                    zustand = SYN_SENT;
-                    synchronized (puffer) {
-                        if (puffer.size() < 1) {
-                            try {
-                                puffer.wait(Verbindung.holeRTT());
-                            } catch (InterruptedException e) {}
-                        }
-                    }
-                    if (puffer.size() >= 1) {
-
-                        segment = (TcpSegment) puffer.removeFirst();
-                        if (zustand == SYN_SENT && segment.isAck() && segment.isSyn()) {
-                            // Initialisierung der zunaechst zu sendenden
-                            // ACK-Nummer anhand der empfangenen
-                            // Sequenznummer
-                            remoteSequenceNumber = nextSequenceNumber(segment);
-                            zustand = ESTABLISHED;
-                            sendeAck(segment, null);
-                        } else {
-                            beenden();
-                            throw new VerbindungsException(messages.getString("sw_tcpsocket_msg3"));
-                        }
-                    } else if (zustand != CLOSED) {
-                        beenden();
-                        throw new TimeOutException(messages.getString("sw_tcpsocket_msg4"));
-                    }
-                }
-
-                if (zustand != ESTABLISHED)
-                    austragenPort();
-            } catch (SocketException e1) {
-                LOG.debug("", e1);
-            }
-        }
-
-        // war Verbindungsaufbau erfolgreich? -> Ausgabe auf Standardausgabe
-        // wenn nicht erfolgreich Uebergang zu Zustand CLOSED und ausloesen
-        // einer Exception
-        if (zustand != ESTABLISHED && zustand != CLOSED) {
-            zustand = CLOSED;
-            throw new VerbindungsException(messages.getString("sw_tcpsocket_msg5"));
-        } else {
-            // LOG.debug("TCPSocket: Socket hat Verbindungsaufbau abgeschlossen.");
+        } catch (SocketException e1) {
+            closeSocket = true;
+            LOG.debug("Port for socket could not be registered.", e1);
         }
     }
 
@@ -439,28 +444,24 @@ public class TCPSocket extends Socket implements Runnable {
      */
     public synchronized void senden(String nachricht) throws VerbindungsException, TimeOutException {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), senden(" + nachricht + ")");
-        TcpSegment segment, antwort;
+        TcpSegment segment;
         boolean bestaetigt = true;
-        LinkedList<TcpSegment> liste;
-        ListIterator<?> it;
         long versendeZeitpunkt = Long.MAX_VALUE;
         long rtt;
 
         if (zustand != ESTABLISHED) {
-            // if I understand it correctly, then the thrown exception is needed for properly resetting the connection!
-            // (no harmful exception, but part of the concept)
             LOG.debug("EXCEPTION: " + getClass() + " (" + this.hashCode() + "); zustand=" + zustand);
             beenden();
             throw new VerbindungsException(messages.getString("sw_tcpsocket_msg6"));
         }
 
-        liste = erstelleSegmente(nachricht);
+        LinkedList<TcpSegment> liste = erstelleSegmente(nachricht);
 
         // Die erstellten Segmente werden verschickt
         // und auf die Bestaetigung gewartet, bevor das
         // naechste Segment verschickt wird.
-        it = liste.listIterator();
-        while (it.hasNext() && zustand == ESTABLISHED) {
+        ListIterator<TcpSegment> it = liste.listIterator();
+        while (it.hasNext() && !closeSocket && !stopThread && zustand == ESTABLISHED) {
             bestaetigt = false;
             segment = (TcpSegment) it.next();
 
@@ -470,11 +471,11 @@ public class TCPSocket extends Socket implements Runnable {
             // verschickt und der Empfang bestaetigt worden sein und damit
             // auch die Sequenznummer inkrementiert sein oder der Versand
             // war nicht erfolgreich
-            for (int i = 0; i < MAX_SENDEVERSUCHE && !bestaetigt; i++) {
+            for (int i = 0; !closeSocket && !stopThread && i < MAX_SENDEVERSUCHE && !bestaetigt; i++) {
                 if (zustand != ESTABLISHED) {
                     // Wenn die Verbindung zwischenzeitlich unterbrochen
                     // wurde, wird eine Verbindungsexception ausgeloest.
-                    beenden();
+                    closeSocket = true;
                     throw new VerbindungsException(messages.getString("sw_tcpsocket_msg7"));
                 }
 
@@ -490,16 +491,13 @@ public class TCPSocket extends Socket implements Runnable {
                     synchronized (puffer) {
                         if (puffer.size() < 1) {
                             try {
-                                puffer.wait(Verbindung.holeRTT());
+                                puffer.wait(defaultTimeout());
                             } catch (InterruptedException e) {
                                 LOG.debug("", e);
                             }
-                        }
-                    }
-                    synchronized (puffer) {
-                        while (puffer.size() > 0 && !bestaetigt) {
-                            antwort = puffer.removeFirst();
-                            if (antwort.isAck()) {
+                        } else if (!bestaetigt) {
+                            if (puffer.getFirst().isAck()) {
+                                TcpSegment antwort = puffer.removeFirst();
                                 if (antwort.getAckNummer() == nextSendSequenceNumber) {
                                     bestaetigt = true;
                                 }
@@ -507,10 +505,13 @@ public class TCPSocket extends Socket implements Runnable {
                         }
                     }
                     rtt = System.currentTimeMillis() - versendeZeitpunkt;
-                } while (!bestaetigt && (rtt < Verbindung.holeRTT()) && zustand == ESTABLISHED);
+                } while (!bestaetigt && (rtt < defaultTimeout()) && zustand == ESTABLISHED && !closeSocket
+                        && !stopThread);
             }
-            if (!bestaetigt && zustand != CLOSED) {
-                beenden();
+            if (!bestaetigt && zustand != CLOSED && !stopThread) {
+                LOG.debug("[port={}] message '{}' could not be transferred. socket will be closed.", lokalerPort,
+                        nachricht);
+                schliessen();
                 throw new TimeOutException(messages.getString("sw_tcpsocket_msg8"));
             }
         }
@@ -530,7 +531,11 @@ public class TCPSocket extends Socket implements Runnable {
      *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
      */
     public String empfangen() throws VerbindungsException, TimeOutException {
-        return empfangen(Verbindung.holeRTT());
+        return empfangen(defaultTimeout());
+    }
+
+    protected int defaultTimeout() {
+        return MAX_SENDEVERSUCHE * Verbindung.holeRTT();
     }
 
     /**
@@ -548,72 +553,77 @@ public class TCPSocket extends Socket implements Runnable {
      */
     public String empfangen(long timeoutMillis) throws VerbindungsException, TimeOutException {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), empfangen()");
-        StringBuffer nachricht = new StringBuffer();
-        LinkedList<TcpSegment> segmentListe = new LinkedList<TcpSegment>();
-        boolean beendet = false;
-        TcpSegment segment;
-        long zeitpunkt = 0;
-
-        // LOG.debug(getClass().toString() +
-        // "\n\tempfangen() aufgerufen"
-        // + "\n\tlokaler Port: " + lokalerPort);
 
         if (zustand != ESTABLISHED) {
             throw new VerbindungsException(messages.getString("sw_tcpsocket_msg9"));
         }
 
-        while (!beendet && zustand == ESTABLISHED) {
+        long startTime = System.currentTimeMillis();
+        synchronized (receivedPayload) {
+            if (receivedPayload.size() < 1) {
+                try {
+                    receivedPayload.wait(timeoutMillis);
+                } catch (InterruptedException e) {}
+            }
+        }
+        long stopTime = System.currentTimeMillis();
+        String data = null;
+        if (zustand == ESTABLISHED && !receivedPayload.isEmpty()) {
+            synchronized (receivedPayload) {
+                data = receivedPayload.removeFirst();
+            }
+        } else if (stopTime - startTime >= timeoutMillis) {
+            throw new TimeOutException(messages.getString("sw_tcpsocket_msg10"));
+        }
+        return data;
+    }
+
+    protected void listen() {
+        StringBuffer nachricht = new StringBuffer();
+        while (!closeSocket && !stopThread && zustand == ESTABLISHED) {
+            TcpSegment segment = null;
             synchronized (puffer) {
                 if (puffer.size() < 1) {
                     try {
-                        puffer.wait(timeoutMillis);
+                        puffer.wait(Verbindung.holeRTT());
                     } catch (InterruptedException e) {}
-                }
-            }
-
-            if (zustand == ESTABLISHED && !beendet && puffer.size() >= 1) {
-                zeitpunkt = System.currentTimeMillis();
-                segment = (TcpSegment) puffer.getFirst();
-
-                // waehrend des Empfangs werden keine ACK-Segmente
-                // verarbeitet. Diese werden nur beim Versenden von
-                // Nachrichten genutzt. Daher wartet diese Methode dann
-                // auf das naechste eintreffende Segment.
-                if (segment.isAck()) {
-                    synchronized (puffer) {
-                        try {
-                            puffer.wait(timeoutMillis);
-                        } catch (InterruptedException e) {}
-                    }
                 } else {
-                    synchronized (puffer) {
-                        puffer.remove(segment);
-                    }
-
-                    // ist das Segment schon bestaetigt worden?
-                    long ack = nextSequenceNumber(segment);
-                    if (ack < remoteSequenceNumber) {
-                        sendeAck(segment, null);
-                    } else if (ack >= remoteSequenceNumber) {
-                        sendeAck(segment, null);
-                        remoteSequenceNumber = ack;
-                        segmentListe.add(segment);
-                        nachricht.append(segment.getDaten());
-                    }
-
-                    if (segment.isPush())
-                        beendet = true;
+                    segment = (TcpSegment) puffer.getFirst();
                 }
             }
-            if (System.currentTimeMillis() - zeitpunkt > timeoutMillis) {
-                throw new TimeOutException(messages.getString("sw_tcpsocket_msg10"));
+
+            // waehrend des Empfangs werden keine ACK-Segmente
+            // verarbeitet. Diese werden nur beim Versenden von
+            // Nachrichten genutzt. Daher wartet diese Methode dann
+            // auf das naechste eintreffende Segment.
+            if (!closeSocket && !stopThread && zustand == ESTABLISHED && null != segment && !segment.isAck()) {
+                synchronized (puffer) {
+                    puffer.remove(segment);
+                    puffer.notifyAll();
+                }
+                // ist das Segment schon bestaetigt worden?
+                long ack = nextSequenceNumber(segment);
+                if (ack < remoteSequenceNumber) {
+                    sendeAck(segment, null);
+                } else if (ack >= remoteSequenceNumber) {
+                    sendeAck(segment, null);
+                    remoteSequenceNumber = ack;
+                    nachricht.append(segment.getDaten());
+                }
+
+                if (segment.isPush()) {
+                    synchronized (receivedPayload) {
+                        receivedPayload.add(nachricht.toString());
+                        nachricht = new StringBuffer();
+                        receivedPayload.notifyAll();
+                    }
+                }
             }
         }
-        if (zustand == ESTABLISHED) {
-            return nachricht.toString();
-        } else {
-            return null;
+        synchronized (receivedPayload) {
+            receivedPayload.notifyAll();
         }
+        LOG.debug("[port={}] stop listening for incoming data.", lokalerPort);
     }
 
     /**
@@ -645,17 +655,27 @@ public class TCPSocket extends Socket implements Runnable {
      * Verbindungsabbau etwas nicht funktioniert, wird der Socket einseitig geschlossen
      */
     public void schliessen() {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), schliessen()");
-        (new Thread(this)).start();
+        LOG.debug("close tcp socket");
+        closeSocket = true;
+        synchronized (puffer) {
+            puffer.notifyAll();
+        }
     }
 
     public void run() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), run()");
-        closeSocket();
+        LOG.debug("start socket connection mode: {}", modus == PASSIV ? "server" : "client");
+        connect();
+        LOG.debug("[port={}] start listening for incoming messages", lokalerPort);
+        listen();
+        LOG.debug("[port={}] close socket", lokalerPort);
+        close();
+        LOG.debug("[port={}] port closed", lokalerPort);
+        austragenPort();
     }
 
-    private void closeSocket() {
-        if (zustand != LISTEN && zustand != CLOSED) {
+    protected void close() {
+        if (!stopThread && zustand != LISTEN && zustand != CLOSED) {
             TcpSegment tmp = new TcpSegment();
             tmp.setFin(true);
             switch (zustand) {
@@ -676,12 +696,12 @@ public class TCPSocket extends Socket implements Runnable {
                 break;
             }
 
-            for (int i = 0; zustand != CLOSED && i < 5; i++) {
+            for (int i = 0; !stopThread && zustand != CLOSED && i < 5; i++) {
 
                 synchronized (puffer) {
                     if (puffer.size() < 1) {
                         try {
-                            puffer.wait(Verbindung.holeRTT());
+                            puffer.wait(defaultTimeout());
                         } catch (InterruptedException e) {}
                     }
                     if (zustand == TIME_WAIT) {
@@ -721,7 +741,6 @@ public class TCPSocket extends Socket implements Runnable {
                 }
             }
         }
-        beenden();
     }
 
     /**
@@ -799,12 +818,11 @@ public class TCPSocket extends Socket implements Runnable {
      * Die Methode ist <b>nicht blockierend</b>!
      */
     public void beenden() {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (TCPSocket), beenden()");
-        zustand = CLOSED;
+        LOG.debug("stop tcp socket thread");
+        stopThread = true;
         synchronized (puffer) {
             puffer.notifyAll();
         }
-        austragenPort();
     }
 
     /**

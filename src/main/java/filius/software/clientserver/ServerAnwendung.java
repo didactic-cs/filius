@@ -197,17 +197,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
         while (running) {
             if (aktiv) {
                 if (socket == null) {
-                    try {
-                        socket = new ServerSocket(getSystemSoftware(), port, transportProtokoll);
-                    } catch (ServerSocketException e) {
-                        LOG.debug("", e);
-                        setAktiv(false);
-                        benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg3"));
-                        if (socket != null) {
-                            socket.beenden();
-                        }
-                        socket = null;
-                    }
+                    socket = new ServerSocket(getSystemSoftware(), port, transportProtokoll);
                 }
 
                 if (socket != null) {
@@ -219,6 +209,8 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
                                     + transportSocket.holeZielIPAdresse() + ":" + transportSocket.holeZielPort() + " "
                                     + messages.getString("sw_serveranwendung_msg5"));
                         }
+                    } catch (ServerSocketException e) {
+                        LOG.debug("tried to establish connection to client - but failed.", e);
                     } catch (Exception e) {
                         benachrichtigeBeobachter(e.getMessage());
                         LOG.debug("", e);
@@ -227,6 +219,7 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
             } else {
                 if (socket != null) {
                     socket.schliessen();
+                    benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg3"));
                 }
                 socket = null;
                 synchronized (this) {

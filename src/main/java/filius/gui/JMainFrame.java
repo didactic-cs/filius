@@ -74,7 +74,7 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (e.getID() == KeyEvent.KEY_PRESSED && !(e.getSource() instanceof JTextField)) {
-                    LOG.debug("KEY dispatcher:\n" + "\tkey:'" + e.getKeyCode() + "'\n" + "\tmodifier: '"
+                    LOG.trace("KEY dispatcher:\n" + "\tkey:'" + e.getKeyCode() + "'\n" + "\tmodifier: '"
                             + e.getModifiersEx() + "'\n" + "\tmodifierText: '"
                             + KeyEvent.getModifiersExText(e.getModifiersEx()) + "'\n" + "\tkeyChar: '" + e.getKeyChar()
                             + "'\n" + "\tsourceType: '" + e.getSource().getClass().getSimpleName() + "'\n");

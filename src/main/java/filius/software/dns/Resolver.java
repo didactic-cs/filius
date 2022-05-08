@@ -104,7 +104,7 @@ public class Resolver extends ClientAnwendung {
 
                     socket.verbinden();
                     socket.senden(anfrage.toString());
-                    tmp = socket.empfangen(10 * Verbindung.holeRTT());
+                    tmp = socket.empfangen(Verbindung.holeRTT());
                     if (tmp == null) {
                         LOG.debug("ERROR (" + this.hashCode() + "): keine Antwort auf Query empfangen");
                         throw new TimeoutException();

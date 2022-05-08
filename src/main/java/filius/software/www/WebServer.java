@@ -263,7 +263,7 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     public void starten() {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
+        LOG.debug("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebServer), starten()");
         super.starten();
 
         if (!getSystemSoftware().getDateisystem().dateiVorhanden("www.conf", "vhosts")) {

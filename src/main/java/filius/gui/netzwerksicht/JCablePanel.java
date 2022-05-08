@@ -169,16 +169,12 @@ public class JCablePanel extends JPanel implements Observer {
      */
     public void update(Observable o, Object arg) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), update(" + o + "," + arg + ")");
-        LOG.debug("update cable: {}", arg);
+        LOG.trace("update cable: {}", arg);
         if (arg.equals(Boolean.TRUE)) {
             kabelFarbe = farbeBlinken;
-            this.setLocation(this.getX() - 1, this.getY());
-            this.setLocation(this.getX() + 1, this.getY());
         } else if (arg.equals(Hardware.FAILURE)) {
             LOG.debug("set cable color to red");
             kabelFarbe = farbeFailure;
-            this.setLocation(this.getX() - 1, this.getY());
-            this.setLocation(this.getX() + 1, this.getY());
         } else {
             kabelFarbe = farbeStandard;
         }

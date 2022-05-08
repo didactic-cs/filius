@@ -171,7 +171,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
     }
 
     public void updateTable() {
-        LOG.debug("DEBUG GUIApplicationWebServerWindow, updateTable; vHostArray:\n"
+        LOG.trace("DEBUG GUIApplicationWebServerWindow, updateTable; vHostArray:\n"
                 + ((WebServer) holeAnwendung()).printVHostTable());
         String[][] vhosts = ((WebServer) holeAnwendung()).getVHostArray();
         DefaultTableModel tablemodel = (DefaultTableModel) vHostTable.getModel();
