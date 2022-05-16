@@ -29,6 +29,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.netzzugangsschicht.EthernetFrame;
 
 public class SimplexVerbindung implements Runnable {
@@ -76,24 +77,26 @@ public class SimplexVerbindung implements Runnable {
                     } catch (InterruptedException e) {}
                 }
                 if (anschluss1.holeAusgangsPuffer().size() > 0) {
-                    if (Verbindung.isDrop()) {
+                    frame = (EthernetFrame) anschluss1.holeAusgangsPuffer().removeFirst();
+                    boolean dropFrame = Verbindung.isDrop();
+                    if (dropFrame) {
                         verbindung.setFailure();
                     } else {
                         verbindung.setAktiv(true);
                     }
-                    frame = (EthernetFrame) anschluss1.holeAusgangsPuffer().removeFirst();
 
                     synchronized (this) {
                         try {
                             Thread.sleep(Verbindung.holeVerzoegerung());
                         } catch (InterruptedException e) {}
                     }
-                    if (!Verbindung.isDrop()) {
+                    if (!dropFrame) {
                         synchronized (anschluss2.holeEingangsPuffer()) {
                             anschluss2.holeEingangsPuffer().add(SerializationUtils.clone(frame));
                             anschluss2.holeEingangsPuffer().notify();
                         }
                     } else {
+                        Lauscher.getLauscher().addDroppedDataUnit(frame);
                         LOG.debug("Frame dropped.");
                     }
                 }

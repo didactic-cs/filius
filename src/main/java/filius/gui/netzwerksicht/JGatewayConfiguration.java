@@ -408,6 +408,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
             int tabIdx) {
         ipAddressTextfield.setText(nic.getIp());
         netmaskTextfield.setText(nic.getSubnetzMaske());
+        macAddressTextfield.setText(nic.getMac());
         Knoten tempKnoten = holeVerbundeneKomponente(nic);
         if (tempKnoten == null) {
             connectedComponentTextfield.setText(messages.getString("jgatewayconfiguration_msg16"));

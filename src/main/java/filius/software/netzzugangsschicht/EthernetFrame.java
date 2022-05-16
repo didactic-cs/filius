@@ -96,6 +96,7 @@ public class EthernetFrame implements Serializable {
     }
 
     public String toString() {
-        return "[" + "quellMAC=" + quellMacAdresse + ", " + "zielMAC=" + zielMacAdresse + ", " + "typ=" + typ + "]";
+        return "[" + "src=" + quellMacAdresse + ", " + "dest=" + zielMacAdresse + ", " + "type=" + typ
+                + (daten != null ? " | " + daten : "") + "]";
     }
 }

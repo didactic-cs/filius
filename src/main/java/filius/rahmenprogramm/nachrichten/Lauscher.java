@@ -26,12 +26,13 @@
 package filius.rahmenprogramm.nachrichten;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
@@ -64,26 +65,27 @@ public class Lauscher implements I18n {
             messages.getString("rp_lauscher_msg9"), messages.getString("rp_lauscher_msg10"),
             messages.getString("rp_lauscher_msg11") };
 
+    public static final String DROPPED = "dropped packets";
+
     private NumberFormat numberFormatter = NumberFormat.getInstance(Information.getInformation().getLocale());
 
     /** Singleton */
     private static Lauscher lauscher = null;
 
-    private HashMap<String, LinkedList<LauscherBeobachter>> beobachter;
+    private HashMap<String, LinkedList<LauscherBeobachter>> beobachter = new HashMap<String, LinkedList<LauscherBeobachter>>();
 
-    private HashMap<String, LinkedList<Object[]>> datenEinheiten;
+    private HashMap<String, LinkedList<Object[]>> datenEinheiten = new HashMap<String, LinkedList<Object[]>>();
+    private List<Object[]> droppedDataUnits = new LinkedList<>();
 
     private Lauscher() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", constr: Lauscher()");
-        beobachter = new HashMap<String, LinkedList<LauscherBeobachter>>();
-
         reset();
     }
 
     public void reset() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", reset()");
-        // lauscher = null;
-        datenEinheiten = new HashMap<String, LinkedList<Object[]>>();
+        datenEinheiten.clear();
+        droppedDataUnits.clear();
         this.benachrichtigeBeobachter(null);
     }
 
@@ -103,45 +105,33 @@ public class Lauscher implements I18n {
         beobachter.remove(identifier);
     }
 
-    public void addBeobachter(String rechnerId, LauscherBeobachter newObserver) {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", addBeobachter(" + rechnerId + "," + newObserver
-                + ")");
+    public void addBeobachter(String id, LauscherBeobachter newObserver) {
+        LOG.trace(
+                "INVOKED (" + this.hashCode() + ") " + getClass() + ", addBeobachter(" + id + "," + newObserver + ")");
         LinkedList<LauscherBeobachter> liste;
 
-        liste = this.beobachter.get(rechnerId);
+        liste = this.beobachter.get(id);
         if (liste == null) {
             liste = new LinkedList<LauscherBeobachter>();
-            this.beobachter.put(rechnerId, liste);
+            this.beobachter.put(id, liste);
         }
         liste.add(newObserver);
     }
 
-    private void benachrichtigeBeobachter(String rechnerId) {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", benachrichtigeBeobachter(" + rechnerId + ")");
-        LinkedList<LauscherBeobachter> liste;
-        Collection<LinkedList<LauscherBeobachter>> collection;
-        ListIterator<LauscherBeobachter> it;
-        Iterator<LinkedList<LauscherBeobachter>> valueIt;
-
-        if (rechnerId == null) {
-            collection = this.beobachter.values();
-            liste = new LinkedList<LauscherBeobachter>();
-            valueIt = collection.iterator();
-            while (valueIt.hasNext()) {
-                liste.addAll((LinkedList<LauscherBeobachter>) valueIt.next());
+    private void benachrichtigeBeobachter(String id) {
+        LinkedList<LauscherBeobachter> liste = new LinkedList<LauscherBeobachter>();
+        if (id == null) {
+            for (LinkedList<LauscherBeobachter> beobachterListe : beobachter.values()) {
+                liste.addAll(beobachterListe);
             }
+        } else if (null == beobachter.get(id)) {
+            LOG.debug("no observer for {}", id);
         } else {
-            liste = this.beobachter.get(rechnerId);
+            liste.addAll(beobachter.get(id));
         }
-        // LOG.debug("\tbenachrichtigeBeobachter for "+rechnerId+" gave list "+(liste==null
-        // ? "<null>" : liste.toString()));
-        if (liste != null) {
-            it = liste.listIterator();
-            while (it.hasNext()) {
-                ((LauscherBeobachter) it.next()).update();
-            }
+        for (LauscherBeobachter beobachter : liste) {
+            beobachter.update();
         }
-
     }
 
     /**
@@ -155,22 +145,33 @@ public class Lauscher implements I18n {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", addDatenEinheit(" + interfaceId + "," + frame
                 + ")");
         if (!frame.isReadByLauscherForMac(interfaceId)) {
-            Object[] frameMitZeitstempel = new Object[2];
-            frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
-            frameMitZeitstempel[1] = frame;
+            Object[] frameMitZeitstempel = frameWithTimestamp(frame);
 
             LinkedList<Object[]> liste = (LinkedList<Object[]>) datenEinheiten.get(interfaceId);
             if (liste == null) {
                 liste = new LinkedList<Object[]>();
+                datenEinheiten.put(interfaceId, liste);
             }
             synchronized (liste) {
                 liste.addLast(frameMitZeitstempel);
             }
 
-            datenEinheiten.put(interfaceId, liste);
             frame.setReadByLauscherForMac(interfaceId);
             benachrichtigeBeobachter(interfaceId);
         }
+    }
+
+    public void addDroppedDataUnit(EthernetFrame frame) {
+        Object[] frameMitZeitstempel = frameWithTimestamp(frame);
+        droppedDataUnits.add(frameMitZeitstempel);
+        benachrichtigeBeobachter(DROPPED);
+    }
+
+    protected Object[] frameWithTimestamp(EthernetFrame frame) {
+        Object[] frameMitZeitstempel = new Object[2];
+        frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
+        frameMitZeitstempel[1] = frame;
+        return frameMitZeitstempel;
     }
 
     public Object[][] getDaten(String interfaceId, boolean inheritAddress, int offset) {
@@ -220,6 +221,19 @@ public class Lauscher implements I18n {
         return offset;
     }
 
+    private String formatTimestamp(long timestamp) {
+        Calendar zeit = new GregorianCalendar();
+        zeit.setTimeInMillis(timestamp);
+        String timestampStr = (zeit.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + zeit.get(Calendar.HOUR_OF_DAY)
+                : zeit.get(Calendar.HOUR_OF_DAY)) + ":"
+                + (zeit.get(Calendar.MINUTE) < 10 ? "0" + zeit.get(Calendar.MINUTE) : zeit.get(Calendar.MINUTE)) + ":"
+                + (zeit.get(Calendar.SECOND) < 10 ? "0" + zeit.get(Calendar.SECOND) : zeit.get(Calendar.SECOND)) + "."
+                + (zeit.get(Calendar.MILLISECOND) < 10 ? "00" + zeit.get(Calendar.MILLISECOND)
+                        : (zeit.get(Calendar.MILLISECOND) < 100 ? "0" + zeit.get(Calendar.MILLISECOND)
+                                : zeit.get(Calendar.MILLISECOND)));
+        return timestampStr;
+    }
+
     /**
      * 
      * @param interfaceId
@@ -234,14 +248,12 @@ public class Lauscher implements I18n {
         LinkedList<Object[]> liste;
         Object[] frameMitZeitstempel, neuerEintrag;
         ListIterator<Object[]> it;
-        Calendar zeit;
         EthernetFrame frame;
         IpPaket ipPaket;
         IcmpPaket icmpPaket;
         ArpPaket arpPaket;
         TcpSegment tcpSeg = null;
         UdpSegment udpSeg = null;
-        String timestampStr = "";
 
         liste = datenEinheiten.get(interfaceId);
         if (liste == null) {
@@ -259,21 +271,7 @@ public class Lauscher implements I18n {
                     neuerEintrag = new Object[SPALTEN.length];
                     neuerEintrag[0] = "" + i;
 
-                    zeit = new GregorianCalendar();
-                    long timestamp = ((Long) frameMitZeitstempel[0]).longValue();
-                    zeit.setTimeInMillis(timestamp);
-                    timestampStr = (zeit.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + zeit.get(Calendar.HOUR_OF_DAY)
-                            : zeit.get(Calendar.HOUR_OF_DAY))
-                            + ":"
-                            + (zeit.get(Calendar.MINUTE) < 10 ? "0" + zeit.get(Calendar.MINUTE)
-                                    : zeit.get(Calendar.MINUTE))
-                            + ":"
-                            + (zeit.get(Calendar.SECOND) < 10 ? "0" + zeit.get(Calendar.SECOND)
-                                    : zeit.get(Calendar.SECOND))
-                            + "."
-                            + (zeit.get(Calendar.MILLISECOND) < 10 ? "00" + zeit.get(Calendar.MILLISECOND)
-                                    : (zeit.get(Calendar.MILLISECOND) < 100 ? "0" + zeit.get(Calendar.MILLISECOND)
-                                            : zeit.get(Calendar.MILLISECOND)));
+                    String timestampStr = formatTimestamp((Long) frameMitZeitstempel[0]);
 
                     neuerEintrag[1] = timestampStr;
                     frame = (EthernetFrame) frameMitZeitstempel[1];
@@ -469,5 +467,17 @@ public class Lauscher implements I18n {
 
     public String[] getHeader() {
         return Lauscher.SPALTEN;
+    }
+
+    public List<String> getDroppedDataUnits() {
+        List<String> list = new ArrayList<>();
+        for (Object[] droppedDataUnit : droppedDataUnits) {
+            list.add(String.format("%s : %s", formatTimestamp((Long) droppedDataUnit[0]), droppedDataUnit[1]));
+        }
+        return list;
+    }
+
+    public void resetDroppedDataUnits() {
+        droppedDataUnits.clear();
     }
 }

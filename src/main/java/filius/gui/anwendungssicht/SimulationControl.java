@@ -27,21 +27,29 @@ package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import filius.gui.ControlPanel;
 import filius.hardware.Verbindung;
 import filius.rahmenprogramm.I18n;
+import filius.rahmenprogramm.nachrichten.Lauscher;
+import filius.rahmenprogramm.nachrichten.LauscherBeobachter;
 
 @SuppressWarnings("serial")
-public class SimulationControl extends ControlPanel implements I18n {
+public class SimulationControl extends ControlPanel implements I18n, LauscherBeobachter {
+
+    private JTextPane textPane;
 
     public SimulationControl() {
         super();
@@ -69,5 +77,27 @@ public class SimulationControl extends ControlPanel implements I18n {
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(dropButton);
         rightBox.add(tempBox, BorderLayout.NORTH);
+
+        textPane = new JTextPane();
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(textPane);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        box.add(scrollPane);
+
+        Lauscher.getLauscher().resetDroppedDataUnits();
+        Lauscher.getLauscher().addBeobachter(Lauscher.DROPPED, this);
     }
+
+    @Override
+    public void update() {
+        StringBuffer buffer = new StringBuffer();
+        for (String dataUnit : Lauscher.getLauscher().getDroppedDataUnits()) {
+            buffer.append(dataUnit).append("\n");
+        }
+        textPane.setText(buffer.toString());
+    }
+
+    @Override
+    public void writeToStream(OutputStream outputStream) throws IOException {}
 }

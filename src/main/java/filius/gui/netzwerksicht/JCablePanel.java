@@ -178,7 +178,6 @@ public class JCablePanel extends JPanel implements Observer {
         } else {
             kabelFarbe = farbeStandard;
         }
-
         updateUI();
     }
 }
