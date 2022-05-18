@@ -36,8 +36,6 @@ import javax.swing.ListCellRenderer;
 
 import filius.rahmenprogramm.I18n;
 
-import java.util.Arrays;
-
 // import sun.misc.JavaLangAccess;
 /**
  * 
