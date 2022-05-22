@@ -25,7 +25,9 @@
  */
 package filius.software.dns;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -82,7 +84,7 @@ public class Resolver extends ClientAnwendung {
      * @param domainname
      * @return einen Resource Record oder 'null', wenn ein Fehler bei der Verbindung auftritt
      */
-    private DNSNachricht holeResourceRecord(String typ, String domainname, String dnsServer)
+    private DNSNachricht query(String typ, String domainname, String dnsServer)
             throws java.util.concurrent.TimeoutException {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeResourceRecord(" + typ + "," + domainname + ")");
@@ -159,7 +161,7 @@ public class Resolver extends ClientAnwendung {
         }
 
         while (dnsServer != null) {
-            antwort = holeResourceRecord(ResourceRecord.ADDRESS, domainname, dnsServer);
+            antwort = query(ResourceRecord.ADDRESS, domainname, dnsServer);
             if (antwort == null) {
                 return null;
             }
@@ -188,53 +190,103 @@ public class Resolver extends ClientAnwendung {
         return null;
     }
 
+    /** Resolve domain name (but not an IP address!) */
+    public DNSNachricht resolveA(String domainname, String dnsServer) throws TimeoutException {
+        DNSNachricht response = null;
+        if (!domainname.matches(".*\\.$")) {
+            domainname += ".";
+        }
+        if (domainname.equalsIgnoreCase("localhost.")) {
+            response = new DNSNachricht(DNSNachricht.RESPONSE);
+            response.setLocal();
+            response.hinzuAntwortResourceRecord(ResourceRecord.LOCALHOST_ADDRESS);
+        } else if (dnsServer == null) {
+            response = new DNSNachricht(DNSNachricht.RESPONSE);
+        } else {
+            response = query(ResourceRecord.ADDRESS, domainname, dnsServer);
+            List<ResourceRecord> relevantResourceRecords = extractRankedResourceRecordList(response,
+                    ResourceRecord.ADDRESS, domainname);
+            if (relevantResourceRecords.isEmpty()) {
+                response = resolveA(domainname, extractAddressForNameServer(response));
+            }
+        }
+        return response;
+    }
+
     public String holeIPAdresseMailServer(String domainname) throws TimeoutException {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (Resolver), holeIPAdressMailServer(" + domainname + ")");
         DNSNachricht antwort = null;
-        String mailserver = null, adresse, dnsServerDomain;
-        String dnsServer = getSystemSoftware().getDNSServer();
+        String adresse = null;
 
         if (!domainname.matches(".*\\.$")) {
             domainname += ".";
         }
 
+        antwort = resolveMX(domainname);
+        if (antwort != null) {
+            String mailserver = durchsucheRecordListe(antwort.holeAntwortResourceRecords(),
+                    ResourceRecord.MAIL_EXCHANGE, domainname);
+            List<ResourceRecord> relevantResourceRecords = extractRankedResourceRecordList(antwort,
+                    ResourceRecord.ADDRESS, mailserver);
+            if (!relevantResourceRecords.isEmpty()) {
+                adresse = relevantResourceRecords.get(0).getRdata();
+            } else {
+                adresse = holeIPAdresse(mailserver);
+            }
+        }
+
+        return adresse;
+    }
+
+    protected List<ResourceRecord> extractRankedResourceRecordList(DNSNachricht antwort, String type,
+            String domainname) {
+        List<ResourceRecord> relevantResourceRecords = new ArrayList<>();
+        if (antwort != null) {
+            relevantResourceRecords
+                    .addAll(extractResourceRecords(antwort.holeAntwortResourceRecords(), type, domainname));
+            relevantResourceRecords
+                    .addAll(extractResourceRecords(antwort.holeAuthoritativeResourceRecords(), type, domainname));
+            relevantResourceRecords
+                    .addAll(extractResourceRecords(antwort.holeZusatzResourceRecords(), type, domainname));
+        }
+        return relevantResourceRecords;
+    }
+
+    protected DNSNachricht resolveMX(String domainname) throws TimeoutException {
+        String dnsServer = getSystemSoftware().getDNSServer();
+        String mailserver = null;
+        DNSNachricht antwort = null;
         while (dnsServer != null && mailserver == null) {
-            antwort = holeResourceRecord(ResourceRecord.MAIL_EXCHANGE, domainname, dnsServer);
+            antwort = query(ResourceRecord.MAIL_EXCHANGE, domainname, dnsServer);
             if (antwort == null) {
                 return null;
             }
 
-            mailserver = durchsucheRecordListe(ResourceRecord.MAIL_EXCHANGE, domainname,
-                    antwort.holeAntwortResourceRecords());
+            mailserver = durchsucheRecordListe(antwort.holeAntwortResourceRecords(), ResourceRecord.MAIL_EXCHANGE,
+                    domainname);
             if (mailserver == null) {
-                mailserver = durchsucheRecordListe(ResourceRecord.MAIL_EXCHANGE, domainname,
-                        antwort.holeAntwortResourceRecords());
+                mailserver = durchsucheRecordListe(antwort.holeAntwortResourceRecords(), ResourceRecord.MAIL_EXCHANGE,
+                        domainname);
             }
             if (mailserver == null) {
-                mailserver = durchsucheRecordListe(ResourceRecord.MAIL_EXCHANGE, domainname,
-                        antwort.holeAntwortResourceRecords());
+                mailserver = durchsucheRecordListe(antwort.holeAntwortResourceRecords(), ResourceRecord.MAIL_EXCHANGE,
+                        domainname);
             }
-            dnsServerDomain = durchsucheRecordListe(ResourceRecord.NAME_SERVER, antwort.holeAntwortResourceRecords());
-            dnsServer = durchsucheRecordListe(ResourceRecord.ADDRESS, dnsServerDomain,
-                    antwort.holeAntwortResourceRecords());
+            dnsServer = extractAddressForNameServer(antwort);
         }
-        if (mailserver == null)
-            return null;
+        return (dnsServer != null && mailserver == null) ? null : antwort;
+    }
 
-        adresse = durchsucheRecordListe(ResourceRecord.ADDRESS, mailserver, antwort.holeAntwortResourceRecords());
-        if (adresse != null)
-            return adresse;
-
-        adresse = durchsucheRecordListe(ResourceRecord.ADDRESS, mailserver, antwort.holeAuthoritativeResourceRecords());
-        if (adresse != null)
-            return adresse;
-
-        adresse = durchsucheRecordListe(ResourceRecord.ADDRESS, mailserver, antwort.holeZusatzResourceRecords());
-        if (adresse != null)
-            return adresse;
-
-        return holeIPAdresse(mailserver);
+    protected String extractAddressForNameServer(DNSNachricht antwort) {
+        String dnsServer = null;
+        if (antwort != null) {
+            String dnsServerDomain = durchsucheRecordListe(ResourceRecord.NAME_SERVER,
+                    antwort.holeAntwortResourceRecords());
+            dnsServer = durchsucheRecordListe(antwort.holeAntwortResourceRecords(), ResourceRecord.ADDRESS,
+                    dnsServerDomain);
+        }
+        return dnsServer;
     }
 
     private String durchsucheRecordListe(String typ, LinkedList<ResourceRecord> liste) {
@@ -246,15 +298,27 @@ public class Resolver extends ClientAnwendung {
         return null;
     }
 
-    private String durchsucheRecordListe(String typ, String domainname, LinkedList<ResourceRecord> liste) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (Resolver), durchsucheRecordListe(" + typ + "," + domainname + "," + liste + ")");
+    private String durchsucheRecordListe(List<ResourceRecord> liste, String typ, String domainname) {
+        List<ResourceRecord> relevantRR = extractResourceRecords(liste, typ, domainname);
+        return relevantRR.isEmpty() ? null : relevantRR.get(0).getRdata();
+    }
 
+    private String durchsucheRecordListe(String typ, String domainname, LinkedList<ResourceRecord> liste) {
         for (ResourceRecord rr : liste) {
             if (rr.getDomainname().equalsIgnoreCase(domainname) && rr.getType().equals(typ)) {
                 return rr.getRdata();
             }
         }
         return null;
+    }
+
+    protected List<ResourceRecord> extractResourceRecords(List<ResourceRecord> liste, String typ, String domainname) {
+        List<ResourceRecord> relevantRR = new ArrayList<>();
+        for (ResourceRecord rr : liste) {
+            if (rr.getDomainname().equalsIgnoreCase(domainname) && rr.getType().equals(typ)) {
+                relevantRR.add(rr);
+            }
+        }
+        return relevantRR;
     }
 }

@@ -87,6 +87,9 @@ public class DNSNachricht {
      */
     private int id = (int) (Math.random() * 65536);
 
+    /** Whether this query is from the local resolver (and not from potentially remote server) */
+    private boolean isLocal = false;
+
     /**
      * QR A one bit field that specifies whether this message is a query (0), or a response (1).
      */
@@ -320,7 +323,11 @@ public class DNSNachricht {
     public void hinzuAntwortResourceRecord(String record) {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSNachricht), hinzuAntwortResourceRecord(" + record + ")");
-        answerRecords.add(new ResourceRecord(record));
+        hinzuAntwortResourceRecord(new ResourceRecord(record));
+    }
+
+    public void hinzuAntwortResourceRecord(ResourceRecord rr) {
+        answerRecords.add(rr);
         answerCount++;
     }
 
@@ -457,4 +464,11 @@ public class DNSNachricht {
         this.truncated = truncated;
     }
 
+    public boolean isLocal() {
+        return isLocal;
+    }
+
+    public void setLocal() {
+        this.isLocal = true;
+    }
 }

@@ -42,7 +42,9 @@ import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.nachrichten.Lauscher;
 import filius.software.clientserver.ClientAnwendung;
+import filius.software.dns.DNSNachricht;
 import filius.software.dns.Resolver;
+import filius.software.dns.ResourceRecord;
 import filius.software.netzzugangsschicht.Ethernet;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
@@ -694,6 +696,41 @@ public class Terminal extends ClientAnwendung implements I18n {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg29"));
             return messages.getString("sw_terminal_msg29");
         }
+    }
+
+    public String nslookup(String[] args) {
+        if (!numParams(args, 1)) {
+            benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44"));
+            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44");
+        }
+        Betriebssystem bs = (Betriebssystem) getSystemSoftware();
+        Resolver res = bs.holeDNSClient();
+        if (res == null) {
+            benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
+            return messages.getString("sw_terminal_msg30");
+        }
+
+        benachrichtigeBeobachter(Boolean.TRUE);
+        try {
+            DNSNachricht response = res.resolveA(args[0], bs.getDNSServer());
+
+            String serverAddress = response.isLocal() ? IP.LOCALHOST : bs.getDNSServer();
+            benachrichtigeBeobachter("Server:  " + serverAddress + "\n");
+            benachrichtigeBeobachter("Address: " + serverAddress + "\n");
+
+            benachrichtigeBeobachter("\nNon-authoritative Answer:\n");
+            for (ResourceRecord rr : response.holeAntwortResourceRecords()) {
+                benachrichtigeBeobachter("Name:    " + rr.getDomainname() + "\n");
+                benachrichtigeBeobachter("Address: " + rr.getRdata() + "\n");
+            }
+        } catch (TimeoutException e) {
+            benachrichtigeBeobachter(messages.getString("sw_terminal_msg31") + "\n");
+        } catch (Exception e) {
+            LOG.debug("", e);
+            benachrichtigeBeobachter(messages.getString("sw_terminal_msg29") + "\n");
+        }
+        benachrichtigeBeobachter(Boolean.FALSE);
+        return null;
     }
 
     /**
