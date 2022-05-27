@@ -1,5 +1,26 @@
 # Changelog Filius
 
+## [1.14.0] - 2022-05-27
+### Added
+ * Experimental feature NAT Gateway (enable in filius.ini with 'gateway=1'
+ * Drop packets in simulation
+ * Command line tool nslookup as alternative to host
+ * Support parameter -d and -a for command line tool arp
+
+### Changed
+ * Consistent domain name validation according to RFC 1035/2181
+ * Apply first matching UDP rule in firewall
+
+### Fixed
+ * Concurrency in client while disconnecting
+ * Wrong protocol shown in data exchange dialog
+ * Unit tests using undefined locale
+ * Data in exchange dialog won't be changed anymore (using copies of transferred data)
+ * TCP retry and timeout
+ * Error in case of empty file name
+ * Non-fixable issue in case of invalid/incomplete firewall rule configuration
+ * Fix content type when retrieving image with upper case extension
+ 
 ## [1.13.2] - 2022-01-29
 ### Changed
 * Improved cut and paste resp. copy and paste function in file explorer
