@@ -59,7 +59,7 @@ public class OrdnerInhaltListRenderer extends JLabel implements ListCellRenderer
     @Override
     public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
             boolean isSelected, boolean cellHasFocus) {
-        String[] teile = value.split(";");
+        String[] teile = value.split(";", 2);
 
         if (teile.length > 0) {
             if (teile[0].equals(messages.getString("fileexplorer_msg10"))) {
