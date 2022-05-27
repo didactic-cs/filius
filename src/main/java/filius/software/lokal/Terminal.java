@@ -54,6 +54,7 @@ import filius.software.transportschicht.ServerSocket;
 import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.SocketSchnittstelle;
 import filius.software.transportschicht.TransportProtokoll;
+import filius.software.vermittlungsschicht.ARP;
 import filius.software.vermittlungsschicht.ArpPaket;
 import filius.software.vermittlungsschicht.IP;
 import filius.software.vermittlungsschicht.IcmpPaket;
@@ -637,10 +638,20 @@ public class Terminal extends ClientAnwendung implements I18n {
     public String arp(String[] args) {
         StringBuilder ergebnis = new StringBuilder();
 
+        ARP arp = getSystemSoftware().holeARP();
+        String filterAddress = null;
+        if (numParams(args, 2) && EingabenUeberpruefung.isValidIpAddress(args[1])) {
+            if ("-d".contentEquals(args[0])) {
+                arp.removeARPTableEntry(args[1]);
+            } else if ("-a".contentEquals(args[0])) {
+                filterAddress = args[1];
+            }
+        }
+
         ergebnis.append(messages.getString("sw_terminal_msg50"));
         ergebnis.append("----------------------------------------\n");
 
-        Map<String, String> arpTable = this.getSystemSoftware().holeARP().holeARPTabelle();
+        Map<String, String> arpTable = null == filterAddress ? arp.holeARPTabelle() : arp.holeARPTabelle(filterAddress);
         for (String ipAddress : arpTable.keySet()) {
             ergebnis.append(String.format("| %-15s  ", ipAddress));
             ergebnis.append(String.format("| %-17s |\n", arpTable.get(ipAddress)));
@@ -664,10 +675,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         LOG.debug(")");
         if (!numParams(args, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44"));
-            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44"); // wrong
-                                                                                                      // number
-                                                                                                      // of
-                                                                                                      // parameters
+            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44");
         }
         Betriebssystem bs = (Betriebssystem) getSystemSoftware();
         filius.software.dns.Resolver res = bs.holeDNSClient();

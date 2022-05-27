@@ -125,7 +125,7 @@ public class Lauscher implements I18n {
                 liste.addAll(beobachterListe);
             }
         } else if (null == beobachter.get(id)) {
-            LOG.debug("no observer for {}", id);
+            LOG.trace("no observer for {}", id);
         } else {
             liste.addAll(beobachter.get(id));
         }

@@ -65,9 +65,8 @@ public class EingabenUeberpruefung implements I18n {
     public static final Pattern musterEmailBenutzername = Pattern.compile("([a-zA-Z0-9]|\\.|\\_|\\-)*");
     public static final Pattern musterMindEinZeichen = Pattern.compile("(.){1,}");
     public static final Pattern musterNurZahlen = Pattern.compile("\\d");
-    public static final Pattern musterDomain = Pattern
-            .compile(
-                    "^([a-zA-Z]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]){0,1}(\\.[a-zA-Z]([a-zA-Z0-9\\\\-]{0,61}[a-zA-Z0-9]){0,1})*){0,1}\\.{0,1}$");
+    public static final Pattern musterDomain = Pattern.compile(
+            "^([a-zA-Z]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]){0,1}(\\.[a-zA-Z]([a-zA-Z0-9\\\\-]{0,61}[a-zA-Z0-9]){0,1})*){0,1}\\.{0,1}$");
     public static final Pattern musterSubnetBinary = Pattern.compile("^11*0*$");
     public static final Pattern musterMacAddress = Pattern.compile("^[0-9a-fA-f]{2}(:[0-9a-fA-f]{2}){5}$");
 
@@ -111,6 +110,10 @@ public class EingabenUeberpruefung implements I18n {
         if (binary.length() == 32 && isGueltig(binary, EingabenUeberpruefung.musterSubnetBinary))
             return true;
         return false;
+    }
+
+    public static boolean isValidIpAddress(String addressString) {
+        return isGueltig(addressString, musterIpAdresse);
     }
 
 }

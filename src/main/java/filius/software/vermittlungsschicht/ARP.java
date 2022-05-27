@@ -101,12 +101,28 @@ public class ARP extends VermittlungsProtokoll {
         }
     }
 
+    public void removeARPTableEntry(String ipAddress) {
+        synchronized (arpTabelle) {
+            arpTabelle.remove(ipAddress);
+            arpTabelle.notify();
+        }
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (Entry<String, String[]> entry : arpTabelle.entrySet()) {
             builder.append("\t").append(entry.getKey()).append(" \t ").append(entry.getValue()[0]).append("\n");
         }
         return builder.toString();
+    }
+
+    public Map<String, String> holeARPTabelle(String address) {
+        Map<String, String> table = new HashMap<String, String>();
+        String[] entry = arpTabelle.get(address);
+        if (null != entry) {
+            table.put(address, entry[0]);
+        }
+        return table;
     }
 
     public Map<String, String> holeARPTabelle() {
@@ -139,11 +155,12 @@ public class ARP extends VermittlungsProtokoll {
             }
         }
         // Eintrag in ARP-Tabelle fuer gesuchte IP-Adresse?
-        if (arpTabelle.get(zielIp) != null) {
-            return ((String[]) arpTabelle.get(zielIp))[0];
+        String[] arpEntry = arpTabelle.get(zielIp);
+        if (arpEntry != null) {
+            return ((String[]) arpEntry)[0];
         } else {
             // ARP-Broadcast und warte auf Antwort
-            for (int i = 0; arpTabelle.get(zielIp) == null && i < 2; i++) {
+            for (int i = 0; arpEntry == null && i < 2; i++) {
                 sendeARPBroadcast(zielIp);
                 synchronized (arpTabelle) {
                     try {
@@ -157,8 +174,9 @@ public class ARP extends VermittlungsProtokoll {
             }
 
             // Abfrage in ARP-Tabelle nach Broadcast
-            if (arpTabelle.get(zielIp) != null) {
-                return ((String[]) arpTabelle.get(zielIp))[0];
+            arpEntry = arpTabelle.get(zielIp);
+            if (arpEntry != null) {
+                return ((String[]) arpEntry)[0];
             }
         }
 
