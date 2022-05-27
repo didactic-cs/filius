@@ -603,9 +603,9 @@ public class TCPSocket extends Socket implements Runnable {
                 }
                 // ist das Segment schon bestaetigt worden?
                 long ack = nextSequenceNumber(segment);
-                if (ack < remoteSequenceNumber) {
+                if (ack <= remoteSequenceNumber) {
                     sendeAck(segment, null);
-                } else if (ack >= remoteSequenceNumber) {
+                } else if (ack > remoteSequenceNumber) {
                     sendeAck(segment, null);
                     remoteSequenceNumber = ack;
                     nachricht.append(segment.getDaten());
