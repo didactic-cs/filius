@@ -123,21 +123,21 @@ public class FirewallRule {
                 sameNet = true;
         }
 
-        if (srcIP.isEmpty())
+        if (StringUtils.isEmpty(srcIP))
             result += "*/";
         else if (sameNet)
             result += VermittlungsProtokoll.getSubnetForIp(ip, mask) + "/" + mask + " -> ";
         else
             result += srcIP + "/";
-        if (sameNet) {} else if (srcMask.isEmpty())
+        if (sameNet) {} else if (StringUtils.isEmpty(srcMask))
             result += "* -> ";
         else
             result += srcMask + " -> ";
-        if (destIP.isEmpty())
+        if (StringUtils.isEmpty(destIP))
             result += "*/";
         else
             result += destIP + "/";
-        if (destMask.isEmpty())
+        if (StringUtils.isEmpty(destMask))
             result += "*; ";
         else
             result += destMask + "; ";
