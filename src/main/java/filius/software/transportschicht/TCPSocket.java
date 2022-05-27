@@ -531,7 +531,7 @@ public class TCPSocket extends Socket implements Runnable {
      *             - wird geworfen, wenn die entfernte Anwendung nicht mehr reagiert oder Verbindung unterbrochen wurde.
      */
     public String empfangen() throws VerbindungsException, TimeOutException {
-        return empfangen(defaultTimeout());
+        return empfangen(0);
     }
 
     protected int defaultTimeout() {

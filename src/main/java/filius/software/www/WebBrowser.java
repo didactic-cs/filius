@@ -48,7 +48,6 @@ import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
 import filius.software.clientserver.ClientAnwendung;
-import filius.software.transportschicht.Socket;
 import filius.software.transportschicht.TCPSocket;
 
 /**
@@ -71,58 +70,82 @@ public class WebBrowser extends ClientAnwendung implements I18n {
 
     private LinkedList<String> bilddateien = new LinkedList<String>();
 
-    private int zustand;
-
     private String host;
 
     public void holeWebseite(URL url) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebBrowser), holeWebseite(" + url + ")");
-        Object[] args;
-
-        zustand = ABRUF_HTML;
-
-        if (socket != null) {
-            socket.schliessen();
-            socket = null;
-        }
-
-        args = new Object[2];
-        args[0] = url;
-        args[1] = "";
-        ausfuehren("internHoleRessource", args);
+        holeWebseite(url, "");
     }
 
     public void holeWebseite(URL url, String post) {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), holeWebseite(" + url + "," + post + ")");
-        Object[] args;
-
-        zustand = ABRUF_HTML;
 
         if (socket != null) {
-            socket.schliessen();
-            socket = null;
+            ausfuehren("closeConnection", new Object[0]);
         }
 
-        args = new Object[2];
-        args[0] = url;
-        args[1] = post;
-        ausfuehren("internHoleRessource", args);
+        ausfuehren("initConnection", new Object[] { url });
+        ausfuehren("retrieveWebpage", new Object[] { url, post });
+        ausfuehren("retrieveImages", new Object[0]);
+        ausfuehren("closeConnection", new Object[0]);
     }
 
-    public void internHoleRessource(URL url, String post) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebBrowser), internHoleRessource(" + url + "," + post + ")");
-        HTTPNachricht nachricht;
-        HTTPNachricht fehler;
-        Socket aktuellerSocket = socket;
-
-        nachricht = new HTTPNachricht(HTTPNachricht.CLIENT);
-        nachricht.setPfad(url.getFile());
+    void initConnection(URL url) {
         if (url.getHost() != null && !url.getHost().equals("")) {
             host = url.getHost();
         }
+        if (socket == null) {
+            try {
+                socket = new TCPSocket(getSystemSoftware(), host, 80);
+            } catch (VerbindungsException e) {
+                HTTPNachricht fehler = new HTTPNachricht(HTTPNachricht.CLIENT);
+                fehler.setDaten(erzeugeHtmlFehlermeldung(0));
+                benachrichtigeBeobachter(fehler);
+            }
+        }
+        if (socket != null && !socket.istVerbunden()) {
+            try {
+                socket.verbinden();
+            } catch (Exception e) {
+                HTTPNachricht fehler = new HTTPNachricht(HTTPNachricht.CLIENT);
+                fehler.setDaten(erzeugeHtmlFehlermeldung(0));
+                benachrichtigeBeobachter(fehler);
+            }
+        }
+    }
+
+    void retrieveWebpage(URL url, String post) {
+        HTTPNachricht nachricht = createRequest(url, post);
+        if (socket != null && socket.istVerbunden()) {
+            try {
+                socket.senden(nachricht.toString());
+
+                String responseData = socket.empfangen();
+                if (responseData == null) {
+                    HTTPNachricht response = new HTTPNachricht(HTTPNachricht.CLIENT);
+                    response.setDaten(erzeugeHtmlFehlermeldung(0));
+                    benachrichtigeBeobachter(response);
+                } else {
+                    HTTPNachricht response = new HTTPNachricht(responseData);
+                    if (response.getStatusCode() != 200) {
+                        response.setDaten(erzeugeHtmlFehlermeldung(response.getStatusCode()));
+                    } else {
+                        String contentType = response.getContentType();
+                        if (HTTPNachricht.TEXT_HTML.equalsIgnoreCase(contentType) && response.getDaten() != null) {
+                            extractImagesReferences(response.getDaten(), response.getHost());
+                        }
+                    }
+                    benachrichtigeBeobachter(response);
+                }
+            } catch (Exception e) {
+                LOG.debug("Error while retrieving web page.", e);
+            }
+        }
+    }
+
+    private HTTPNachricht createRequest(URL url, String post) {
+        HTTPNachricht nachricht = new HTTPNachricht(HTTPNachricht.CLIENT);
+        nachricht.setPfad(url.getFile());
         nachricht.setHost(host);
         if (nachricht.getHost() != null && !nachricht.getHost().equals("")) {
             if (post != null && !post.equals("")) {
@@ -131,53 +154,15 @@ public class WebBrowser extends ClientAnwendung implements I18n {
             } else {
                 nachricht.setMethod(HTTPNachricht.GET);
             }
-
-            if (zustand == ABRUF_HTML || aktuellerSocket == null) {
-                try {
-                    socket = new TCPSocket(getSystemSoftware(), host, 80);
-                    aktuellerSocket = socket;
-                } catch (VerbindungsException e) {
-                    if (zustand == ABRUF_HTML) {
-                        fehler = new HTTPNachricht(HTTPNachricht.CLIENT);
-                        fehler.setDaten(erzeugeHtmlFehlermeldung(0));
-                        benachrichtigeBeobachter(fehler);
-                    }
-                }
-            }
-            if (aktuellerSocket != null && !aktuellerSocket.istVerbunden() && aktuellerSocket == socket) {
-                try {
-                    aktuellerSocket.verbinden();
-                } catch (Exception e) {
-                    if (zustand == ABRUF_HTML && aktuellerSocket == socket) {
-                        fehler = new HTTPNachricht(HTTPNachricht.CLIENT);
-                        fehler.setDaten(erzeugeHtmlFehlermeldung(0));
-                        benachrichtigeBeobachter(fehler);
-                    }
-                    LOG.debug("", e);
-                }
-
-            }
-
-            if (aktuellerSocket != null && aktuellerSocket.istVerbunden() && aktuellerSocket == socket) {
-                try {
-                    aktuellerSocket.senden(nachricht.toString());
-                    verarbeiteNachricht();
-                } catch (Exception e) {
-                    LOG.debug("", e);
-                }
-            }
         }
+        return nachricht;
     }
 
     public String holeHost() {
-        LOG.debug(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebBrowser), holeHost()");
         return host;
     }
 
     public void starten() {
-        LOG.debug(
-                "INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (WebBrowser), starten()");
         super.starten();
         bilddateien = new LinkedList<String>();
     }
@@ -228,16 +213,14 @@ public class WebBrowser extends ClientAnwendung implements I18n {
 
     /**
      * Methode zur Verarbeitung von IMG-Tags. Mit einem Parser werden IMG-Tags im uebergebenen Quelltext gesucht. Alle
-     * Bilddateien werden in eine Liste geschrieben. Fuer jedes Bild wird dann ein Aufruf der Methode
-     * internHoleRessource() in die Befehlswarteschlange geschrieben.
+     * Bilddateien werden in eine Liste geschrieben.
      * 
      * @param quelltext
      * @param host
      */
-    private void verarbeiteIMGTags(String quelltext, String host) {
+    private void extractImagesReferences(String quelltext, String host) {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebBrowser), verarbeiteIMGTags(" + quelltext + "," + host + ")");
-        zustand = ABRUF_IMG;
 
         Parser parser = Parser.createParser(quelltext, null);
         TagFindingVisitor nodeVisitor = new TagFindingVisitor(new String[] { "img" });
@@ -256,99 +239,56 @@ public class WebBrowser extends ClientAnwendung implements I18n {
         } catch (Exception e) {
             LOG.debug("", e);
         }
+    }
 
-        /*
-         * Liste der gefundenen IMG SRCs wird iteriert, die einzelnen Bilder werden abgerufen
-         */
+    /**
+     * Liste der gefundenen IMG SRCs wird iteriert, die einzelnen Bilder werden abgerufen
+     */
+    void retrieveImages() {
         synchronized (bilddateien) {
             for (String dateipfad : bilddateien) {
                 try {
-                    URL url = new URL("http", host, dateipfad);
-                    Object[] args = new Object[2];
-                    args[0] = url;
-                    args[1] = "";
-                    ausfuehren("internHoleRessource", args);
+                    HTTPNachricht request = createRequest(new URL("http", host, dateipfad), "");
+                    if (socket != null && socket.istVerbunden()) {
+                        socket.senden(request.toString());
+
+                        String responseData = socket.empfangen();
+                        if (responseData != null) {
+                            HTTPNachricht response = new HTTPNachricht(responseData);
+
+                            if (response.getStatusCode() != 200) {
+                                benachrichtigeBeobachter();
+                            } else {
+                                String contentType = response.getContentType();
+                                if (HTTPNachricht.IMAGE_BMP.equalsIgnoreCase(contentType)
+                                        || HTTPNachricht.IMAGE_GIF.equalsIgnoreCase(contentType)
+                                        || HTTPNachricht.IMAGE_JPG.equalsIgnoreCase(contentType)
+                                        || HTTPNachricht.IMAGE_PNG.equalsIgnoreCase(contentType)) {
+                                    synchronized (bilddateien) {
+                                        if (bilddateien.size() > 0) {
+                                            dateipfad = bilddateien.removeFirst();
+                                            Base64.decodeToFile(response.getDaten(),
+                                                    Information.getInformation().getTempPfad() + dateipfad);
+                                        }
+                                    }
+                                    benachrichtigeBeobachter();
+                                }
+                            }
+                        }
+                    }
                 } catch (MalformedURLException e) {
-                    LOG.debug("", e);
+                    LOG.debug("Could not retrieve image. Invalid URL.", e);
+                } catch (Exception e) {
+                    LOG.debug("Unexpected error while retrieving images via http.", e);
                 }
             }
         }
     }
 
-    /**
-     * Mit dieser Metode wird eine HTTP-Nachricht empfangen und weiterverarbeitet. Wenn waehrend des Empfangs ein Fehler
-     * auftritt oder keine Nachricht empfangen wird, werden Beobachter darueber informiert, dass ein Verbindungsfehler
-     * aufgetreten ist. <br />
-     * Wenn eine Nachricht empfangen wurde, wird zunaechst der HTTP-Statuscode geprueft. Nur wenn dieser 200 ist,
-     * erfolgt eine weitere Verarbeitung. Andernfalls wird eine Fehlernachricht erzeugt und an Beobachter weiter
-     * gegeben, wenn es sich um die Anwort auf eine Webseitenanfrage handelt. Wenn es sich um die Antwort auf die
-     * Anfrage nach einem Bild handelt, wird 'null' an die Beobachter weiter gegeben! <br />
-     * Zuletzt wird der Socket geschlossen, wenn keine Antworten auf Anfragen fuer Bilddateien mehr zu bearbeiten sind.
-     * 
-     */
-    protected void verarbeiteNachricht() {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (WebBrowser), verarbeiteNachricht()");
-        HTTPNachricht antwort;
-        String contentType;
-        String dateipfad;
-        String nachricht = null;
-        Socket aktuellerSocket = socket;
-
-        try {
-            // blockieren, bis eine Nachricht eintrifft
-            nachricht = aktuellerSocket.empfangen();
-        } catch (Exception e) {
-            nachricht = null;
+    void closeConnection() {
+        if (socket != null) {
+            socket.schliessen();
+            socket = null;
         }
-
-        if (nachricht != null) {
-            antwort = new HTTPNachricht(nachricht);
-
-            // Nur wenn der HTTP-Statuscode 200 ist,
-            // erfolgt die weitere Verarbeitung.
-            if (antwort.getStatusCode() == 200) {
-                contentType = antwort.getContentType();
-
-                if (contentType == null) {
-                    antwort.setDaten("");
-                } else if (contentType.equalsIgnoreCase(HTTPNachricht.TEXT_HTML) && antwort.getDaten() != null) {
-                    verarbeiteIMGTags(antwort.getDaten(), antwort.getHost());
-                } else if (contentType.equalsIgnoreCase(HTTPNachricht.IMAGE_BMP)
-                        || contentType.equalsIgnoreCase(HTTPNachricht.IMAGE_GIF)
-                        || contentType.equalsIgnoreCase(HTTPNachricht.IMAGE_JPG)
-                        || contentType.equalsIgnoreCase(HTTPNachricht.IMAGE_PNG)) {
-
-                    synchronized (bilddateien) {
-                        if (bilddateien.size() > 0) {
-                            dateipfad = bilddateien.removeFirst();
-                            Base64.decodeToFile(antwort.getDaten(),
-                                    Information.getInformation().getTempPfad() + dateipfad);
-                        }
-                    }
-                    antwort = null;
-                }
-            } else if (zustand == ABRUF_HTML && aktuellerSocket == socket) {
-                antwort.setDaten(erzeugeHtmlFehlermeldung(antwort.getStatusCode()));
-            } else {
-                antwort = null;
-            }
-
-            if (aktuellerSocket == socket)
-                benachrichtigeBeobachter(antwort);
-
-        } else if (zustand == ABRUF_HTML && aktuellerSocket == socket) {
-            antwort = new HTTPNachricht(HTTPNachricht.CLIENT);
-            antwort.setDaten(erzeugeHtmlFehlermeldung(0));
-            benachrichtigeBeobachter(antwort);
-        }
-
-        if ((bilddateien == null || bilddateien.size() == 0) && aktuellerSocket == socket) {
-            if (socket != null) {
-                socket.schliessen();
-                socket = null;
-            }
-        }
-
     }
 }

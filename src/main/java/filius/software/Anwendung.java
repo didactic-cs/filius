@@ -217,6 +217,7 @@ public abstract class Anwendung extends Thread {
                     while (klasse != null) {
                         try {
                             method = klasse.getDeclaredMethod(methodenName, argumentKlassen);
+                            method.setAccessible(true);
                             method.invoke(this, args);
                             klasse = null;
                         } catch (NoSuchMethodException e) {

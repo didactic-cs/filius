@@ -211,11 +211,11 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
         String host;
 
         if (url != null) {
-            if (postDaten == null)
+            if (postDaten == null) {
                 ((WebBrowser) holeAnwendung()).holeWebseite(url);
-            else
+            } else {
                 ((WebBrowser) holeAnwendung()).holeWebseite(url, postDaten);
-
+            }
             if (url.getHost() == null || url.getHost().equals("")) {
                 host = ((WebBrowser) holeAnwendung()).holeHost();
             } else {

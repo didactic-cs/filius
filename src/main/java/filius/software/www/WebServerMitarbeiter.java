@@ -92,19 +92,20 @@ public class WebServerMitarbeiter extends ServerMitarbeiter {
             datei = ((WebServer) server).dateiLiefern(dateipfad);
             if (datei != null) {
                 antwort.setDaten(datei.getDateiInhalt());
-                if (datei.getName().endsWith("html") || datei.getName().endsWith("htm")) {
+                String filenameLowerCase = datei.getName().toLowerCase();
+                if (filenameLowerCase.endsWith("html") || filenameLowerCase.endsWith("htm")) {
                     antwort.setContentType(HTTPNachricht.TEXT_HTML);
                     antwort.setStatusCode(200);
-                } else if (datei.getName().endsWith("png")) {
+                } else if (filenameLowerCase.endsWith("png")) {
                     antwort.setContentType(HTTPNachricht.IMAGE_PNG);
                     antwort.setStatusCode(200);
-                } else if (datei.getName().endsWith("bmp")) {
+                } else if (filenameLowerCase.endsWith("bmp")) {
                     antwort.setContentType(HTTPNachricht.IMAGE_BMP);
                     antwort.setStatusCode(200);
-                } else if (datei.getName().endsWith("gif")) {
+                } else if (filenameLowerCase.endsWith("gif")) {
                     antwort.setContentType(HTTPNachricht.IMAGE_GIF);
                     antwort.setStatusCode(200);
-                } else if (datei.getName().endsWith("jpg")) {
+                } else if (filenameLowerCase.endsWith("jpg")) {
                     antwort.setContentType(HTTPNachricht.IMAGE_JPG);
                     antwort.setStatusCode(200);
                 } else {
