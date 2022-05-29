@@ -129,6 +129,12 @@ public class Information implements Serializable {
 
     /** Lokalisierungsobjekt fuer Standard-Spracheinstellung */
     private Locale locale = Locale.GERMANY;
+    private boolean hasDefaultLocale = false;
+
+    public boolean isHasDefaultLocale() {
+        return hasDefaultLocale;
+    }
+
     private String lastOpenedDirectory;
 
     private boolean oldExchangeDialog = true;
@@ -621,6 +627,7 @@ public class Information implements Serializable {
                                     String language = configValue.substring(0, configValue.indexOf("_"));
                                     String country = configValue.substring(configValue.indexOf("_") + 1);
                                     this.setLocale(new Locale(language, country));
+                                    this.hasDefaultLocale = true;
                                 } else if (configKey.equalsIgnoreCase("rtt")) {
                                     if (Verbindung.getRTTfactor() == 1) {
                                         Verbindung.setRTTfactor(Integer.parseInt(configValue));

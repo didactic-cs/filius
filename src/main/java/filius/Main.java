@@ -96,7 +96,7 @@ public class Main implements I18n {
         }
 
         konfigPfad = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
-        if (!(new File(konfigPfad)).exists() && null == Information.getInformation().getLocale()) {
+        if (!(new File(konfigPfad)).exists() && !Information.getInformation().isHasDefaultLocale()) {
             String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
                     JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
@@ -130,7 +130,7 @@ public class Main implements I18n {
                     }
                 }
             } catch (Exception e) {
-                LOG.debug("", e);
+                LOG.debug("There is no user configuration available.");
             }
         }
 

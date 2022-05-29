@@ -1,5 +1,9 @@
 # Changelog Filius
 
+## [1.14.1] - 2022-05-29
+### Fixed
+ * Missing Language Selection during first start-up
+ 
 ## [1.14.0] - 2022-05-27
 ### Added
  * Experimental feature NAT Gateway (enable in filius.ini with 'gateway=1'
