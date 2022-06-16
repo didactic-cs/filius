@@ -1,5 +1,9 @@
 # Changelog Filius
 
+## [1.14.2] - 2022-06-16
+### Fixed
+ * Locale not initialized correctly
+ 
 ## [1.14.1] - 2022-05-29
 ### Fixed
  * Missing Language Selection during first start-up
