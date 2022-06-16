@@ -283,7 +283,7 @@ public class FirewallWebKonfig extends WebServerPlugIn implements I18n {
             try {
 
                 html = textDateiEinlesen("tmpl/firewall_konfig_webseite_"
-                        + Information.getInformation().getLocale().toString() + ".txt");
+                        + Information.getInformation().getLocaleOrDefault().toString() + ".txt");
 
                 html = html.replaceAll(":action_pfad:", getPfad());
 

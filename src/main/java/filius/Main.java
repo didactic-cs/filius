@@ -96,7 +96,7 @@ public class Main implements I18n {
         }
 
         konfigPfad = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
-        if (!(new File(konfigPfad)).exists() && !Information.getInformation().isHasDefaultLocale()) {
+        if (!(new File(konfigPfad)).exists() && null == Information.getInformation().getLocale()) {
             String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
                     JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);

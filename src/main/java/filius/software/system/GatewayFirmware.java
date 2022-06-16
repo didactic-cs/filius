@@ -96,7 +96,7 @@ public class GatewayFirmware extends InternetKnotenBetriebssystem {
         server.setzePlugIn(webkonfig);
 
         server.erzeugeIndexDatei(ResourceUtil
-                .getResourcePath("tmpl/gateway_index_" + Information.getInformation().getLocale() + ".txt"));
+                .getResourcePath("tmpl/gateway_index_" + Information.getInformation().getLocaleOrDefault() + ".txt"));
     }
 
     /**

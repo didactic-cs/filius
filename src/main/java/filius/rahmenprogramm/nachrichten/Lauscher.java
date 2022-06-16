@@ -67,7 +67,7 @@ public class Lauscher implements I18n {
 
     public static final String DROPPED = "dropped packets";
 
-    private NumberFormat numberFormatter = NumberFormat.getInstance(Information.getInformation().getLocale());
+    private NumberFormat numberFormatter = NumberFormat.getInstance(Information.getInformation().getLocaleOrDefault());
 
     /** Singleton */
     private static Lauscher lauscher = null;

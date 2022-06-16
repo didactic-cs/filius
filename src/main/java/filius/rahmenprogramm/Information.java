@@ -128,12 +128,7 @@ public class Information implements Serializable {
             + System.getProperty("file.separator") + ".filius" + System.getProperty("file.separator");
 
     /** Lokalisierungsobjekt fuer Standard-Spracheinstellung */
-    private Locale locale = Locale.GERMANY;
-    private boolean hasDefaultLocale = false;
-
-    public boolean isHasDefaultLocale() {
-        return hasDefaultLocale;
-    }
+    private Locale locale;
 
     private String lastOpenedDirectory;
 
@@ -270,13 +265,21 @@ public class Information implements Serializable {
     public ResourceBundle holeResourceBundle() {
         ResourceBundle bundle;
 
-        bundle = ResourceBundle.getBundle("filius.messages.MessagesBundle", locale);
+        bundle = ResourceBundle.getBundle("filius.messages.MessagesBundle", getLocaleOrDefault());
 
         return bundle;
     }
 
     public Locale getLocale() {
         return locale;
+    }
+
+    public Locale getLocaleOrDefault() {
+        if (locale == null) {
+            return Locale.GERMANY;
+        } else {
+            return locale;
+        }
     }
 
     public void setLocale(Locale locale) {
@@ -627,7 +630,6 @@ public class Information implements Serializable {
                                     String language = configValue.substring(0, configValue.indexOf("_"));
                                     String country = configValue.substring(configValue.indexOf("_") + 1);
                                     this.setLocale(new Locale(language, country));
-                                    this.hasDefaultLocale = true;
                                 } else if (configKey.equalsIgnoreCase("rtt")) {
                                     if (Verbindung.getRTTfactor() == 1) {
                                         Verbindung.setRTTfactor(Integer.parseInt(configValue));
