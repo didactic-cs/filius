@@ -31,10 +31,12 @@
 
 package filius.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.MouseInfo;
@@ -199,6 +201,9 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
     public static JMainFrame getJMainFrame() {
         if (frame == null) {
             frame = new JMainFrame();
+            Image image = Toolkit.getDefaultToolkit().getImage(JMainFrame.class.getResource("/gfx/hardware/kabel.png"));
+            frame.setIconImage(image);
+            frame.setLayout(new BorderLayout(0, 0));
         }
 
         return frame;

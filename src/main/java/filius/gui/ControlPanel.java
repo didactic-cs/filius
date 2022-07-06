@@ -26,7 +26,6 @@
 package filius.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.Observable;
@@ -38,25 +37,37 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.MouseInputAdapter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "serial" })
 public class ControlPanel extends JBackgroundPanel implements Observer {
-    private static Logger LOG = LoggerFactory.getLogger(ControlPanel.class);
     /**
      * Panel mit den spezifischen Attributen der Komponenten zur Anzeige und Konfiguration
      */
     private JBackgroundPanel contentPanel;
+    protected JScrollPane scrollPane;
+    protected Box box;
+    protected Box rightBox;
 
-    private JLabel minimierenButton;
+    private JLabel openClose;
 
     /** unveraenderbare Hoehe des Konfigurations-Panels (konfigPanel) */
-    private static final int HOEHE = 250;
+    private static final int SIZE = 250;
+
+    public static final int VERTICAL = 0;
+    public static final int HORIZONTAL = 1;
+
+    private int mode;
+    private int sizeMaximized;
 
     protected ControlPanel() {
+        this(HORIZONTAL, SIZE);
+    }
+
+    protected ControlPanel(int mode, int size) {
+        this.mode = mode;
+        this.sizeMaximized = size;
         init();
         minimieren();
     }
@@ -65,35 +76,40 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
      * Zur Initialisierung des Konfigurations-Panels (konfigPanel), das ausgeblendet werden kann
      */
     private void init() {
-        Container c = JMainFrame.getJMainFrame().getContentPane();
-
-        this.setLayout(null);
-        this.setBounds(0, 0, c.getWidth(), 100); // WAR 300
-        this.setEnabled(false);
-        this.setBackgroundImage("gfx/allgemein/konfigPanel_hg.png");
-        this.setPreferredSize(new Dimension(100, HOEHE));
-        this.setLayout(new BorderLayout());
-
+        setLayout(new BorderLayout());
         contentPanel = new JBackgroundPanel();
         contentPanel.setBackgroundImage("gfx/allgemein/konfigPanel_hg.png");
-        contentPanel.setOpaque(false);
-        contentPanel.setVisible(true);
-        contentPanel.setBounds(0, 0, c.getWidth(), 300);
-        this.add(new JScrollPane(contentPanel), BorderLayout.CENTER);
+        scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        add(scrollPane, BorderLayout.CENTER);
 
-        minimierenButton = new JLabel(new ImageIcon(getClass().getResource("/gfx/allgemein/minimieren.png")));
-        minimierenButton.setBounds(0, 0, minimierenButton.getIcon().getIconWidth(),
-                minimierenButton.getIcon().getIconHeight());
-        minimierenButton.addMouseListener(new MouseInputAdapter() {
+        openClose = new JLabel(getIcon(false));
+        openClose.setBounds(0, 0, openClose.getIcon().getIconWidth(), openClose.getIcon().getIconHeight());
+        openClose.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
-                if (ControlPanel.this.getHeight() > 20) {
+                if (ControlPanel.this.isMaximiert()) {
                     ControlPanel.this.minimieren();
                 } else {
                     ControlPanel.this.maximieren();
                 }
             }
         });
-        this.add(minimierenButton, BorderLayout.NORTH);
+        add(openClose, (mode == HORIZONTAL) ? BorderLayout.NORTH : BorderLayout.WEST);
+    }
+
+    protected ImageIcon getIcon(boolean open) {
+        ImageIcon icon = null;
+        if (open && mode == HORIZONTAL) {
+            icon = new ImageIcon(getClass().getResource("/gfx/allgemein/minimieren.png"));
+        } else if (open && mode == VERTICAL) {
+            icon = new ImageIcon(getClass().getResource("/gfx/allgemein/min_to_right.png"));
+        } else if (!open && mode == VERTICAL) {
+            icon = new ImageIcon(getClass().getResource("/gfx/allgemein/max_to_left.png"));
+        } else if (!open && mode == HORIZONTAL) {
+            icon = new ImageIcon(getClass().getResource("/gfx/allgemein/maximieren.png"));
+        }
+        return icon;
     }
 
     /**
@@ -101,36 +117,38 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
      * initContents() aufgerufen.
      */
     public void reInit() {
-        Box hauptBox;
-
         contentPanel.removeAll();
         contentPanel.updateUI();
         contentPanel.setLayout(new BorderLayout());
 
-        hauptBox = Box.createVerticalBox();
-        hauptBox.add(Box.createHorizontalGlue());
-        hauptBox.setOpaque(false);
-        hauptBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        hauptBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        box = Box.createVerticalBox();
+        box.add(Box.createHorizontalGlue());
+        box.setOpaque(false);
+        box.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        box.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
-        Box auxBox = Box.createVerticalBox();
-        auxBox.add(Box.createHorizontalGlue());
-        auxBox.setOpaque(false);
-        auxBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        auxBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        rightBox = Box.createVerticalBox();
+        rightBox.add(Box.createHorizontalGlue());
+        rightBox.setOpaque(false);
+        rightBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        rightBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
-        initContents(hauptBox, auxBox);
+        initContents();
 
-        contentPanel.add(hauptBox, BorderLayout.CENTER);
-        contentPanel.add(auxBox, BorderLayout.LINE_END);
+        contentPanel.add(box, BorderLayout.CENTER);
+        contentPanel.add(rightBox, BorderLayout.LINE_END);
         contentPanel.updateUI();
         contentPanel.invalidate();
         contentPanel.validate();
     }
 
     public void minimieren() {
-        this.setPreferredSize(new Dimension(this.getWidth(), 20));
-        minimierenButton.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/maximieren.png")));
+        if (mode == HORIZONTAL) {
+            setPreferredSize(new Dimension(getWidth(), 20));
+        } else {
+            setPreferredSize(new Dimension(20, getHeight()));
+        }
+        openClose.setIcon(getIcon(false));
         contentPanel.setVisible(false);
         this.updateUI();
     }
@@ -142,8 +160,13 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
     public void doUnselectAction() {}
 
     public void maximieren() {
-        this.setPreferredSize(new Dimension(this.getWidth(), HOEHE));
-        minimierenButton.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/minimieren.png")));
+        if (mode == HORIZONTAL) {
+            setPreferredSize(new Dimension(getWidth(), sizeMaximized));
+        } else {
+            setPreferredSize(new Dimension(sizeMaximized, getHeight()));
+            scrollPane.getViewport().setBounds(0, 0, sizeMaximized, Short.MAX_VALUE);
+        }
+        openClose.setIcon(getIcon(true));
         updateSettings();
         contentPanel.setVisible(true);
         this.updateUI();
@@ -156,10 +179,10 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
     /**
      * Mit dieser Methode werden die hardwarespezifischen Eingabe- und Anzeigekomponenten initialisiert.
      */
-    protected void initContents(Box box, Box rightBox) {}
+    protected void initContents() {}
 
     /**
-     * Mit dieser Methode wird die Anzeige entsprechend der Attributwerte der Hardwarekomponente aktualisiert.
+     * Mit dieser Methode wird die Anzeige aktualisiert.
      */
     public void updateAttribute() {}
 

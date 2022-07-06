@@ -114,7 +114,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         updateAttribute();
     }
 
-    protected void initContents(Box box, Box rightBox) {
+    protected void initContents() {
         JLabel tempLabel;
         Box tempBox;
         FocusListener focusListener;

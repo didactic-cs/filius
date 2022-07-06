@@ -56,7 +56,7 @@ public class SimulationControl extends ControlPanel implements I18n, LauscherBeo
         reInit();
     }
 
-    protected void initContents(Box box, Box rightBox) {
+    protected void initContents() {
         JButton dropButton = new JButton(messages.getString("simulation_control_drop_packets"));
         dropButton.addChangeListener(new ChangeListener() {
             @Override

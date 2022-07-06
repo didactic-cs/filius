@@ -82,7 +82,7 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
     }
 
     @Override
-    protected void initContents(Box box, Box rightBox) {
+    protected void initContents() {
         JLabel tempLabel;
         Box tempBox;
         Box tempBox2;

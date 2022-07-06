@@ -261,7 +261,7 @@ public class GUIEvents implements I18n {
         // Wurde die rechte Maustaste betaetigt?
         if (e.getButton() == 3) {
             if (aktivesItem != null && aktiveslabel != null) {
-                hideControlPanel();
+                hideAuxPanel(false);
 
                 if (!c.getKabelvorschau().isVisible()) {
                     kontextMenueEntwurfsmodus(aktiveslabel, e.getX(), e.getY());
@@ -343,13 +343,16 @@ public class GUIEvents implements I18n {
                 // wurde Maus ueber leerem Bereich betaetigt? -> Markierung
                 // sichtbar machen
                 auswahl.setVisible(false);
-                hideControlPanel();
+                hideAuxPanel(false);
             }
         }
     }
 
-    protected void hideControlPanel() {
-        GUIContainer.getGUIContainer().getProperty().minimieren();
+    protected void hideAuxPanel(boolean onlyHelp) {
+        if (!onlyHelp) {
+            GUIContainer.getGUIContainer().getProperty().minimieren();
+        }
+        GUIContainer.getGUIContainer().hideHelp();
     }
 
     public void cancelMultipleSelection() {
@@ -818,7 +821,13 @@ public class GUIEvents implements I18n {
 
     public void mausPressedActionMode(MouseEvent e) {
         if (e.getButton() == 1) {
-            hideControlPanel();
+            hideAuxPanel(false);
+        }
+    }
+
+    public void mausPressedDocuMode(MouseEvent e) {
+        if (e.getButton() == 1) {
+            hideAuxPanel(true);
         }
     }
 }

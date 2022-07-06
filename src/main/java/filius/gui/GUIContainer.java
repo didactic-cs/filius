@@ -27,11 +27,9 @@ package filius.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -151,6 +149,7 @@ public class GUIContainer implements Serializable, I18n {
     private GUIDesignSidebar designSidebar;
     private JBackgroundPanel designBackgroundPanel = new JBackgroundPanel();
     private ControlPanel designItemConfig = JKonfiguration.getInstance(null);
+    private HelpPanel helpPanel = new HelpPanel();
     private JScrollPane designView;
     private JScrollPane designSidebarScrollpane;
     private JSidebarButton designDragPreview, designCablePreview;
@@ -178,12 +177,16 @@ public class GUIContainer implements Serializable, I18n {
         this.width = width;
         this.height = height;
 
-        Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/gfx/hardware/kabel.png"));
-        JMainFrame.getJMainFrame().setIconImage(image);
-
         docuPanel = new GUIDocumentationPanel(width, height);
-        networkPanel = new GUINetworkPanel(width, height);
+        docuPanel.addMouseListener(new MouseInputAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (activeSite == GUIMainMenu.MODUS_DOKUMENTATION) {
+                    GUIEvents.getGUIEvents().mausPressedDocuMode(e);
+                }
+            }
+        });
 
+        networkPanel = new GUINetworkPanel(width, height);
         networkPanel.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (activeSite == GUIMainMenu.MODUS_AKTION) {
@@ -236,7 +239,6 @@ public class GUIContainer implements Serializable, I18n {
      * @author Johannes Bade & Thomas Gerding
      */
     private void initialisieren() {
-        Container contentPane = JMainFrame.getJMainFrame().getContentPane();
         layeredPane.setSize(width, height);
         layeredPane.setMinimumSize(new Dimension(width, height));
         layeredPane.setPreferredSize(new Dimension(width, height));
@@ -278,8 +280,9 @@ public class GUIContainer implements Serializable, I18n {
          * Hauptmenü wird erstellt und dem Container hinzugefügt
          */
         menu = new GUIMainMenu();
-        contentPane.setLayout(new BorderLayout(0, 0));
-        contentPane.add(menu.getMenupanel(), BorderLayout.NORTH);
+        JMainFrame.getJMainFrame().addToContentPane(menu.getMenupanel(), BorderLayout.NORTH);
+
+        JMainFrame.getJMainFrame().addToContentPane(helpPanel, BorderLayout.EAST);
 
         setProperty(null);
 
@@ -784,6 +787,7 @@ public class GUIContainer implements Serializable, I18n {
         for (Component background : layeredPane.getComponentsInLayer(BACKGROUND_LAYER)) {
             layeredPane.remove(background);
         }
+        helpPanel.loadContext(activeSite);
         if (activeSite == GUIMainMenu.MODUS_ENTWURF) {
             closeDialogs();
             designView.getVerticalScrollBar().setValue(simulationView.getVerticalScrollBar().getValue());
@@ -1123,6 +1127,14 @@ public class GUIContainer implements Serializable, I18n {
 
     public int getHeight() {
         return height;
+    }
+
+    public void showHelp() {
+        helpPanel.maximieren();
+    }
+
+    public void hideHelp() {
+        helpPanel.minimieren();
     }
 
 }

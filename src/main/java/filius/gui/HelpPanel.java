@@ -25,9 +25,7 @@
  */
 package filius.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,87 +35,48 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import filius.Main;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.ResourceUtil;
 
-public class GUIHilfe implements I18n {
-    private static Logger LOG = LoggerFactory.getLogger(GUIHilfe.class);
+@SuppressWarnings("serial")
+public class HelpPanel extends ControlPanel implements I18n {
+    private static Logger LOG = LoggerFactory.getLogger(HelpPanel.class);
 
-    private JDialog jf;
-    private static GUIHilfe ref = null;
-    private JScrollPane spHtmlScroller;
     private JEditorPane epHtml;
 
-    private GUIHilfe() {
-        JFrame hauptFrame = JMainFrame.getJMainFrame();
-        jf = new JDialog(hauptFrame, messages.getString("guihilfe_msg1"), false);
-        ImageIcon frameIcon = new ImageIcon(getClass().getResource("/gfx/allgemein/hilfe.png"));
-        jf.setIconImage(frameIcon.getImage());
+    public HelpPanel() {
+        super(ControlPanel.VERTICAL, 350);
+        reInit();
+        minimieren();
+    }
 
+    protected void initContents() {
         epHtml = new JEditorPane("text/html;charset=UTF-8", null);
         epHtml.setText(messages.getString("guihilfe_msg2"));
         epHtml.setEditable(false);
         epHtml.setMinimumSize(new Dimension(1, 1));
-        spHtmlScroller = new JScrollPane(epHtml);
-        spHtmlScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        spHtmlScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-        jf.getContentPane().add(spHtmlScroller, BorderLayout.CENTER);
+        scrollPane.getViewport().removeAll();
+        scrollPane.getViewport().add(epHtml);
     }
 
-    public static GUIHilfe getGUIHilfe() {
-        if (ref == null) {
-            ref = new GUIHilfe();
-        }
-
-        return ref;
-    }
-
-    public void anzeigen() {
-        int breite = 350, hoehe = 600, x, y;
-        int absBreite, absHoehe;
-
-        absBreite = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-        absHoehe = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-
-        JFrame hauptFrame = JMainFrame.getJMainFrame();
-        x = hauptFrame.getX() + hauptFrame.getWidth();
-        y = hauptFrame.getY();
-
-        if (y + hoehe > absHoehe)
-            y = 0;
-        if (x + breite > absBreite && x + breite - 50 < absBreite) {
-            breite = absBreite - x;
-        } else if (x + breite > absBreite) {
-            breite = breite - 50;
-            x = absBreite - breite;
-        }
-
-        jf.setBounds(x, y, breite, hoehe);
-
-        jf.setVisible(true);
-
-    }
-
-    public void laden(String modus) {
+    public void loadContext(int mode) {
         File file;
-        if (modus.equalsIgnoreCase("entwurfsmodus")) {
-            file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_entwurf"));
-        } else if (modus.equalsIgnoreCase("dokumodus")) {
-            file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_documentation"));
-        } else {
+        switch (mode) {
+        case GUIMainMenu.MODUS_AKTION:
             file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_simulation"));
+            break;
+        case GUIMainMenu.MODUS_ENTWURF:
+            file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_entwurf"));
+            break;
+        case GUIMainMenu.MODUS_DOKUMENTATION:
+        default:
+            file = ResourceUtil.getResourceFile("hilfe/" + messages.getString("hilfedatei_documentation"));
+            break;
         }
         LOG.debug("Help file: " + file.getAbsolutePath());
         String gfxBaseUrl = "file:" + ResourceUtil.getResourceUrlEncodedPath("hilfe/gfx/");
@@ -133,9 +92,9 @@ public class GUIHilfe implements I18n {
             epHtml.read(new java.io.StringReader(newText), null);
             epHtml.setCaretPosition(0);
         } catch (FileNotFoundException e) {
-LOG.debug("",e);
+            LOG.warn("help contents could not be found", e);
         } catch (IOException e) {
-LOG.debug("",e);
+            LOG.warn("error while reading help contents", e);
         }
     }
 }

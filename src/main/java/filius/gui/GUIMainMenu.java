@@ -159,7 +159,7 @@ public class GUIMainMenu implements Serializable, I18n {
                 }
 
                 if (e.getActionCommand().equals(btHilfe.getActionCommand())) {
-                    GUIHilfe.getGUIHilfe().anzeigen();
+                    GUIContainer.getGUIContainer().showHelp();
                 }
 
                 if (e.getActionCommand().equals(btNeu.getActionCommand())) {
@@ -437,8 +437,6 @@ public class GUIMainMenu implements Serializable, I18n {
             btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
             GUIContainer.getGUIContainer().setActiveSite(MODUS_ENTWURF);
 
-            GUIHilfe.getGUIHilfe().laden("entwurfsmodus");
-
             stopSimulation();
 
             btOeffnen.setEnabled(true);
@@ -454,8 +452,6 @@ public class GUIMainMenu implements Serializable, I18n {
             btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus.png")));
             btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus_aktiv.png")));
             GUIContainer.getGUIContainer().setActiveSite(MODUS_DOKUMENTATION);
-
-            GUIHilfe.getGUIHilfe().laden("dokumodus");
 
             stopSimulation();
 
@@ -473,7 +469,6 @@ public class GUIMainMenu implements Serializable, I18n {
             btAktionsmodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/aktionsmodus_aktiv.png")));
             btDokumodus.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/dokumodus.png")));
             GUIContainer.getGUIContainer().setActiveSite(MODUS_AKTION);
-            GUIHilfe.getGUIHilfe().laden("simulationsmodus");
 
             for (GUIKnotenItem knotenItem : GUIContainer.getGUIContainer().getKnotenItems()) {
                 SystemSoftware system;

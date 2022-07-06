@@ -129,7 +129,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         firewallDialog.setVisible(true);
     }
 
-    protected void initContents(Box box, Box rightBox) {
+    protected void initContents() {
         Box boxNetzwerkKarten;
         Box vBox;
         KeyAdapter ipAdresseKeyAdapter;

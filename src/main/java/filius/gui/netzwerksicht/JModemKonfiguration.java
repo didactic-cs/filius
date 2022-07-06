@@ -95,7 +95,7 @@ public class JModemKonfiguration extends JKonfiguration implements I18n, Observe
         GUIContainer.getGUIContainer().updateViewport();
     }
 
-    protected void initContents(Box box, Box rightBox) {
+    protected void initContents() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JModemKonfiguration), initAttributEingabeBox("
                 + box + ")");
 
