@@ -52,7 +52,7 @@ public class Query {
 
     /**
      * QTYPE a code which specifies the type of the query. Zur Belegung dieses Attributs sollten die entsprechenden
-     * Konstanten der Klasse DNSNachricht verwendet werden
+     * Konstanten der Klasse {@link ResourceRecord} verwendet werden
      */
     private String qtype = null;
 
@@ -89,6 +89,18 @@ public class Query {
             token = tokenizer.nextToken().trim();
             qclass = token;
         }
+    }
+
+    /**
+     * @param qname
+     *            a domain name
+     * @param qtype
+     *            a code which specifies the type of the query. Zur Belegung dieses Attributs sollten die entsprechenden
+     *            Konstanten der Klasse {@link ResourceRecord} verwendet werden
+     */
+    public Query(String qname, String qtype) {
+        this.qname = qname;
+        this.qtype = qtype;
     }
 
     /**

@@ -100,8 +100,8 @@ public abstract class Socket implements SocketSchnittstelle, I18n {
         } else {
             try {
                 this.zielIp = betriebssystem.holeDNSClient().holeIPAdresse(zielAdresse);
-            } catch (java.util.concurrent.TimeoutException e) {
-                LOG.debug("", e);
+            } catch (TimeOutException e) {
+                LOG.debug("could not resolve destination IP address for new socket to " + zielAdresse, e);
             }
         }
         if (zielIp != null) {

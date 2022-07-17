@@ -4,7 +4,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +34,7 @@ public class DHCPClientTest {
 
     @Before
     public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -45,9 +45,9 @@ public class DHCPClientTest {
         String router = "5.6.7.8";
         String dnsServer = "9.10.11.12";
         String serverIdentifier = "13.14.15.16";
-        when(socketMock.empfangen(anyLong())).thenReturn(
-                DHCPMessage.createOfferMessage(clientMacAddress, offeredIpAddress, subnetMask, router, dnsServer,
-                        serverIdentifier).toString());
+        when(socketMock.empfangen(anyLong())).thenReturn(DHCPMessage
+                .createOfferMessage(clientMacAddress, offeredIpAddress, subnetMask, router, dnsServer, serverIdentifier)
+                .toString());
 
         dhcpClient.discover(socketMock, clientMacAddress, defaultSocketTimeoutMillis);
 
@@ -63,9 +63,9 @@ public class DHCPClientTest {
         String router = "5.6.7.8";
         String dnsServer = "9.10.11.12";
         String serverIdentifier = "13.14.15.16";
-        when(socketMock.empfangen(anyLong())).thenReturn(
-                DHCPMessage.createOfferMessage(clientMacAddress, offeredIpAddress, subnetMask, router, dnsServer,
-                        serverIdentifier).toString());
+        when(socketMock.empfangen(anyLong())).thenReturn(DHCPMessage
+                .createOfferMessage(clientMacAddress, offeredIpAddress, subnetMask, router, dnsServer, serverIdentifier)
+                .toString());
 
         IpConfig config = dhcpClient.discover(socketMock, clientMacAddress, defaultSocketTimeoutMillis);
 
@@ -89,14 +89,13 @@ public class DHCPClientTest {
     @Test(expected = NoValidDhcpResponseException.class)
     public void testDiscover_ResponseAfterTimeout() throws Exception {
         String clientMacAddress = "01:23:45:67:89:AB";
-        when(socketMock.empfangen(anyLong())).thenAnswer(
-                invocation -> {
-                    Thread.sleep(defaultSocketTimeoutMillis + 100);
-                    return DHCPMessage.createOfferMessage("andere_adresse", "1.2.3.4", "255.255.0.0", "5.6.7.8",
-                            "9.10.11.12", "13.14.15.16").toString();
-                }).thenAnswer(
-                invocation -> DHCPMessage.createOfferMessage(clientMacAddress, "1.2.3.4", "255.255.0.0", "5.6.7.8",
-                        "9.10.11.12", "13.14.15.16").toString());
+        when(socketMock.empfangen(anyLong())).thenAnswer(invocation -> {
+            Thread.sleep(defaultSocketTimeoutMillis + 100);
+            return DHCPMessage.createOfferMessage("andere_adresse", "1.2.3.4", "255.255.0.0", "5.6.7.8", "9.10.11.12",
+                    "13.14.15.16").toString();
+        }).thenAnswer(invocation -> DHCPMessage
+                .createOfferMessage(clientMacAddress, "1.2.3.4", "255.255.0.0", "5.6.7.8", "9.10.11.12", "13.14.15.16")
+                .toString());
 
         dhcpClient.discover(socketMock, clientMacAddress, defaultSocketTimeoutMillis);
     }
@@ -125,8 +124,9 @@ public class DHCPClientTest {
         for (int i = 0; i < 10; i++) {
             messages[i] = DHCPMessage.createDiscoverMessage(String.valueOf(i)).toString();
         }
-        messages[10] = DHCPMessage.createOfferMessage(clientMacAddress, offeredIpAddress, subnetMask, router,
-                dnsServer, serverIdentifier).toString();
+        messages[10] = DHCPMessage
+                .createOfferMessage(clientMacAddress, offeredIpAddress, subnetMask, router, dnsServer, serverIdentifier)
+                .toString();
         when(socketMock.empfangen(anyLong())).thenReturn(messages[0], Arrays.copyOfRange(messages, 1, messages.length));
 
         IpConfig config = dhcpClient.discover(socketMock, clientMacAddress, defaultSocketTimeoutMillis);
@@ -184,16 +184,13 @@ public class DHCPClientTest {
     public void testRequest_Acknowledged() throws Exception {
         String clientMacAddress = "01:23:45:67:89:AB";
         IpConfig config = new IpConfig("1.2.3.4", "5.6.7.8", "255.255.255.128", "9.10.11.12", "13.14.15.16");
-        when(socketMock.empfangen(anyLong())).thenReturn(
-                DHCPMessage.createAckMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer())
-                        .toString());
+        when(socketMock.empfangen(anyLong())).thenReturn(DHCPMessage
+                .createAckMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer()).toString());
 
         boolean acknowledged = dhcpClient.request(socketMock, clientMacAddress, config, defaultSocketTimeoutMillis);
 
-        verify(socketMock, times(1)).sendeBroadcast(
-                "0.0.0.0",
-                DHCPMessage.createRequestMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer())
-                        .toString());
+        verify(socketMock, times(1)).sendeBroadcast("0.0.0.0", DHCPMessage
+                .createRequestMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer()).toString());
         verify(socketMock, times(1)).empfangen(anyLong());
         assertTrue(acknowledged);
     }
@@ -202,16 +199,13 @@ public class DHCPClientTest {
     public void testRequest_NOTAcknowledged() throws Exception {
         String clientMacAddress = "01:23:45:67:89:AB";
         IpConfig config = new IpConfig("1.2.3.4", "5.6.7.8", "255.255.255.128", "9.10.11.12", "13.14.15.16");
-        when(socketMock.empfangen(anyLong())).thenReturn(
-                DHCPMessage.createNackMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer())
-                        .toString());
+        when(socketMock.empfangen(anyLong())).thenReturn(DHCPMessage
+                .createNackMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer()).toString());
 
         boolean acknowledged = dhcpClient.request(socketMock, clientMacAddress, config, defaultSocketTimeoutMillis);
 
-        verify(socketMock, times(1)).sendeBroadcast(
-                "0.0.0.0",
-                DHCPMessage.createRequestMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer())
-                        .toString());
+        verify(socketMock, times(1)).sendeBroadcast("0.0.0.0", DHCPMessage
+                .createRequestMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer()).toString());
         verify(socketMock, times(1)).empfangen(anyLong());
         assertFalse(acknowledged);
     }
@@ -222,8 +216,8 @@ public class DHCPClientTest {
         IpConfig config = new IpConfig("1.2.3.4", "5.6.7.8", "255.255.255.128", "9.10.11.12", "13.14.15.16");
         String[] messages = new String[11];
         for (int i = 0; i < 10; i++) {
-            messages[i] = DHCPMessage.createAckMessage("aa:aa:aa:aa:aa:aa", config.getIpAddress(),
-                    config.getDhcpServer()).toString();
+            messages[i] = DHCPMessage
+                    .createAckMessage("aa:aa:aa:aa:aa:aa", config.getIpAddress(), config.getDhcpServer()).toString();
         }
         when(socketMock.empfangen(anyLong())).thenReturn(messages[0], Arrays.copyOfRange(messages, 1, messages.length));
 
@@ -243,15 +237,12 @@ public class DHCPClientTest {
     public void testRequest_ResponseAfterTimeout() throws Exception {
         String clientMacAddress = "01:23:45:67:89:AB";
         IpConfig config = new IpConfig("1.2.3.4", "5.6.7.8", "255.255.255.128", "9.10.11.12", "13.14.15.16");
-        when(socketMock.empfangen(anyLong())).thenAnswer(
-                invocation -> {
-                    Thread.sleep(defaultSocketTimeoutMillis + 100);
-                    return DHCPMessage
-                            .createAckMessage("andere_adresse", config.getIpAddress(), config.getDhcpServer())
-                            .toString();
-                }).thenAnswer(
-                invocation -> DHCPMessage.createAckMessage(clientMacAddress, config.getIpAddress(),
-                        config.getDhcpServer()).toString());
+        when(socketMock.empfangen(anyLong())).thenAnswer(invocation -> {
+            Thread.sleep(defaultSocketTimeoutMillis + 100);
+            return DHCPMessage.createAckMessage("andere_adresse", config.getIpAddress(), config.getDhcpServer())
+                    .toString();
+        }).thenAnswer(invocation -> DHCPMessage
+                .createAckMessage(clientMacAddress, config.getIpAddress(), config.getDhcpServer()).toString());
 
         dhcpClient.request(socketMock, clientMacAddress, config, defaultSocketTimeoutMillis);
     }

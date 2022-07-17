@@ -25,6 +25,7 @@
  */
 package filius.software.dns;
 
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -177,6 +178,60 @@ public class ResourceRecord {
         } else {
             this.rdata = rdata;
         }
+    }
+
+    /**
+     * Find the exact matching record for given domain and type.
+     * 
+     * @param domainname
+     *            the domainname to look for in field domainname of the resource record
+     * @param typ
+     *            one of A, NS, MX
+     * @param recordList
+     *            the list to search in
+     * @return the resource record or null if no applicable record could be found
+     */
+    public static ResourceRecord findRecord(String domainname, String typ, List<ResourceRecord> recordList) {
+        for (ResourceRecord rr : recordList) {
+            if (rr.getDomainname().equalsIgnoreCase(domainname) && rr.getType().equals(typ)) {
+                return rr;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find the best matching NS record for the given domain.
+     * 
+     * @return the resource record or null if no applicable record could be found
+     */
+    public static ResourceRecord findApplicableNSRecord(String domainname, List<ResourceRecord> recordList) {
+        String domain;
+        String[] parts = domainname.split("\\.");
+
+        for (int i = 0; i < parts.length; i++) {
+            domain = implodeDomain(parts, i);
+            for (ResourceRecord rr : recordList) {
+                if (domain.equalsIgnoreCase(rr.getDomainname()) && NAME_SERVER.equals(rr.getType())) {
+                    return rr;
+                }
+            }
+        }
+        for (ResourceRecord rr : recordList) {
+            if (".".equalsIgnoreCase(rr.getDomainname()) && NAME_SERVER.equals(rr.getType())) {
+                return rr;
+            }
+        }
+        return null;
+    }
+
+    private static String implodeDomain(String[] parts, int start) {
+        StringBuffer domain = new StringBuffer();
+        for (int i = start; i < parts.length; i++) {
+            domain.append(parts[i]);
+            domain.append(".");
+        }
+        return domain.toString();
     }
 
     /**

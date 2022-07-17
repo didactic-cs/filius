@@ -30,13 +30,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import filius.exception.TimeOutException;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
@@ -696,7 +696,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
                 return messages.getString("sw_terminal_msg30");
             }
-        } catch (java.util.concurrent.TimeoutException e) {
+        } catch (TimeOutException e) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg31"));
             return messages.getString("sw_terminal_msg31");
         } catch (Exception e) {
@@ -731,7 +731,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 benachrichtigeBeobachter("Name:    " + rr.getDomainname() + "\n");
                 benachrichtigeBeobachter("Address: " + rr.getRdata() + "\n");
             }
-        } catch (TimeoutException e) {
+        } catch (TimeOutException e) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg31") + "\n");
         } catch (Exception e) {
             LOG.debug("", e);
@@ -774,7 +774,7 @@ public class Terminal extends ClientAnwendung implements I18n {
                 benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
                 return messages.getString("sw_terminal_msg30");
             }
-        } catch (TimeoutException e) {
+        } catch (TimeOutException e) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg31") + " (DNS)");
             return messages.getString("sw_terminal_msg31" + " (DNS)");
         } catch (Exception e) {
@@ -921,7 +921,7 @@ public class Terminal extends ClientAnwendung implements I18n {
 
             try {
                 destIP = res.holeIPAdresse(args[0]);
-            } catch (TimeoutException e) {
+            } catch (TimeOutException e) {
                 benachrichtigeBeobachter(messages.getString("sw_terminal_trace_msg2"));
                 return null;
             }

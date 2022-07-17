@@ -25,22 +25,27 @@
  */
 package filius.software.dns;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import filius.exception.TimeOutException;
 import filius.software.clientserver.UDPServerAnwendung;
 import filius.software.system.Datei;
 import filius.software.system.Dateisystem;
+import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.transportschicht.Socket;
 
 public class DNSServer extends UDPServerAnwendung {
     private static Logger LOG = LoggerFactory.getLogger(DNSServer.class);
 
     private boolean recursiveResolutionEnabled = false;
+    private Resolver resolver;
 
     public boolean isRecursiveResolutionEnabled() {
         return recursiveResolutionEnabled;
@@ -56,6 +61,12 @@ public class DNSServer extends UDPServerAnwendung {
                 + " (DNSServer), constr: DNSServer()");
 
         setPort(53);
+    }
+
+    @Override
+    public void setSystemSoftware(InternetKnotenBetriebssystem bs) {
+        super.setSystemSoftware(bs);
+        resolver = ((InternetKnotenBetriebssystem) bs).holeDNSClient();
     }
 
     public void starten() {
@@ -129,6 +140,7 @@ public class DNSServer extends UDPServerAnwendung {
         if (hostsFile == null) {
             hostsFile = new Datei();
             hostsFile.setName("hosts");
+            dateisystem.erstelleVerzeichnis(dateisystem.getRoot(), "dns");
             dateisystem.speicherDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "dns", hostsFile);
         }
 
@@ -158,6 +170,88 @@ public class DNSServer extends UDPServerAnwendung {
         benachrichtigeBeobachter(type);
     }
 
+    public DNSNachricht answer(Query query) {
+        benachrichtigeBeobachter(messages.getString("sw_dnsservermitarbeiter_msg1") + query);
+
+        DNSNachricht antwort = new DNSNachricht(DNSNachricht.RESPONSE);
+        antwort.hinzuAntwortResourceRecords(answerWithLocalData(query));
+        if (antwort.holeAntwortResourceRecords().isEmpty() && isRecursiveResolutionEnabled()) {
+            antwort.hinzuAntwortResourceRecords(answerWithRemoteData(query));
+        }
+        if (antwort.holeAntwortResourceRecords().isEmpty()) {
+            antwort.hinzuAntwortResourceRecords(defineNameserverRecords(query));
+        }
+        return antwort;
+    }
+
+    private List<ResourceRecord> defineNameserverRecords(Query query) {
+        List<ResourceRecord> answerResourceRecords = new ArrayList<>();
+        ResourceRecord nameserverNSRecord = ResourceRecord.findApplicableNSRecord(query.holeDomainname(),
+                leseRecordListe());
+        if (null != nameserverNSRecord) {
+            answerResourceRecords.add(nameserverNSRecord);
+            ResourceRecord nameserverARecord = ResourceRecord.findRecord(nameserverNSRecord.getRdata(),
+                    ResourceRecord.ADDRESS, leseRecordListe());
+            if (null != nameserverARecord) {
+                answerResourceRecords.add(nameserverARecord);
+            }
+        }
+        return answerResourceRecords;
+    }
+
+    List<ResourceRecord> answerWithRemoteData(Query query) {
+        List<ResourceRecord> answerResourceRecords = new ArrayList<>();
+        ResourceRecord nsRecord = ResourceRecord.findApplicableNSRecord(query.holeDomainname(), leseRecordListe());
+        String dnsServerAddress;
+        if (null != nsRecord) {
+            ResourceRecord addressNsRecord = ResourceRecord.findRecord(nsRecord.getRdata(), ResourceRecord.ADDRESS,
+                    leseRecordListe());
+            if (null != addressNsRecord) {
+                dnsServerAddress = addressNsRecord.getRdata();
+                answerResourceRecords.addAll(resolveWithNameserver(query, dnsServerAddress));
+            }
+        }
+        if (answerResourceRecords.isEmpty()) {
+            dnsServerAddress = getSystemSoftware().getDNSServer();
+            answerResourceRecords.addAll(resolveWithNameserver(query, dnsServerAddress));
+        }
+        return answerResourceRecords;
+    }
+
+    private List<ResourceRecord> resolveWithNameserver(Query query, String dnsServerAddress) {
+        List<ResourceRecord> answerResourceRecords = new ArrayList<>();
+        if (StringUtils.isNoneBlank(dnsServerAddress)) {
+            try {
+                DNSNachricht remoteResponse = resolver.resolve(query.holeDomainname(), query.holeTyp(),
+                        dnsServerAddress);
+                answerResourceRecords.addAll(remoteResponse.holeAntwortResourceRecords());
+                answerResourceRecords.addAll(remoteResponse.holeAuthoritativeResourceRecords());
+
+            } catch (TimeOutException e) {
+                LOG.debug("Could not retrieve answer for DNS query: " + query, e);
+            }
+        }
+        return answerResourceRecords;
+    }
+
+    List<ResourceRecord> answerWithLocalData(Query query) {
+        List<ResourceRecord> answerResourceRecords = new ArrayList<>();
+        ResourceRecord responseRecord = ResourceRecord.findRecord(query.holeDomainname(), query.holeTyp(),
+                leseRecordListe());
+        if (responseRecord != null) {
+            answerResourceRecords.add(responseRecord);
+            if (responseRecord.getType().equals(ResourceRecord.MAIL_EXCHANGE)
+                    || responseRecord.getType().equals(ResourceRecord.NAME_SERVER)) {
+                ResourceRecord addressForMxOrNsRecord = ResourceRecord.findRecord(responseRecord.getRdata(),
+                        ResourceRecord.ADDRESS, leseRecordListe());
+                if (addressForMxOrNsRecord != null) {
+                    answerResourceRecords.add(addressForMxOrNsRecord);
+                }
+            }
+        }
+        return answerResourceRecords;
+    }
+
     public void loescheResourceRecord(String domainname, String typ) {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (DNSServer), loescheResourceRecord(" + domainname + "," + typ + ")");
@@ -170,49 +264,6 @@ public class DNSServer extends UDPServerAnwendung {
             }
         }
         this.schreibeRecordListe(rrList);
-    }
-
-    public ResourceRecord holeRecord(String domainname, String typ) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + " (DNSServer), holeRecord("
-                + domainname + "," + typ + ")");
-
-        for (ResourceRecord rr : leseRecordListe()) {
-            if (rr.getDomainname().equalsIgnoreCase(domainname) && rr.getType().equals(typ)) {
-                return rr;
-            }
-        }
-
-        return null;
-    }
-
-    public ResourceRecord holeNSRecord(String domainname) {
-        String domain;
-        String[] parts = domainname.split("\\.");
-
-        for (int i = 0; i < parts.length; i++) {
-            domain = this.implodeDomain(parts, i);
-            for (ResourceRecord rr : leseRecordListe()) {
-                if (rr.getDomainname().equalsIgnoreCase(domain) && rr.getType().equals(ResourceRecord.NAME_SERVER)) {
-                    return rr;
-                }
-            }
-        }
-        for (ResourceRecord rr : leseRecordListe()) {
-            if (rr.getDomainname().equalsIgnoreCase(".")) {
-                return rr;
-            }
-        }
-
-        return null;
-    }
-
-    private String implodeDomain(String[] parts, int start) {
-        StringBuffer domain = new StringBuffer();
-        for (int i = start; i < parts.length; i++) {
-            domain.append(parts[i]);
-            domain.append(".");
-        }
-        return domain.toString();
     }
 
     protected void neuerMitarbeiter(Socket socket) {

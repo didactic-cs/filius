@@ -25,7 +25,9 @@
  */
 package filius.software.dns;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -152,7 +154,7 @@ public class DNSNachricht {
      * NSCOUNT an unsigned 16 bit integer specifying the number of name server resource records in the authority records
      * section.
      */
-    private int nameServerCount = 0;
+    private int authoritativeAnswerCount = 0;
 
     /** ARCOUNT Anzahl der Resource Records in der 'additional section' */
     private int additionalCount = 0;
@@ -212,7 +214,7 @@ public class DNSNachricht {
                 } else if (token.startsWith("ANCOUNT")) {
                     answerCount = Integer.parseInt(token.substring(8));
                 } else if (token.startsWith("NSCOUNT")) {
-                    nameServerCount = Integer.parseInt(token.substring(8));
+                    authoritativeAnswerCount = Integer.parseInt(token.substring(8));
                 } else if (token.startsWith("ARCOUNT")) {
                     additionalCount = Integer.parseInt(token.substring(8));
                 }
@@ -226,7 +228,7 @@ public class DNSNachricht {
                 line = lineTokenizer.nextToken();
                 answerRecords.add(new ResourceRecord(line));
             }
-            for (int i = 0; i < nameServerCount && lineTokenizer.hasMoreTokens(); i++) {
+            for (int i = 0; i < authoritativeAnswerCount && lineTokenizer.hasMoreTokens(); i++) {
                 line = lineTokenizer.nextToken();
                 authoratativeRecords.add(new ResourceRecord(line));
             }
@@ -252,7 +254,7 @@ public class DNSNachricht {
         buffer.append("RCODE=" + responseCode + " ");
         buffer.append("QDCOUNT=" + queryCount + " ");
         buffer.append("ANCOUNT=" + answerCount + " ");
-        buffer.append("NSCOUNT=" + nameServerCount + " ");
+        buffer.append("NSCOUNT=" + authoritativeAnswerCount + " ");
         buffer.append("ARCOUNT=" + additionalCount + " ");
         buffer.append("\n");
 
@@ -316,14 +318,26 @@ public class DNSNachricht {
         return additionalRecords;
     }
 
+    /** retrieve all resource records no matter what section they are in */
+    public List<ResourceRecord> holeResourceRecords() {
+        List<ResourceRecord> list = new ArrayList<>();
+        list.addAll(answerRecords);
+        list.addAll(authoratativeRecords);
+        list.addAll(additionalRecords);
+        return list;
+    }
+
     /**
      * Diese Methode fuegt der DNS-Nachricht einen Resource Record hinzu. Das Format muss folgendermassen aussehen: NAME
      * TYPE CLASS TTL RDATA (Bsp. web.de. A IN 3600 217.72.195.42)
      */
     public void hinzuAntwortResourceRecord(String record) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (DNSNachricht), hinzuAntwortResourceRecord(" + record + ")");
         hinzuAntwortResourceRecord(new ResourceRecord(record));
+    }
+
+    public void hinzuAntwortResourceRecords(List<ResourceRecord> rrList) {
+        answerRecords.addAll(rrList);
+        answerCount += rrList.size();
     }
 
     public void hinzuAntwortResourceRecord(ResourceRecord rr) {
@@ -336,12 +350,13 @@ public class DNSNachricht {
      * TYPE CLASS TTL RDATA (Bsp. web.de. A IN 3600 217.72.195.42)
      */
     public void hinzuAuthoritativeResourceRecord(String record) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
-                + " (DNSNachricht), hinzuAuthoritativeResourceRecord(" + record + ")");
-        LOG.trace("INVOKED: " + getClass() + ", hinzuAuthoritativeResourceRecord(" + record + ")");
         authoratativeRecords.add(new ResourceRecord(record));
-        nameServerCount++;
+        authoritativeAnswerCount++;
+    }
 
+    public void hinzuAuthoritativeResourceRecords(List<ResourceRecord> rrList) {
+        authoratativeRecords.addAll(rrList);
+        authoritativeAnswerCount += rrList.size();
     }
 
     /**

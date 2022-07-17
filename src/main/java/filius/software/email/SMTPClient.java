@@ -243,7 +243,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
         String[] teileDerEmail = url.split("@");
         try {
             return getSystemSoftware().holeDNSClient().holeIPAdresseMailServer(teileDerEmail[1]);
-        } catch (java.util.concurrent.TimeoutException e) {
+        } catch (TimeOutException e) {
             LOG.debug("", e);
         }
 
