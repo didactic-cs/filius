@@ -137,7 +137,7 @@ public class Resolver extends ClientAnwendung {
         return resolve(domainname, ResourceRecord.MAIL_EXCHANGE, dnsServerAddress);
     }
 
-    DNSNachricht resolve(String domainname, String type, String dnsServerAddress) throws TimeOutException {
+    public DNSNachricht resolve(String domainname, String type, String dnsServerAddress) throws TimeOutException {
         if (!domainname.matches(".*\\.$")) {
             domainname += ".";
         }
