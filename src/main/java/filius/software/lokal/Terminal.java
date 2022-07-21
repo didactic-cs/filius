@@ -668,42 +668,42 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 
      */
     public String host(String[] args) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), host(");
-        for (int i = 0; i < args.length; i++) {
-            LOG.debug(i + "='" + args[i] + "' ");
-        }
-        LOG.debug(")");
+        benachrichtigeBeobachter(Boolean.TRUE);
         if (!numParams(args, 1)) {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44"));
-            return messages.getString("sw_terminal_msg32") + messages.getString("sw_terminal_msg44");
-        }
-        Betriebssystem bs = (Betriebssystem) getSystemSoftware();
-        filius.software.dns.Resolver res = bs.holeDNSClient();
-        if (res == null) {
-            LOG.debug("ERROR (" + this.hashCode() + "): Terminal 'host': Resolver is null!");
-            benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
-            return messages.getString("sw_terminal_msg30");
-        }
-        String result;
-
-        try {
-            result = res.holeIPAdresse(args[0]);
-            if (result != null) {
-                benachrichtigeBeobachter(args[0] + " " + messages.getString("sw_terminal_msg28") + " " + result + "\n");
-                return args[0] + " " + messages.getString("sw_terminal_msg28") + " " + result + "\n";
-            } else {
-                LOG.debug("ERROR (" + this.hashCode() + "): Terminal 'host': result is null!");
-                benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
-                return messages.getString("sw_terminal_msg30");
+        } else {
+            Resolver res = getSystemSoftware().holeDNSClient();
+            try {
+                DNSNachricht result = res.resolveA(args[0]);
+                int resultCount = 0;
+                for (ResourceRecord rr : result.holeResourceRecords()) {
+                    if (ResourceRecord.ADDRESS.equals(rr.getType())) {
+                        benachrichtigeBeobachter(rr.getDomainname() + " " + messages.getString("sw_terminal_msg28")
+                                + " " + rr.getRdata() + "\n");
+                        resultCount++;
+                    }
+                }
+                result = res.resolveMX(args[0]);
+                for (ResourceRecord rr : result.holeResourceRecords()) {
+                    if (ResourceRecord.MAIL_EXCHANGE.equals(rr.getType())) {
+                        benachrichtigeBeobachter(rr.getDomainname() + " " + messages.getString("sw_terminal_msg58")
+                                + " " + rr.getRdata() + "\n");
+                        resultCount++;
+                    }
+                }
+                if (resultCount == 0) {
+                    LOG.debug("Terminal 'host': result is empty!");
+                    benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
+                }
+            } catch (TimeOutException e) {
+                benachrichtigeBeobachter(messages.getString("sw_terminal_msg31"));
+            } catch (Exception e) {
+                LOG.debug("", e);
+                benachrichtigeBeobachter(messages.getString("sw_terminal_msg29"));
             }
-        } catch (TimeOutException e) {
-            benachrichtigeBeobachter(messages.getString("sw_terminal_msg31"));
-            return messages.getString("sw_terminal_msg31");
-        } catch (Exception e) {
-            LOG.debug("", e);
-            benachrichtigeBeobachter(messages.getString("sw_terminal_msg29"));
-            return messages.getString("sw_terminal_msg29");
         }
+        benachrichtigeBeobachter(Boolean.FALSE);
+        return null;
     }
 
     public String nslookup(String[] args) {

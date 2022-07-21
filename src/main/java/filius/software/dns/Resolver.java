@@ -26,7 +26,9 @@
 package filius.software.dns;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -106,6 +108,10 @@ public class Resolver extends ClientAnwendung {
         return resolve(domainname, ResourceRecord.ADDRESS, dnsServer);
     }
 
+    public DNSNachricht resolveA(String domainname) throws TimeOutException {
+        return resolve(domainname, ResourceRecord.ADDRESS, getSystemSoftware().getDNSServer());
+    }
+
     public String holeIPAdresseMailServer(String domainname) throws TimeOutException {
         if (!domainname.matches(".*\\.$")) {
             domainname += ".";
@@ -133,6 +139,10 @@ public class Resolver extends ClientAnwendung {
         return relevantResourceRecords;
     }
 
+    public DNSNachricht resolveMX(String domainname) throws TimeOutException {
+        return resolve(domainname, ResourceRecord.MAIL_EXCHANGE, getSystemSoftware().getDNSServer());
+    }
+
     public DNSNachricht resolveMX(String domainname, String dnsServerAddress) throws TimeOutException {
         return resolve(domainname, ResourceRecord.MAIL_EXCHANGE, dnsServerAddress);
     }
@@ -150,6 +160,7 @@ public class Resolver extends ClientAnwendung {
         } else {
             serverToQuery = dnsServerAddress;
         }
+        Set<String> queriedDnsServer = new HashSet<>();
         while (serverToQuery != null) {
             DNSNachricht remoteResponse = queryAgent.query(type, domainname, serverToQuery, getSystemSoftware());
             if (remoteResponse == null) {
@@ -163,7 +174,7 @@ public class Resolver extends ClientAnwendung {
                 copyResourceRecords(remoteResponse, response, data.get(0).getRdata(), ResourceRecord.ADDRESS);
             }
             String nextServerToQuery = extractAddressForNameServer(remoteResponse.holeResourceRecords(), domainname);
-            serverToQuery = !serverToQuery.equals(nextServerToQuery) ? nextServerToQuery : null;
+            serverToQuery = queriedDnsServer.add(nextServerToQuery) ? nextServerToQuery : null;
         }
         LOG.debug("resolved dns query for {} {}: {}", domainname, type, response.holeResourceRecords());
         return response;

@@ -25,6 +25,7 @@
  */
 package filius.software.dns;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -198,6 +199,27 @@ public class ResourceRecord {
             }
         }
         return null;
+    }
+
+    /**
+     * Find the exact matching records for given domain and type.
+     * 
+     * @param domainname
+     *            the domainname to look for in field domainname of the resource record
+     * @param typ
+     *            one of A, NS, MX
+     * @param recordList
+     *            the list to search in
+     * @return the resource record list, emty if no applicable record could be found
+     */
+    public static List<ResourceRecord> findRecords(String domainname, String typ, List<ResourceRecord> recordList) {
+        List<ResourceRecord> matchingRecords = new ArrayList<>();
+        for (ResourceRecord rr : recordList) {
+            if (rr.getDomainname().equalsIgnoreCase(domainname) && rr.getType().equals(typ)) {
+                matchingRecords.add(rr);
+            }
+        }
+        return matchingRecords;
     }
 
     /**

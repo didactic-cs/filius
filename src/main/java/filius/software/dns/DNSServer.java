@@ -186,12 +186,12 @@ public class DNSServer extends UDPServerAnwendung {
 
     private List<ResourceRecord> defineNameserverRecords(Query query) {
         List<ResourceRecord> answerResourceRecords = new ArrayList<>();
-        ResourceRecord nameserverNSRecord = ResourceRecord.findApplicableNSRecord(query.holeDomainname(),
-                leseRecordListe());
+        List<ResourceRecord> records = leseRecordListe();
+        ResourceRecord nameserverNSRecord = ResourceRecord.findApplicableNSRecord(query.holeDomainname(), records);
         if (null != nameserverNSRecord) {
             answerResourceRecords.add(nameserverNSRecord);
             ResourceRecord nameserverARecord = ResourceRecord.findRecord(nameserverNSRecord.getRdata(),
-                    ResourceRecord.ADDRESS, leseRecordListe());
+                    ResourceRecord.ADDRESS, records);
             if (null != nameserverARecord) {
                 answerResourceRecords.add(nameserverARecord);
             }
@@ -201,17 +201,19 @@ public class DNSServer extends UDPServerAnwendung {
 
     List<ResourceRecord> answerWithRemoteData(Query query) {
         List<ResourceRecord> answerResourceRecords = new ArrayList<>();
-        ResourceRecord nsRecord = ResourceRecord.findApplicableNSRecord(query.holeDomainname(), leseRecordListe());
+        List<ResourceRecord> recordList = leseRecordListe();
+        ResourceRecord nsRecord = ResourceRecord.findApplicableNSRecord(query.holeDomainname(), recordList);
         String dnsServerAddress;
         if (null != nsRecord) {
             ResourceRecord addressNsRecord = ResourceRecord.findRecord(nsRecord.getRdata(), ResourceRecord.ADDRESS,
-                    leseRecordListe());
+                    recordList);
             if (null != addressNsRecord) {
                 dnsServerAddress = addressNsRecord.getRdata();
                 answerResourceRecords.addAll(resolveWithNameserver(query, dnsServerAddress));
             }
         }
-        if (answerResourceRecords.isEmpty()) {
+        if (answerResourceRecords.isEmpty()
+                && !getSystemSoftware().getDNSServer().equals(getSystemSoftware().holeIPAdresse())) {
             dnsServerAddress = getSystemSoftware().getDNSServer();
             answerResourceRecords.addAll(resolveWithNameserver(query, dnsServerAddress));
         }
@@ -226,7 +228,6 @@ public class DNSServer extends UDPServerAnwendung {
                         dnsServerAddress);
                 answerResourceRecords.addAll(remoteResponse.holeAntwortResourceRecords());
                 answerResourceRecords.addAll(remoteResponse.holeAuthoritativeResourceRecords());
-
             } catch (TimeOutException e) {
                 LOG.debug("Could not retrieve answer for DNS query: " + query, e);
             }
@@ -236,14 +237,15 @@ public class DNSServer extends UDPServerAnwendung {
 
     List<ResourceRecord> answerWithLocalData(Query query) {
         List<ResourceRecord> answerResourceRecords = new ArrayList<>();
-        ResourceRecord responseRecord = ResourceRecord.findRecord(query.holeDomainname(), query.holeTyp(),
-                leseRecordListe());
-        if (responseRecord != null) {
+        List<ResourceRecord> recordList = leseRecordListe();
+        List<ResourceRecord> matchingRecordList = ResourceRecord.findRecords(query.holeDomainname(), query.holeTyp(),
+                recordList);
+        for (ResourceRecord responseRecord : matchingRecordList) {
             answerResourceRecords.add(responseRecord);
             if (responseRecord.getType().equals(ResourceRecord.MAIL_EXCHANGE)
                     || responseRecord.getType().equals(ResourceRecord.NAME_SERVER)) {
                 ResourceRecord addressForMxOrNsRecord = ResourceRecord.findRecord(responseRecord.getRdata(),
-                        ResourceRecord.ADDRESS, leseRecordListe());
+                        ResourceRecord.ADDRESS, recordList);
                 if (addressForMxOrNsRecord != null) {
                     answerResourceRecords.add(addressForMxOrNsRecord);
                 }
