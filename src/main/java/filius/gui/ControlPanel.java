@@ -144,9 +144,9 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
 
     public void minimieren() {
         if (mode == HORIZONTAL) {
-            setPreferredSize(new Dimension(getWidth(), 20));
+            setPreferredSize(new Dimension(getWidth(), openClose.getHeight()));
         } else {
-            setPreferredSize(new Dimension(20, getHeight()));
+            setPreferredSize(new Dimension(openClose.getWidth(), getHeight()));
         }
         openClose.setIcon(getIcon(false));
         contentPanel.setVisible(false);
