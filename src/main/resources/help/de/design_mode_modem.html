@@ -1,0 +1,85 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Projet</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Ordinateur et portable</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span class="selected">Modem</span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Table de routage</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_firewall.html">Pare-feu</a></span>  
+  </div>
+  
+  <h1>Mode conception</h1>
+
+  <h2>Modem</h2>
+  
+  <div class="center"><img src="help/gfx/modem.png"></div> 
+
+  <p>Les composants Modem fonctionnent par deux. Ils permettent d'établir un lien 
+     entre deux réseaux disjoints. Les deux réseaux raccordés font alors partie
+     d'un même sous-réseau ; une même adresse IP ne pourra donc pas être utilisée
+     simultanément dans les deux.</p>
+ 
+  <p>Les deux réseaux raccordés par les modems peuvent se trouver dans le même 
+     projet FILIUS, mais également dans des projets distincts exécutés sur des
+     postes informatiques (réels) distincts.</p>   
+     
+  <p>Pour établir la connexion entre deux modems, l'un doit être configuré comme 
+     serveur et l'autre comme client. Ce choix n'a pas de répercussion sur les
+     échanges entre eux une fois la connexion établie.</p>      
+     
+  <h3>Configuration</h3>
+
+  <h4>Nom</h4>
+
+  <p>Le nom d'un modem peut être choisi arbitrairement et il n'a aucune influence
+     sur le fonctionnement de la simulation.</p>
+
+  <h4>Port</h4>
+
+  <p>Ce champ permet de spécifier un numéro de port qui est utilisé lorsque
+     ce modem est en mode serveur.</p>
+
+  <h4>Attendre les connections entrantes</h4>
+
+  <p>En cochant cette case, le modem passe en mode serveur et attend la connexion
+     d'un modem client. Une pastille orange sur son icône indique qu'il est en
+     attente de connexion.</p>
+
+  <div class="center"><img src="help/gfx/modem-waiting.png"></div> 
+     
+  <p>Un modem serveur ne peut être connecté qu'à un seul modem
+     client et inversement.</p>
+  
+  <p>Un modem ne peut pas être simultanément client et serveur.</p>
+
+  <h4>Adresse IP du modem distant</h4>
+
+  <p>Ce champ permet de préciser l'adresse IP (réelle) du poste sur lequel le modem 
+     serveur (virtuel) s'exécute dans FILIUS. Si le modem serveur est dans le même 
+     projet que le modem courant, on pourra saisir <b>localhost</b> en guise d'adresse IP.</p>
+
+  <h4>Port du modem distant</h4>
+  
+  <p>Ce champ permet de spécifier le numéro du port du modem serveur à contacter.</p>
+
+  <h4>Connecter/Déconnecter</h4>
+
+  <p>Ce bouton permet d'établir la connexion avec le modem serveur. Une fois la connexion
+     établie, les icônes des deux modems présentent une pastille verte.</p>
+
+  <div class="center"><img src="help/gfx/modem-connected.png"></div> 
+     
+  <p>Ce bouton permet également d'interrompre une connexion, aussi bien depuis le client
+     que depuis le serveur.</p>
+
+</body>
+</html>

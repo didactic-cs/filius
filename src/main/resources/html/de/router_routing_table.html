@@ -1,0 +1,35 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Table de routage</title>
+  <style type="text/css"></style>
+</head>
+<body>
+  <h1> Routeur – :routername:</h1>
+  <div id="menu"><a href="./">&nbsp;&nbsp;Interfaces&nbsp;&nbsp;</a> <span class="selected">&nbsp;&nbsp;Table de routage&nbsp;&nbsp;</span>
+    <a href="log">&nbsp;&nbsp;Journal du pare-feu&nbsp;&nbsp;</a> <a href="config">&nbsp;&nbsp;Configuration du pare-feu&nbsp;&nbsp;</a></div>
+    
+  <div id="table">  
+  <table>
+    <tr class="head">
+      <th colspan=2>Réseau</th>
+      <th>Sauts</th>
+      <th>Validité</th>
+      <th colspan=2 class="last">Saut suivant</th>
+    </tr> 
+    <tr class="head">
+      <th>Adresse</th>
+      <th>Masque</th>
+      <th>&nbsp;</th>
+      <th>(sec)</th>
+      <th>Destination</th>
+      <th class="last">Adresse publique</th>
+    </tr>
+    :routing_entries:
+  </table>
+  </div>
+  
+  <p>:hint:</p>
+ 
+</body>
+</html>

@@ -1,0 +1,97 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Projet</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Ordinateur et portable</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Table de routage</a></span>&nbsp;&nbsp;
+    <span class="selected">Pare-feu</span> 
+  </div>
+
+  <h1>Mode conception</h1>
+
+  <h2>Pare-feu</h2>  
+
+  <p>Le pare-feu filtre certains paquets qui transitent par le routeur. En fonction de
+     leur origine, de leur destination et de leur type, certains paquets peuvent 
+     être abandonnés par le routeur qui interrompt alors leur transmission.</p> 
+
+  <h3>Configuration</h3>  
+
+  <h4>Règles de filtrage</h4>
+
+  <p>Une règle de filtrage est constituée des éléments suivants :</p>
+  
+  <ul>
+  <li>Une <b>adresse IP</b> et un <b>masque source</b> qui déterminent un sous-réseau ou un hôte.
+      La règle ne s'appliquera qu'aux paquets dont la source correspond.<br>
+      En laissant ces deux champs vides ou en saisissant 0.0.0.0 dans les deux,
+      la règle s'appliquera quelle que soit la source.</li>
+  <li>Une <b>adresse IP</b> et un <b>masque destination</b> qui déterminent un sous-réseau ou un hôte.
+      La règle ne s'appliquera qu'aux paquets dont la destination correspond.<br>
+      En laissant ces deux champs vides ou en saisissant 0.0.0.0 dans les deux,
+      la règle s'appliquera quelle que soit la destination.</li>
+  <li>Le <b>Protocole</b> peut être choisi parmi TCP, UDP ou les deux (*). La règle
+      ne s'appliquera qu'aux paquets dont le protocole correspond.</li>
+  <li>Le <b>Port</b> désigne le numéro du port de destination. Ce champ peut être
+      laissé vide pour désigner n'importe quel port. La règle
+      ne s'appliquera qu'aux paquets dont le port de destination correspond.</li>
+  <li>Enfin, le champ <b>Action</b> détermine l'action à entreprendre lorsque la 
+      règle s'applique. Le paquet est soit accepté, auquel cas le routeur procèdera 
+      à son routage, soit rejeté et, dans ce cas, le paquet est détruit.</li>
+  </ul>
+
+  <p>L'ordre des règles est important. En effet, pour déterminer si un paquet est accepté
+     ou rejeté, le pare-feu parcourt la table des règles du haut vers le bas jusqu'à
+     ce qu'une règle s'applique.</p>
+
+  <p>Pour modifier l'ordre des règles dans la table, 
+     sélectionner la règle à repositionner, puis utiliser les raccourcis clavier 
+     Alt + Flèche haut ou Alt + Flèche bas.</p>
+
+  <p>La règle par défaut, toujours placée en fin de table, s'applique à tous les paquets
+     pour lesquels aucune règle plus spécifique n'existe. La règle par défaut ne peut
+     être supprimée. Seule son action peut être modifiée.</p>
+     
+  <h4>Ne rejeter que les paquets TCP dont le drapeau SYN est activé</h4>
+
+  <p>Lors de l'établissement d'une connexion TCP entre un client et un serveur,
+     le premier paquet TCP envoyé a un drapeau de synchronisation (SYN) qui 
+     est activé. Intercepter ce type de paquet est suffisant pour faire échouer
+     une transaction TCP.</p>
+
+  <p>Un autre avantage est qu'il devient inutile pour le pare-feu de contrôler les 
+     paquets TCP sans le drapeau SYN activé puisque ces derniers correspondent 
+     nécessairement à des transactions préalablement autorisées.</p>
+
+  <h4>Rejeter les paquets ICMP</h4>
+
+  <p>Le protocole ICMP est utilisé notamment pour envoyer des messages d'erreurs
+     relatifs au fonctionnement du réseau. Ce protocole est indépendant de TCP 
+     et de UDP. Il peut être filtré en cochant cette case.</p>
+
+  <p>Si les paquets ICMP sont rejetés, l'instruction ping entre deux postes
+     situés de part et d'autre du routeur ne fonctionnera pas. ping utilise
+     en effet le protocole ICMP pour fonctionner.</p>
+
+  <h4>Activer le pare-feu</h4>
+
+  <p>Cocher cette case permet d'activer le pare-feu du routeur. Lorsque le pare-feu
+     est actif, les règles de filtrage sont appliquées à tous les paquets qui 
+     parviennent au routeur. Seuls les paquets acceptés par le pare-feu sont routés.</p>
+     
+  <p>Un routeur dont le pare-feu est activé est aisément identifiable grâce à son icône.</p>   
+     
+  <div class="center"><img src="help/gfx/router-firewall.png"></div> 
+
+</body>
+</html>

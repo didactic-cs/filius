@@ -1,0 +1,85 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>
+  <div class="menu">
+    <span><a href="simulation_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_data_exchange.html">Suivi des données</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_desktop.html">Bureau</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_editor.html">Éditeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_explorer.html">Explorateur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_image_viewer.html">Images</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_command_line.html">Commandes</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_dns.html">DNS</a></span>&nbsp;&nbsp;
+    <span class="selected">Pare-feu</span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_basic.html">Client et serveur génériques</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_email.html">Messagerie</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_web.html">Web</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_peertopeer.html">Filius-Share</a></span>&nbsp;&nbsp;
+  </div>
+  
+  <h1>Mode simulation</h1>
+  
+  <h2>Pare-feu</h2>
+  
+  <div class="center"><img src="help/gfx/icon_firewall.png"></div>
+
+  <p>L'application pare-feu d'un poste permet de protéger ce poste en rejetant
+     certains paquets IP entrants.</p>
+  
+  <p>Cette application ne doit pes être confondue avec le pare-feu des routeurs qui
+     opère sur les paquets en transit. Pour plus d'information sur ce type de pare-feu,
+     on pourra consulter la page consacrée aux <a href="simulation_mode_router.html">routeurs</a>.</p>
+     
+  <p>Lorsque le pare-feu est désactivé, aucun filtrage n'est réalisé et tous les paquets
+     IP entrants sont donc acceptés.</p>
+  
+  <p>Lorsque le pare-feu est activé, les paquets entrants ne sont acceptés que s'ils 
+     satisfont à l'une des règles de filtrage définies. En l'absence de règle, tous 
+     les paquets seront donc rejetés.</p>   
+
+  <h3>Règles de filtrage</h3>
+  
+  <p>Le pare-feu accepte ou rejette les paquets IP entrants en se basant sur des règles
+     définies par l'utilisateur.</p>
+
+  <p>Chaque règle précise un protocole, un numéro de port et un domaine source.</p>
+  
+  <p>Le protocole peut être TCP, UDP ou les deux (*)</p>
+  
+  <p>Le numéro de port peut être n'importe quel nombre compris entre 0 et 65535.</p>
+  
+  <p>Le domaine source peut être la totalité du réseau ou uniquement le sous-réseau
+     auquel le poste appartient.</p>
+     
+  <p>L'ordre des règles n'est pas important.</p>
+  
+  <p>Lorsque le pare-feu est actif, tout paquet IP entrant est intercepté.
+     Le pare-feu parcourt alors la liste des règles de filtrage. Dès que l'une d'elles 
+     est satisfaite, le paquet est transmis à l'application destinataire. Si par
+     contre aucune règle n'est satisfaite, le paquet est rejeté.</p>
+     
+  <h4>Rejeter les paquets ICMP (Ping, etc.)</h4>
+     
+  <p>Lorsque cette case est cochée, les paquets entrants de type ICMP seront rejetés.
+     En particulier, le poste ne répondra pas aux Pings.</p>   
+  
+  <h3>Journalisation</h3>
+  
+  <p>Le journal permet de suivre les activités du pare-feu.</p>
+  
+  <h3>État du pare-feu</h3>
+  
+  <p>Cocher la case Activer le pare-feu pour rendre ce dernier opérationnel.</p>
+  
+  <p>Un poste dont le pare-feu est activé est aisément identifiable grâce à son icône.</p>
+  
+  <div class="center"><img src="help/gfx/computer-firewall.png"></div>
+
+</body>
+</html>

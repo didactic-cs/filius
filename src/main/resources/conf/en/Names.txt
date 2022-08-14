@@ -1,0 +1,16 @@
+# This file is to be used with Applications.txt.
+# The lines in both files must match exactly (order and count).
+#--------------------------------------------------------------
+-;Ligne de commande
+-;Explorateur de fichiers
+-;Éditeur de textes
+-;Afficheur d’images
+Pare-feu;Parefeu
+DNS;Serveur DNS
+Générique;Serveur générique
+Générique;Client générique
+Web;Serveur web
+Web;Navigateur web
+Messagerie;Serveur de messagerie
+Messagerie;Client de messagerie
+Pair-à-pair;Filius-Share

@@ -1,0 +1,13 @@
+Ligne de commande;filius.software.apps.terminal.Terminal;filius.software.apps.terminal.GUITerminal;gfx/desktop/terminal/icon.png;-
+Explorateur de fichiers;filius.software.apps.fileexplorer.FileExplorer;filius.software.apps.fileexplorer.GUIFileExplorer;gfx/desktop/fileexplorer/icon.png;-
+Éditeur de textes;filius.software.apps.texteditor.TextEditor;filius.software.apps.texteditor.GUITextEditor;gfx/desktop/texteditor/icon.png;-
+Afficheur d’images;filius.software.apps.imageviewer.ImageViewer;filius.software.apps.imageviewer.GUIImageViewer;gfx/desktop/imageviewer/icon.png;-
+Pare-feu;filius.software.clientserver.firewall.Firewall;filius.software.clientserver.firewall.GUIFirewall;gfx/desktop/firewall/icon.png;Parefeu
+Serveur DNS;filius.software.clientserver.dns.DNSServer;filius.software.clientserver.dns.GUIDNSServer;gfx/desktop/dns/icon.png;DNS
+Serveur générique;filius.software.clientserver.basic.BasicServer;filius.software.clientserver.basic.GUIBasicServer;gfx/desktop/basicserver/icon.png;Générique
+Client générique;filius.software.clientserver.basic.BasicClient;filius.software.clientserver.basic.GUIBasicClient;gfx/desktop/basicclient/icon.png;Générique
+Serveur web;filius.software.clientserver.web.WebServer;filius.software.clientserver.web.GUIWebServer;gfx/desktop/webserver/icon.png;Web
+Navigateur web;filius.software.clientserver.web.WebBrowser;filius.software.clientserver.web.GUIWebBrowser;gfx/desktop/webbrowser/icon.png;Web
+Serveur de messagerie;filius.software.clientserver.email.EmailServer;filius.software.clientserver.email.GUIEmailServer;gfx/desktop/emailserver/icon.png;Messagerie
+Client de messagerie;filius.software.clientserver.email.EmailClient;filius.software.clientserver.email.GUIEmailClient;gfx/desktop/emailclient/icon.png;Messagerie
+Filius-Share;filius.software.clientserver.peertopeer.PeerToPeerApplication;filius.software.clientserver.peertopeer.GUIPeerToPeerApplication;gfx/desktop/peertopeer/icon.png;Pair-à-pair

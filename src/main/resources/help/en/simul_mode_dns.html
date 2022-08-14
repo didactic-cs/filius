@@ -1,0 +1,78 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>
+  <div class="menu">
+    <span><a href="simulation_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_data_exchange.html">Suivi des données</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_desktop.html">Bureau</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_editor.html">Éditeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_explorer.html">Explorateur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_image_viewer.html">Images</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_command_line.html">Commandes</a></span>&nbsp;&nbsp;
+    <span class="selected">DNS</span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_firewall.html">Pare-feu</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_basic.html">Client et serveur génériques</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_email.html">Messagerie</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_web.html">Web</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_peertopeer.html">Filius-Share</a></span>&nbsp;&nbsp;
+  </div>
+  
+  <h1>Mode simulation</h1>
+  
+  <h2>Serveur DNS</h2>
+  
+  <div class="center"><img src="help/gfx/icon_dns.png"></div>
+
+  <p>Le service de noms de domaines (DNS : Domain Name Service) a pour fonction
+     de résoudre les nom de domaines en adresses IP. Le serveur reçoit des requêtes
+     comportant un nom de d'hôte et renvoie l'adresse IP correspondante.</p>
+
+  <h3>Résolution directe des noms d'hôtes</h3>
+  
+  <p>Le serveur DNS peut résoudre lui-même certains noms d'hôtes.
+     Il dispose pour cela d'une table d'enregistrements de type A.</p>
+     
+  <p>Chaque enregistrement de type A contient un nom d'hôte pleinement
+     qualifié accompagné de l'adresse IP associée.</p>
+     
+  <h3>Délégation de la résolution à un serveur de noms</h3>
+  
+  <p>Un serveur DNS qui ne peut pas résoudre lui-même un nom d'hôte peut solliciter
+     d'autres serveurs. Il doit pour cela disposer d'une table d'enregistrements de 
+     type NS.</p>
+     
+  <p>Chaque enregistrement de type NS contient un nom de domaine accompagné du
+     nom du serveur qui en a la charge. Ce nom de serveur doit être présent dans
+     la table des enregistrements de type A.</p>
+     
+  <p>Le serveur sollicité peut ne pas être en mesure de résoudre le nom. Dans ce cas,
+     si l'option de résolution récursive est activée, ce serveur pourra solliciter
+     lui-même un autre serveur de noms. La délégation pourra éventuellement se produire
+     plusieurs fois avant que le nom puisse être finalement résolu.</p>   
+     
+  <h3>Domaines de messagerie</h3>
+  
+  <p>Pour la transmissions de certain courriels, les serveurs SMTP ont besoin
+     de connaitre l'adresse IP du serveur SMTP du destinataire. Ils sollicitent
+     pour cela le serveur DNS qui dispose à cette fin d'une table d'enregistrements
+     de type MX.</p>
+     
+  <p>Chaque enregistrement de type MX contient un nom de domaine pleinement
+     qualifié accompagné du nom du serveur SMTP associé.</p>
+  
+  <h4>État du service DNS</h4>
+  
+  <p>Cocher la case Activer le service DNS pour rendre ce dernier opérationnel.</p>
+  
+  <p>Un poste dont le service DNS est activé est aisément identifiable grâce à son icône.</p>
+  
+  <div class="center"><img src="help/gfx/computer-dns.png"></div>
+
+</body>
+</html>

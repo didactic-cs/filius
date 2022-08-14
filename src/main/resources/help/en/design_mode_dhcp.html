@@ -1,0 +1,77 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">General</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Project</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Computer and notebook</a></span>&nbsp;&nbsp;
+    <span class="selected">DHCP</span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;  
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Router</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Routing table</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_firewall.html">Firewall</a></span>  
+  </div>
+
+  <h1>Design mode</h1>
+
+  <h2>DHCP service</h2>  
+
+  <p>The DHCP service assigns any station that requests it an IP address and 
+     a subnet mask. It can optionally also provide the IP address of a gateway
+     and the IP address of a DNS server.</p> 
+     
+  <h3>Setup</h3>  
+  
+  <h4>Start IP address / End IP address</h4>
+  
+  <p>These two IP addresses delimit the range of IP addresses which will be assigned 
+     to the stations which will request them. These addresses must be in the same 
+     subnet as the server.</p>
+
+  <p>For network components whose IP addresses are not assigned automatically by a 
+     DHCP server, it should be ensured that the addresses used are not within the
+     range of addresses distributed by the server.</p>   
+     
+  <h4>Subnet mask</h4>  
+  
+  <p>This read-only field recalls the subnet mask of the server. It is also this 
+     mask which is communicated to the clients at the same time as the requested 
+     IP address.</p>
+     
+  <h4>Reserved addresses</h4>
+  
+  <p>This button provides access to the list of reserved IP addresses. These are 
+     MAC address / IP address pairs allowing a specific IP address to be assigned
+     to certain components which need to always have the same IP address.</p>
+
+  <p>In the table, use the context menu (right click) on the rows to add, delete 
+     or modify a pair of reserved addresses.</p>     
+     
+  <p>Reserved IP addresses must not lie within the range of automatically 
+     distributed IP addresses. </p>   
+  
+  <h4>Gateway and DNS server</h4>
+  
+  <p>These two fields are used to define the IP address of a gateway as well as
+     the IP address of a DNS server which will be communicated to client stations.</p>
+
+  <h4>Identical to the server's parameters</h4>
+  
+  <p>When this box is checked, the server uses its own gateway and DNS server 
+     settings rather than those defined above.</p>
+  
+  <h4>Activate the DHCP service</h4>  
+  
+  <p>By checking this box, the DHCP service is made active on this station.</p> 
+  
+  <p>Each time the simulation mode is activated, the stations configured as DHCP 
+     clients will request a DHCP server to obtain an IP address, a subnet mask, 
+     the IP address of a gateway and the IP address of a DNS server.</p>  
+
+</body>
+</html>

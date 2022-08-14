@@ -1,0 +1,144 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Configuration du pare-feu</title>
+  <style type="text/css"></style>
+</head>
+<body>
+  <h1> Routeur – :routername:</h1>
+  <div id="menu"><a href="./">&nbsp;&nbsp;Interfaces&nbsp;&nbsp;</a> <a href="routes">&nbsp;&nbsp;Table de routage&nbsp;&nbsp;</a>
+    <a href="log">&nbsp;&nbsp;Journal du pare-feu&nbsp;&nbsp;</a> <span class="selected">&nbsp;&nbsp;Configuration du pare-feu&nbsp;&nbsp;</span></div>
+
+  <div id="table">
+  
+  :errorTitle:
+
+  <form action=":action_path:" method="POST">
+    
+  <table>
+    <tr class="head">
+      <td class="caption" colspan="2">Paramètres généraux</td>
+    </tr>
+    <tr>
+      <td class="checkbox"><input name="firewallActivate" type="checkbox" :firewallActivateChecked:></td>
+      <td class="label">Activer le parefeu</td>
+    </tr>    
+	<tr>
+      <td class="checkbox"><input name="dropICMP" type="checkbox" :dropICMPChecked:></td>
+      <td class="label">Rejeter les paquets ICMP</td>
+    </tr>    
+    <tr>
+      <td class="checkbox"><input name="onlySYN" type="checkbox" :onlySYNChecked:></td>
+	  <td class="label">Ne rejeter que les paquets TCP dont le drapeau SYN est activé</td>
+	</tr>	
+    <tr>
+      <td class="buttons" colspan="2" style="padding-bottom: 5px;">
+        <input type="submit" name="btnSave" value="Enregistrer">
+      </td>
+    </tr>
+  </table>
+  
+      
+  <table>
+    <tr class="head">
+      <td class="caption" colspan="2">Règles du parefeu</td>
+    </tr>    
+    <tr>
+      <td colspan="2" class="last">
+        <table id="rulesTable">
+          <tr class="head">
+            <th>ID</th>
+            <th>IP source</th>
+            <th>Masque s.</th>
+            <th>IP destination</th>
+            <th>Masque d.</th>
+            <th>Protoc.</th>
+            <th>Port</th>
+            <th>Action</th>
+            <th class="last"></th>
+          </tr>
+:ruleset:
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="last">Action à appliquer à la règle sélectionnée :</td>
+    </tr>
+    <tr>
+      <td colspan="2" class="last">
+        <input type="submit" name="moveup" value="Remonter">&nbsp;
+        <input type="submit" name="movedown" value="Descendre">&nbsp;
+        <input type="submit" name="delrule" value="Supprimer">
+      </td>
+    </tr>
+    <tr>
+      <td class="right40">Règle par défaut :</td>
+      <td class="left60"><select name="defaultPolicy" size="1">
+            <option value="drop" :defPolDropSelected:>rejeter</option>
+            <option value="accept" :defPolAcceptSelected:>accepter</option>
+          </select>
+          <input type="submit" name="defPolSet" value="Enregistrer">
+      </td>
+    </tr>
+  </table>
+  
+  
+:errorMsg:
+  <table class="blockTable">
+    <tr class="head">
+      <td class="caption" colspan="2">Ajouter une règle</td>
+    </tr>
+    <tr>
+      <td colspan="2" class="last">Tous les champs sont optionnels, sauf protocole et Action.</td>
+    </tr>
+    <tr>
+      <td class="right50">IP source : </td>
+      <td class="left50"><input name="srcIP" type="text" size="10" maxlength="15" value=":srcIP:"></td>
+    </tr>
+    <tr>
+      <td class="right50">Masque source : </td>
+      <td class="left50"><input name="srcMask" type="text" size="10" maxlength="15" value=":srcMask:"></td>
+    </tr>
+    <tr>
+      <td class="right50">IP destination : </td>
+      <td class="left50"> <input name="destIP" type="text" size="10" maxlength="15" value=":destIP:"></td>
+    </tr>
+    <tr>
+      <td class="right50">Masque destination : </td>
+      <td class="left50"> <input name="destMask" type="text" size="10" maxlength="15" value=":destMask:"></td>
+    </tr>
+    <tr>
+      <td class="right50">Protocole : </td>
+      <td class="left50">
+        <select name="protocol" size="1">
+          <option value="*" :optionProtAll:>*</option>
+          <option value="TCP" :optionProtTCP:>TCP</option>
+          <option value="UDP" :optionProtUDP:>UDP</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="right50">Port : </td>
+      <td class="left50"> <input name="port" type="text" size="5" maxlength="5" value=":port:"></td>
+    </tr>
+    <tr>
+      <td class="right50">Action : </td>
+      <td class="left50">
+        <select name="action" size="1">
+          <option value="drop" :optionActionDrop:>rejeter</option>
+          <option value="accept" :optionActionAccept>accepter</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="last" style="padding-bottom: 5px;">
+        <input type="submit" name="addrule" value="Ajouter">
+      </td>
+    </tr>
+  </table>
+  
+  </form>
+  <br>
+  </div>
+</body>
+</html>

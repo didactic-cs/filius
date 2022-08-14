@@ -1,0 +1,82 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">General</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Project</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Computer and notebook</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span class="selected">Modem</span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Router</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Routing table</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_firewall.html">Firewall</a></span>  
+  </div>
+  
+  <h1>Design mode</h1>
+
+  <h2>Modem</h2>
+  
+  <div class="center"><img src="help/gfx/modem.png"></div> 
+
+  <p>Modem components work in pairs. They make it possible to establish a link between two
+     disjoint networks. The two connected networks are then part of the same sub-network; 
+     the same IP address cannot therefore be used simultaneously in both.</p>
+ 
+  <p>The two networks connected by the modems can be found in the same FILIUS project,
+     but also in separate projects executed on separate (real) computers.</p>   
+     
+  <p>To establish the connection between two modems, one must be configured as a server
+     and the other as a client. This choice has no impact on the exchanges between them 
+     once the connection is established.</p>      
+     
+  <h3>Settings</h3>
+
+  <h4>Name</h4>
+
+  <p>The name of a modem can be chosen arbitrarily and it has no influence on the operation
+     of the simulation.</p>
+
+  <h4>Port</h4>
+
+  <p>This field allows you to specify a port number that is used when this modem is in 
+     server mode.</p>
+
+  <h4>Wait for incoming connection request</h4>
+
+  <p>By checking this box, the modem switches to server mode and waits for a connection 
+     from a client modem. An orange dot on its icon indicates that it is waiting for 
+     connection.</p>
+
+  <div class="center"><img src="help/gfx/modem_waiting.png"></div> 
+     
+  <p>A server modem can only be connected to one client modem and vice versa.</p>
+  
+  <p>A modem cannot be both a client and a server.</p>
+
+  <h4>IP adresse of the remote modem</h4>
+
+  <p>This field allows you to specify the (real) IP address of the computer on which
+     the (virtual) server modem is running in FILIUS. If the server modem is in the 
+     same project as the current modem, you can enter <b>localhost</b> as the IP address.</p>
+
+  <h4>Port of the remote modem</h4>
+  
+  <p>This field allows you to specify the port number of the server modem to contact.</p>
+
+  <h4>Connect/Disconnect</h4>
+
+  <p>This button is used to establish the connection with the server modem. Once the 
+     connection is established, the icons of the two modems show a green dot.</p>
+
+  <div class="center"><img src="help/gfx/modem_connected.png"></div> 
+     
+  <p>This button is also used to terminate a connection, both from the client and 
+     from the server.</p>
+
+</body>
+</html>

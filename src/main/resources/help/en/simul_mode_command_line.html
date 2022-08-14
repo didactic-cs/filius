@@ -1,0 +1,144 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>
+  <div class="menu">
+    <span><a href="simulation_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_data_exchange.html">Suivi des données</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_desktop.html">Bureau</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_editor.html">Éditeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_explorer.html">Explorateur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_image_viewer.html">Images</a></span>&nbsp;&nbsp;
+    <span class="selected">Commandes</span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_dns.html">DNS</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_firewall.html">Pare-feu</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_basic.html">Client et serveur génériques</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_email.html">Messagerie</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_web.html">Web</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_peertopeer.html">Filius-Share</a></span>&nbsp;&nbsp;
+  </div>
+  
+  <h1>Mode simulation</h1>
+  
+  <h2>Ligne de commandes</h2>
+  
+  <div class="center"><img src="help/gfx/icon_terminal.png"></div>
+
+  <p>Cette application permet la saisie de commandes permettant de manipuler les fichiers
+     et d'effectuer des opérations liées au réseau. Chaque commande doit être saisie suivie
+     de ses éventuels paramètres et terminée par la touche entrée.</p>
+     
+  <p>Certaines commandes possèdent deux syntaxes.</p>
+  
+  <p>L'historique des commandes saisies est accessible en utilisant les flèches haut et
+     bas du clavier.</p>
+
+  <h3>help</h3>
+	
+  <p>Cette commande sans paramètre affiche la liste	des commandes disponibles.</p>
+  
+  <h3>cls<br>
+      reset</h3>
+	
+  <p>Cette commande efface l'écran.</p>
+  
+  <h3>touch&nbsp;&nbsp;<i>chemin</i></h3>
+	
+  <p>Cette commande crée un fichier vide.</p>
+  
+  <p>Le paramètre <i>chemin</i> doit être le nom du fichier à créer, précédé ou non
+     d'un chemin absolu ou relatif au dossier courant.</p>
+
+  <h3>copy&nbsp;&nbsp;<i>source</i>&nbsp;&nbsp;<i>destination</i><br>
+      cp&nbsp;&nbsp;<i>source</i>&nbsp;&nbsp;<i>destination</i></h3>
+	
+  <p>Cette commande effectue une copie d'un fichier.</p>
+  
+  <p>Le paramètre <i>source</i> doit être le nom du fichier à copier, 
+     précédé ou non d'un chemin absolu ou relatif au dossier courant.</p>
+
+  <p>Le paramètre <i>destination</i> doit être le nom du fichier à copier, 
+     précédé ou non d'un chemin absolu ou relatif au dossier courant.</p>
+
+  <h3>move&nbsp;&nbsp;<i>source</i>&nbsp;&nbsp;<i>destination</i><br>
+      mv&nbsp;&nbsp;<i>source</i>&nbsp;&nbsp;<i>destination</i></h3>
+	
+  <p>Cette commande déplace ou renomme un fichier.</p>
+  
+  <h3>cat&nbsp;&nbsp;<i>chemin</i><br>
+      type&nbsp;&nbsp;<i>chemin</i></h3>
+	
+  <p>Cette commande affiche le contenu d'un fichier.</p>
+  
+  <h3>del&nbsp;&nbsp;<i>chemin</i><br>
+      rm&nbsp;&nbsp;<i>chemin</i></h3>
+	
+  <p>Cette commande supprime un fichier ou un dossier.</p>
+  
+  <h3>mkdir&nbsp;&nbsp;<i>chemin</i></h3>
+	
+  <p>Cette commande crée un dossier.</p>
+  
+  <h3>cd&nbsp;&nbsp;<i>chemin</i></h3>
+	
+  <p>Cette commande permet de changer le dossier de travail courant.</p>
+  
+  <h3>pwd&nbsp;&nbsp;<i>chemin</i></h3>
+	
+  <p>Cette commande permet d'afficher le chemin absolu du dossier de travail courant.</p>
+  
+  <h3>dir&nbsp;&nbsp;<i>chemin</i><br>
+      ls&nbsp;&nbsp;<i>chemin</i></h3>
+	
+  <p>Cette commande liste le contenu du dossier indiqué en paramètre. En l'absence de 
+     paramètre, le contenu du dossier courant est listé.</p>
+  
+  <h3>ipconfig</h3>
+	
+  <p>Cette commande affiche la configuration de l'interface réseau.</p>
+  
+  <h3>netstat</h3>
+	
+  <p>Cette commande affiche des informations sur les connexions réseau.</p>
+  
+  <h3>arp</h3>
+	
+  <p>Cette commande affiche la table de correspondance entre les adresses MAC
+     et les adresses IP.</p>
+  
+  <h3>host&nbsp;&nbsp;<i>nom_d_hote</i></h3>
+	
+  <p>Cette commande résout un nom d'hôte en adresse IP.</p>
+  
+  <p>Le paramètre <i>nom_d_hote</i> correspond au nom du poste dont l'adresse IP est
+     recherchée.</p>
+  
+  <h3>route</h3>
+	
+  <p>Cette commande affiche la table de routage du poste.</p>
+  
+  <h3>ping&nbsp;&nbsp;<i>adresse_ip/nom_d_hote</i></h3>
+	
+  <p>Cette commande teste la connexion réseau avec un autre poste.</p>
+  
+  <p>Le paramètre <i>adresse_ip/nom_d_hote</i> correspond, au choix, à l'adresse IP
+     ou au nom de l'autre poste.</p>
+     
+  <h3>traceroute&nbsp;&nbsp;<i>adresse_ip/nom_d_hote</i></h3>
+	
+  <p>Cette commande liste les sauts nécessaires pour atteindre un poste.</p>
+  
+  <p>Le paramètre <i>adresse_ip/nom_d_hote</i> correspond, au choix, à l'adresse IP
+     ou au nom du poste à atteindre.</p>
+  
+  <h3>exit</h3>
+	
+  <p>Cette commande ferme la fenêtre de l'application.</p>
+  
+</body>
+</html>

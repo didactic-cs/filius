@@ -1,0 +1,94 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>	
+  <div class="menu">
+    <span><a href="design_mode.html">General</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_project.html">Project</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_computer.html">Computer and notebook</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_dhcp.html">DHCP</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_modem.html">Modem</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_router.html">Router</a></span>&nbsp;&nbsp;
+    <span><a href="design_mode_routing_table.html">Routing table</a></span>&nbsp;&nbsp;
+    <span class="selected">Firewall</span> 
+  </div>
+
+  <h1>Design mode</h1>
+
+  <h2>Firewall</h2>  
+
+  <p>The firewall filters some packets that pass through the router. Depending on 
+     their origin, destination and type, some packets may be dropped by the router
+     which interrupts their transmission.</p> 
+
+  <h3>Settings</h3>  
+
+  <h4>Filtering rules</h4>
+
+  <p>A filter rule consists of the following elements:</p>
+  
+  <ul>
+  <li>An <b>IP address</b> and a <b>source mask</b> that determine a subnet or a host.
+      The rule will only apply to packages whose source matches.<br>
+      By leaving these two fields blank or entering 0.0.0.0 in both, the rule will apply
+      regardless of the source.</li>
+  <li>An <b>IP address</b> and a <b>destination mask</b> which determine a subnet or a host.
+      The rule will only apply to packets whose destination matches.<br>
+      By leaving these two fields blank or entering 0.0.0.0 in both, the rule will apply 
+      regardless of the destination.</li>
+  <li>The <b>Protocol</b> can be chosen from TCP, UDP, or both (*). The rule will only 
+      apply to packets whose protocol matches.</li>
+  <li>The <b>Port</b> designates the destination port number. This field can be left 
+      blank to designate any port. The rule will only apply to packets whose destination
+      port matches.</li>
+  <li>Finally, the <b>Action</b> field determines the action to be taken when the rule
+      is applied. The packet is either accepted, in which case the router will proceed 
+      with its routing, or rejected and, in this case, the packet is destroyed.</li>
+  </ul>
+
+  <p>The order of the rules is important. This is because to determine whether a packet
+     is accepted or rejected, the firewall scans the rule table from top to bottom until
+     a rule applies.</p>
+
+  <p>To change the order of the rules in the table, select the rule to reposition, then 
+     use the keyboard shortcuts Alt + Up Arrow or Alt + Down Arrow.</p>
+
+  <p>The default rule, always placed at the end of the table, applies to all packets for
+     which no more specific rule exists. The default rule cannot be deleted. Only its 
+     action can be changed.</p>
+     
+  <h4>Only drop TCP packets with SYN flag set</h4>
+
+  <p>When establishing a TCP connection between a client and a server, the first TCP packet
+     sent has a synchronization flag (SYN) that is set. Intercepting this type of packet 
+     is sufficient to cause a TCP transaction to fail.</p>
+
+  <p>Another advantage is that it becomes unnecessary for the firewall to control the TCP 
+     packets without the SYN flag activated since the latter necessarily correspond to 
+     previously authorized transactions.</p>
+
+  <h4>Drop ICMP packets</h4>
+
+  <p>The ICMP protocol is used in particular to send error messages relating to the operation
+     of the network. This protocol is independent of TCP and UDP. It can be filtered by 
+     checking this box.</p>
+
+  <p>If the ICMP packets are rejected, the ping instruction between two stations located on 
+     either side of the router will not work. ping indeed uses the ICMP protocol to operate.</p>
+
+  <h4>Activate the firewall</h4>
+
+  <p>Checking this box enables the router's firewall. When the firewall is active, filter 
+     rules are applied to all packets that reach the router. Only packets accepted by the 
+     firewall are routed.</p>
+     
+  <p>When the router's firewall is active, its icon changes appearance:</p>   
+     
+  <div class="center"><img src="help/gfx/router-firewall.png"></div> 
+
+</body>
+</html>

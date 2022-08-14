@@ -1,0 +1,87 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>
+  <h2>Ligne de commandes</h2>
+  
+  <div class="center"><a href="simulation_mode_command_line.html">Générales</a>&nbsp;&nbsp;
+   &nbsp;&nbsp;<span class="a-selected">fichiers</span>&nbsp;&nbsp;
+   &nbsp;&nbsp;<a href="simulation_mode_command_line_net.html">Réseau</a></div>
+      
+  <div class="center"><img src="help/gfx/icon_terminal.png"></div>
+
+  <h2>Commandes relatives aux fichiers</h2>
+  
+  <p>Les chemins à saisir en paramètres de certaines commandes doivent utiliser le
+     séparateur &quot; / &quot;.</p>
+     
+  <p>Le caractère &quot; / &quot; est optionnel à la fin
+     des chemins de dossier.</p>
+     
+  <p>Les chemins absolus commencent par &quot; / &quot;.</p>
+  
+  <p>Les chemins qui ne commencent pas par &quot; / &quot; sont relatifs au dossier
+     de travail courant.</p>
+  
+  <h3>touch&nbsp;&nbsp;<span class="param">chemin-fichier</span></h3>
+	
+  <p>Cette commande crée un fichier vide.</p>
+  
+  <p>Le paramètre <span class="param">chemin-fichier</span> doit être le nom du fichier à créer, précédé ou non
+     d'un chemin absolu ou relatif au dossier courant.</p>
+
+  <h3>copy&nbsp;&nbsp;<span class="param">chemin-source</span>&nbsp;&nbsp;<span class="param">chemin-destination</span><br>
+      cp&nbsp;&nbsp;<span class="param">chemin-source</span>&nbsp;&nbsp;<span class="param">chemin-destination</span></h3>
+	
+  <p>Cette commande effectue une copie d'un fichier.</p>
+  
+  <p>Le paramètre <span class="param">chemin-source</span> doit être le nom du fichier à copier, 
+     précédé ou non d'un chemin absolu ou relatif au dossier courant.</p>
+
+  <p>Le paramètre <span class="param">chemin-destination</span> doit être le nom de la copie à réaliser, 
+     précédé ou non d'un chemin absolu ou relatif au dossier courant.</p>
+
+  <h3>move&nbsp;&nbsp;<span class="param">chemin-source</span>&nbsp;&nbsp;<span class="param">chemin-destination</span><br>
+      mv&nbsp;&nbsp;<span class="param">chemin-source</span>&nbsp;&nbsp;<span class="param">chemin-destination</span></h3>
+	
+  <p>Cette commande déplace ou renomme un fichier.</p>
+  
+  <h3>cat&nbsp;&nbsp;<span class="param">chemin-fichier</span><br>
+      type&nbsp;&nbsp;<span class="param">chemin-fichier</span></h3>
+	
+  <p>Cette commande affiche le contenu d'un fichier.</p>
+  
+  <h3>mkdir&nbsp;&nbsp;<span class="param">chemin-dossier</span></h3>
+	
+  <p>Cette commande crée un dossier.</p>
+  
+  <h3>del&nbsp;&nbsp;<span class="param">chemin</span><br>
+      rm&nbsp;&nbsp;<span class="param">chemin</span></h3>
+	
+  <p>Cette commande supprime un fichier ou un dossier vide.</p>
+  
+  <h3>rmdir&nbsp;&nbsp;<span class="param">chemin-dossier</span></h3>
+	
+  <p>Cette commande supprime un dossier et tout son contenu.</p>
+  
+  <h3>cd&nbsp;&nbsp;<span class="param">chemin-dossier</span></h3>
+	
+  <p>Cette commande permet de changer le dossier de travail courant.</p>
+  
+  <h3>pwd</h3>
+	
+  <p>Cette commande permet d'afficher le chemin absolu du dossier de travail
+     courant.</p>
+  
+  <h3>dir&nbsp;&nbsp;<span class="param">chemin-dossier</span><br>
+      ls&nbsp;&nbsp;<span class="param">chemin-dossier</span></h3>
+	
+  <p>Cette commande liste le contenu du dossier dont le chemin est spécifié.
+     En l'absence de paramètre, le contenu du dossier de travail courant est
+     listé.</p>
+  
+</body>
+</html>

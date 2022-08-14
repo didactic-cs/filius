@@ -1,0 +1,98 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>
+  <h2>Ligne de commandes</h2>
+  
+  <div class="center"><a href="simulation_mode_command_line.html">Générales</a>&nbsp;&nbsp;
+   &nbsp;&nbsp;<a href="simulation_mode_command_line_file.html">Fichiers</a>&nbsp;&nbsp;
+   &nbsp;&nbsp;<span class="a-selected">Réseau</span></div>
+    
+  <div class="center"><img src="help/gfx/icon_terminal.png"></div>
+  
+  <h2>Commandes relatives au réseau</h2>
+  
+  <h3>ipconfig</h3>
+	
+  <p>Cette commande affiche la configuration de l'interface réseau.</p>
+  
+  <h3>netstat</h3>
+	
+  <p>Cette commande affiche des informations sur les connexions réseau.</p>
+  
+  <h3>arp</h3>
+	
+  <p>Le cache ARP du poste est une table contenant des entrées ARP. Chacune
+     de ces entrées est un couple constitué d'une adresse IP et de l'adresse
+     MAC correspondante. Le cache ARP est utilisé pour accélérer la résolution
+     d'adresses IP en adresses MAC.</p>
+  
+  <p>Utilisée sans paramètre, ou avec le paramètre -a seul, la commande arp
+     affiche le contenu du cache ARP.</p>
+     
+  <p>Utilisée avec le paramètre -a suivi d'une adresse IP, la commande arp
+     affiche uniquement l'entrée associée à cette adresse.</p>
+     
+  <p>Utilisée avec le paramètre -d suivi d'une adresse IP, la commande arp
+     supprime du cache l'entrée associée à cette adresse.</p>
+     
+  <p>Utilisée avec le paramètre -d suivi du caractère *, la commande arp
+     efface toutes les entrées du cache.</p>
+  
+  <p>Le cache est par ailleurs réinitialisé à chaque démarrage de la simulation.</p>
+  
+  <h3>arpsend&nbsp;&nbsp;<span class="param">ip-fictive</span>&nbsp;&nbsp;<span class="param">ip-destinataire</span></h3>
+  
+  <p>Cette commande envoie à un poste destinataire l'entrée ARP constituée d'une
+     adresse IP arbitraire et de l'adresse MAC du poste sur lequel la commande
+     est saisie. Cette entrée sera ajoutée à la table ARP du destinataire.</p>
+  
+  <p>Cette commande peut être utilisée à des fins de tests.</p>
+  
+  <h3>host&nbsp;&nbsp;<span class="param">nom-d-hote</span></h3>
+	
+  <p>Cette commande résout un nom d'hôte en adresse IP.</p>
+  
+  <p>Le paramètre <span class="param">nom-d-hote</span> correspond au nom du 
+     poste dont l'adresse IP est recherchée.</p>
+  
+  <h3>nslookup&nbsp;&nbsp;<span class="param">nom-d-hote</span></h3>
+	
+  <p>Cette commande résout un nom d'hôte en adresse IP. Elle précise également
+     l'adresse du serveur qui effectue la résolution.</p>
+  
+  <p>Le paramètre <span class="param">nom-d-hote</span> correspond au nom du 
+     poste dont l'adresse IP est recherchée.</p>     
+  
+  <h3>route</h3>
+	
+  <p>Cette commande affiche la table de routage du poste.</p>
+  
+  <h3>ping&nbsp;&nbsp;<span class="param">adresse-ip | nom-d-hote</span></h3>
+	
+  <p>Cette commande teste la connexion réseau avec un autre poste.</p>
+  
+  <p>Le paramètre <span class="param">adresse-ip | nom-d-hote</span> correspond, 
+     au choix, à l'adresse IP ou au nom de l'autre poste.</p>
+     
+  <h3>traceroute&nbsp;&nbsp;<span class="param">adresse-ip | nom-d-hote</span></h3>
+	
+  <p>Cette commande liste les sauts nécessaires pour atteindre un poste.</p>
+  
+  <p>Le paramètre <span class="param">adresse-ip | nom-d-hote</span> correspond, 
+     au choix, à l'adresse IP ou au nom du poste à atteindre.</p>
+  
+  <h3>tcpdump</h3>
+	
+  <p>Cette commande permet de suivre le trafic réseau en affichant chacune des
+     trames Ethernet entrant ou sortant du poste.</p>
+     
+  <p>Elle affiche les mêmes informations que la fenêtre de suivi des données.</p>
+  
+  <p>Pour interrompre cette commande, saisir Ctrl+C.</p>
+  
+</body>
+</html>

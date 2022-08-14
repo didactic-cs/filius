@@ -1,0 +1,185 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body> 
+  <h2>Befehlszeile</h2>
+  
+  <div class="center"><img src="help/gfx/icon_terminal.png"></div>
+
+  <p>Mit dieser Anwendung können Sie Befehle eingeben, um Dateien zu bearbeiten
+     und netzwerkbezogene Operationen durchzuführen. Jeder Befehl muss gefolgt
+     von seinen möglichen Parametern eingegeben und mit der Eingabetaste beendet
+     werden.</p>
+     
+  <p>Einige Befehle haben zwei Syntaxen.</p>
+  
+  <p>Der Verlauf der eingegebenen Befehle ist mit den Auf- und Ab-Pfeilen auf
+     der Tastatur zugänglich.</p>
+  
+  <h2>Allgemeine Befehle</h2>
+
+  <h3>help<br>
+      ?</h3>
+	
+  <p>Dieser Befehl ohne Parameter zeigt die Liste der verfügbaren Befehle an.</p>
+  
+  <h3>cls<br>
+      reset</h3>
+	
+  <p>Dieser Befehl setzt die Anzeige des Befehlsfensters zurück.</p>
+    
+  <h3>exit</h3>
+	
+  <p>Dieser Befehl schließt das Anwendungsfenster.</p>
+  
+  <h2>Dateibefehle</h2>
+  
+  <p>Die Pfade, die von einigen Befehle verwendet werden, müssen das
+     Trennzeichen &quot; / &quot; verwenden.</p>
+     
+  <p>Das Zeichen &quot; / &quot; ist optional am Ende von Ordnerpfaden.</p>
+     
+  <p>Absolute Pfade beginnen mit &quot; / &quot;.</p>
+  
+  <p>Pfade, die nicht mit &quot; / &quot; beginnen, sind relativ zum aktuellen
+     Arbeitsverzeichnis.</p>
+  
+  <h3>touch&nbsp;&nbsp;<span class="param">datei-pfad</span></h3>
+	
+  <p>Dieser Befehl erstellt eine leere Datei.</p>
+  
+  <p>Der Parameter <span class="param">datei-pfad</span> muss der Name der zu
+     erstellenden Datei sein. Dem Namen kann ein absoluter Pfad oder relativ
+     zum aktuellen Ordner vorangestellt werden.</p>
+
+  <h3>copy&nbsp;&nbsp;<span class="param">quell-pfad</span>&nbsp;&nbsp;<span class="param">ziel-pfad</span><br>
+      cp&nbsp;&nbsp;<span class="param">quell-pfad</span>&nbsp;&nbsp;<span class="param">ziel-pfad</span></h3>
+	
+  <p>Dieser Befehl erstellt eine Kopie einer Datei.</p>
+  
+  <p>Der Parameter <span class="param">quell-pfad</span> muss der Name der zu
+     kopierenden Datei sein. Dem Namen kann ein absoluter Pfad oder relativ
+     zum aktuellen Ordner vorangestellt werden.</p>
+
+  <p>Der Parameter <span class="param">ziel-pfad</span> muss der Name der zu
+     erstellenden Kopie sein. Dem Namen kann ein absoluter Pfad oder relativ
+     zum aktuellen Ordner vorangestellt werden.</p>
+
+  <h3>move&nbsp;&nbsp;<span class="param">quell-pfad</span>&nbsp;&nbsp;<span class="param">ziel-pfad</span><br>
+      mv&nbsp;&nbsp;<span class="param">quell-pfad</span>&nbsp;&nbsp;<span class="param">ziel-pfad</span></h3>
+	
+  <p>Dieser Befehl verschiebt oder benennt eine Datei um.</p>
+  
+  <h3>cat&nbsp;&nbsp;<span class="param">datei-pfad</span><br>
+      type&nbsp;&nbsp;<span class="param">datei-pfad</span></h3>
+	
+  <p>Dieser Befehl zeigt den Inhalt einer Datei an.</p>
+  
+  <h3>mkdir&nbsp;&nbsp;<span class="param">ordner-pfad</span></h3>
+	
+  <p>Dieser Befehl erstellt einen Ordner.</p>
+  
+  <h3>del&nbsp;&nbsp;<span class="param">pfad</span><br>
+      rm&nbsp;&nbsp;<span class="param">pfad</span></h3>
+	
+  <p>Dieser Befehl löscht eine leere Datei oder einen leeren Ordner.</p>
+  
+  <h3>rmdir&nbsp;&nbsp;<span class="param">ordner-pfad</span></h3>
+	
+  <p>Dieser Befehl löscht einen Ordner und seinen gesamten Inhalt.</p>
+  
+  <h3>cd&nbsp;&nbsp;<span class="param">ordner-pfad</span></h3>
+	
+  <p>Mit diesem Befehl können Sie das aktuellen Arbeitsverzeichnis ändern.</p>
+  
+  <h3>pwd</h3>
+	
+  <p>Dieser Befehl zeigt den absoluten Pfad des aktuellen Arbeitsverzeichnisses an.</p>
+  
+  <h3>dir&nbsp;&nbsp;<span class="param">ordner-pfad</span><br>
+      ls&nbsp;&nbsp;<span class="param">ordner-pfad</span></h3>
+	
+  <p>Dieser Befehl listet den Inhalt des Ordners auf, dessen Pfad angegeben ist.
+     Wenn kein Parameter vorhanden ist, wird der Inhalt des Arbeitsverzeichnisses
+     aufgelistet.</p>
+  
+  <h2>Netzwerkbefehle</h2>
+  
+  <h3>ipconfig</h3>
+	
+  <p>Dieser Befehl zeigt die Konfiguration der Netzwerkschnittstelle an.</p>
+  
+  <h3>netstat</h3>
+	
+  <p>Dieser Befehl zeigt Informationen zu Netzwerkverbindungen an.</p>
+  
+  <h3>arp</h3>
+  
+  <p>Der ARP-Cache der Station ist eine Tabelle mit ARP-Einträgen. Jeder dieser
+     Einträge ist ein Paar aus einer IP-Adresse und der entsprechenden MAC-Adresse.
+     Der ARP-Cache wird verwendet, um die Auflösung von IP-Adressen in MAC-Adressen
+     zu beschleunigen.</p>
+  
+  <p>Ohne Parameter oder nur mit dem Parameter -a zeigt der Befehl arp den Inhalt
+     des ARP-Cache an.</p>
+     
+  <p>Zusammen mit dem Parameter -a gefolgt von einer IP-Adresse zeigt der Befehl
+     arp nur den Eintrag an, der dieser Adresse zugeordnet ist.</p>
+     
+  <p>Zusammen mit dem Parameter -d gefolgt von einer IP-Adresse entfernt der Befehl
+     arp den Eintrag, der dieser Adresse zugeordnet ist, aus dem Cache.</p>
+     
+  <p>Zusammen mit dem Parameter -d gefolgt vom Zeichen * löscht der Befehl arp
+     alle Cache-Einträge.</p>
+  
+  <p>Der Cache wird auch bei jedem Start der Simulation neu initialisiert.</p>
+  
+  <h3>arpsend&nbsp;&nbsp;<span class="param">fiktive-ip</span>&nbsp;&nbsp;<span class="param">ziel-ip</span></h3>
+  
+  <p>Dieser Befehl sendet an eine Zielstation eine Korrespondenz zwischen der MAC-Adresse
+     der Station, auf der der Befehl eingegeben wird, und einer beliebigen IP-Adresse.
+     Dieser Korrespondenz wird der ARP-Tabelle der Zielstation hinzugefügt.</p>
+  
+  <p>Dieser Befehl kann zu Testzwecken verwendet werden.</p>
+  
+  <h3>host&nbsp;&nbsp;<span class="param">hostname</span></h3>
+	
+  <p>Dieser Befehl löst einen Hostnamen in eine IP-Adresse auf.</p>
+  
+  <p>Der Parameter <span class="param">hostname</span> entspricht dem
+     Namen der Station, deren IP-Adresse gesucht wird.</p>
+  
+  <h3>route</h3>
+	
+  <p>Dieser Befehl zeigt die Routing-Tabelle der Station an.</p>
+  
+  <h3>ping&nbsp;&nbsp;<span class="param">ip-adresse | hostname</span></h3>
+	
+  <p>Dieser Befehl testet die Netzwerkverbindung mit einer anderen Station.</p>
+  
+  <p>Der Parameter <span class="param">IP-Adresse | hostname</span> ist entweder
+     die IP-Adresse oder der Hostname der zu testenden Station.</p>
+     
+  <h3>traceroute&nbsp;&nbsp;<span class="param">ip-adresse | hostname</span></h3>
+	
+  <p>Dieser Befehl listet die Sprünge auf, die zum Erreichen einer Station
+     erforderlich sind.</p>
+  
+  <p>Der Parameter <span class="param">IP-Adresse | hostname</span> ist entweder
+     die IP-Adresse oder der Hostname der zu erreichenden Station.</p>
+  
+  <h3>tcpdump</h3>
+	
+  <p>Dieser Befehl wird verwendet, um den Netzwerkverkehr zu überwachen, indem
+     jeder der Ethernet-Frames angezeigt wird, die in die Station eintreten oder
+     diese verlassen.</p>
+     
+  <p>Er zeigt dieselben Informationen wie das Datenaustauschfenster an.</p>
+  
+  <p>Um diesen Befehl zu unterbrechen, geben Sie Strg+C ein.</p>
+  
+</body>
+</html>

@@ -1,0 +1,70 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>
+  <div class="menu"> 
+    <span><a href="simulation_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span class="selected">Suivi des données</span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_desktop.html">Bureau</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_editor.html">Éditeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_explorer.html">Explorateur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_image_viewer.html">Images</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_command_line.html">Commandes</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_dns.html">DNS</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_firewall.html">Pare-feu</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_basic.html">Client et serveur génériques</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_email.html">Messagerie</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_web.html">Web</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_peertopeer.html">Filius-Share</a></span>&nbsp;&nbsp;
+  </div>
+  
+  <h1>Mode simulation</h1>
+
+  <h2>Suivi des données</h2>
+     
+  <p>Dans ce mode, les câbles deviennent momentanément verts lorsqu’ils sont
+     parcourus par des données.</p>
+  
+  <div class="center"><img src="help/gfx/signal-ani.gif"></div>
+  
+  <p>Il est possible de ralentir la vitesse des échanges de données en déplaçant vers
+     la gauche le curseur situé au centre de la partie supérieure de la fenêtre
+     principale.</p>
+     
+  <div class="center"><img src="help/gfx/simulation-speed.png"></div>
+  
+  <p>Un journal conserve une trace de tous les paquets de données envoyés ou reçus par un
+     poste ou un routeur. Pour visualiser ce journal, effectuer un clic droit sur l’icône
+     du poste ou du routeur, puis choisir Suivre les données.</p>
+     
+  <p>Deux fenêtres de suivi des données sont disponibles. Par défaut, les données s'affichent
+     dans la première fenêtre de suivi. En double-cliquant sur un onglet, la table
+     correspondante sera déplacée vers l'autre fenêtre. Ces deux fenêtres de suivi 
+     permettent de comparer plus facilement les données de deux postes ou routeurs.</p>
+     
+  <p>Dans la partie supérieure d'une fenêtre de suivi, chaque ligne du tableau correspond
+     à une trame ethernet.</p>
+     
+  <div class="center"><img src="help/gfx/data-exchange.png"></div>
+  
+  <p>Les échanges sont présentés conformément au modèle d'architecture Internet à quatre
+     couches :</p>
+
+  <div class="center"><img src="help/gfx/layers-fr.png"></div>
+  
+  <p>La couleur d'une ligne indique la plus haute couche de contenu de la trame ethernet 
+     correspondante.</p>
+     
+  <p>Un clic sur une ligne permet d’afficher dans la partie inférieure de
+     la fenêtre le contenu de la trame ethernet sélectionnée.</p>
+     
+  <p>Dans FILIUS, chaque trame contient toujours au moins un contenu de la couche
+     de niveau 2.</p>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base href="file:">
+  <style type="text/css"></style>
+</head>
+<body>
+  <div class="menu">
+    <span><a href="simulation_mode.html">Général</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_data_exchange.html">Suivi des données</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_switch.html">Switch</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_router.html">Routeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_desktop.html">Bureau</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_editor.html">Éditeur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_explorer.html">Explorateur</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_image_viewer.html">Images</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_command_line.html">Commandes</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_dns.html">DNS</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_firewall.html">Pare-feu</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_basic.html">Client et serveur génériques</a></span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_email.html">Messagerie</a></span>&nbsp;&nbsp;
+    <span class="selected">Web</span>&nbsp;&nbsp;
+    <span><a href="simulation_mode_peertopeer.html">Filius-Share</a></span>&nbsp;&nbsp;
+  </div>
+  
+  <h1>Mode simulation</h1>
+  
+  <h2>Navigateur et serveur web</h2>
+
+  <h3>Serveur web</h3>
+  
+  <div class="center"><img src="help/gfx/icon_webserver.png"></div>
+	
+  <p>Ce serveur reproduit le fonctionnement d'un service  HTTP.</p>
+	
+  <h4>Général</h4>
+  
+  <p>Le <b>Nom d'hôte</b> reprend en général le nom pleinement qualifié du poste sur
+     lequel le serveur est installé.</p>
+     
+  <p>Le <b>Répertoire racine</b> est le chemin absolu vers le dossier contenant les pages
+     web du serveur.</p>
+     
+  <p>Il est possible d'utiliser des <b>hôtes virtuels</b> qui apparaîtront comme d'autres services web.
+     Pour cela, créer un sous-dossier dans le répertoire /webserver puis, dans la boîte de dialogue
+     <b>Hôtes virtuels</b>, ajouter une ligne associant ce répertoire à un nom d'hôte.</p>
+     
+  <p>Pour que les hôtes virtuels fonctionnent, il est nécessaire qu'un serveur DNS ait été
+     configuré et activé.</p>     
+     
+  <p>Le <b>Fichier index</b> spécifie le nom du fichier qui doit être utilisé lorsqu'une requête 
+     porte sur un répertoire et non sur une page web.</p>
+   
+  <p>La case à cocher <b>En l'absence d'index, lister le répertoire</b> spécifie le comportement
+     du serveur lorsqu'il reçoit une requête vers un répertoire qui ne contient pas le fichier index.
+     Si la case est décochée, le serveur renvoie un message d'erreur du type page non trouvée. Si 
+     la case est cochée, le serveur renvoie une page qui liste le contenu du répertoire.</p>      
+  
+  <h4>Journalisation</h4>
+  
+  <p>Le journal permet de suivre les activités du service web.</p>
+  
+  <h4>État du service web</h4>
+  
+  <p>Cocher la case Activer le service web pour rendre ce dernier opérationnel.</p>
+  
+  <p>Un poste dont le service web est activé est aisément identifiable grâce à son icône.</p>
+  
+  <div class="center"><img src="help/gfx/computer-web.png"></div>
+     
+  <h3>Navigateur web</h3>
+  
+  <div class="center"><img src="help/gfx/icon_browser.png"></div>
+  
+  <p>Cette application affiche les pages web et permet de naviguer entre elles en suivant les
+     liens hypertextes qu'elles contiennent.</p>
+     
+  <p>Le cache du navigateur est recréé à chaque chargement de page. Ce cache sert uniquement à éviter
+     de télécharger plusieurs fois les images qui apparaissent plusieurs fois dans la page.</p>
+
+</body>
+</html>
