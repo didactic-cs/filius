@@ -317,6 +317,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
             tempWindow.updateUI();
             tempWindow.starten(parameter);
             workingAreaCardLayout.show(workingLayer, softwareKlasse);
+            workingLayer.transferFocus();
         }
         return tempWindow;
     }

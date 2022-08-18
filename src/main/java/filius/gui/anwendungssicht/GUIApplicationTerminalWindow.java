@@ -31,7 +31,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.StringTokenizer;
@@ -46,7 +45,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.event.InternalFrameEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,34 +240,6 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         return inputField;
     }
 
-    public void setMultipleObserverEvents(boolean flag) {}
-
-    public void windowActivated(WindowEvent e) {}
-
-    public void windowClosing(WindowEvent e) {}
-
-    public void windowDeactivated(WindowEvent e) {}
-
-    public void windowDeiconified(WindowEvent e) {}
-
-    public void windowIconified(WindowEvent e) {}
-
-    public void windowOpened(WindowEvent e) {}
-
-    public void internalFrameActivated(InternalFrameEvent e) {}
-
-    public void internalFrameClosed(InternalFrameEvent e) {}
-
-    public void internalFrameClosing(InternalFrameEvent e) {}
-
-    public void internalFrameDeactivated(InternalFrameEvent e) {}
-
-    public void internalFrameDeiconified(InternalFrameEvent e) {}
-
-    public void internalFrameIconified(InternalFrameEvent e) {}
-
-    public void internalFrameOpened(InternalFrameEvent e) {}
-
     public void update(Observable arg0, Object arg1) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationTerminalWindow), update(" + arg0
                 + "," + arg1 + ")");
@@ -295,10 +265,11 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     }
 
     private void scrollDown() {
-        this.tpPane.repaint();
-        this.terminalField.repaint();
-        this.inputLabel.repaint();
-        this.tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
+        tpPane.repaint();
+        terminalField.repaint();
+        inputLabel.repaint();
+        inputLabel.grabFocus();
+        tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
     }
 
 }

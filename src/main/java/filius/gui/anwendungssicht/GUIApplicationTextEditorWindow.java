@@ -26,33 +26,23 @@
 package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ListIterator;
 import java.util.Observable;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import filius.gui.CloseableBrowserTabbedPaneUI;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
 
@@ -71,12 +61,10 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
     private Datei aktuelleDatei = null;
     private String original = "";
     private DefaultMutableTreeNode arbeitsVerzeichnis;
-    private JTabbedPane tpTabs;
 
     public GUIApplicationTextEditorWindow(GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
 
-        this.setTitle(messages.getString("texteditor_msg1"));
         editorField = new JTextArea("");
         editorField.setEditable(true);
         editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
@@ -85,34 +73,24 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 
         String dateiName = holeParameter()[0];
         if (!dateiName.equals("")) {
-
             if (this.arbeitsVerzeichnis == null) {
-
                 this.arbeitsVerzeichnis = holeAnwendung().getSystemSoftware().getDateisystem().getRoot();
-
             }
             Datei datei = holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(arbeitsVerzeichnis, dateiName);
             if (datei != null) {
-                this.setTitle(dateiName);
-                editorField.setText(datei.getDateiInhalt());
-                original = datei.getDateiInhalt();
                 aktuelleDatei = datei;
             }
+            updateFromFile();
         }
 
         JScrollPane tpPane = new JScrollPane(editorField);
         tpPane.setBorder(null);
 
-        /* Tabs */
-        tpTabs = new JTabbedPane();
-        tpTabs.setUI(new CloseableBrowserTabbedPaneUI());
         Box editorBox = Box.createHorizontalBox();
 
         // editorBox.add(editorField);
         editorBox.add(tpPane);
         editorBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        tabVerhalten();
 
         backPanel = new JPanel(new BorderLayout());
         backPanel.add(editorBox, BorderLayout.CENTER);
@@ -206,11 +184,12 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 
     private void updateFromFile() {
         if (aktuelleDatei != null) {
-            this.setTitle(aktuelleDatei.getName());
+            setTitle(anwendung, aktuelleDatei.getName());
             original = aktuelleDatei.getDateiInhalt();
             editorField.setText(original);
         } else {
-            LOG.debug("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
+            setTitle(anwendung);
+            LOG.debug("Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
         }
     }
 
@@ -220,106 +199,15 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
             Datei datei = this.holeAnwendung().getSystemSoftware().getDateisystem().holeDatei(arbeitsVerzeichnis,
                     dateiName);
             if (datei != null) {
-                editorField = new JTextArea();
-                editorField.setFont(new Font("Courier New", Font.PLAIN, 11));
-                this.setTitle(dateiName);
-                editorField.setText(datei.getDateiInhalt());
-                original = datei.getDateiInhalt();
                 aktuelleDatei = datei;
-
-                JScrollPane tpPane = new JScrollPane(editorField);
-                tpPane.setBorder(null);
-
-                /* Tabs */
-                tpTabs.addTab(datei.getName(), tpPane);
-                tpTabs.setSelectedIndex(tpTabs.getTabCount() - 1);
             }
-
+            updateFromFile();
         }
-
-    }
-
-    public void tabVerhalten() {
-        /* Tabs schliessbar machen */
-        tpTabs.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-                if (me.getButton() == 3) {
-
-                    JPopupMenu popmen = new JPopupMenu();
-                    final JMenuItem miTabsSchliessen = new JMenuItem(messages.getString("texteditor_msg11"));
-                    miTabsSchliessen.setActionCommand("tabsschliessen");
-                    final JMenuItem miAndereTabsSchliessen = new JMenuItem(messages.getString("texteditor_msg12"));
-                    miAndereTabsSchliessen.setActionCommand("anderetabsschliessen");
-
-                    ActionListener al = new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            if (e.getActionCommand().equals(miTabsSchliessen.getActionCommand())) {
-                                while (tpTabs.getTabCount() > 0) {
-                                    tpTabs.remove(tpTabs.getTabCount() - 1);
-                                }
-                            }
-                            if (e.getActionCommand().equals(miAndereTabsSchliessen.getActionCommand())) {
-                                Component komponente = tpTabs.getSelectedComponent();
-                                String tmpTitel = tpTabs.getTitleAt(tpTabs.getSelectedIndex());
-
-                                while (tpTabs.getTabCount() > 0) {
-                                    tpTabs.remove(tpTabs.getTabCount() - 1);
-                                }
-                                if (komponente != null) {
-                                    tpTabs.addTab(tmpTitel, komponente);
-                                    tpTabs.setSelectedComponent(komponente);
-                                }
-
-                            }
-                        }
-
-                    };
-
-                    miTabsSchliessen.addActionListener(al);
-                    miAndereTabsSchliessen.addActionListener(al);
-
-                    popmen.add(miTabsSchliessen);
-                    popmen.add(miAndereTabsSchliessen);
-                    popmen.setVisible(true);
-
-                    zeigePopupMenu(popmen, me.getX(), me.getY());
-
-                }
-                if (me.getButton() == 1) {
-                    boolean treffer = false;
-                    Rectangle aktuellesRect = null;
-                    CloseableBrowserTabbedPaneUI tpui = (CloseableBrowserTabbedPaneUI) tpTabs.getUI();
-
-                    ListIterator it = tpui.getButton_positionen().listIterator();
-                    while (it.hasNext()) {
-                        Rectangle rect = (Rectangle) it.next();
-                        if (rect.intersects(new Rectangle(me.getX(), me.getY(), 1, 1))) {
-                            treffer = true;
-                            aktuellesRect = rect;
-                        }
-                    }
-
-                    if (treffer) {
-                        int abfrage = showConfirmDialog(messages.getString("texteditor_msg13"));
-
-                        if (abfrage == JOptionPane.YES_OPTION) {
-                            tpui.getButton_positionen().remove(aktuellesRect);
-                            tpTabs.remove(tpTabs.getSelectedIndex());
-                        }
-                    }
-
-                    /* Neuer Tab bei Doppelklick */
-                    if (me.getClickCount() == 2) {
-                        neu();
-                    }
-                }
-            }
-        });
     }
 
     public void neu() {
         editorField.setText("");
-        setTitle(messages.getString("texteditor_msg1"));
+        setTitle(anwendung);
         changeCurrentFile(null);
     }
 
