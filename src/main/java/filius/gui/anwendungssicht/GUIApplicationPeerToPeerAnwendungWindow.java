@@ -337,8 +337,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
 
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
-        this.getContentPane().add(mainPanel);
-        pack();
+        add(mainPanel, BorderLayout.CENTER);
 
         updateNetzwerkTabelle();
         updateErgebnisTabelle();

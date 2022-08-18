@@ -27,6 +27,7 @@ package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -36,11 +37,9 @@ import java.awt.event.MouseEvent;
 import java.util.ListIterator;
 import java.util.Observable;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
+import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -69,7 +68,6 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
     private static final long serialVersionUID = 1L;
     private JTextArea editorField;
     private JPanel backPanel;
-    private GUIApplicationWindow diesesFenster;
     private Datei aktuelleDatei = null;
     private String original = "";
     private DefaultMutableTreeNode arbeitsVerzeichnis;
@@ -77,7 +75,6 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
 
     public GUIApplicationTextEditorWindow(GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-        this.diesesFenster = this;
 
         this.setTitle(messages.getString("texteditor_msg1"));
         editorField = new JTextArea("");
@@ -120,55 +117,46 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
         backPanel = new JPanel(new BorderLayout());
         backPanel.add(editorBox, BorderLayout.CENTER);
 
-        this.getContentPane().add(backPanel);
+        add(backPanel, BorderLayout.CENTER);
+        JPanel menubar = new JPanel(new FlowLayout());
 
-        JMenuBar mb = new JMenuBar();
-
-        JMenu menuDatei = new JMenu(messages.getString("texteditor_msg2"));
-
-        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg3")) {
-            private static final long serialVersionUID = 4307765243000198382L;
-
+        JButton newFile = new JButton(messages.getString("texteditor_msg3"));
+        newFile.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 neu();
             }
         });
+        menubar.add(newFile);
 
-        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg4")) {
-            private static final long serialVersionUID = 1L;
-
+        JButton openFile = new JButton(messages.getString("texteditor_msg4"));
+        openFile.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 oeffnen();
             }
         });
+        menubar.add(openFile);
 
-        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg5")) {
-            private static final long serialVersionUID = 1L;
-
+        JButton saveFile = new JButton(messages.getString("texteditor_msg5"));
+        saveFile.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 speichern();
             }
         });
-        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg6")) {
-            private static final long serialVersionUID = 1L;
+        menubar.add(saveFile);
 
+        JButton saveAsFile = new JButton(messages.getString("texteditor_msg6"));
+        saveAsFile.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 speichernUnter();
             }
         });
-        menuDatei.addSeparator();
-        menuDatei.add(new AbstractAction(messages.getString("texteditor_msg7")) {
-            private static final long serialVersionUID = 1L;
+        menubar.add(saveAsFile);
 
-            public void actionPerformed(ActionEvent arg0) {
-                beenden();
-            }
-        });
-
-        mb.add(menuDatei);
-
-        this.setJMenuBar(mb);
-        pack();
+        backPanel.add(menubar, BorderLayout.NORTH);
     }
 
     public void speichern() {
@@ -224,17 +212,6 @@ public class GUIApplicationTextEditorWindow extends GUIApplicationWindow {
         } else {
             LOG.debug("ERROR (" + this.hashCode() + "): Fehler beim oeffnen einer Datei: keine Datei ausgewaehlt");
         }
-    }
-
-    public void beenden() {
-        if (original != editorField.getText()) {
-            if (JOptionPane.showConfirmDialog(this, messages.getString("texteditor_msg9"),
-                    messages.getString("texteditor_msg10"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                speichern();
-            }
-
-        }
-        diesesFenster.doDefaultCloseAction();
     }
 
     public void starten(String[] param) {

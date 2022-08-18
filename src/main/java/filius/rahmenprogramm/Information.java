@@ -366,7 +366,7 @@ public class Information implements Serializable {
      * @return
      * @throws IOException
      */
-    public List<Map<String, String>> ladeProgrammListe() throws IOException {
+    public List<Map<String, String>> ladeProgrammListe() {
         List<Map<String, String>> tmpList = new LinkedList<Map<String, String>>();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(holeAnwendungenDateipfad()), Charset.forName("UTF-8")))) {
@@ -383,19 +383,19 @@ public class Information implements Serializable {
                     tmpList.add(tmpMap);
                 }
             }
+        } catch (IOException e) {
+            LOG.debug("could not read list of available applications", e);
         }
         tmpList.addAll(ladePersoenlicheProgrammListe());
         return tmpList;
     }
 
-    public LinkedList<HashMap<String, String>> ladePersoenlicheProgrammListe() throws IOException {
+    public LinkedList<HashMap<String, String>> ladePersoenlicheProgrammListe() {
         LinkedList<HashMap<String, String>> tmpList;
-        RandomAccessFile desktopFile = null;
 
         tmpList = new LinkedList<HashMap<String, String>>();
-        try {
-            desktopFile = new RandomAccessFile(
-                    Information.getInformation().getAnwendungenPfad() + "EigeneAnwendungen.txt", "r");
+        try (RandomAccessFile desktopFile = new RandomAccessFile(
+                Information.getInformation().getAnwendungenPfad() + "EigeneAnwendungen.txt", "r")) {
             for (String line; (line = desktopFile.readLine()) != null;) {
                 HashMap<String, String> tmpMap = new HashMap<String, String>();
                 if (!line.trim().equals("")) {
@@ -410,11 +410,8 @@ public class Information implements Serializable {
                 }
             }
 
-        } catch (FileNotFoundException e) {
-
-        } finally {
-            if (desktopFile != null)
-                desktopFile.close();
+        } catch (IOException e) {
+            LOG.debug("could not read list of available applications", e);
         }
 
         return tmpList;

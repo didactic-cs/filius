@@ -42,6 +42,7 @@ public class GUIDesktopWindow extends JFrame implements Observer {
 
     public enum Mode {
         ROW(0), COLUMN(1), STACK(2);
+
         private final int value;
 
         Mode(int mode) {
@@ -79,7 +80,6 @@ public class GUIDesktopWindow extends JFrame implements Observer {
         setIconImage(icon.getImage());
 
         setSize(640, 480);
-        // setBounds(100, 100, 640, 480);
         setResizable(false);
 
         desktopPanel = new GUIDesktopPanel(bs);
@@ -105,7 +105,6 @@ public class GUIDesktopWindow extends JFrame implements Observer {
             title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName() + " - "
                     + desktopPanel.getBetriebssystem().holeIPAdresse();
         }
-        // LOG.debug("GUIDesktopWindow: Titel = " + title);
         setTitle(title);
     }
 

@@ -25,20 +25,27 @@
  */
 package filius.gui.anwendungssicht;
 
+import static filius.gui.anwendungssicht.GUIDesktopPanel.HEIGHT_APP_TITLEBAR;
+import static filius.gui.anwendungssicht.GUIDesktopPanel.HEIGHT_CONTENT;
+import static filius.gui.anwendungssicht.GUIDesktopPanel.SIZE_TITLEBAR_ICON;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.beans.PropertyVetoException;
 import java.util.Map;
 import java.util.Observer;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
@@ -48,72 +55,95 @@ import filius.software.Anwendung;
  * Diese Klasse dient als Oberklasse für alle Anwendungsfenster
  * 
  */
-public abstract class GUIApplicationWindow extends JInternalFrame implements I18n, Observer {
-    private static Logger LOG = LoggerFactory.getLogger(GUIApplicationWindow.class);
+@SuppressWarnings({ "serial", "deprecation" })
+public abstract class GUIApplicationWindow extends JPanel implements I18n, Observer {
+    protected GUIDesktopPanel desktop;
+    protected Anwendung anwendung;
+    protected JLabel titleLabel;
+    protected JLabel icon;
 
-    private static final long serialVersionUID = 1L;
-
-    private GUIDesktopPanel desktop;
-    private Anwendung anwendung;
-
-    public GUIApplicationWindow(GUIDesktopPanel desktop, String appKlasse) {
-        super();
-        this.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
+    public GUIApplicationWindow(GUIDesktopPanel desktop) {
+        super(new BorderLayout());
 
         this.desktop = desktop;
-        this.desktop.getDesktopPane().add(this);
+        initComponents();
+    }
+
+    public GUIApplicationWindow(GUIDesktopPanel desktop, String appKlasse) {
+        super(new BorderLayout());
+
+        this.desktop = desktop;
+        initComponents();
 
         this.anwendung = desktop.getBetriebssystem().holeSoftware(appKlasse);
         this.anwendung.hinzuBeobachter(this);
 
-        this.setPreferredSize(new Dimension(600, 410));
-        this.setClosable(true);
-        this.setMaximizable(true);
-        this.setIconifiable(false);
-        this.setResizable(true);
-        this.setMaximum(true);
-
-        this.setTitle(anwendung.holeAnwendungsName());
-        this.initIcon();
+        setIcon(anwendung);
+        setTitle(anwendung);
     }
 
-    /** Wrapper on JInternalFrame.pack() that retains the isMaximum property. */
-    @Override
-    public void pack() {
-        boolean max = this.isMaximum();
-        super.pack();
-        this.setMaximum(max);
+    private void initComponents() {
+        setSize(WIDTH, HEIGHT_CONTENT);
+        setPreferredSize(new Dimension(WIDTH, HEIGHT_CONTENT));
+        BorderLayout appWindowLayout = (BorderLayout) getLayout();
+        appWindowLayout.setHgap(0);
+        appWindowLayout.setVgap(0);
+        setLayout(appWindowLayout);
+
+        JPanel titleBar = new JPanel(new BorderLayout());
+        titleBar.setPreferredSize(new Dimension(WIDTH, HEIGHT_APP_TITLEBAR));
+        titleBar.setBackground(Color.DARK_GRAY);
+        add(titleBar, BorderLayout.NORTH);
+
+        icon = new JLabel();
+        icon.setPreferredSize(new Dimension(SIZE_TITLEBAR_ICON, SIZE_TITLEBAR_ICON));
+        icon.setHorizontalAlignment(SwingConstants.CENTER);
+        titleBar.add(icon, BorderLayout.WEST);
+
+        titleLabel = new JLabel();
+        titleLabel.setForeground(new Color(225, 225, 225));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleBar.add(titleLabel, BorderLayout.CENTER);
     }
 
-    /** Wrapper on JInternalFrame.setMaximum(boolean) that ensures that the actual size is not 0 width/height. */
-    @Override
-    public void setMaximum(boolean max) {
-        try {
-            super.setMaximum(max);
-        } catch (PropertyVetoException e) {}
-        Dimension size = getSize();
-        if (!max && (size.getHeight() <= 0 || size.getWidth() <= 0)) {
-            pack();
-        }
+    public void close() {
+        desktop.showApplications();
     }
 
-    private void initIcon() {
-        String awName;
-        ImageIcon image;
-        try {
-            for (Map<String, String> tmpMap : Information.getInformation().ladeProgrammListe()) {
-                awName = (String) tmpMap.get("Anwendung");
-
-                if (awName.equals(anwendung.holeAnwendungsName())) {
-                    image = new ImageIcon(getClass().getResource("/" + ((String) tmpMap.get("gfxFile"))));
-                    image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
-                    setFrameIcon(image);
-                    break;
-                }
+    private void setIcon(Anwendung app) {
+        for (Map<String, String> tmpMap : Information.getInformation().ladeProgrammListe()) {
+            if (app.holeAnwendungsName().equals(tmpMap.get("Anwendung"))) {
+                String path = "/" + tmpMap.get("gfxFile");
+                setIcon(path);
+                break;
             }
-        } catch (Exception e) {
-            LOG.debug("", e);
         }
+    }
+
+    protected void setIcon(String path) {
+        ImageIcon image = new ImageIcon(getClass().getResource(path));
+        image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
+        icon.setIcon(image);
+    }
+
+    protected void setTitle(Anwendung app) {
+        setTitle(app, StringUtils.EMPTY);
+    }
+
+    protected void setTitle(Anwendung app, String titleExtension) {
+        String title;
+        if (StringUtils.isNoneBlank(titleExtension) && null != app) {
+            title = app.holeAnwendungsName() + " - " + titleExtension;
+        } else if (null != app) {
+            title = app.holeAnwendungsName();
+        } else {
+            title = titleExtension;
+        }
+        setTitle(title);
+    }
+
+    public void setTitle(String title) {
+        titleLabel.setText(title);
     }
 
     public Anwendung holeAnwendung() {
@@ -136,10 +166,6 @@ public abstract class GUIApplicationWindow extends JInternalFrame implements I18
 
     public void addFrame(JInternalFrame frame) {
         desktop.getDesktopPane().add(frame);
-    }
-
-    public void removeFrame(JInternalFrame frame) {
-        desktop.getDesktopPane().remove(frame);
     }
 
     public void starteExterneAnwendung(String softwareName) {

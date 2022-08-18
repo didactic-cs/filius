@@ -200,8 +200,8 @@ public class ServerSocket implements SocketSchnittstelle, I18n {
 
         if (aktuellerSocket != null) {
             aktuellerSocket.schliessen();
+            protokoll.gibPortFrei(lokalerPort);
         }
-        protokoll.gibPortFrei(lokalerPort);
     }
 
     /**

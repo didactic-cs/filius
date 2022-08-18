@@ -210,6 +210,8 @@ public abstract class ServerAnwendung extends Anwendung implements I18n {
                                     + messages.getString("sw_serveranwendung_msg5"));
                         }
                     } catch (ServerSocketException e) {
+                        benachrichtigeBeobachter(messages.getString("sw_serveranwendung_msg6"));
+                        setAktiv(false);
                         LOG.debug("tried to establish connection to client - but failed.", e);
                     } catch (Exception e) {
                         benachrichtigeBeobachter(e.getMessage());

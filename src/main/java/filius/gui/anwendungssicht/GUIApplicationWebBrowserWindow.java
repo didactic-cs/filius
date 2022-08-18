@@ -78,7 +78,7 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
         HTMLEditorKit ek;
 
         browserPanel = new JPanel(new BorderLayout());
-        getContentPane().add(browserPanel);
+        add(browserPanel, BorderLayout.CENTER);
 
         Box topBox = Box.createHorizontalBox();
 
@@ -161,8 +161,6 @@ public class GUIApplicationWebBrowserWindow extends GUIApplicationWindow {
         middleBox.add(spAnzeige);
 
         browserPanel.add(middleBox, BorderLayout.CENTER);
-
-        this.pack();
     }
 
     private URL erzeugeURL(String ressource) {

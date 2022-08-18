@@ -35,7 +35,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -44,180 +43,169 @@ import filius.software.clientserver.ClientBaustein;
 
 /**
  * <p>
- * Diese Klasse stellt die Benutzungsoberflaeche fuer das Client-Programm einer
- * einfachen Client-Server-Anwendung zur Verfuegung.
+ * Diese Klasse stellt die Benutzungsoberflaeche fuer das Client-Programm einer einfachen Client-Server-Anwendung zur
+ * Verfuegung.
  * </p>
  * <p>
- * Nachrichten von der Anwendung werden nach dem Beobachtermuster durch die
- * Benachrichtigung der Beobachter angenommen und verarbeitet.
+ * Nachrichten von der Anwendung werden nach dem Beobachtermuster durch die Benachrichtigung der Beobachter angenommen
+ * und verarbeitet.
  * </p>
  */
 public class GUIApplicationClientBausteinWindow extends GUIApplicationWindow {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Textfeld fuer die Ausgabe gesendeter und empfangener Nachrichten sowie
-	 * fuer Fehlermeldungen
-	 */
-	private JTextArea taAusgabe;
+    /**
+     * Textfeld fuer die Ausgabe gesendeter und empfangener Nachrichten sowie fuer Fehlermeldungen
+     */
+    private JTextArea taAusgabe;
 
-	/**
-	 * Textfeld fuer die Adresse des Servers, zu dem die Verbindung hergestellt
-	 * werden soll
-	 */
-	private JTextField tfServerAdresse;
+    /**
+     * Textfeld fuer die Adresse des Servers, zu dem die Verbindung hergestellt werden soll
+     */
+    private JTextField tfServerAdresse;
 
-	/**
-	 * Textfeld zur Angabe des TCP-Ports, auf dem der Server auf eingehende
-	 * Nachrichten wartet
-	 */
-	private JTextField tfServerPort;
+    /**
+     * Textfeld zur Angabe des TCP-Ports, auf dem der Server auf eingehende Nachrichten wartet
+     */
+    private JTextField tfServerPort;
 
-	/** Textbereich zur Eingabe der Nachrichten */
-	private JTextArea taSenden;
+    /** Textbereich zur Eingabe der Nachrichten */
+    private JTextArea taSenden;
 
-	/** Schaltflaeche zum initiieren des Verbindungsaufbaus */
-	private JButton btVerbinden;
+    /** Schaltflaeche zum initiieren des Verbindungsaufbaus */
+    private JButton btVerbinden;
 
-	/**
-	 * Schaltflaeche zum Senden einer zuvor eingegebenen Nachricht
-	 */
-	private JButton btSenden;
+    /**
+     * Schaltflaeche zum Senden einer zuvor eingegebenen Nachricht
+     */
+    private JButton btSenden;
 
-	/**
-	 * Standard-Konstruktor, der automatisch zur Erzeugung der graphischen
-	 * Benutzungsoberflaeche fuer diese Anwendung aufgerufen wird.
-	 */
-	public GUIApplicationClientBausteinWindow(GUIDesktopPanel desktop, String appName) {
-		super(desktop, appName);
-		initialisiereKomponenten();
-	}
+    /**
+     * Standard-Konstruktor, der automatisch zur Erzeugung der graphischen Benutzungsoberflaeche fuer diese Anwendung
+     * aufgerufen wird.
+     */
+    public GUIApplicationClientBausteinWindow(GUIDesktopPanel desktop, String appName) {
+        super(desktop, appName);
+        initialisiereKomponenten();
+    }
 
-	/** Methode zur Initialisierung der graphischen Komponenten */
-	private void initialisiereKomponenten() {
-		JPanel hauptPanel;
-		JScrollPane scrollPane;
-		Box hauptBox;
-		Box hBox;
-		JLabel label;
+    /** Methode zur Initialisierung der graphischen Komponenten */
+    private void initialisiereKomponenten() {
+        JScrollPane scrollPane;
+        Box hauptBox;
+        Box hBox;
+        JLabel label;
 
-		hauptPanel = new JPanel(new BorderLayout());
+        hauptBox = Box.createVerticalBox();
+        hauptBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        hauptBox.add(Box.createVerticalStrut(5));
 
-		hauptBox = Box.createVerticalBox();
-		hauptBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		hauptBox.add(Box.createVerticalStrut(5));
+        hBox = Box.createHorizontalBox();
+        label = new JLabel(messages.getString("clientbaustein_msg1"));
+        label.setPreferredSize(new Dimension(140, label.getHeight()));
+        hBox.add(label);
 
-		hBox = Box.createHorizontalBox();
-		label = new JLabel(messages.getString("clientbaustein_msg1"));
-		label.setPreferredSize(new Dimension(140, label.getHeight()));
-		hBox.add(label);
+        tfServerAdresse = new JTextField();
+        tfServerAdresse.setPreferredSize(new Dimension(100, 20));
+        hBox.add(tfServerAdresse);
+        hauptBox.add(hBox);
+        hauptBox.add(Box.createVerticalStrut(5));
 
-		tfServerAdresse = new JTextField();
-		tfServerAdresse.setPreferredSize(new Dimension(100, 20));
-		hBox.add(tfServerAdresse);
-		hauptBox.add(hBox);
-		hauptBox.add(Box.createVerticalStrut(5));
+        hBox = Box.createHorizontalBox();
+        label = new JLabel(messages.getString("clientbaustein_msg2"));
+        label.setPreferredSize(new Dimension(140, label.getHeight()));
+        hBox.add(label);
 
-		hBox = Box.createHorizontalBox();
-		label = new JLabel(messages.getString("clientbaustein_msg2"));
-		label.setPreferredSize(new Dimension(140, label.getHeight()));
-		hBox.add(label);
+        tfServerPort = new JTextField();
+        tfServerPort.setPreferredSize(new Dimension(100, 20));
+        hBox.add(tfServerPort);
+        hauptBox.add(hBox);
+        hauptBox.add(Box.createVerticalStrut(5));
 
-		tfServerPort = new JTextField();
-		tfServerPort.setPreferredSize(new Dimension(100, 20));
-		hBox.add(tfServerPort);
-		hauptBox.add(hBox);
-		hauptBox.add(Box.createVerticalStrut(5));
+        btVerbinden = new JButton(messages.getString("clientbaustein_msg3"));
+        btVerbinden.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand().equals("verbinden")) {
+                    ((ClientBaustein) holeAnwendung()).setZielIPAdresse(tfServerAdresse.getText());
+                    ((ClientBaustein) holeAnwendung()).setZielPort(Integer.parseInt(tfServerPort.getText()));
+                    ((ClientBaustein) holeAnwendung()).verbinden();
+                } else {
+                    ((ClientBaustein) holeAnwendung()).trennen();
+                }
+                aktualisieren();
+            }
+        });
+        hauptBox.add(btVerbinden);
+        hauptBox.add(Box.createVerticalStrut(5));
 
-		btVerbinden = new JButton(messages.getString("clientbaustein_msg3"));
-		btVerbinden.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("verbinden")) {
-					((ClientBaustein) holeAnwendung()).setZielIPAdresse(tfServerAdresse.getText());
-					((ClientBaustein) holeAnwendung()).setZielPort(Integer.parseInt(tfServerPort.getText()));
-					((ClientBaustein) holeAnwendung()).verbinden();
-				} else {
-					((ClientBaustein) holeAnwendung()).trennen();
-				}
-				aktualisieren();
-			}
-		});
-		hauptBox.add(btVerbinden);
-		hauptBox.add(Box.createVerticalStrut(5));
+        label = new JLabel(messages.getString("clientbaustein_msg4"));
+        label.setPreferredSize(new Dimension(100, 20));
+        hauptBox.add(label);
 
-		label = new JLabel(messages.getString("clientbaustein_msg4"));
-		label.setPreferredSize(new Dimension(100, 20));
-		hauptBox.add(label);
+        taSenden = new JTextArea();
+        scrollPane = new JScrollPane(taSenden);
+        scrollPane.setPreferredSize(new Dimension(400, 50));
+        hauptBox.add(scrollPane);
 
-		taSenden = new JTextArea();
-		scrollPane = new JScrollPane(taSenden);
-		scrollPane.setPreferredSize(new Dimension(400, 50));
-		hauptBox.add(scrollPane);
+        btSenden = new JButton(messages.getString("clientbaustein_msg5"));
+        btSenden.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ((ClientBaustein) holeAnwendung()).senden(taSenden.getText());
+                taSenden.setText("");
+            }
+        });
+        hauptBox.add(btSenden);
+        hauptBox.add(Box.createVerticalStrut(5));
 
-		btSenden = new JButton(messages.getString("clientbaustein_msg5"));
-		btSenden.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				((ClientBaustein) holeAnwendung()).senden(taSenden.getText());
-				taSenden.setText("");
-			}
-		});
-		hauptBox.add(btSenden);
-		hauptBox.add(Box.createVerticalStrut(5));
+        taAusgabe = new JTextArea();
+        taAusgabe.setEditable(false);
+        scrollPane = new JScrollPane(taAusgabe);
+        scrollPane.setPreferredSize(new Dimension(400, 200));
+        hauptBox.add(scrollPane);
+        hauptBox.add(Box.createVerticalStrut(5));
 
-		taAusgabe = new JTextArea();
-		taAusgabe.setEditable(false);
-		scrollPane = new JScrollPane(taAusgabe);
-		scrollPane.setPreferredSize(new Dimension(400, 200));
-		hauptBox.add(scrollPane);
-		hauptBox.add(Box.createVerticalStrut(5));
+        add(hauptBox, BorderLayout.CENTER);
+        aktualisieren();
+    }
 
-		hauptPanel.add(hauptBox, BorderLayout.CENTER);
+    /**
+     * Methode zum aktualisieren der Komponenten der graphischen Benutzungsoberflaeche in Abhaengigkeit vom Zustand der
+     * Anwendung
+     */
+    private void aktualisieren() {
+        ClientBaustein client;
 
-		getContentPane().add(hauptPanel);
-		pack();
+        client = (ClientBaustein) holeAnwendung();
 
-		aktualisieren();
-	}
+        tfServerAdresse.setText(client.getZielIPAdresse());
+        tfServerPort.setText("" + client.getZielPort());
+        if (client.istVerbunden()) {
+            btVerbinden.setText(messages.getString("clientbaustein_msg6"));
+            btVerbinden.setActionCommand("trennen");
+            btSenden.setEnabled(true);
 
-	/**
-	 * Methode zum aktualisieren der Komponenten der graphischen
-	 * Benutzungsoberflaeche in Abhaengigkeit vom Zustand der Anwendung
-	 */
-	private void aktualisieren() {
-		ClientBaustein client;
+            tfServerAdresse.setEditable(false);
+            tfServerPort.setEditable(false);
+        } else {
+            btVerbinden.setText(messages.getString("clientbaustein_msg3"));
+            btVerbinden.setActionCommand("verbinden");
+            btSenden.setEnabled(false);
 
-		client = (ClientBaustein) holeAnwendung();
+            tfServerAdresse.setEditable(true);
+            tfServerPort.setEditable(true);
+        }
+    }
 
-		tfServerAdresse.setText(client.getZielIPAdresse());
-		tfServerPort.setText("" + client.getZielPort());
-		if (client.istVerbunden()) {
-			btVerbinden.setText(messages.getString("clientbaustein_msg6"));
-			btVerbinden.setActionCommand("trennen");
-			btSenden.setEnabled(true);
+    /**
+     * Diese Methode wird automatisch ausgefuehrt, wenn eine Nachricht an den Beobachter der Anwendung gesendet wird.
+     * Der Parameter arg enthaelt die Nachricht, die von der Anwendung verschickt wurde.
+     */
+    public void update(Observable o, Object arg) {
+        if (arg != null) {
+            this.taAusgabe.append(arg.toString() + "\n");
+        }
 
-			tfServerAdresse.setEditable(false);
-			tfServerPort.setEditable(false);
-		} else {
-			btVerbinden.setText(messages.getString("clientbaustein_msg3"));
-			btVerbinden.setActionCommand("verbinden");
-			btSenden.setEnabled(false);
-
-			tfServerAdresse.setEditable(true);
-			tfServerPort.setEditable(true);
-		}
-	}
-
-	/**
-	 * Diese Methode wird automatisch ausgefuehrt, wenn eine Nachricht an den
-	 * Beobachter der Anwendung gesendet wird. Der Parameter arg enthaelt die
-	 * Nachricht, die von der Anwendung verschickt wurde.
-	 */
-	public void update(Observable o, Object arg) {
-		if (arg != null) {
-			this.taAusgabe.append(arg.toString() + "\n");
-		}
-
-		aktualisieren();
-	}
+        aktualisieren();
+    }
 }

@@ -46,8 +46,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -59,23 +57,19 @@ import filius.software.dns.DNSServer;
 import filius.software.dns.ResourceRecord;
 import filius.software.vermittlungsschicht.IP;
 
+@SuppressWarnings({ "serial", "deprecation" })
 public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
     private static Logger LOG = LoggerFactory.getLogger(GUIApplicationDNSServerWindow.class);
 
-    private static final long serialVersionUID = 1L;
-
-    private JPanel backPanel, aPanel, mxPanel, nsPanel;
-
-    private JTextField aDomainField, mxURLField, aIpField, mxMaildomainField, nsDomainField, nsDomainServerField;
-
-    private JLabel aDomainLabel, aIpLabel, mxURLLabel, mxMaildomainLabel, nsDomainLabel, nsDomainServerLabel;
-
-    private JTabbedPane tabbedPane;
+    private JTextField aDomainField;
+    private JTextField mxURLField;
+    private JTextField aIpField;
+    private JTextField mxMaildomainField;
+    private JTextField nsDomainField;
+    private JTextField nsDomainServerField;
 
     private JCheckBox recResolution;
-
-    private JButton mxAddButton, aAddButton, buttonStart, buttonEntfernen, buttonMXEntfernen, nsAddButton,
-            nsRemoveButton;
+    private JButton buttonStart;
 
     private DNSConfigTable aRecordsTable;
     private DNSConfigTable mxRecordsTable;
@@ -85,17 +79,31 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         super(desktop, appName);
 
         initialisiereKomponenten();
+        aktualisieren();
     }
 
     private void initialisiereKomponenten() {
+        JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.add(createServerControlBox(), BorderLayout.NORTH);
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab(messages.getString("dnsserver_msg2"),
+                new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), createAPanel());
+        tabbedPane.addTab(messages.getString("dnsserver_msg3"),
+                new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), createMXPanel());
+        tabbedPane.addTab(messages.getString("dnsserver_msg15"),
+                new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), createNSPanel());
+        Box hBox = Box.createHorizontalBox();
+        hBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        hBox.add(tabbedPane);
+        contentPane.add(hBox, BorderLayout.CENTER);
+        add(contentPane, BorderLayout.CENTER);
+    }
+
+    private Box createServerControlBox() {
         Box hBox;
-
-        tabbedPane = new JTabbedPane();
-        backPanel = new JPanel(new BorderLayout());
-
         buttonStart = new JButton(messages.getString("dnsserver_msg1"));
         buttonStart.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent arg0) {
                 if (((DNSServer) holeAnwendung()).isAktiv()) {
                     ((DNSServer) holeAnwendung()).setAktiv(false);
@@ -124,48 +132,16 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         });
         hBox.add(Box.createHorizontalStrut(20));
         hBox.add(recResolution);
-
-        backPanel.add(hBox, BorderLayout.NORTH);
-
-        initAPanel();
-        initMXPanel();
-        initNSPanel();
-
-        tabbedPane.addTab(messages.getString("dnsserver_msg2"),
-                new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), aPanel);
-        tabbedPane.addTab(messages.getString("dnsserver_msg3"),
-                new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), mxPanel);
-        tabbedPane.addTab(messages.getString("dnsserver_msg15"),
-                new ImageIcon(getClass().getResource("/gfx/desktop/peertopeer_netzwerk_klein.png")), nsPanel);
-
-        hBox = Box.createHorizontalBox();
-        hBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        hBox.add(tabbedPane);
-        backPanel.add(hBox, BorderLayout.CENTER);
-
-        getContentPane().add(backPanel);
-        pack();
-
-        updateMXRecordsTable();
-        updateARecordsTable();
-        updateNSRecordsTable();
-
-        this.addInternalFrameListener(new InternalFrameAdapter() {
-            public void internalFrameActivated(InternalFrameEvent e) {
-                GUIApplicationDNSServerWindow.this.aktualisieren();
-            }
-        });
-
-        aktualisieren();
+        return hBox;
     }
 
-    private void initAPanel() {
+    private JPanel createAPanel() {
         Box vBox, hBox;
         DefaultTableModel tabellenModell;
         TableColumnModel tcm;
         JScrollPane scrollPane;
 
-        aPanel = new JPanel(new BorderLayout());
+        JPanel aPanel = new JPanel(new BorderLayout());
 
         vBox = Box.createVerticalBox();
         vBox.add(Box.createVerticalStrut(5));
@@ -173,7 +149,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        aDomainLabel = new JLabel(messages.getString("dnsserver_msg4"));
+        JLabel aDomainLabel = new JLabel(messages.getString("dnsserver_msg4"));
         aDomainLabel.setPreferredSize(new Dimension(170, 25));
         hBox.add(aDomainLabel);
         hBox.add(Box.createHorizontalStrut(5));
@@ -193,7 +169,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        aIpLabel = new JLabel(messages.getString("dnsserver_msg5"));
+        JLabel aIpLabel = new JLabel(messages.getString("dnsserver_msg5"));
         aIpLabel.setPreferredSize(new Dimension(170, 25));
         hBox.add(aIpLabel);
         hBox.add(Box.createHorizontalStrut(5));
@@ -213,7 +189,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        aAddButton = new JButton(messages.getString("dnsserver_msg6"));
+        JButton aAddButton = new JButton(messages.getString("dnsserver_msg6"));
         aAddButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 if (checkFQDN(aDomainField) && checkIP(aIpField) && IP.ipCheck(aIpField.getText()) != null) {
@@ -230,7 +206,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox.add(aAddButton);
         hBox.add(Box.createHorizontalStrut(5));
 
-        buttonEntfernen = new JButton(messages.getString("dnsserver_msg7"));
+        JButton buttonEntfernen = new JButton(messages.getString("dnsserver_msg7"));
         buttonEntfernen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int zeilenNummer = aRecordsTable.getSelectedRow();
@@ -250,10 +226,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 
         tabellenModell = new DefaultTableModel(0, 2);
         aRecordsTable = new DNSConfigTable(tabellenModell, true, "A");
-        aRecordsTable.setParentGUI(this); // tell the table who presents its
-                                          // values, such that the back-end DNS
-                                          // server can be found for adapting
-                                          // resource entries
+        aRecordsTable.setParentGUI(this);
         aRecordsTable.setIntercellSpacing(new Dimension(5, 5));
         aRecordsTable.setRowHeight(30);
         aRecordsTable.setShowGrid(false);
@@ -268,15 +241,17 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 
         vBox.add(scrollPane);
         aPanel.add(vBox, BorderLayout.CENTER);
+
+        return aPanel;
     }
 
-    private void initMXPanel() {
+    private JPanel createMXPanel() {
         Box vBox, hBox;
         DefaultTableModel tabellenModell;
         TableColumnModel tcm;
         JScrollPane scrollPane;
 
-        mxPanel = new JPanel(new BorderLayout());
+        JPanel mxPanel = new JPanel(new BorderLayout());
 
         vBox = Box.createVerticalBox();
         vBox.add(Box.createVerticalStrut(5));
@@ -284,7 +259,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        mxMaildomainLabel = new JLabel(messages.getString("dnsserver_msg10"));
+        JLabel mxMaildomainLabel = new JLabel(messages.getString("dnsserver_msg10"));
         mxMaildomainLabel.setPreferredSize(new Dimension(170, 25));
         hBox.add(mxMaildomainLabel);
         hBox.add(Box.createHorizontalStrut(5));
@@ -304,7 +279,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        mxURLLabel = new JLabel(messages.getString("dnsserver_msg11"));
+        JLabel mxURLLabel = new JLabel(messages.getString("dnsserver_msg11"));
         mxURLLabel.setPreferredSize(new Dimension(170, 25));
         hBox.add(mxURLLabel);
         hBox.add(Box.createHorizontalStrut(5));
@@ -324,7 +299,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        mxAddButton = new JButton(messages.getString("dnsserver_msg6"));
+        JButton mxAddButton = new JButton(messages.getString("dnsserver_msg6"));
         mxAddButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (checkFQDN(mxMaildomainField) && checkFQDN(mxURLField)) {
@@ -340,7 +315,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         });
         hBox.add(mxAddButton);
 
-        buttonMXEntfernen = new JButton(messages.getString("dnsserver_msg7"));
+        JButton buttonMXEntfernen = new JButton(messages.getString("dnsserver_msg7"));
         buttonMXEntfernen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
@@ -378,15 +353,17 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         scrollPane = new JScrollPane(mxRecordsTable);
         vBox.add(scrollPane);
         mxPanel.add(vBox, BorderLayout.CENTER);
+
+        return mxPanel;
     }
 
-    private void initNSPanel() {
+    private JPanel createNSPanel() {
         Box vBox, hBox;
         DefaultTableModel tabellenModell;
         TableColumnModel tcm;
         JScrollPane scrollPane;
 
-        nsPanel = new JPanel(new BorderLayout());
+        JPanel nsPanel = new JPanel(new BorderLayout());
 
         vBox = Box.createVerticalBox();
         vBox.add(Box.createVerticalStrut(5));
@@ -394,7 +371,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        nsDomainLabel = new JLabel(messages.getString("dnsserver_msg16"));
+        JLabel nsDomainLabel = new JLabel(messages.getString("dnsserver_msg16"));
         nsDomainLabel.setPreferredSize(new Dimension(170, 25));
         hBox.add(nsDomainLabel);
         hBox.add(Box.createHorizontalStrut(5));
@@ -414,7 +391,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        nsDomainServerLabel = new JLabel(messages.getString("dnsserver_msg17"));
+        JLabel nsDomainServerLabel = new JLabel(messages.getString("dnsserver_msg17"));
         nsDomainServerLabel.setPreferredSize(new Dimension(170, 25));
         hBox.add(nsDomainServerLabel);
         hBox.add(Box.createHorizontalStrut(5));
@@ -434,7 +411,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox = Box.createHorizontalBox();
         hBox.add(Box.createHorizontalStrut(5));
 
-        nsAddButton = new JButton(messages.getString("dnsserver_msg6"));
+        JButton nsAddButton = new JButton(messages.getString("dnsserver_msg6"));
         nsAddButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (checkFQDN(nsDomainField) && checkFQDN(nsDomainServerField)) {
@@ -450,7 +427,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         });
         hBox.add(nsAddButton);
 
-        nsRemoveButton = new JButton(messages.getString("dnsserver_msg7"));
+        JButton nsRemoveButton = new JButton(messages.getString("dnsserver_msg7"));
         nsRemoveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int zeilenNummer = nsRecordsTable.getSelectedRow();
@@ -469,10 +446,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
 
         tabellenModell = new DefaultTableModel(0, 2);
         nsRecordsTable = new DNSConfigTable(tabellenModell, true, "NS");
-        nsRecordsTable.setParentGUI(this); // tell the table who presents its
-                                           // values, such that the back-end DNS
-                                           // server can be found for adapting
-                                           // resource entries
+        nsRecordsTable.setParentGUI(this);
         nsRecordsTable.setIntercellSpacing(new Dimension(5, 5));
         nsRecordsTable.setRowHeight(30);
         nsRecordsTable.setShowGrid(false);
@@ -487,6 +461,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         scrollPane = new JScrollPane(nsRecordsTable);
         vBox.add(scrollPane);
         nsPanel.add(vBox, BorderLayout.CENTER);
+        return nsPanel;
     }
 
     public void updateARecordsTable() {
@@ -551,11 +526,9 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         } else {
             buttonStart.setText(messages.getString("dnsserver_msg1"));
         }
-        if (this.ui != null) {
-            this.updateARecordsTable();
-            this.updateMXRecordsTable();
-            this.updateNSRecordsTable();
-        }
+        updateARecordsTable();
+        updateMXRecordsTable();
+        updateNSRecordsTable();
     }
 
     public void update(Observable arg0, Object arg1) {

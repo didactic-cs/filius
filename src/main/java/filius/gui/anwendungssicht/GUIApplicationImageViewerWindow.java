@@ -27,13 +27,12 @@ package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Observable;
 
-import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 import org.slf4j.Logger;
@@ -44,13 +43,10 @@ import filius.rahmenprogramm.Information;
 import filius.software.system.Betriebssystem;
 import filius.software.system.Datei;
 
+@SuppressWarnings("serial")
 public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
     private static Logger LOG = LoggerFactory.getLogger(GUIApplicationImageViewerWindow.class);
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
     private JPanel backPanel;
 
     public GUIApplicationImageViewerWindow(final GUIDesktopPanel desktop, String appName) {
@@ -58,26 +54,16 @@ public class GUIApplicationImageViewerWindow extends GUIApplicationWindow {
 
         backPanel = new JPanel(new BorderLayout());
 
-        JMenuBar mb = new JMenuBar();
-
-        JMenu menuDatei = new JMenu(messages.getString("imageviewer_msg1"));
-
-        menuDatei.add(new AbstractAction(messages.getString("imageviewer_msg2")) {
-
-            private static final long serialVersionUID = 1L;
-
-            public void actionPerformed(ActionEvent arg0) {
+        JButton open = new JButton(messages.getString("imageviewer_msg2"));
+        open.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 oeffnen();
             }
         });
+        backPanel.add(open, BorderLayout.NORTH);
 
-        mb.add(menuDatei);
-
-        this.setJMenuBar(mb);
-
-        this.getContentPane().add(backPanel);
-        pack();
-
+        add(backPanel, BorderLayout.CENTER);
     }
 
     public void oeffnen() {

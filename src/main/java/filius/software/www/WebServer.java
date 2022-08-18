@@ -58,7 +58,8 @@ public class WebServer extends TCPServerAnwendung {
 
     private HashMap<String, WebServerPlugIn> plugins = new HashMap<String, WebServerPlugIn>();
 
-    private String[][] vHostArray = new String[5][2]; // default size of 5x2
+    private String[][] vHostArray = new String[5][2];
+    private boolean useVHost;
 
     public WebServer() {
         super();
@@ -140,13 +141,8 @@ public class WebServer extends TCPServerAnwendung {
         try {
             if (!dateisystem.dateiVorhanden(verzeichnis, "index.html")) {
 
-                erzeugeIndexDatei(ResourceUtil
-                        .getResourcePath("tmpl/webserver_index_" + Information.getInformation().getLocaleOrDefault() + ".txt"));
-
-                // this was used for externally stored file... no longer working
-                // erzeugeDatei("splashscreen-mini", "png", Base64
-                // .encodeFromFile(Information.getInformation().getProgrammPfad()
-                // + "gfx/allgemein/splashscreen-mini.png"));
+                erzeugeIndexDatei(ResourceUtil.getResourcePath(
+                        "tmpl/webserver_index_" + Information.getInformation().getLocaleOrDefault() + ".txt"));
 
                 erzeugeDatei("splashscreen-mini", "png", Base64.encodeBytes(
                         inputStreamToBytes(getClass().getResourceAsStream("/gfx/allgemein/splashscreen-mini.png"))));
@@ -225,18 +221,18 @@ public class WebServer extends TCPServerAnwendung {
     public void changeVHostTable(int row, int col, String val) {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), changeVHostTable(" + row + "," + col + "," + val + ")");
-        if (val != null)
+        if (val != null) {
             vHostArray[row][col] = val;
-        else
+        } else {
             vHostArray[row][col] = "";
-        // LOG.debug("DEBUG WebServer: vHostArray (danach):\n"+printVHostTable());
-        this.saveVHosts();
+        }
+        saveVHosts();
     }
 
     public String vhostPrefix(String vhost) {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (WebServer), vhostPrefix(" + vhost + ")");
-        for (int i = 0; i < vHostArray.length; i++) {
+        for (int i = 0; useVHost && i < vHostArray.length; i++) {
             if (vHostArray[i][0] != null && vHostArray[i][0].equalsIgnoreCase(vhost)) {
                 if (vHostArray[i][1] != null)
                     return vHostArray[i][1];
@@ -305,25 +301,20 @@ public class WebServer extends TCPServerAnwendung {
     }
 
     private void initialisiereVHosts() {
-        LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass() + ", initialisiereVHosts()");
-        Datei vhosts;
-        StringTokenizer tokenizer;
-        String line;
-        Dateisystem dateisystem;
-
         vHostArray = new String[5][2];
         int row = 0;
         int col = 0;
 
-        dateisystem = getSystemSoftware().getDateisystem();
-        vhosts = dateisystem.holeDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "www.conf"
+        Dateisystem dateisystem = getSystemSoftware().getDateisystem();
+        Datei vhosts = dateisystem.holeDatei(dateisystem.holeRootPfad() + Dateisystem.FILE_SEPARATOR + "www.conf"
                 + Dateisystem.FILE_SEPARATOR + "vhosts");
 
         if (vhosts != null) {
-            tokenizer = new StringTokenizer(vhosts.getDateiInhalt(), "\n");
+            useVHost = true;
+            StringTokenizer tokenizer = new StringTokenizer(vhosts.getDateiInhalt(), "\n");
 
             while (tokenizer.hasMoreTokens()) {
-                line = tokenizer.nextToken().trim();
+                String line = tokenizer.nextToken().trim();
                 vHostArray[row][col] = line;
                 if (col == 0) {
                     col++;
@@ -337,6 +328,14 @@ public class WebServer extends TCPServerAnwendung {
             vHostArray[row][0] = "";
             vHostArray[row][1] = "";
         }
+    }
+
+    public boolean isUseVHost() {
+        return useVHost;
+    }
+
+    public void setUseVHost(boolean useVHost) {
+        this.useVHost = useVHost;
     }
 
 }

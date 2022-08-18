@@ -66,14 +66,17 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
     public GUIApplicationWebServerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
-        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + ", constr: GUIApplicationWebServerWindow("
-                + desktop + "," + appName + ")");
 
+        initialisiereKomponenten();
+
+        aktualisieren();
+    }
+
+    private void initialisiereKomponenten() {
         backPanel = new JPanel(new BorderLayout());
 
         buttonStart = new JButton(messages.getString("webserver_msg1"));
         buttonStart.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent arg0) {
                 if (buttonStart.getText().equals(messages.getString("webserver_msg1"))) {
                     ((WebServer) holeAnwendung()).setAktiv(true);
@@ -88,15 +91,13 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
         upperBox.add(Box.createHorizontalStrut(100));
 
         showVHosts = new JCheckBox();
-        showVHosts.setSelected(isVHostAvailable());
         showVHosts.setText(messages.getString("webserver_msg6"));
         showVHosts.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 JCheckBox checkBox = (JCheckBox) evt.getSource();
-                GUIApplicationWebServerWindow.this.setVHostTableVisible(checkBox.isSelected());
-                if (!checkBox.isSelected()) {
-                    ((WebServer) holeAnwendung()).resetVHosts();
-                }
+                ((WebServer) holeAnwendung()).setUseVHost(checkBox.isSelected());
+                GUIApplicationWebServerWindow.this.aktualisieren();
+                LOG.debug("vhost status changed: " + (checkBox.isSelected() ? "enabled" : "disabled"));
             }
         });
         upperBox.add(showVHosts);
@@ -139,38 +140,23 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
 
         backPanel.add(logBox, BorderLayout.SOUTH);
 
-        this.getContentPane().add(backPanel);
-
-        this.setVHostTableVisible(this.isVHostAvailable());
-
-        aktualisieren();
+        add(backPanel, BorderLayout.CENTER);
     }
 
-    private void setVHostTableVisible(boolean tableVisible) {
+    private void showVHostTable(boolean tableVisible) {
         if (tableVisible) {
             backPanel.add(vHostBox, BorderLayout.CENTER);
-            logBox.setPreferredSize(new Dimension(300, 148));
+            logBox.setPreferredSize(new Dimension(300, 150));
         } else {
             backPanel.remove(vHostBox);
             logBox.setPreferredSize(new Dimension(300, 350));
         }
         Dimension size = getSize();
-        pack();
         setSize(size);
+        updateUI();
     }
 
-    private boolean isVHostAvailable() {
-        boolean vHostsAvailable = false;
-        String[][] vHosts = ((WebServer) holeAnwendung()).getVHostArray();
-        for (String[] vHost : vHosts) {
-            if (vHost[0] != null && !vHost[0].equals("") || vHost[1] != null && !vHost[1].equals("")) {
-                vHostsAvailable = true;
-            }
-        }
-        return vHostsAvailable;
-    }
-
-    public void updateTable() {
+    public void updateVHostTable() {
         LOG.trace("DEBUG GUIApplicationWebServerWindow, updateTable; vHostArray:\n"
                 + ((WebServer) holeAnwendung()).printVHostTable());
         String[][] vhosts = ((WebServer) holeAnwendung()).getVHostArray();
@@ -198,13 +184,15 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
     }
 
     private void aktualisieren() {
-        if (((WebServer) holeAnwendung()).isAktiv()) {
+        WebServer webserver = (WebServer) holeAnwendung();
+        if (webserver.isAktiv()) {
             buttonStart.setText(messages.getString("webserver_msg2"));
         } else {
             buttonStart.setText(messages.getString("webserver_msg1"));
         }
         buttonStart.setEnabled(true);
-        updateTable();
+        updateVHostTable();
+        showVHostTable(webserver.isUseVHost());
     }
 
     public void update(Observable arg0, Object arg1) {
@@ -219,7 +207,6 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
         } catch (Exception e) {
             LOG.debug("GUIApplicationWebServerWindow: update() Exception: " + e.getMessage());
         }
-
         LOG.debug("GUIApplicationWebServerWindow: update() aufgerufen.");
     }
 }

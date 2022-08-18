@@ -45,125 +45,121 @@ import filius.software.clientserver.ServerBaustein;
 
 /**
  * <p>
- * Diese Klasse stellt die Benutzungsoberflaeche fuer das Server-Programm einer
- * einfachen Client-Server-Anwendung zur Verfuegung.
+ * Diese Klasse stellt die Benutzungsoberflaeche fuer das Server-Programm einer einfachen Client-Server-Anwendung zur
+ * Verfuegung.
  * </p>
  * <p>
- * Nachrichten von der Anwendung werden nach dem Beobachtermuster durch die
- * Benachrichtigung der Beobachter angenommen und verarbeitet.
+ * Nachrichten von der Anwendung werden nach dem Beobachtermuster durch die Benachrichtigung der Beobachter angenommen
+ * und verarbeitet.
  * </p>
  */
 public class GUIApplicationServerBausteinWindow extends GUIApplicationWindow {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Textbereich zur Ausgabe von Log-Daten, die vom Server-Programm erzeugt
-	 * und durch Benachrichtigung der Beobachter an die graphische
-	 * Benutzungsoberflaeche weiter gegeben werden
-	 */
-	private JTextArea taLog;
+    /**
+     * Textbereich zur Ausgabe von Log-Daten, die vom Server-Programm erzeugt und durch Benachrichtigung der Beobachter
+     * an die graphische Benutzungsoberflaeche weiter gegeben werden
+     */
+    private JTextArea taLog;
 
-	/**
-	 * Schaltflaeche zum Starten bzw. Stoppen des Server-Programms, d. h. zum
-	 * Starten bzw. Beenden der Verbindungsannahme durch den Server
-	 */
-	private JButton bStartStop;
+    /**
+     * Schaltflaeche zum Starten bzw. Stoppen des Server-Programms, d. h. zum Starten bzw. Beenden der
+     * Verbindungsannahme durch den Server
+     */
+    private JButton bStartStop;
 
-	/**
-	 * Textfeld zur Eingabe des Ports, an dem der Server eingehende
-	 * Verbindungsanfragen entgegen nimmt.
-	 */
-	private JTextField tfPort;
+    /**
+     * Textfeld zur Eingabe des Ports, an dem der Server eingehende Verbindungsanfragen entgegen nimmt.
+     */
+    private JTextField tfPort;
 
-	/**
-	 * Standard-Konstruktor, der automatisch zur Erzeugung der graphischen
-	 * Benutzungsoberflaeche fuer diese Anwendung aufgerufen wird.
-	 */
-	public GUIApplicationServerBausteinWindow(GUIDesktopPanel desktop, String appName) {
-		super(desktop, appName);
-		initialisiereKomponenten();
-	}
+    /**
+     * Standard-Konstruktor, der automatisch zur Erzeugung der graphischen Benutzungsoberflaeche fuer diese Anwendung
+     * aufgerufen wird.
+     */
+    public GUIApplicationServerBausteinWindow(GUIDesktopPanel desktop, String appName) {
+        super(desktop, appName);
+        initialisiereKomponenten();
+    }
 
-	/** Methode zur Initialisierung der graphischen Komponenten */
-	private void initialisiereKomponenten() {
-		JPanel hauptPanel;
-		JScrollPane spLogScroller;
-		JLabel lbPort;
-		Box hBox, vBox;
+    /** Methode zur Initialisierung der graphischen Komponenten */
+    private void initialisiereKomponenten() {
+        JPanel hauptPanel;
+        JScrollPane spLogScroller;
+        JLabel lbPort;
+        Box hBox, vBox;
 
-		hauptPanel = new JPanel(new BorderLayout());
-		vBox = Box.createVerticalBox();
-		vBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		vBox.add(Box.createVerticalStrut(5));
+        hauptPanel = new JPanel(new BorderLayout());
+        vBox = Box.createVerticalBox();
+        vBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        vBox.add(Box.createVerticalStrut(5));
 
-		hBox = Box.createHorizontalBox();
+        hBox = Box.createHorizontalBox();
 
-		bStartStop = new JButton();
-		bStartStop.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("start")) {
-					((ServerAnwendung) holeAnwendung()).setPort(Integer.parseInt(tfPort.getText()));
-					((ServerAnwendung) holeAnwendung()).setAktiv(true);
-					((ServerAnwendung) holeAnwendung()).setPort(Integer.parseInt(tfPort.getText()));
-				} else {
-					((ServerAnwendung) holeAnwendung()).setAktiv(false);
-				}
-				aktualisieren();
-			}
-		});
-		hBox.add(bStartStop);
-		hBox.add(Box.createHorizontalStrut(5));
+        bStartStop = new JButton();
+        bStartStop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand().equals("start")) {
+                    ((ServerAnwendung) holeAnwendung()).setPort(Integer.parseInt(tfPort.getText()));
+                    ((ServerAnwendung) holeAnwendung()).setAktiv(true);
+                    ((ServerAnwendung) holeAnwendung()).setPort(Integer.parseInt(tfPort.getText()));
+                } else {
+                    ((ServerAnwendung) holeAnwendung()).setAktiv(false);
+                }
+                aktualisieren();
+            }
+        });
+        hBox.add(bStartStop);
+        hBox.add(Box.createHorizontalStrut(5));
 
-		lbPort = new JLabel(messages.getString("serverbaustein_msg1"));
-		hBox.add(lbPort);
-		tfPort = new JTextField("" + ((ServerAnwendung) holeAnwendung()).getPort());
-		hBox.add(tfPort);
+        lbPort = new JLabel(messages.getString("serverbaustein_msg1"));
+        hBox.add(lbPort);
+        tfPort = new JTextField("" + ((ServerAnwendung) holeAnwendung()).getPort());
+        hBox.add(tfPort);
 
-		vBox.add(hBox);
-		vBox.add(Box.createVerticalStrut(5));
+        vBox.add(hBox);
+        vBox.add(Box.createVerticalStrut(5));
 
-		taLog = new JTextArea();
-		taLog.setEditable(false);
-		spLogScroller = new JScrollPane(taLog);
-		spLogScroller.setPreferredSize(new Dimension(400, 400));
-		vBox.add(spLogScroller);
-		vBox.add(Box.createVerticalStrut(5));
+        taLog = new JTextArea();
+        taLog.setEditable(false);
+        spLogScroller = new JScrollPane(taLog);
+        spLogScroller.setPreferredSize(new Dimension(400, 400));
+        vBox.add(spLogScroller);
+        vBox.add(Box.createVerticalStrut(5));
 
-		hauptPanel.add(vBox, BorderLayout.CENTER);
+        hauptPanel.add(vBox, BorderLayout.CENTER);
 
-		getContentPane().add(hauptPanel);
-		pack();
+        add(hauptPanel, BorderLayout.CENTER);
 
-		aktualisieren();
-	}
+        aktualisieren();
+    }
 
-	/**
-	 * Methode zum aktualisieren der Komponenten der graphischen
-	 * Benutzungsoberflaeche in Abhaengigkeit vom Zustand der Anwendung
-	 */
-	public void aktualisieren() {
-		ServerBaustein server;
+    /**
+     * Methode zum aktualisieren der Komponenten der graphischen Benutzungsoberflaeche in Abhaengigkeit vom Zustand der
+     * Anwendung
+     */
+    public void aktualisieren() {
+        ServerBaustein server;
 
-		server = (ServerBaustein) holeAnwendung();
-		if (server.isAktiv()) {
-			tfPort.setEditable(false);
-			bStartStop.setText(messages.getString("serverbaustein_msg2"));
-			bStartStop.setActionCommand("stop");
-		} else {
-			bStartStop.setText(messages.getString("serverbaustein_msg3"));
-			bStartStop.setActionCommand("start");
-			tfPort.setEditable(true);
-		}
-	}
+        server = (ServerBaustein) holeAnwendung();
+        if (server.isAktiv()) {
+            tfPort.setEditable(false);
+            bStartStop.setText(messages.getString("serverbaustein_msg2"));
+            bStartStop.setActionCommand("stop");
+        } else {
+            bStartStop.setText(messages.getString("serverbaustein_msg3"));
+            bStartStop.setActionCommand("start");
+            tfPort.setEditable(true);
+        }
+    }
 
-	/**
-	 * Diese Methode wird automatisch ausgefuehrt, wenn der eine Nachricht an
-	 * den Beobachter der Anwendung gesendet wird. Der Parameter arg enthaelt
-	 * die Nachricht, die von der Anwendung verschickt wurde.
-	 */
-	public void update(Observable o, Object arg) {
-		taLog.append(arg.toString() + "\n");
-		aktualisieren();
-	}
+    /**
+     * Diese Methode wird automatisch ausgefuehrt, wenn der eine Nachricht an den Beobachter der Anwendung gesendet
+     * wird. Der Parameter arg enthaelt die Nachricht, die von der Anwendung verschickt wurde.
+     */
+    public void update(Observable o, Object arg) {
+        taLog.append(arg.toString() + "\n");
+        aktualisieren();
+    }
 }

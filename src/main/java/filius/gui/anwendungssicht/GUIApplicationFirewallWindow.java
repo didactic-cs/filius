@@ -230,8 +230,7 @@ public class GUIApplicationFirewallWindow extends GUIApplicationWindow {
         scrollPane = new JScrollPane(log);
         tp.add(messages.getString("firewall_msg11"), scrollPane);
 
-        getContentPane().add(tp);
-        pack();
+        add(tp, BorderLayout.CENTER);
     }
 
     private void hinzuRegel() {

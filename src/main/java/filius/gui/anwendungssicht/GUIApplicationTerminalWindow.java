@@ -125,11 +125,10 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         tpPane.setBackground(BACKGROUND);
         tpPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         tpPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        this.getContentPane().add(tpPane);
+        add(tpPane, BorderLayout.CENTER);
 
         terminalField.setText("");
         showStartScreen();
-        pack();
 
         inputField.requestFocusInWindow();
         this.inputLabel.setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
@@ -142,14 +141,6 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         terminalField.append(MENU_LINE);
         terminalField.append(messages.getString("sw_terminal_msg26") + "\n");
         terminalField.append(MENU_LINE);
-    }
-
-    @Override
-    public void pack() {
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {}
-        super.pack();
     }
 
     private JTextField initInput() {
@@ -197,7 +188,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
 
                         commandHistory.add(inputField.getText());
                         if (enteredCommand.equals("exit")) {
-                            doDefaultCloseAction();
+                            GUIApplicationTerminalWindow.this.close();
                         } else if (enteredCommand.equals("reset")) {
                             terminalField.setText("");
                             showStartScreen();

@@ -27,13 +27,12 @@ package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Image;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyVetoException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,7 +47,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -94,7 +92,6 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     private JButton btImportieren;
     private String datei;
     private String pfad;
-    private JInternalFrame fileImportFrame;
 
     public GUIApplicationFileExplorerWindow(final GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
@@ -122,21 +119,19 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
 
         tv.setBounds(0, 0, 150, 100);
         tv.setCellRenderer(new GUITreeRenderer(dateiIcon, ordnerIcon));
-        final Box box = Box.createVerticalBox();
-        box.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        Box buttonBox = Box.createHorizontalBox();
+        buttonBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         final JButton aktualisieren = new JButton(messages.getString("fileexplorer_msg1"));
         aktualisieren.setActionCommand("aktualisieren");
         aktualisieren.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand().equals(aktualisieren.getActionCommand())) {
-                    aktualisieren();
-                }
+                aktualisieren();
             }
         });
-        box.add(aktualisieren);
-        box.add(Box.createVerticalStrut(5));
+        buttonBox.add(aktualisieren);
+        buttonBox.add(Box.createHorizontalStrut(5));
 
         btImportieren = new JButton(messages.getString("fileexplorer_msg2"));
         btImportieren.addActionListener(new ActionListener() {
@@ -145,13 +140,18 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                 fileImport();
             }
         });
-        box.add(btImportieren);
+        buttonBox.add(btImportieren);
+
+        Box box = Box.createVerticalBox();
+        box.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        box.add(Box.createVerticalStrut(5));
+        box.add(buttonBox);
 
         JScrollPane scrollpane = new JScrollPane(tv);
-        scrollpane.setPreferredSize(new Dimension(10, 240));
+        scrollpane.setPreferredSize(new Dimension(10, 350));
         Box horBox = Box.createHorizontalBox();
         horBox.add(scrollpane);
-        horBox.setPreferredSize(new Dimension(180, 240));
+        horBox.setPreferredSize(new Dimension(180, 350));
         ListModel<String> lmDateiListe = new DefaultListModel<>();
         dateiListe = new JList<String>(lmDateiListe);
         dateiListe.setFixedCellHeight(16);
@@ -295,9 +295,7 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         box.add(horBox);
         backPanel.add(box, BorderLayout.CENTER);
         ordnerInhaltAnzeigen(aktuellerOrdner);
-        this.getContentPane().add(backPanel);
-        pack();
-
+        add(backPanel, BorderLayout.CENTER);
     }
 
     /**
@@ -369,29 +367,30 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
     }
 
     public void fileImport() {
-        fileImportFrame = new JInternalFrame(messages.getString("fileexplorer_msg12"));
-
-        ImageIcon image = new ImageIcon(getClass().getResource("/gfx/desktop/icon_fileimporter.png"));
-        image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
-        setFrameIcon(image);
-
         backPanel = new JPanel(new BorderLayout());
 
         final JTextArea outputField = new JTextArea("");
         outputField.setEditable(false);
-        outputField.setSize(new Dimension(300, 80));
+        outputField.setBackground(backPanel.getBackground());
+        outputField.setFont(outputField.getFont().deriveFont(Font.BOLD));
+        outputField.setBorder(null);
+        outputField.setPreferredSize(new Dimension(500, 30));
+
         JLabel fileLabel = new JLabel(messages.getString("fileexplorer_msg13"));
+        fileLabel.setPreferredSize(new Dimension(100, 30));
 
         final JTextField inputField = new JTextField("");
-        inputField.setSize(new Dimension(150, 30));
+        inputField.setPreferredSize(new Dimension(200, 30));
         inputField.setEditable(false);
 
         final JTextField renameField = new JTextField("");
-        renameField.setSize(new Dimension(150, 30));
+        renameField.setPreferredSize(new Dimension(200, 30));
+
         JLabel renameLabel = new JLabel(messages.getString("fileexplorer_msg9"));
+        renameLabel.setPreferredSize(new Dimension(100, 30));
 
         JButton fileButton = new JButton(messages.getString("fileexplorer_msg14"));
-        fileButton.setSize(new Dimension(100, 30));
+        fileButton.setPreferredSize(new Dimension(150, 30));
         fileButton.addMouseListener(new MouseInputAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -407,38 +406,11 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
                     inputField.setText(pfad + datei);
                     renameField.setText(datei);
                 }
-
-                try {
-                    fileImportFrame.setSelected(true);
-                } catch (PropertyVetoException e1) {
-                    LOG.debug("", e);
-                }
             }
         });
 
-        Box importBox = Box.createHorizontalBox();
-        importBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        importBox.add(fileLabel);
-        importBox.add(Box.createHorizontalStrut(5));
-        importBox.add(inputField);
-        importBox.add(Box.createHorizontalStrut(5));
-        importBox.add(fileButton);
-
-        Box middleBox = Box.createHorizontalBox();
-
-        middleBox.add(renameLabel);
-        middleBox.add(Box.createHorizontalStrut(5));
-        middleBox.add(renameField);
-        middleBox.add(Box.createHorizontalStrut(5));
-
-        Box upperBox = Box.createVerticalBox();
-        upperBox.add(importBox);
-        upperBox.add(middleBox);
-
-        backPanel.add(upperBox, BorderLayout.NORTH);
-
         JButton importButton = new JButton(messages.getString("fileexplorer_msg15"));
-        importButton.setSize(new Dimension(100, 30));
+        importButton.setPreferredSize(new Dimension(150, 30));
         importButton.addMouseListener(new MouseInputAdapter() {
             @Override
             public void mousePressed(MouseEvent z) {
@@ -457,26 +429,51 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
             }
         });
 
-        Box lowerBox = Box.createHorizontalBox();
-        lowerBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        lowerBox.add(importButton);
+        JButton closeButton = new JButton(messages.getString("sw_fileimporter_msg3"));
+        closeButton.setPreferredSize(new Dimension(150, 30));
+        closeButton.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent z) {
+                GUIApplicationFileExplorerWindow.this.desktop.closeModularWindow();
+            }
+        });
 
-        backPanel.add(outputField, BorderLayout.CENTER);
+        Box fileSelectionBox = Box.createHorizontalBox();
+        fileSelectionBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        fileSelectionBox.add(fileLabel);
+        fileSelectionBox.add(Box.createHorizontalStrut(5));
+        fileSelectionBox.add(inputField);
+        fileSelectionBox.add(Box.createHorizontalStrut(5));
+        fileSelectionBox.add(fileButton);
+
+        Box fileImportBox = Box.createHorizontalBox();
+        fileImportBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        fileImportBox.add(renameLabel);
+        fileImportBox.add(Box.createHorizontalStrut(5));
+        fileImportBox.add(renameField);
+        fileImportBox.add(Box.createHorizontalStrut(5));
+        fileImportBox.add(importButton);
+
+        Box importResultBox = Box.createHorizontalBox();
+        importResultBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        importResultBox.add(outputField);
+
+        Box upperBox = Box.createVerticalBox();
+        upperBox.add(fileSelectionBox);
+        upperBox.add(fileImportBox);
+        upperBox.add(importResultBox);
+
+        backPanel.add(upperBox, BorderLayout.NORTH);
+
+        Box lowerBox = Box.createVerticalBox();
+        lowerBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        lowerBox.add(Box.createVerticalStrut(5));
+        lowerBox.add(closeButton);
+        lowerBox.add(Box.createVerticalStrut(5));
+
         backPanel.add(lowerBox, BorderLayout.SOUTH);
 
-        fileImportFrame.getContentPane().add(backPanel);
-
-        fileImportFrame.setClosable(true);
-        fileImportFrame.setBounds(30, 80, 350, 200);
-        fileImportFrame.setResizable(true);
-        fileImportFrame.setVisible(true);
-
-        addFrame(fileImportFrame);
-        try {
-            fileImportFrame.setSelected(true);
-        } catch (PropertyVetoException e1) {
-            LOG.debug("", e1);
-        }
+        desktop.showModularWindow(messages.getString("fileexplorer_msg12"), backPanel);
     }
 
     @Override

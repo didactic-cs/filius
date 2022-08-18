@@ -81,7 +81,7 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
      */
     private static final long serialVersionUID = 1L;
 
-    private JPanel listPanel, formPanel, backPanel, logPanel;
+    private JPanel listPanel, formPanel, logPanel;
 
     private JScrollPane scrolly, sPane;
 
@@ -106,6 +106,8 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         ((EmailServer) holeAnwendung()).kontenLaden();
 
         initialisiereKomponenten();
+
+        aktualisiere();
     }
 
     private void initialisiereKomponenten() {
@@ -163,22 +165,18 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
          */
         deleteButton = new JButton(messages.getString("emailserver_msg8"));
         deleteButton.addMouseListener(new MouseInputAdapter() {
-
             public void mousePressed(MouseEvent e) {
-                {
+                EmailKonto mailAccount = (EmailKonto) ((EmailServer) holeAnwendung()).getListeBenutzerkonten()
+                        .get(markierteZeile);
+                int Auswahl = showOptionDialog(
+                        messages.getString("emailserver_msg11") + mailAccount.getBenutzername().toString()
+                                + messages.getString("emailserver_msg12"),
+                        messages.getString("emailserver_msg13"), JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE, null, null, null);
 
-                    EmailKonto mailAccount = (EmailKonto) ((EmailServer) holeAnwendung()).getListeBenutzerkonten()
-                            .get(markierteZeile);
-                    int Auswahl = showOptionDialog(
-                            messages.getString("emailserver_msg11") + mailAccount.getBenutzername().toString()
-                                    + messages.getString("emailserver_msg12"),
-                            messages.getString("emailserver_msg13"), JOptionPane.YES_NO_CANCEL_OPTION,
-                            JOptionPane.QUESTION_MESSAGE, null, null, null);
-
-                    if (Auswahl == JOptionPane.YES_OPTION) {
-                        ((EmailServer) holeAnwendung()).kontoLoeschen(mailAccount);
-                        updatekontenListenTabelle();
-                    }
+                if (Auswahl == JOptionPane.YES_OPTION) {
+                    ((EmailServer) holeAnwendung()).kontoLoeschen(mailAccount);
+                    updatekontenListenTabelle();
                 }
             }
         });
@@ -247,31 +245,26 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         addButton.setPreferredSize(new Dimension(120, 25));
         addButton.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
-                {
-
-                    if (!benutzernameField.getText().equals("")
-                            && !(new String(passwortField.getPassword())).equals("")) {
-                        if (EingabenUeberpruefung.isGueltig(benutzernameField.getText(),
-                                EingabenUeberpruefung.musterKeineLeerzeichen)) {
-                            try {
-                                ((EmailServer) holeAnwendung()).benutzerHinzufuegen(benutzernameField.getText(),
-                                        (new String(passwortField.getPassword())),
-                                        messages.getString("emailserver_msg20"),
-                                        messages.getString("emailserver_msg21"));
-                                showMessageDialog(messages.getString("emailserver_msg22") + " "
-                                        + benutzernameField.getText() + " " + messages.getString("emailserver_msg23"));
-                                benutzernameField.setText("");
-                                passwortField.setText("");
-                            } catch (CreateAccountException e1) {
-                                LOG.debug("", e1);
-                            }
-                        } else {
-                            showMessageDialog(messages.getString("emailserver_msg24"));
+                if (!benutzernameField.getText().equals("") && !(new String(passwortField.getPassword())).equals("")) {
+                    if (EingabenUeberpruefung.isGueltig(benutzernameField.getText(),
+                            EingabenUeberpruefung.musterKeineLeerzeichen)) {
+                        try {
+                            ((EmailServer) holeAnwendung()).benutzerHinzufuegen(benutzernameField.getText(),
+                                    (new String(passwortField.getPassword())), messages.getString("emailserver_msg20"),
+                                    messages.getString("emailserver_msg21"));
+                            showMessageDialog(messages.getString("emailserver_msg22") + " "
+                                    + benutzernameField.getText() + " " + messages.getString("emailserver_msg23"));
+                            benutzernameField.setText("");
+                            passwortField.setText("");
+                        } catch (CreateAccountException e1) {
+                            LOG.debug("", e1);
                         }
-
                     } else {
-                        showMessageDialog(messages.getString("emailserver_msg25"));
+                        showMessageDialog(messages.getString("emailserver_msg24"));
                     }
+
+                } else {
+                    showMessageDialog(messages.getString("emailserver_msg25"));
                 }
             }
         });
@@ -302,17 +295,14 @@ public class GUIApplicationEmailServerWindow extends GUIApplicationWindow {
         logPanel = new JPanel(new BorderLayout());
         logPanel.add(logBox, BorderLayout.CENTER);
 
-        backPanel = new JPanel(new BorderLayout());
-
         tabby.addTab(messages.getString("emailserver_msg26"), formPanel);
         tabby.addTab(messages.getString("emailserver_msg27"), listPanel);
         tabby.addTab(messages.getString("emailserver_msg28"), logPanel);
-        backPanel.add(obenBox, BorderLayout.NORTH);
-        backPanel.add(tabby, BorderLayout.CENTER);
-        this.getContentPane().add(backPanel);
 
-        pack();
-        aktualisiere();
+        JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.add(obenBox, BorderLayout.NORTH);
+        contentPane.add(tabby, BorderLayout.CENTER);
+        add(contentPane, BorderLayout.CENTER);
     }
 
     private void aktualisiere() {

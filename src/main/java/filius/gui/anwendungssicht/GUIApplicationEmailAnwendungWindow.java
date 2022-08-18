@@ -28,12 +28,10 @@ package filius.gui.anwendungssicht;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyVetoException;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -46,7 +44,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -88,12 +85,11 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     private static final long serialVersionUID = 1L;
 
     private JTabbedPane tabbedPane;
-    private JPanel gesendetPanel, eingangPanel, backPanel;
+    private JPanel gesendetPanel, eingangPanel;
     private JScrollPane gesendetScroll, eingangScroll;
     private JEditorPane emailVorschau;
     private JButton buttonMailsAbholen, buttonMailVerfassen, buttonMailAntworten, buttonKonten, buttonEmailLoeschen;
     private JProgressBar progressBar;
-    private JInternalFrame inFrVerfassen, inFrAbholen, inFrKonten;
     private Box middleBox;
     private DefaultTableModel posteingangModell = new DefaultTableModel(0, 2);
     private DefaultTableModel gesendeteModell = new DefaultTableModel(0, 2);
@@ -106,16 +102,22 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     private int auswahlfuerloeschen;
     ListMode paa = ListMode.UNKNOWN;
 
+    private JPanel progressPanel;
+    private JPanel verfassenPanel;
+
     public GUIApplicationEmailAnwendungWindow(GUIDesktopPanel desktop, String appName) {
         super(desktop, appName);
 
         ((EmailAnwendung) holeAnwendung()).holePOP3Client().hinzuBeobachter(this);
+
         initialisiereKomponenten();
+
+        laden();
+        posteingangAktualisieren();
+        gesendeteAktualisieren();
     }
 
     private void initialisiereKomponenten() {
-        backPanel = new JPanel(new BorderLayout());
-
         tabbedPane = new JTabbedPane();
 
         gesendetPanel = new JPanel(new BorderLayout());
@@ -281,16 +283,12 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
 
         topBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        backPanel.add(tabbedPane, BorderLayout.CENTER);
-        backPanel.add(vorschauBox, BorderLayout.SOUTH);
-        backPanel.add(topBox, BorderLayout.NORTH);
-        this.getContentPane().add(backPanel);
-        pack();
+        JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.add(tabbedPane, BorderLayout.CENTER);
+        contentPane.add(vorschauBox, BorderLayout.SOUTH);
+        contentPane.add(topBox, BorderLayout.NORTH);
 
-        laden();
-        posteingangAktualisieren();
-        gesendeteAktualisieren();
-
+        add(contentPane, BorderLayout.CENTER);
     }
 
     /**
@@ -326,31 +324,23 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
     }
 
     private void emailVerfassen(Email antwortAuf) {
-        ImageIcon image;
-        inFrVerfassen = new JInternalFrame(messages.getString("emailanwendung_msg12"));
-        inFrVerfassen.setBounds(50, 20, 570, 400);
-        inFrVerfassen.setVisible(true);
-        inFrVerfassen.setResizable(true);
-        inFrVerfassen.setClosable(true);
-
-        image = new ImageIcon(getClass().getResource("/gfx/desktop/email_email_verfassen_icon.png"));
-        image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
-        inFrVerfassen.setFrameIcon(image);
-
-        addFrame(inFrVerfassen);
-        try {
-            inFrVerfassen.setSelected(true);
-        } catch (PropertyVetoException e) {
-            LOG.debug("", e);
-        }
-
-        JPanel verfassenPanel = new JPanel(new BorderLayout());
+        verfassenPanel = new JPanel(new BorderLayout());
 
         /* Obere Box (Sende Button usw.) */
         Box topBox = Box.createHorizontalBox();
         JButton buttonSenden = new JButton(messages.getString("emailanwendung_msg13"));
         buttonSenden.setActionCommand("senden");
         topBox.add(buttonSenden);
+
+        topBox.add(Box.createHorizontalStrut(5));
+        JButton cancelButton = new JButton(messages.getString("emailanwendung_msg37"));
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                GUIApplicationEmailAnwendungWindow.this.desktop.closeModularWindow();
+            }
+        });
+        topBox.add(cancelButton);
         topBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         verfassenPanel.add(topBox, BorderLayout.NORTH);
 
@@ -373,7 +363,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         /* Box mit An Feld und dazugehörigem Label */
         Box kleineBox = Box.createHorizontalBox();
         JLabel anLabel = new JLabel(messages.getString("emailanwendung_msg14"));
-        anLabel.setPreferredSize(new Dimension(120, 30));
+        anLabel.setPreferredSize(new Dimension(120, 20));
         kleineBox.add(anLabel);
         kleineBox.add(Box.createHorizontalStrut(5));
         final JTextField anField = new JTextField();
@@ -390,7 +380,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         /* Box mit CC Feld und dazugehörigem Label */
         kleineBox = Box.createHorizontalBox();
         JLabel ccLabel = new JLabel(messages.getString("emailanwendung_msg15"));
-        ccLabel.setPreferredSize(new Dimension(120, 30));
+        ccLabel.setPreferredSize(new Dimension(120, 20));
         kleineBox.add(ccLabel);
         kleineBox.add(Box.createHorizontalStrut(5));
         final JTextField ccField = new JTextField();
@@ -408,7 +398,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         /* Box mit CC Feld und dazugehörigem Label */
         kleineBox = Box.createHorizontalBox();
         JLabel bccLabel = new JLabel(messages.getString("emailanwendung_msg16"));
-        bccLabel.setPreferredSize(new Dimension(120, 30));
+        bccLabel.setPreferredSize(new Dimension(120, 20));
         kleineBox.add(bccLabel);
         kleineBox.add(Box.createHorizontalStrut(5));
         final JTextField bccField = new JTextField();
@@ -426,7 +416,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         /* Box mit Betreffszeile und dazugehörigem Label */
         kleineBox = Box.createHorizontalBox();
         JLabel betreffLabel = new JLabel(messages.getString("emailanwendung_msg17"));
-        betreffLabel.setPreferredSize(new Dimension(120, 30));
+        betreffLabel.setPreferredSize(new Dimension(120, 20));
         kleineBox.add(betreffLabel);
         kleineBox.add(Box.createHorizontalStrut(5));
         final JTextField betreffszeile = new JTextField();
@@ -439,6 +429,7 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         inhaltField.setPreferredSize(new Dimension(100, 300));
         middleBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         JScrollPane inhaltScrollPane = new JScrollPane(inhaltField);
+        inhaltScrollPane.setPreferredSize(new Dimension(500, 150));
         middleBox.add(inhaltScrollPane);
         verfassenPanel.add(middleBox);
 
@@ -448,8 +439,6 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
                     + messages.getString("emailanwendung_msg19") + "\n" + replyLayout(antwortAuf.getText()));
             anField.setText(antwortAuf.getAbsender().toString());
         }
-
-        inFrVerfassen.getContentPane().add(verfassenPanel);
 
         inhaltField.requestFocus();
         inhaltField.grabFocus();
@@ -525,30 +514,20 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
 
         buttonSenden.addActionListener(al);
 
+        desktop.showModularWindow(messages.getString("emailanwendung_msg12"), verfassenPanel);
     }
 
     public void emailsAbholen() {
         if (!((EmailAnwendung) holeAnwendung()).holeKontoListe().isEmpty()) {
-            inFrAbholen = new JInternalFrame(messages.getString("emailanwendung_msg23"));
-            inFrAbholen.setBounds(100, 50, 384, 64);
-            inFrAbholen.setVisible(true);
-            inFrAbholen.setResizable(true);
-            inFrAbholen.setClosable(true);
-            addFrame(inFrAbholen);
-            try {
-                inFrAbholen.setSelected(true);
-            } catch (PropertyVetoException e) {
-                LOG.debug("", e);
-            }
-
             progressBar = new JProgressBar(0, 100);
             progressBar.setValue(0);
             progressBar.setIndeterminate(true);
             progressBar.setStringPainted(true);
 
-            inFrAbholen.getContentPane().add(progressBar);
-            inFrAbholen.getContentPane().invalidate();
-            inFrAbholen.getContentPane().validate();
+            progressPanel = new JPanel(new BorderLayout());
+            progressPanel.add(progressBar, BorderLayout.CENTER);
+            progressPanel.setPreferredSize(new Dimension(500, 40));
+            desktop.showModularWindow(messages.getString("emailanwendung_msg23"), progressPanel);
 
             for (EmailKonto aktuellesKonto : ((EmailAnwendung) holeAnwendung()).holeKontoListe().values()) {
                 progressBar
@@ -610,13 +589,6 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         Box vBox, hBox;
         JButton button;
         JScrollPane scroller;
-
-        inFrKonten = new JInternalFrame(messages.getString("emailanwendung_msg25"));
-        inFrKonten.setBounds(100, 50, 400, 350);
-        inFrKonten.setVisible(true);
-        inFrKonten.setResizable(true);
-        inFrKonten.setClosable(true);
-        inFrKonten.getContentPane().setLayout(new BorderLayout());
 
         vBox = Box.createVerticalBox();
 
@@ -751,10 +723,9 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         /* Erstellen-Button */
         button = new JButton(messages.getString("emailanwendung_msg33"));
         button.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
                 if (kontoSpeichern()) {
-                    inFrKonten.setVisible(false);
+                    GUIApplicationEmailAnwendungWindow.this.desktop.closeModularWindow();
                 } else {
                     showMessageDialog(messages.getString("emailanwendung_msg46"));
                 }
@@ -765,11 +736,9 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
 
         button = new JButton(messages.getString("emailanwendung_msg37"));
         button.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
-                inFrKonten.setVisible(false);
+                GUIApplicationEmailAnwendungWindow.this.desktop.closeModularWindow();
             }
-
         });
 
         hBox.add(button);
@@ -780,14 +749,9 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         panel.add(vBox);
 
         scroller = new JScrollPane(panel);
+        scroller.setPreferredSize(new Dimension(340, 300));
 
-        inFrKonten.getContentPane().add(scroller, BorderLayout.CENTER);
-        addFrame(inFrKonten);
-        try {
-            inFrKonten.setSelected(true);
-        } catch (PropertyVetoException e) {
-            LOG.debug("", e);
-        }
+        desktop.showModularWindow(messages.getString("emailanwendung_msg25"), scroller);
     }
 
     private boolean kontoSpeichern() {
@@ -901,16 +865,8 @@ public class GUIApplicationEmailAnwendungWindow extends GUIApplicationWindow {
         }
 
         if (arg1 == null || arg1.equals("") || arg1 instanceof Exception) {
-            if (inFrVerfassen != null) {
-                inFrVerfassen.setVisible(false);
-                inFrVerfassen = null;
-            }
-
-            if (inFrAbholen != null) {
-                inFrAbholen.getContentPane().remove(progressBar);
-                inFrAbholen.setVisible(false);
-                inFrAbholen = null;
-            }
+            desktop.closeModularWindow(progressPanel);
+            desktop.closeModularWindow(verfassenPanel);
         }
     }
 

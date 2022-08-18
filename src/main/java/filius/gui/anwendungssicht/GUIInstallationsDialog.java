@@ -26,18 +26,16 @@
 package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Vector;
 
 import javax.swing.Box;
@@ -45,118 +43,152 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.Information;
 import filius.software.Anwendung;
 import filius.software.system.InternetKnotenBetriebssystem;
 
-public class GUIInstallationsDialog extends JInternalFrame implements I18n {
-    private static Logger LOG = LoggerFactory.getLogger(GUIInstallationsDialog.class);
+@SuppressWarnings("serial")
+public class GUIInstallationsDialog extends GUIApplicationWindow implements I18n {
+    private JList<String> softwareInstalliert;
+    private JList<String> softwareVerfuegbar;
 
-    private static final long serialVersionUID = 1L;
-
-    private Container c;
-
-    private JList softwareInstalliert;
-    private JList softwareVerfuegbar;
-
-    private JButton removeButton, addButton, confirmButton;
-
-    private JLabel titleInstalled, titleAvailable;
-
-    private DefaultListModel lmVerfuegbar;
-    private DefaultListModel lmInstalliert;
-
-    private GUIDesktopPanel dp;
+    private DefaultListModel<String> lmVerfuegbar;
+    private DefaultListModel<String> lmInstalliert;
 
     private List<Map<String, String>> programme = null;
 
     public GUIInstallationsDialog(GUIDesktopPanel dp) {
-        super();
-        c = this.getContentPane();
-        this.dp = dp;
+        super(dp);
 
-        try {
-            programme = Information.getInformation().ladeProgrammListe();
-        } catch (IOException e) {
-            LOG.debug("", e);
-        }
+        programme = Information.getInformation().ladeProgrammListe();
 
-        initListen();
-        initButtons();
-
-        /* Title above lists */
-        titleInstalled = new JLabel(messages.getString("installationsdialog_msg3"));
-        titleAvailable = new JLabel(messages.getString("installationsdialog_msg4"));
+        setTitle(messages.getString("installationsdialog_msg1"));
+        setIcon("/gfx/desktop/icon_softwareinstallation.png");
 
         /* Komponenten dem Panel hinzufügen */
         Box gesamtBox = Box.createVerticalBox();
 
-        Box wrapperInstBox = Box.createVerticalBox();
-        Box wrapperAvailBox = Box.createVerticalBox();
-
-        wrapperInstBox.add(titleInstalled);
-        wrapperInstBox.add(Box.createVerticalStrut(10));
-
         Box listenBox = Box.createHorizontalBox();
         listenBox.add(Box.createHorizontalStrut(10));
-
-        JScrollPane scrollAnwendungInstallieren = new JScrollPane(softwareInstalliert);
-        scrollAnwendungInstallieren.setPreferredSize(new Dimension(170, 200));
-        wrapperInstBox.add(scrollAnwendungInstallieren);
-
-        listenBox.add(wrapperInstBox);
-
+        listenBox.add(createInstalledAppsBox());
         listenBox.add(Box.createHorizontalGlue());
-
-        Box topButtonBox = Box.createVerticalBox();
-        topButtonBox.add(addButton);
-        topButtonBox.add(Box.createVerticalStrut(10));
-        topButtonBox.add(removeButton);
-        listenBox.add(topButtonBox);
-
-        wrapperAvailBox.add(titleAvailable);
-        wrapperAvailBox.add(Box.createVerticalStrut(10));
-
-        JScrollPane scrollAnwendungVerfuegbar = new JScrollPane(softwareVerfuegbar);
-        scrollAnwendungVerfuegbar.setPreferredSize(new Dimension(170, 200));
-        wrapperAvailBox.add(scrollAnwendungVerfuegbar);
-        listenBox.add(wrapperAvailBox);
-
+        listenBox.add(createSelectionButtonBox());
+        listenBox.add(createAvailableAppsBox());
         listenBox.add(Box.createHorizontalStrut(10));
 
         gesamtBox.add(Box.createVerticalStrut(10));
         gesamtBox.add(listenBox);
         gesamtBox.add(Box.createVerticalStrut(10));
-
-        Box bottomButtonBox = Box.createVerticalBox();
-
-        bottomButtonBox.add(confirmButton);
-        confirmButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
-        gesamtBox.add(bottomButtonBox);
+        gesamtBox.add(createLowerButtonBox());
         gesamtBox.add(Box.createVerticalStrut(10));
 
-        c.add(gesamtBox, BorderLayout.CENTER);
-        this.setClosable(true);
-        this.setMaximizable(true);
-        this.setResizable(true);
-        this.setBounds(0, 40, 480, 360);
-        this.setTitle(messages.getString("installationsdialog_msg1"));
-        this.setVisible(true);
-        this.setAnwendungsIcon("gfx/desktop/icon_softwareinstallation.png");
+        add(gesamtBox, BorderLayout.CENTER);
     }
 
-    private GUIDesktopPanel getDesktopPanel() {
-        return dp;
+    private Box createInstalledAppsBox() {
+        Box wrapperInstBox = Box.createVerticalBox();
+
+        wrapperInstBox.add(new JLabel(messages.getString("installationsdialog_msg3")));
+        wrapperInstBox.add(Box.createVerticalStrut(10));
+
+        lmInstalliert = new DefaultListModel<>();
+        Anwendung[] anwendungen = desktop.getBetriebssystem().holeArrayInstallierteSoftware();
+        for (int i = 0; i < anwendungen.length; i++) {
+            if (anwendungen[i] != null) {
+                lmInstalliert.addElement(anwendungen[i].holeAnwendungsName());
+            }
+        }
+        softwareInstalliert = new JList<>();
+        softwareInstalliert.setModel(lmInstalliert);
+        softwareInstalliert.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    GUIInstallationsDialog.this.entfernen();
+                }
+            }
+        });
+
+        JScrollPane scrollAnwendungInstallieren = new JScrollPane(softwareInstalliert);
+        scrollAnwendungInstallieren.setPreferredSize(new Dimension(170, 200));
+        wrapperInstBox.add(scrollAnwendungInstallieren);
+        return wrapperInstBox;
+    }
+
+    private Box createAvailableAppsBox() {
+        Box wrapperAvailBox = Box.createVerticalBox();
+        wrapperAvailBox.add(new JLabel(messages.getString("installationsdialog_msg4")));
+        wrapperAvailBox.add(Box.createVerticalStrut(10));
+
+        lmVerfuegbar = new DefaultListModel<>();
+        if (programme != null) {
+            for (Map<String, String> programmInfo : programme) {
+                String awKlasse = (String) programmInfo.get("Klasse");
+
+                if (desktop.getBetriebssystem().holeSoftware(awKlasse) == null) {
+                    lmVerfuegbar.addElement(programmInfo.get("Anwendung"));
+                }
+            }
+        }
+
+        softwareVerfuegbar = new JList<>();
+        softwareVerfuegbar.setModel(lmVerfuegbar);
+        softwareVerfuegbar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    GUIInstallationsDialog.this.hinzufuegen();
+                }
+            }
+        });
+        JScrollPane scrollAnwendungVerfuegbar = new JScrollPane(softwareVerfuegbar);
+        scrollAnwendungVerfuegbar.setPreferredSize(new Dimension(170, 200));
+        wrapperAvailBox.add(scrollAnwendungVerfuegbar);
+        return wrapperAvailBox;
+    }
+
+    private Box createSelectionButtonBox() {
+        Box topButtonBox = Box.createVerticalBox();
+        JButton addButton = new JButton(new ImageIcon(getClass().getResource("/gfx/allgemein/pfeil_links.png")));
+        addButton.setMargin(new Insets(2, 2, 2, 2));
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                hinzufuegen();
+            }
+        });
+        topButtonBox.add(addButton);
+        topButtonBox.add(Box.createVerticalStrut(10));
+
+        JButton removeButton = new JButton(new ImageIcon(getClass().getResource("/gfx/allgemein/pfeil_rechts.png")));
+        removeButton.setMargin(new Insets(2, 2, 2, 2));
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                entfernen();
+            }
+        });
+        topButtonBox.add(removeButton);
+        return topButtonBox;
+    }
+
+    private Box createLowerButtonBox() {
+        Box bottomButtonBox = Box.createVerticalBox();
+        JButton confirmButton = new JButton(messages.getString("installationsdialog_msg2"));
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                aenderungenSpeichern();
+                setVisible(false);
+            }
+        });
+        confirmButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        bottomButtonBox.add(confirmButton);
+        return bottomButtonBox;
     }
 
     private void hinzufuegen() {
@@ -168,8 +200,6 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
             vLoeschen.add((String) lmVerfuegbar.get(i));
         }
 
-        // umständlich, aber wegen der Möglichkeit von Mehrfachselektion lassen
-        // sich nicht einzelne Anwendungen sofort entfernen
         for (Enumeration<String> e = vLoeschen.elements(); e.hasMoreElements();) {
             String oZuLoeschen = e.nextElement();
             lmVerfuegbar.removeElement(oZuLoeschen);
@@ -185,8 +215,6 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
             hinzu.add((String) lmInstalliert.getElementAt(i));
         }
 
-        // umständlich, aber wegen der Möglichkeit von Mehrfachselektion lassen
-        // sich nicht einzelne Anwendungen sofort entfernen
         for (Enumeration<String> e = hinzu.elements(); e.hasMoreElements();) {
             String hinzuObjekt = e.nextElement();
             lmInstalliert.removeElement(hinzuObjekt);
@@ -194,7 +222,7 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
     }
 
     private void aenderungenSpeichern() {
-        InternetKnotenBetriebssystem bs = getDesktopPanel().getBetriebssystem();
+        InternetKnotenBetriebssystem bs = desktop.getBetriebssystem();
         Anwendung anwendung;
 
         for (Map<String, String> appInfo : programme) {
@@ -218,123 +246,9 @@ public class GUIInstallationsDialog extends JInternalFrame implements I18n {
                 }
             }
         }
-
-        dp.updateAnwendungen();
+        desktop.updateAppPane();
     }
 
-    private void initButtons() {
-        /* ActionListener */
-        ActionListener al = new ActionListener() {
-
-            public void actionPerformed(ActionEvent arg0) {
-                if (arg0.getActionCommand().equals(addButton.getActionCommand())) {
-                    hinzufuegen();
-                } else if (arg0.getActionCommand().equals(removeButton.getActionCommand())) {
-                    entfernen();
-                } else if (arg0.getActionCommand() == confirmButton.getText()) {
-                    aenderungenSpeichern();
-                    setVisible(false);
-                }
-
-            }
-        };
-
-        /* Buttons */
-        removeButton = new JButton(new ImageIcon(getClass().getResource("/gfx/allgemein/pfeil_rechts.png")));
-        removeButton.setMargin(new Insets(2, 2, 2, 2));
-        removeButton.setActionCommand("remove");
-        removeButton.addActionListener(al);
-
-        addButton = new JButton(new ImageIcon(getClass().getResource("/gfx/allgemein/pfeil_links.png")));
-        addButton.setMargin(new Insets(2, 2, 2, 2));
-        addButton.setActionCommand("add");
-        addButton.addActionListener(al);
-
-        confirmButton = new JButton(messages.getString("installationsdialog_msg2"));
-        confirmButton.addActionListener(al);
-    }
-
-    private void initListen() {
-        Anwendung[] anwendungen;
-        String awKlasse;
-        InternetKnotenBetriebssystem bs;
-
-        lmInstalliert = new DefaultListModel();
-        lmVerfuegbar = new DefaultListModel();
-
-        bs = dp.getBetriebssystem();
-
-        /* Installierte Anwendung auslesen */
-        anwendungen = bs.holeArrayInstallierteSoftware();
-
-        for (int i = 0; i < anwendungen.length; i++) {
-            if (anwendungen[i] != null) {
-                lmInstalliert.addElement(anwendungen[i].holeAnwendungsName());
-            }
-        }
-
-        if (programme != null) {
-            for (Map<String, String> programmInfo : programme) {
-                awKlasse = (String) programmInfo.get("Klasse");
-
-                if (dp.getBetriebssystem().holeSoftware(awKlasse) == null) {
-                    lmVerfuegbar.addElement(programmInfo.get("Anwendung"));
-                }
-            }
-        }
-
-        /* Listen */
-        softwareInstalliert = new JList();
-        softwareInstalliert.setModel(lmInstalliert);
-        softwareInstalliert.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-
-            @Override
-            public void mousePressed(MouseEvent e) {}
-
-            @Override
-            public void mouseExited(MouseEvent e) {}
-
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    GUIInstallationsDialog.this.entfernen();
-                }
-            }
-        });
-        softwareVerfuegbar = new JList();
-        softwareVerfuegbar.setModel(lmVerfuegbar);
-        softwareVerfuegbar.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-
-            @Override
-            public void mousePressed(MouseEvent e) {}
-
-            @Override
-            public void mouseExited(MouseEvent e) {}
-
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    GUIInstallationsDialog.this.hinzufuegen();
-                }
-            }
-        });
-    }
-
-    public void setAnwendungsIcon(String datei) {
-        ImageIcon image = new ImageIcon(getClass().getResource("/" + datei));
-        image.setImage(image.getImage().getScaledInstance(16, 16, Image.SCALE_AREA_AVERAGING));
-        this.setFrameIcon(image);
-    }
+    @Override
+    public void update(Observable arg0, Object arg1) {}
 }

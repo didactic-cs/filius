@@ -33,41 +33,41 @@ import javax.swing.JDesktopPane;
 
 public class JBackgroundDesktopPane extends JDesktopPane {
 
-	private static final long serialVersionUID = 1L;
-	private ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/gfx/allgemein/menue_hg.png"));
-	private boolean repeatBG = true;
+    private static final long serialVersionUID = 1L;
+    private ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/gfx/allgemein/menue_hg.png"));
+    private boolean repeatBG = true;
 
-	/**
-	 * Setzt ein neues Hintergrundbild
-	 * 
-	 * @author Johannes Bade
-	 * @param dateiname
-	 *            String
-	 */
-	public void setBackgroundImage(String dateiname) {
-		backgroundImage = new ImageIcon(getClass().getResource("/" + dateiname));
-	}
+    /**
+     * Setzt ein neues Hintergrundbild
+     * 
+     * @author Johannes Bade
+     * @param dateiname
+     *            String
+     */
+    public void setBackgroundImage(String dateiname) {
+        backgroundImage = new ImageIcon(getClass().getResource("/" + dateiname));
+    }
 
-	/**
-	 * Immer wenn die Komponente gezeichnet wird, malt diese Methode auf der
-	 * Komponentenfläche ein vorher bestimmtes Hintergrundbild
-	 * 
-	 * @author Johannes Bade
-	 * @param g
-	 *            Graphics
-	 */
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Insets ins = getInsets();
-		if (repeatBG) {
-			for (int a = 0; a <= this.getHeight() / backgroundImage.getIconHeight(); a++) {
-				for (int i = 0; i <= this.getWidth() / backgroundImage.getIconWidth(); i++) {
-					backgroundImage.paintIcon(this, g, ins.left + i * backgroundImage.getIconWidth(), ins.top + a
-					        * backgroundImage.getIconHeight());
-				}
-			}
-		} else {
-			backgroundImage.paintIcon(this, g, ins.left, ins.top);
-		}
-	}
+    /**
+     * Immer wenn die Komponente gezeichnet wird, malt diese Methode auf der Komponentenfläche ein vorher bestimmtes
+     * Hintergrundbild
+     * 
+     * @author Johannes Bade
+     * @param g
+     *            Graphics
+     */
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Insets ins = getInsets();
+        if (repeatBG) {
+            for (int a = 0; a <= this.getHeight() / backgroundImage.getIconHeight(); a++) {
+                for (int i = 0; i <= this.getWidth() / backgroundImage.getIconWidth(); i++) {
+                    backgroundImage.paintIcon(this, g, ins.left + i * backgroundImage.getIconWidth(),
+                            ins.top + a * backgroundImage.getIconHeight());
+                }
+            }
+        } else {
+            backgroundImage.paintIcon(this, g, ins.left, ins.top);
+        }
+    }
 }
