@@ -136,9 +136,7 @@ public class Information implements Serializable {
 
     private FeatureMode softwareWizardMode = FeatureMode.FORCE_ENABLE;
 
-    private boolean gatewayAvailable = false;
-
-    // private Locale locale = new Locale("en", "GB");
+    private boolean gatewayAvailable = true;
 
     public boolean isGatewayAvailable() {
         return gatewayAvailable;

@@ -103,11 +103,11 @@ public class GUIDesignSidebar extends GUISidebar {
         addHardwareComponent(RECHNER, Rechner.TYPE);
         addHardwareComponent(NOTEBOOK, Notebook.TYPE);
         addHardwareComponent(SWITCH, Switch.TYPE);
-        addHardwareComponent(VERMITTLUNGSRECHNER, Vermittlungsrechner.TYPE);
-        addHardwareComponent(MODEM, Modem.TYPE);
         if (Information.getInformation().isGatewayAvailable()) {
             addHardwareComponent(GATEWAY, Gateway.TYPE);
         }
+        addHardwareComponent(VERMITTLUNGSRECHNER, Vermittlungsrechner.TYPE);
+        addHardwareComponent(MODEM, Modem.TYPE);
     }
 
     private void addHardwareComponent(String imageResourcePath, String hardwareType) {

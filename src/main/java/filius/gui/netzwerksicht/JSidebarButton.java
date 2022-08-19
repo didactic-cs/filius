@@ -36,6 +36,7 @@ import java.awt.Stroke;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -50,10 +51,10 @@ import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
 
+@SuppressWarnings({ "serial", "deprecation" })
 public class JSidebarButton extends JLabel implements Observer, I18n {
     private static Logger LOG = LoggerFactory.getLogger(JSidebarButton.class);
-
-    private static final long serialVersionUID = 1L;
+    private static final int BORDER = 8;
 
     private String typ;
     private boolean selektiert;
@@ -86,6 +87,7 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
         this.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.setHorizontalTextPosition(SwingConstants.CENTER);
         this.setAlignmentX(0.5f);
+        this.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
     }
 
     public JSidebarButton(Icon icon, String typ) {
@@ -117,9 +119,10 @@ public class JSidebarButton extends JLabel implements Observer, I18n {
         if (null != this.getText()) {
             width = this.getFontMetrics(this.getFont()).stringWidth(this.getText());
         }
-        width += 5;
-        if (this.getIcon() != null && this.getIcon().getIconWidth() > width)
+        width += 5 + 2 * BORDER;
+        if (this.getIcon() != null && this.getIcon().getIconWidth() > width) {
             width = this.getIcon().getIconWidth();
+        }
 
         return width;
     }
