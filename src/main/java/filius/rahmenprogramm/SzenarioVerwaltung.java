@@ -273,7 +273,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
                     LOG.debug("Version string of project file is not a valid semantic version.");
                 }
                 Version programVersion = Version
-                        .parseVersion(Information.getVersion().substring(0, versionInfo.indexOf(" ")));
+                        .parseVersion(Information.getVersion().substring(0, versionInfo.indexOf(" ")).trim());
 
                 if (fileVersion == null) {
                     LOG.debug(
