@@ -1,5 +1,18 @@
 # Changelog Filius
 
+## [2.0.0] - 2022-08-20
+### Added
+ * Support recursive resolution of MX entries (DNS)
+ * Add component Home Router with NAT by default (can be removed in filius.ini)
+ 
+### Changed
+ * Help panel integrated into main window (instead of dedicated dialog)
+ * Command host now resolves type A and type MX resource records (address and mail)
+ * Apps opened on desktop only in full screen (incompatible change for self-developed apps!)
+
+### Fixed
+ * Margin of help panel the same in all languages and modes
+ 
 ## [1.14.2] - 2022-06-16
 ### Fixed
  * Locale not initialized correctly
