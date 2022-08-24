@@ -31,6 +31,7 @@ import java.util.Observer;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
+import filius.gui.JMainFrame;
 import filius.gui.netzwerksicht.GUIDesignSidebar;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Host;
@@ -38,7 +39,9 @@ import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
 import filius.software.system.Betriebssystem;
 
+@SuppressWarnings({ "serial", "deprecation" })
 public class GUIDesktopWindow extends JFrame implements Observer {
+    private GUIDesktopPanel desktopPanel;
 
     public enum Mode {
         ROW(0), COLUMN(1), STACK(2);
@@ -60,10 +63,6 @@ public class GUIDesktopWindow extends JFrame implements Observer {
         }
     }
 
-    private static final long serialVersionUID = 1L;
-
-    private GUIDesktopPanel desktopPanel;
-
     public GUIDesktopWindow(Betriebssystem bs) {
         bs.addObserver(this);
 
@@ -71,15 +70,18 @@ public class GUIDesktopWindow extends JFrame implements Observer {
         String imageFile = null;
 
         hardware = bs.getKnoten();
-        if (hardware instanceof Rechner)
+        if (hardware instanceof Rechner) {
             imageFile = GUIDesignSidebar.RECHNER;
-        else if (hardware instanceof Notebook)
+        } else if (hardware instanceof Notebook) {
             imageFile = GUIDesignSidebar.NOTEBOOK;
+        }
 
         ImageIcon icon = new ImageIcon(getClass().getResource("/" + imageFile));
         setIconImage(icon.getImage());
 
-        setSize(640, 480);
+        int titleBarHeight = JMainFrame.getJMainFrame().getHeight()
+                - JMainFrame.getJMainFrame().getContentPane().getHeight();
+        setSize(GUIDesktopPanel.WIDTH, GUIDesktopPanel.HEIGHT_OVERALL + titleBarHeight);
         setResizable(false);
 
         desktopPanel = new GUIDesktopPanel(bs);

@@ -65,7 +65,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
     private static Logger LOG = LoggerFactory.getLogger(GUIDesktopPanel.class);
 
     static final int HEIGHT_TASKBAR = 30;
-    static final int HEIGHT_OVERALL = 445;
+    static final int HEIGHT_OVERALL = 460;
     static final int WIDTH = 640;
     static final int HEIGHT_CONTENT = HEIGHT_OVERALL - HEIGHT_TASKBAR;
     static final int HEIGHT_APP_TITLEBAR = 30;
