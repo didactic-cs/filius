@@ -169,9 +169,11 @@ public class Resolver extends ClientAnwendung {
 
             copyResourceRecords(remoteResponse, response, domainname, type);
             List<ResourceRecord> data = extractRankedResourceRecordList(remoteResponse, type, domainname);
-            if (!data.isEmpty()
-                    && (ResourceRecord.MAIL_EXCHANGE.equals(type) || ResourceRecord.NAME_SERVER.equals(type))) {
-                copyResourceRecords(remoteResponse, response, data.get(0).getRdata(), ResourceRecord.ADDRESS);
+            if (!data.isEmpty()) {
+                if (ResourceRecord.MAIL_EXCHANGE.equals(type) || ResourceRecord.NAME_SERVER.equals(type)) {
+                    copyResourceRecords(remoteResponse, response, data.get(0).getRdata(), ResourceRecord.ADDRESS);
+                }
+                break;
             }
             String nextServerToQuery = extractAddressForNameServer(remoteResponse.holeResourceRecords(), domainname);
             serverToQuery = queriedDnsServer.add(nextServerToQuery) ? nextServerToQuery : null;

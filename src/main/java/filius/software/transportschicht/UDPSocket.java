@@ -109,15 +109,9 @@ public class UDPSocket extends Socket {
      * @author carsten
      */
     public void hinzufuegen(String startIp, int startPort, Object segment) {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), hinzufuegen(" + startIp + ","
-                + startPort + "," + segment + ")");
+        LOG.trace("UDP data received from " + startIp + ":" + startPort + ", data: " + segment);
         zielIp = startIp;
         zielPort = startPort;
-
-        // LOG.debug(getClass().toString()
-        // + "\n\thinzufuegen() wurde aufgerufen"
-        // + "\n\tAbsender-Adresse: " + startIp + ":" + startPort
-        // + "\n\tDaten: " + segment.toString());
 
         synchronized (puffer) {
             puffer.add((UdpSegment) segment);
@@ -132,7 +126,7 @@ public class UDPSocket extends Socket {
      * @return gibt den empfangenen Datenstring zurueck.
      */
     public synchronized String empfangen(long millis) {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (UDPSocket), empfangen(" + millis + ")");
+        LOG.trace("UDP receive on port " + lokalerPort + " (timeout: " + millis + ")");
         UdpSegment segment;
 
         synchronized (puffer) {
@@ -140,13 +134,14 @@ public class UDPSocket extends Socket {
                 try {
                     puffer.wait(millis);
                 } catch (InterruptedException e) {
-                    LOG.debug("", e);
+                    LOG.debug("UDP socket interrupted");
                 }
             }
             if (puffer.size() >= 1) {
                 segment = (UdpSegment) puffer.removeFirst();
                 return segment.getDaten();
             } else {
+                LOG.debug("no UDP data received (local port {})", lokalerPort);
                 return null;
             }
         }
