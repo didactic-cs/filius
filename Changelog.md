@@ -1,5 +1,10 @@
 # Changelog Filius
 
+## [2.0.1] - 2022-08-26
+### Fixed
+ * Focus and scrolling in Terminal window
+ * Correct calculation of desktop dialog window
+
 ## [2.0.0] - 2022-08-20
 ### Added
  * Support recursive resolution of MX entries (DNS)
@@ -12,7 +17,7 @@
 
 ### Fixed
  * Margin of help panel the same in all languages and modes
- 
+  
 ## [1.14.2] - 2022-06-16
 ### Fixed
  * Locale not initialized correctly
