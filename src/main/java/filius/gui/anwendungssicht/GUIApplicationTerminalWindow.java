@@ -31,6 +31,8 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.StringTokenizer;
@@ -45,7 +47,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +63,7 @@ import filius.software.system.Dateisystem;
  * @author Johannes Bade & Thomas Gerding
  * 
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     private static Logger LOG = LoggerFactory.getLogger(GUIApplicationTerminalWindow.class);
 
@@ -68,11 +73,13 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
     private JTextArea terminalField;
     private JPanel backPanel;
     private JLabel inputLabel;
+    private JTextField inputField;
     private JScrollPane tpPane;
 
     private boolean jobRunning;
     private String enteredCommand;
     private String[] enteredParameters;
+    private int lastScrollPaneSize;
 
     private boolean multipleObserverEvents;
 
@@ -94,7 +101,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         terminalField.setBorder(null);
         terminalField.setLineWrap(true);
 
-        JTextField inputField = initInput();
+        initInput();
 
         inputLabel = new JLabel(">");
         inputLabel.setBackground(BACKGROUND);
@@ -115,34 +122,41 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
 
         backPanel = new JPanel(new BorderLayout());
         backPanel.setBackground(BACKGROUND);
+        backPanel.setFocusCycleRoot(true);
         backPanel.add(terminalBox, BorderLayout.CENTER);
         backPanel.add(inputBox, BorderLayout.SOUTH);
 
         tpPane = new JScrollPane(backPanel); // make textfield scrollable
         tpPane.setBorder(null);
         tpPane.setBackground(BACKGROUND);
+        tpPane.setFocusable(false);
         tpPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         tpPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tpPane.getViewport().addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                GUIApplicationTerminalWindow.this.scrollToBottomAndFocusInput();
+            }
+        });
         add(tpPane, BorderLayout.CENTER);
 
         terminalField.setText("");
         showStartScreen();
 
-        inputField.requestFocusInWindow();
-        this.inputLabel.setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+        inputLabel.setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
 
-        scrollDown();
+        scrollToBottomAndFocusInput();
     }
 
     private void showStartScreen() {
-        terminalField.append(messages.getString("sw_terminal_msg57") + "\n");
-        terminalField.append(MENU_LINE);
-        terminalField.append(messages.getString("sw_terminal_msg26") + "\n");
-        terminalField.append(MENU_LINE);
+        appendText(messages.getString("sw_terminal_msg57") + "\n");
+        appendText(MENU_LINE);
+        appendText(messages.getString("sw_terminal_msg26") + "\n");
+        appendText(MENU_LINE);
     }
 
-    private JTextField initInput() {
-        JTextField inputField = new JTextField("");
+    private void initInput() {
+        inputField = new JTextField("");
         inputField.setEditable(true);
         inputField.setBackground(BACKGROUND);
         inputField.setForeground(FOREGROUND);
@@ -161,10 +175,9 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
         inputField.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    commandHistoryPointer = -1; // lass uns doch besser wieder
-                                                // von unten/vorne beginnen
-                    if (!(inputField.getText().isEmpty() || inputField.getText().replaceAll(" ", "").isEmpty())) {
-                        terminalField.append("\n" + inputLabel.getText() + inputField.getText() + "\n");
+                    commandHistoryPointer = -1;
+                    if (!StringUtils.isBlank(inputField.getText())) {
+                        appendText("\n" + inputLabel.getText() + inputField.getText() + "\n");
                         StringTokenizer tk = new StringTokenizer(inputField.getText(), " ");
 
                         /* Erstes Token enthaelt den Befehl */
@@ -190,26 +203,22 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                         } else if (enteredCommand.equals("reset")) {
                             terminalField.setText("");
                             showStartScreen();
-                            scrollDown();
+                            scrollToBottomAndFocusInput();
                         } else {
-                            inputLabel.setVisible(false);
-                            jobRunning = true;
+                            GUIApplicationTerminalWindow.this.prepareJobStart();
                             ((Terminal) holeAnwendung()).terminalEingabeAuswerten(enteredCommand, enteredParameters);
                         }
                     } else {
-                        terminalField.append("\n");
+                        appendText("  \n");
                     }
                     inputField.setText("");
-                    scrollDown();
-                }
-                // [strg] + [c]
-                else if (e.getKeyCode() == KeyEvent.VK_C
+                } else if (e.getKeyCode() == KeyEvent.VK_C
+                        // [strg] + [c]
                         && (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == KeyEvent.CTRL_DOWN_MASK) {
                     ((Terminal) holeAnwendung()).setInterrupt(true);
                     LOG.debug("execution aborted with ctrl+c");
-                }
-                // 38 arrow-up / 40 arrow-down
-                else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                } else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    // 38 arrow-up / 40 arrow-down
                     if (e.getKeyCode() == KeyEvent.VK_UP) {
                         commandHistoryPointer++;
                     }
@@ -230,6 +239,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                         }
                     } catch (IndexOutOfBoundsException eis) {}
                 }
+                scrollToBottom(true);
             }
 
             public void keyReleased(KeyEvent arg0) {}
@@ -237,39 +247,55 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
             public void keyTyped(KeyEvent arg0) {}
 
         });
-        return inputField;
     }
 
-    public void update(Observable arg0, Object arg1) {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationTerminalWindow), update(" + arg0
-                + "," + arg1 + ")");
-        if (arg1 != null && jobRunning) {
-            if (arg1 instanceof Boolean) {
-                multipleObserverEvents = ((Boolean) arg1).booleanValue();
+    public void update(Observable observable, Object notificationObject) {
+        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIApplicationTerminalWindow), update("
+                + observable + "," + notificationObject + ")");
+        if (notificationObject != null && jobRunning) {
+            if (notificationObject instanceof Boolean) {
+                multipleObserverEvents = ((Boolean) notificationObject).booleanValue();
             } else { // expect String
-                this.terminalField.append(arg1.toString());
-                try {
-                    // mini delay to let the terminalField reliably update its
-                    // new height
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {}
+                appendText(notificationObject.toString());
             }
             if (!multipleObserverEvents) {
-                this.inputLabel
-                        .setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
-                this.inputLabel.setVisible(true);
-                jobRunning = false;
+                inputLabel.setText(Dateisystem.absoluterPfad(((Terminal) holeAnwendung()).getAktuellerOrdner()) + "> ");
+                prepareJobFinished();
             }
-            scrollDown();
+        }
+        scrollToBottomAndFocusInput();
+    }
+
+    private void prepareJobFinished() {
+        inputLabel.setVisible(true);
+        jobRunning = false;
+    }
+
+    private void prepareJobStart() {
+        inputLabel.setVisible(false);
+        jobRunning = true;
+    }
+
+    private void appendText(String text) {
+        terminalField.append(text);
+    }
+
+    private void scrollToBottomAndFocusInput() {
+        scrollToBottom(false);
+        focusInput();
+    }
+
+    private void focusInput() {
+        if (null != inputField) {
+            inputField.requestFocusInWindow();
+            inputField.grabFocus();
         }
     }
 
-    private void scrollDown() {
-        tpPane.repaint();
-        terminalField.repaint();
-        inputLabel.repaint();
-        inputLabel.grabFocus();
-        tpPane.getVerticalScrollBar().setValue(this.tpPane.getVerticalScrollBar().getMaximum());
+    private void scrollToBottom(boolean force) {
+        if (force || lastScrollPaneSize < tpPane.getVerticalScrollBar().getMaximum()) {
+            lastScrollPaneSize = tpPane.getVerticalScrollBar().getMaximum();
+            tpPane.getVerticalScrollBar().setValue(tpPane.getVerticalScrollBar().getMaximum());
+        }
     }
-
 }
