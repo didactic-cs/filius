@@ -37,12 +37,22 @@ public abstract class Host extends InternetKnoten {
 
     private boolean useIPAsName = false;
 
+    private boolean useMACAsName = false;
+
     public boolean isUseIPAsName() {
         return useIPAsName;
     }
 
     public void setUseIPAsName(boolean useIPAsName) {
         this.useIPAsName = useIPAsName;
+    }
+
+    public boolean isUseMACAsName() {
+        return useMACAsName;
+    }
+
+    public void setUseMACAsName(boolean useMACAsName) {
+        this.useMACAsName = useMACAsName;
     }
 
     public Host() {
@@ -57,8 +67,12 @@ public abstract class Host extends InternetKnoten {
 
     @Override
     public String holeAnzeigeName() {
-        if (useIPAsName) {
+        if (useIPAsName && useMACAsName) {
+            return getNetzwerkInterfaces().get(0).getIp() + " (" + getNetzwerkInterfaces().get(0).getMac() + ")";
+        } else if (useIPAsName) {
             return getNetzwerkInterfaces().get(0).getIp();
+        } else if (useMACAsName) {
+            return getNetzwerkInterfaces().get(0).getMac();
         } else {
             return getName();
         }

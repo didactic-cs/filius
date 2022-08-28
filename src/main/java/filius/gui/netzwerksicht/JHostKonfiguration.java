@@ -69,6 +69,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     private JCheckBox ipForwarding;
     private JButton btDhcp;
     private JCheckBox useIpAsName;
+    private JCheckBox useMacAsName;
 
     protected JHostKonfiguration(Hardware hardware) {
         super(hardware);
@@ -78,6 +79,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         if (holeHardware() != null) {
             Host host = (Host) holeHardware();
             host.setUseIPAsName(useIpAsName.isSelected());
+            host.setUseMACAsName(useMacAsName.isSelected());
         }
 
         GUIContainer.getGUIContainer().updateViewport();
@@ -280,6 +282,8 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox.add(dns);
         box.add(tempBox, BorderLayout.NORTH);
 
+        // =======================================================
+        // IP address as name
         tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg10"));
         tempLabel.setPreferredSize(new Dimension(LABEL_WIDTH, 10));
         tempLabel.setVisible(true);
@@ -300,6 +304,32 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox.setPreferredSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(useIpAsName);
+        tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
+        tempBox.add(tempLabel);
+        rightBox.add(tempBox, BorderLayout.NORTH);
+
+        // =======================================================
+        // MAC address as name
+        tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg12"));
+        tempLabel.setPreferredSize(new Dimension(LABEL_WIDTH, 10));
+        tempLabel.setVisible(true);
+        tempLabel.setOpaque(false);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        useMacAsName = new JCheckBox();
+        useMacAsName.setOpaque(false);
+        useMacAsName.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                aendereAnzeigeName();
+            }
+        });
+
+        tempBox = Box.createHorizontalBox();
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setPreferredSize(new Dimension(400, 35));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(useMacAsName);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
         tempBox.add(tempLabel);
         rightBox.add(tempBox, BorderLayout.NORTH);
@@ -406,7 +436,8 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             host = (Host) holeHardware();
             name.setText(host.holeAnzeigeName());
             useIpAsName.setSelected(host.isUseIPAsName());
-            name.setEnabled(!host.isUseIPAsName());
+            useMacAsName.setSelected(host.isUseMACAsName());
+            name.setEnabled(!host.isUseIPAsName() && !host.isUseMACAsName());
 
             bs = (Betriebssystem) host.getSystemSoftware();
 
