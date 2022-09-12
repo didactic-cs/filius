@@ -646,6 +646,8 @@ public class Terminal extends ClientAnwendung implements I18n {
             } else if ("-a".contentEquals(args[0])) {
                 filterAddress = args[1];
             }
+        } else if (numParams(args, 1) && "-d".contentEquals(args[0])) {
+            arp.resetArpTable();
         }
 
         ergebnis.append(messages.getString("sw_terminal_msg50"));

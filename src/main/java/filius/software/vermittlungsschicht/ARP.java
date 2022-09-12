@@ -69,10 +69,16 @@ public class ARP extends VermittlungsProtokoll {
 
     public void starten() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), starten()");
-        arpTabelle = new HashMap<String, String[]>();
-        hinzuARPTabellenEintrag("255.255.255.255", "FF:FF:FF:FF:FF:FF");
+        resetArpTable();
         thread = new ARPThread(this);
         thread.starten();
+    }
+
+    public void resetArpTable() {
+        synchronized (arpTabelle) {
+            arpTabelle = new HashMap<String, String[]>();
+            hinzuARPTabellenEintrag("255.255.255.255", "FF:FF:FF:FF:FF:FF");
+        }
     }
 
     public void beenden() {
