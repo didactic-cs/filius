@@ -33,7 +33,7 @@ import filius.software.system.SystemSoftware;
  * @author stefan
  * 
  */
-public interface ExchangeDialog {
+public interface ExchangeComponent {
 
 	/**
 	 * @param system

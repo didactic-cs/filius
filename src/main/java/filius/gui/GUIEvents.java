@@ -42,7 +42,7 @@ import javax.swing.JPopupMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import filius.gui.nachrichtensicht.ExchangeDialog;
+import filius.gui.nachrichtensicht.ExchangeComponent;
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.gui.netzwerksicht.GUINetworkPanel;
@@ -615,7 +615,7 @@ public class GUIEvents implements I18n {
 
     private void datenAustauschAnzeigen(GUIKnotenItem item, String macAddress) {
         InternetKnotenBetriebssystem bs;
-        ExchangeDialog exchangeDialog = GUIContainer.getGUIContainer().getExchangeDialog();
+        ExchangeComponent exchangeDialog = GUIContainer.getGUIContainer().getExchangeDialog();
 
         if (item.getKnoten() instanceof InternetKnoten) {
             bs = (InternetKnotenBetriebssystem) ((InternetKnoten) item.getKnoten()).getSystemSoftware();

@@ -25,7 +25,7 @@ public class AggregatedMessageTableTest {
         PipedOutputStream outputStream = new PipedOutputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(new PipedInputStream(outputStream), "UTF8"));
 
-        AggregatedMessageTable messageTable = new AggregatedMessageTable(new AggregatedExchangeDialog(), null);
+        AggregatedMessageTable messageTable = new AggregatedMessageTable(new AggregatedExchangePanel(), null);
         messageTable.writeToStream(outputStream);
         outputStream.close();
 

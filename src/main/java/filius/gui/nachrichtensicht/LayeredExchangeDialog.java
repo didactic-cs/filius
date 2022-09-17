@@ -43,7 +43,7 @@ import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.SystemSoftware;
 
-public class LayeredExchangeDialog extends JDialog implements ExchangeDialog, I18n {
+public class LayeredExchangeDialog extends JDialog implements ExchangeComponent, I18n {
 
     private static final long serialVersionUID = 1L;
 

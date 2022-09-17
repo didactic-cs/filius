@@ -81,18 +81,18 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
 
     private JCheckBoxMenuItem checkbox;
 
-    private AggregatedExchangeDialog dialog;
+    private AggregatedExchangeComponent exchangeComponent;
     private JScrollPane scrollPane = null;
     private boolean autoscroll = true;
     private JPopupMenu menu;
 
-    public AggregatedMessageTable(AggregatedExchangeDialog dialog, String macAddress) {
+    public AggregatedMessageTable(AggregatedExchangeComponent component, String macAddress) {
         super();
 
         TableColumn col;
         DefaultTableColumnModel columnModel;
 
-        this.dialog = dialog;
+        this.exchangeComponent = component;
         setinterfaceId(macAddress);
 
         this.initTableModel();
@@ -202,7 +202,7 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
                 String path = SzenarioVerwaltung.getInstance().holePfad();
                 if (path != null) {
                     File preselectedFile = new File(
-                            dialog.getTabTitle(AggregatedMessageTable.this.interfaceId) + ".txt");
+                            exchangeComponent.getTabTitle(AggregatedMessageTable.this.interfaceId) + ".txt");
                     fileChooser.setSelectedFile(preselectedFile);
                 }
 
@@ -238,7 +238,7 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
         menu.add(checkbox);
 
         menu.setVisible(false);
-        dialog.getRootPane().getLayeredPane().add(menu);
+        exchangeComponent.getRootPane().getLayeredPane().add(menu);
     }
 
     private void setinterfaceId(String interfaceId) {
@@ -250,9 +250,9 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
     @Override
     public synchronized void update() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (NachrichtenTabelle), update()");
-        Object[][] daten;
 
-        daten = Lauscher.getLauscher().getDaten(interfaceId, true, 0);
+        int selectedRow = getSelectedRow();
+        Object[][] daten = Lauscher.getLauscher().getDaten(interfaceId, true, 0);
 
         if (daten.length == 0) {
             initTableModel();
@@ -282,8 +282,11 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
         }
 
         ((DefaultTableModel) this.getModel()).fireTableDataChanged();
-        if (this.getRowCount() > 0 && scrollPane != null && scrollPane.getViewport() != null && autoscroll) {
+        if (getModel().getRowCount() > 0 && scrollPane != null && scrollPane.getViewport() != null && autoscroll) {
             scrollPane.getViewport().setViewPosition(new Point(0, this.getHeight()));
+        }
+        if (selectedRow >= 0 && selectedRow < getModel().getRowCount()) {
+            setRowSelectionInterval(selectedRow, selectedRow);
         }
     }
 

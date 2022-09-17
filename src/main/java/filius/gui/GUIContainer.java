@@ -74,7 +74,7 @@ import org.w3c.dom.Document;
 import filius.gui.anwendungssicht.GUIDesktopWindow;
 import filius.gui.anwendungssicht.SimulationControl;
 import filius.gui.nachrichtensicht.AggregatedExchangeDialog;
-import filius.gui.nachrichtensicht.ExchangeDialog;
+import filius.gui.nachrichtensicht.ExchangeComponent;
 import filius.gui.nachrichtensicht.LayeredExchangeDialog;
 import filius.gui.netzwerksicht.GUIDesignSidebar;
 import filius.gui.netzwerksicht.GUIDocuItem;
@@ -222,8 +222,8 @@ public class GUIContainer implements Serializable, I18n {
         ((JDialog) getExchangeDialog()).setVisible(true);
     }
 
-    public ExchangeDialog getExchangeDialog() {
-        ExchangeDialog exchangeDialog;
+    public ExchangeComponent getExchangeDialog() {
+        ExchangeComponent exchangeDialog;
         if (Information.getInformation().isOldExchangeDialog()) {
             exchangeDialog = LayeredExchangeDialog.getInstance(JMainFrame.getJMainFrame());
         } else {
