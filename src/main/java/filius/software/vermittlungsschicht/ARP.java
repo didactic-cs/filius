@@ -167,20 +167,20 @@ public class ARP extends VermittlungsProtokoll {
         } else {
             // ARP-Broadcast und warte auf Antwort
             for (int i = 0; arpEntry == null && i < 2; i++) {
+                LOG.debug("Send ARP query for " + (i + 1) + ". time.");
                 sendeARPBroadcast(zielIp);
                 synchronized (arpTabelle) {
                     try {
-                        arpTabelle.wait(Verbindung.holeRTT() / 2);
+                        arpTabelle.wait(Verbindung.holeRTT());
                     } catch (InterruptedException e) {
                         LOG.debug("EXCEPTION (" + this.hashCode() + "): keine Anwort auf ARP-Broadcast fuer IP-Adresse "
-                                + zielIp + " eingegangen!");
-                        LOG.debug("", e);
+                                + zielIp + " eingegangen!", e);
                     }
                 }
+                // Abfrage in ARP-Tabelle nach Broadcast
+                arpEntry = arpTabelle.get(zielIp);
             }
 
-            // Abfrage in ARP-Tabelle nach Broadcast
-            arpEntry = arpTabelle.get(zielIp);
             if (arpEntry != null) {
                 return ((String[]) arpEntry)[0];
             }
