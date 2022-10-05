@@ -10,8 +10,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 public class FiliusArgs {
-    public String argsString = "";
-
     public String currWD = Information.initArbeitsbereichPfad;
     public String projectFile;
     public boolean log = false;

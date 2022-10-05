@@ -85,6 +85,7 @@ Section "Filius" SEC01
   File /r "classes\img"
   File /r "lib"
   File /r "classes\tmpl"
+  File /r "classes\filius"
   File /r "site\*"
   ; Dateityp '.fls' zuordnen
   WriteRegStr HKLM "SOFTWARE\Classes\.fls\shell\open\command" "" '"$INSTDIR\Filius.exe" "%1"'

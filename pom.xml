@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>filius</groupId>
@@ -215,6 +213,7 @@
 						<exclude>config/**</exclude>
 						<exclude>hilfe/**</exclude>
 						<exclude>img/**</exclude>
+						<exclude>filius/messages/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -246,9 +245,29 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.3.1</version>
 				<configuration>
-				<author>false</author>
-				<failOnError>false</failOnError>
+					<author>false</author>
+					<failOnError>false</failOnError>
 				</configuration>
+			</plugin>
+
+			<!-- Create a Zip-Archive for Platform Independent Delivery -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assembly/assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -260,7 +279,8 @@
 				<version>3.1.1</version>
 				<reportSets>
 					<reportSet>
-						<reports><!-- select reports -->
+						<reports>
+							<!-- select reports -->
 							<report>dependencies</report>
 							<report>licenses</report>
 						</reports>
@@ -272,11 +292,6 @@
 	<profiles>
 		<profile>
 			<id>windows</id>
-			<activation>
-				<os>
-					<family>windows</family>
-				</os>
-			</activation>
 			<build>
 				<plugins>
 
@@ -325,26 +340,6 @@
 										<originalFilename>${launch4j.starterName}</originalFilename>
 									</versionInfo>
 								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<!-- Create a Zip-Archive for Platform Independent Delivery -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.3</version>
-						<configuration>
-							<descriptors>
-								<descriptor>src/assembly/assembly.xml</descriptor>
-							</descriptors>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>attached</goal>
-								</goals>
 							</execution>
 						</executions>
 					</plugin>
@@ -418,8 +413,7 @@
 								<phase>prepare-package</phase>
 								<configuration>
 									<target>
-										<gzip destfile="${project.build.directory}/changelog.gz"
-											src="${project.basedir}/Changelog.md" />
+										<gzip destfile="${project.build.directory}/changelog.gz" src="${project.basedir}/Changelog.md" />
 									</target>
 								</configuration>
 								<goals>
@@ -460,6 +454,8 @@
 												<path>/usr/share/filius/img</path>
 												<path>/usr/share/filius/hilfe</path>
 												<path>/usr/share/filius/hilfe/gfx</path>
+												<path>/usr/share/filius/filius</path>
+												<path>/usr/share/filius/filius/messages</path>
 												<path>/usr/share/filius/lib</path>
 											</paths>
 										</data>
@@ -573,6 +569,15 @@
 											<mapper>
 												<type>perm</type>
 												<prefix>/usr/share/filius/hilfe/gfx</prefix>
+											</mapper>
+										</data>
+										<data>
+											<src>${project.basedir}/src/main/resources/filius/messages</src>
+											<type>directory</type>
+											<includes>*.*</includes>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/share/filius/filius/messages</prefix>
 											</mapper>
 										</data>
 										<data>

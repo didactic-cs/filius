@@ -282,11 +282,10 @@ public class Main implements I18n {
         LOG.debug("\tJava Version: " + System.getProperty("java.version"));
         LOG.debug("\tJava Directory: " + System.getProperty("java.home"));
         LOG.debug("\tFILIUS Version: " + Information.getVersion());
-        LOG.debug("\tParameters: '" + filiusArgs.argsString.trim() + "'");
-        // +"\n\tWD Base: "+newWD
         LOG.debug("\tFILIUS Installation: " + Information.getInformation().getProgrammPfad());
         LOG.debug("\tFILIUS Working Directory: " + Information.getInformation().getArbeitsbereichPfad());
         LOG.debug("\tFILIUS Temp Directory: " + Information.getInformation().getTempPfad());
+        LOG.debug("\tLocale: " + Information.getInformation().getLocaleOrDefault());
         LOG.debug("------------------------------------------------------\n");
     }
 

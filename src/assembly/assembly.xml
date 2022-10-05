@@ -90,5 +90,13 @@
 				<include>*/*</include>
 			</includes>
 		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/filius/messages</directory>
+			<outputDirectory>/filius/messages</outputDirectory>
+			<includes>
+				<include>*</include>
+				<include>*/*</include>
+			</includes>
+		</fileSet>
 	</fileSets>
 </assembly>
