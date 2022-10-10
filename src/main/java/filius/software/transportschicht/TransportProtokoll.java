@@ -147,9 +147,9 @@ public abstract class TransportProtokoll extends Protokoll implements I18n, Runn
                 + "," + socket + ")");
         boolean portIsSubscribed = false;
         synchronized (portTabelle) {
-            if (portTabelle.containsKey(port) && !socket.equals(portTabelle.get(port))) {
+            if (portTabelle.containsKey(port) && !portTabelle.get(port).equals(socket)) {
                 LOG.debug("Port " + port + " cannot be subscribed for. It is already in use.");
-            } else if (socket.equals(portTabelle.get(port))) {
+            } else if (portTabelle.containsKey(port) && portTabelle.get(port).equals(socket)) {
                 LOG.debug("Port {} already subscribed for the socket. Nothing to do.", port);
                 portIsSubscribed = true;
             } else {
