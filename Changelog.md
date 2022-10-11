@@ -1,5 +1,15 @@
 # Changelog Filius
 
+## [2.1.0] - 2022-10-11
+### Added
+ * Add terminal command to reset / delete the entire ARP table (arp -d)
+ * Possibility to show MAC address as component name
+ * Row selection in data exchange dialog will be retained with new entries
+ 
+### Fixed
+ * Fix duplicate ARP request
+ * Fix NAT functionality
+  
 ## [2.0.1] - 2022-08-26
 ### Fixed
  * Focus and scrolling in Terminal window
