@@ -124,6 +124,10 @@ public class AggregatedExchangePanel extends JTabbedPane implements AggregatedEx
             systems.put(identifier, (InternetKnotenBetriebssystem) system);
             tabellen.put(identifier, tabelle);
 
+            if (openedTabs.size() > 0) {
+                setVisible(true);
+            }
+
             updateTabTitle();
         } else {
             // if there is already a tab opened for this system set it to selected
@@ -171,6 +175,10 @@ public class AggregatedExchangePanel extends JTabbedPane implements AggregatedEx
             openedTabs.remove(mac);
             tabellen.remove(mac);
             remove(panel);
+            if (openedTabs.size() == 0) {
+                setVisible(false);
+            }
+
         }
     }
 
@@ -187,10 +195,7 @@ public class AggregatedExchangePanel extends JTabbedPane implements AggregatedEx
     }
 
     @Override
-    public void reset() {
-        // TODO Auto-generated method stub
-
-    }
+    public void reset() {}
 
     private class TabTitle extends JPanel {
         private JLabel label;
@@ -209,9 +214,6 @@ public class AggregatedExchangePanel extends JTabbedPane implements AggregatedEx
             btnClose.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     parent.removeTable(identifier);
-                    if (parent.openedTabs.size() == 0) {
-                        parent.setVisible(false);
-                    }
                 }
             });
         }

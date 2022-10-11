@@ -191,7 +191,7 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
                 fileChooser.setFileFilter(new FileFilter() {
                     @Override
                     public boolean accept(File file) {
-                        return file.getName().endsWith(".txt");
+                        return file.isDirectory() || file.getName().endsWith(".txt");
                     }
 
                     @Override
