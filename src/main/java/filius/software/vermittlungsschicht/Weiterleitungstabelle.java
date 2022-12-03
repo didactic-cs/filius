@@ -225,7 +225,7 @@ public class Weiterleitungstabelle implements I18n {
                     tmp[0] = "0.0.0.0";
                     tmp[1] = "0.0.0.0";
                     tmp[2] = gateway;
-                    tmp[3] = firmware.holeIPAdresse();
+                    tmp[3] = firmware.primaryIPAdresse();
                 }
                 tabelle.addLast(tmp);
                 manuelleEintraege.addLast(new Boolean(false));

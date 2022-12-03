@@ -190,9 +190,9 @@ public class PeerToPeerAnwendung extends Anwendung {
                 aktuelle = (Datei) dateien.get(i);
                 anzahlBytes = anzahlBytes + aktuelle.holeGroesse();
             }
-            pong = new PongPaket(bs.holeIPAdresse(), 6346, dateien.size(), anzahlBytes);
+            pong = new PongPaket(bs.primaryIPAdresse(), 6346, dateien.size(), anzahlBytes);
             pong.setGuid(ping.getGuid());
-            pong.setIpAdresse(bs.holeIPAdresse());
+            pong.setIpAdresse(bs.primaryIPAdresse());
 
             return pong;
         }
@@ -281,12 +281,12 @@ public class PeerToPeerAnwendung extends Anwendung {
 
         bs = (Betriebssystem) getSystemSoftware();
 
-        if (!bs.holeIPAdresse().equals(teilnehmerIP)) {
+        if (!bs.primaryIPAdresse().equals(teilnehmerIP)) {
             pingPaket = new PingPaket();
-            pingPaket.setIp(bs.holeIPAdresse());
+            pingPaket.setIp(bs.primaryIPAdresse());
             eigeneAnfragen.add(pingPaket.getGuid());
 
-            peerToPeerClient.sendePing(teilnehmerIP, pingPaket, bs.holeIPAdresse());
+            peerToPeerClient.sendePing(teilnehmerIP, pingPaket, bs.primaryIPAdresse());
         }
     }
 
@@ -336,7 +336,7 @@ public class PeerToPeerAnwendung extends Anwendung {
         eigeneAnfragen.add(anfragePaket.getGuid());
 
         bs = (Betriebssystem) getSystemSoftware();
-        peerToPeerClient.sendeAnfrage(anfragePaket, bs.holeIPAdresse());
+        peerToPeerClient.sendeAnfrage(anfragePaket, bs.primaryIPAdresse());
     }
 
     /** Zum Abbruch aller Suchanfragen, die zuvor gestartet worden sind. */

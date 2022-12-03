@@ -508,7 +508,7 @@ public class EmailServer extends Anwendung implements I18n {
                 mailBody.append("\t").append(unknownRecipient).append("\n");
             }
             mailBody.append("\nDate: ").append(DateFormat.getInstance().format(new Date())).append("\n");
-            mailBody.append("Mail-Server: ").append(this.getSystemSoftware().holeIPAdresse()).append("\n");
+            mailBody.append("Mail-Server: ").append(this.getSystemSoftware().primaryIPAdresse()).append("\n");
             mailBody.append("\n______________________________________________________________________\n");
             mailBody.append(email.toString());
             unknownRecipientResponse.setText(mailBody.toString());

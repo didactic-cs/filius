@@ -46,7 +46,7 @@ import filius.exception.VerbindungsException;
 import filius.gui.GUIContainer;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.hardware.Verbindung;
-import filius.hardware.knoten.Host;
+import filius.hardware.knoten.Knoten;
 import filius.software.clientserver.ClientAnwendung;
 import filius.software.system.Betriebssystem;
 import filius.software.system.InternetKnotenBetriebssystem;
@@ -135,7 +135,7 @@ public class DHCPClient extends ClientAnwendung {
                     zustand = DISCOVER;
                     break;
                 case DISCOVER:
-                    config = discover(udpSocket, operatingSystem.holeMACAdresse(), Verbindung.holeRTT());
+                    config = discover(udpSocket, operatingSystem.dhcpEnabledMACAddress(), Verbindung.holeRTT());
                     zustand = VALIDATE;
                     break;
                 case VALIDATE:
@@ -143,11 +143,11 @@ public class DHCPClient extends ClientAnwendung {
                     zustand = validAddress ? REQUEST : DECLINE;
                     break;
                 case DECLINE:
-                    decline(udpSocket, operatingSystem.holeMACAdresse(), config, Verbindung.holeRTT());
+                    decline(udpSocket, operatingSystem.dhcpEnabledMACAddress(), config, Verbindung.holeRTT());
                     zustand = DISCOVER;
                     break;
                 case REQUEST:
-                    boolean acknowledged = request(udpSocket, operatingSystem.holeMACAdresse(), config,
+                    boolean acknowledged = request(udpSocket, operatingSystem.dhcpEnabledMACAddress(), config,
                             Verbindung.holeRTT());
                     zustand = acknowledged ? ASSIGN_IP : DISCOVER;
                     break;
@@ -169,14 +169,14 @@ public class DHCPClient extends ClientAnwendung {
         }
         udpSocket.schliessen();
 
-        Host host = ((Host) getSystemSoftware().getKnoten());
-        host.benachrichtigeBeobachter();
-        getSystemSoftware().benachrichtigeBeobacher(host);
+        Knoten node = operatingSystem.getKnoten();
+        node.benachrichtigeBeobachter();
+        operatingSystem.benachrichtigeBeobacher(node);
     }
 
     private String resetIpConfig() {
         InternetKnotenBetriebssystem operatingSystem = (InternetKnotenBetriebssystem) getSystemSoftware();
-        String oldIpAddress = operatingSystem.holeIPAdresse();
+        String oldIpAddress = operatingSystem.primaryIPAdresse();
         operatingSystem.setzeIPAdresse("0.0.0.0");
         return oldIpAddress;
     }

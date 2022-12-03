@@ -63,10 +63,14 @@ import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
 import filius.software.system.GatewayFirmware;
+import filius.software.system.InternetKnotenBetriebssystem;
 
 @SuppressWarnings("serial")
 public class JGatewayConfiguration extends JKonfiguration implements I18n {
     private static Logger LOG = LoggerFactory.getLogger(JGatewayConfiguration.class);
+
+    private static final int WAN_TAB_IDX = 2;
+    private static final int LAN_TAB_IDX = 1;
 
     private JTextField name;
 
@@ -82,6 +86,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
 
     private JTextField gatewayName;
     private JCheckBox ipForwarding;
+    private JCheckBox dhcp;
 
     private JTabbedPane tpNetzwerkKarten;
 
@@ -99,6 +104,7 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         firmware.setStandardGateway(gatewayName.getText());
 
         applyNICConfig(gateway.holeWANInterface(), ipAddressWANPort, netmaskWANPort);
+        firmware.setDHCPKonfiguration(dhcp.isSelected());
         applyNICConfig(gateway.holeLANInterface(), ipAddressLANPort, netmaskLANPort);
 
         GUIContainer.getGUIContainer().updateViewport();
@@ -129,25 +135,30 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         firewallDialog.setVisible(true);
     }
 
+    private void showDhcpConfiguration() {
+        JDHCPKonfiguration dhcpKonfig = new JDHCPKonfiguration(JMainFrame.getJMainFrame(),
+                messages.getString("jhostkonfiguration_msg8"),
+                (InternetKnotenBetriebssystem) ((InternetKnoten) holeHardware()).getSystemSoftware());
+        dhcpKonfig.setVisible(true);
+    }
+
     protected void initContents() {
         Box boxNetzwerkKarten;
         Box vBox;
         KeyAdapter ipAdresseKeyAdapter;
         KeyAdapter netzmaskeKeyAdapter;
-        FocusListener focusListener;
-        ActionListener actionListener;
         JButton btFirewall;
 
         JLabel tempLabel;
         Box tempBox;
 
-        actionListener = new ActionListener() {
+        ActionListener actionListener = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 aenderungenAnnehmen();
             }
         };
 
-        focusListener = new FocusListener() {
+        FocusListener focusListener = new FocusListener() {
 
             public void focusGained(FocusEvent arg0) {}
 
@@ -262,35 +273,37 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         // NIC tabs
         tpNetzwerkKarten.addTab(messages.getString("jgatewayconfiguration_msg17"), vBox);
 
-        ipAddressWANPort = new JTextField();
-        netmaskWANPort = new JTextField();
-        macAddressWANPort = new JTextField();
-        connectedComponentWAN = new JLabel();
-        initNICConfigPane(ipAdresseKeyAdapter, netzmaskeKeyAdapter, focusListener, actionListener, ipAddressWANPort,
-                macAddressWANPort, netmaskWANPort, connectedComponentWAN);
-
         ipAddressLANPort = new JTextField();
         netmaskLANPort = new JTextField();
         macAddressLANPort = new JTextField();
         connectedComponentLAN = new JLabel();
         initNICConfigPane(ipAdresseKeyAdapter, netzmaskeKeyAdapter, focusListener, actionListener, ipAddressLANPort,
-                macAddressLANPort, netmaskLANPort, connectedComponentLAN);
+                macAddressLANPort, netmaskLANPort, connectedComponentLAN, true, false);
+
+        ipAddressWANPort = new JTextField();
+        netmaskWANPort = new JTextField();
+        macAddressWANPort = new JTextField();
+        connectedComponentWAN = new JLabel();
+        initNICConfigPane(ipAdresseKeyAdapter, netzmaskeKeyAdapter, focusListener, actionListener, ipAddressWANPort,
+                macAddressWANPort, netmaskWANPort, connectedComponentWAN, false, true);
 
         tpNetzwerkKarten.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent arg0) {
                 JTabbedPane pane = (JTabbedPane) arg0.getSource();
                 // Get current tab
-                int sel = pane.getSelectedIndex();
                 if (highlightedCable != null) {
                     highlightedCable.setAktiv(false);
                 }
-                if (sel > 0 && sel <= pane.getComponentCount() - 1) {
-                    Verbindung conn = ((NetzwerkInterface) ((Gateway) holeHardware()).getNetzwerkInterfaces()
-                            .get(sel - 1)).getPort().getVerbindung();
-                    if (conn != null) {
-                        conn.setAktiv(true);
-                        highlightedCable = (Kabel) conn;
-                    }
+                Verbindung conn = null;
+                int sel = pane.getSelectedIndex();
+                if (sel == WAN_TAB_IDX) {
+                    conn = ((Gateway) holeHardware()).holeWANInterface().getPort().getVerbindung();
+                } else if (sel == LAN_TAB_IDX) {
+                    conn = ((Gateway) holeHardware()).holeLANInterface().getPort().getVerbindung();
+                }
+                if (conn != null) {
+                    conn.setAktiv(true);
+                    highlightedCable = (Kabel) conn;
                 }
             }
 
@@ -303,24 +316,20 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
 
     private void initNICConfigPane(KeyAdapter ipAdresseKeyAdapter, KeyAdapter netzmaskeKeyAdapter,
             FocusListener focusListener, ActionListener actionListener, JTextField ipAddressTextfield,
-            JTextField macAddressTextfield, JTextField netmaskTextfield, JLabel connectedComponentLabel) {
-        Box boxNic;
-        Box boxIpAdresse;
-        Box boxSubnetz;
-        Box boxMacAdresse;
-        Box boxKomponente;
+            JTextField macAddressTextfield, JTextField netmaskTextfield, JLabel connectedComponentLabel,
+            boolean dhcpServer, boolean dhcpConfig) {
         JLabel tempLabel;
-        boxNic = Box.createVerticalBox();
+        Box boxNic = Box.createVerticalBox();
+        // boxNic.setPreferredSize(new Dimension(800, 200));
 
-        boxKomponente = Box.createHorizontalBox();
-        boxKomponente.setMaximumSize(new Dimension(400, 40));
-
+        Box boxKomponente = Box.createHorizontalBox();
+        boxKomponente.setMaximumSize(new Dimension(400, 30));
         connectedComponentLabel.setPreferredSize(new Dimension(400, 10));
         boxKomponente.add(connectedComponentLabel);
 
         // show IP address (editable)
-        boxIpAdresse = Box.createHorizontalBox();
-        boxIpAdresse.setMaximumSize(new Dimension(400, 40));
+        Box boxIpAdresse = Box.createHorizontalBox();
+        boxIpAdresse.setMaximumSize(new Dimension(400, 30));
         tempLabel = new JLabel(messages.getString("jgatewayconfiguration_msg7"));
         tempLabel.setPreferredSize(new Dimension(120, 10));
         boxIpAdresse.add(tempLabel);
@@ -328,8 +337,8 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         boxIpAdresse.add(ipAddressTextfield);
 
         // show netmask (editable)
-        boxSubnetz = Box.createHorizontalBox();
-        boxSubnetz.setMaximumSize(new Dimension(400, 40));
+        Box boxSubnetz = Box.createHorizontalBox();
+        boxSubnetz.setMaximumSize(new Dimension(400, 30));
         tempLabel = new JLabel(messages.getString("jgatewayconfiguration_msg8"));
         tempLabel.setPreferredSize(new Dimension(120, 10));
         boxSubnetz.add(tempLabel);
@@ -337,8 +346,8 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         boxSubnetz.add(netmaskTextfield);
 
         // show MAC address (not editable)
-        boxMacAdresse = Box.createHorizontalBox();
-        boxMacAdresse.setMaximumSize(new Dimension(400, 40));
+        Box boxMacAdresse = Box.createHorizontalBox();
+        boxMacAdresse.setMaximumSize(new Dimension(400, 30));
         tempLabel = new JLabel(messages.getString("jgatewayconfiguration_msg18"));
         tempLabel.setPreferredSize(new Dimension(120, 10));
         boxMacAdresse.add(tempLabel);
@@ -353,6 +362,31 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         boxNic.add(boxSubnetz);
         boxNic.add(Box.createVerticalStrut(5));
         boxNic.add(boxMacAdresse);
+
+        if (dhcpServer) {
+            boxNic.add(Box.createVerticalStrut(10));
+            Box tempBox = Box.createHorizontalBox();
+            tempBox.setMaximumSize(new Dimension(400, 40));
+            JButton btDhcp = new JButton(messages.getString("jhostkonfiguration_msg8"));
+            btDhcp.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    showDhcpConfiguration();
+                }
+            });
+            tempBox.add(btDhcp);
+            boxNic.add(tempBox);
+        } else if (dhcpConfig) {
+            boxNic.add(Box.createVerticalStrut(10));
+            Box tempBox = Box.createHorizontalBox();
+            tempBox.setMaximumSize(new Dimension(400, 40));
+            dhcp = new JCheckBox();
+            dhcp.setSelected(false);
+            dhcp.setOpaque(false);
+            dhcp.addActionListener(actionListener);
+            dhcp.setText(messages.getString("jhostkonfiguration_msg7"));
+            tempBox.add(dhcp);
+            boxNic.add(tempBox);
+        }
 
         tpNetzwerkKarten.addTab(messages.getString("jgatewayconfiguration_msg10"),
                 new ImageIcon(getClass().getResource("/gfx/allgemein/conn_fail.png")), boxNic);
@@ -371,12 +405,10 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         if (highlightedCable != null) {
             highlightedCable.setAktiv(false);
             highlightedCable = null;
-            this.tpNetzwerkKarten.setSelectedIndex(0);
+            tpNetzwerkKarten.setSelectedIndex(0);
         }
     }
 
-    // method to highlight marked cable; called from GUIMainMenu in case of
-    // switching back to development view
     public void highlightConnCable() {
         if (highlightedCable != null) {
             highlightedCable.setAktiv(true);
@@ -397,10 +429,15 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         gatewayName.setText(bs.getStandardGateway());
         ipForwarding.setSelected(bs.isIpForwardingEnabled());
 
-        updateNICConfigPane("WAN", vRechner.holeWANInterface(), ipAddressWANPort, macAddressWANPort, netmaskWANPort,
-                connectedComponentWAN, 1);
+        boolean dhcpEnabled = bs.isDHCPKonfiguration();
+        dhcp.setSelected(dhcpEnabled);
+        ipAddressWANPort.setEnabled(!dhcpEnabled);
+        netmaskWANPort.setEnabled(!dhcpEnabled);
+
         updateNICConfigPane("LAN", vRechner.holeLANInterface(), ipAddressLANPort, macAddressLANPort, netmaskLANPort,
-                connectedComponentLAN, 2);
+                connectedComponentLAN, LAN_TAB_IDX);
+        updateNICConfigPane("WAN", vRechner.holeWANInterface(), ipAddressWANPort, macAddressWANPort, netmaskWANPort,
+                connectedComponentWAN, WAN_TAB_IDX);
     }
 
     private void updateNICConfigPane(String titlePrefix, NetzwerkInterface nic, JTextField ipAddressTextfield,

@@ -246,9 +246,9 @@ public class Terminal extends ClientAnwendung implements I18n {
         Betriebssystem bs = (Betriebssystem) getSystemSoftware();
         String ausgabe = "";
 
-        ausgabe += messages.getString("sw_terminal_msg4") + " " + bs.holeIPAdresse() + "\n";
-        ausgabe += messages.getString("sw_terminal_msg5") + " " + bs.holeNetzmaske() + "\n";
-        ausgabe += messages.getString("sw_terminal_msg6666") + " " + bs.holeMACAdresse() + "\n";
+        ausgabe += messages.getString("sw_terminal_msg4") + " " + bs.primaryIPAdresse() + "\n";
+        ausgabe += messages.getString("sw_terminal_msg5") + " " + bs.primarySubnetMask() + "\n";
+        ausgabe += messages.getString("sw_terminal_msg6666") + " " + bs.primaryMACAddress() + "\n";
         ausgabe += messages.getString("sw_terminal_msg6") + " " + bs.getStandardGateway() + "\n";
         ausgabe += messages.getString("sw_terminal_msg27") + " " + bs.getDNSServer() + "\n";
 
@@ -858,7 +858,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         benachrichtigeBeobachter(messages.getString("sw_terminal_msg55"));
 
         Lauscher lauscher = Lauscher.getLauscher();
-        String localMacAddress = ((Betriebssystem) getSystemSoftware()).holeMACAdresse();
+        String localMacAddress = ((Betriebssystem) getSystemSoftware()).primaryMACAddress();
         int offset = lauscher.getOffsetByTimestamp(localMacAddress, System.currentTimeMillis());
         while (!interrupted) {
             Object[][] data = lauscher.getDaten(localMacAddress, true, offset);
@@ -897,7 +897,7 @@ public class Terminal extends ClientAnwendung implements I18n {
             }
         }
         if (null != targetMAC && null != senderIP) {
-            ArpPaket arpPacket = os.holeARP().sendArpReply(os.holeMACAdresse(), senderIP, targetMAC, targetIP);
+            ArpPaket arpPacket = os.holeARP().sendArpReply(os.primaryMACAddress(), senderIP, targetMAC, targetIP);
             benachrichtigeBeobachter("  >>> " + arpPacket);
         } else {
             benachrichtigeBeobachter(messages.getString("sw_terminal_msg56"));

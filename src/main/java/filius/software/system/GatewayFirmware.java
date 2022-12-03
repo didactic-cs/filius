@@ -28,6 +28,8 @@ package filius.software.system;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import filius.hardware.NetzwerkInterface;
+import filius.hardware.knoten.Gateway;
 import filius.hardware.knoten.Knoten;
 import filius.rahmenprogramm.Information;
 import filius.rahmenprogramm.ResourceUtil;
@@ -40,14 +42,15 @@ import filius.software.rip.RIPTable;
 import filius.software.www.WebServer;
 
 /**
- * Diese Klasse stellt die Funktionalitaet eines Betriebssystems fuer Vermittlungsrechner zur Verfuegung. Spezifisch ist
- * die automatische Installation einer Firewall und eines Webservers mit einer Erweiterung zur Konfiguration der
- * Firewall. Die weitere Funktionalitaet wird von der Oberklasse (InternetKnotenBetriebssystem) zur Verfuegung gestellt.
+ * The Home Router supports the following functions:
+ * <li>DHCP server on the LAN port
+ * <li>IP configuration with DHCP on the WAN port
+ * <li>Firewall
+ * <li>Webserver for basic administration
  */
+@SuppressWarnings("serial")
 public class GatewayFirmware extends InternetKnotenBetriebssystem {
     private static Logger LOG = LoggerFactory.getLogger(GatewayFirmware.class);
-
-    private static final long serialVersionUID = 1L;
 
     /** Konstruktor mit Initialisierung von Firewall und Webserver */
     public GatewayFirmware() {
@@ -60,6 +63,17 @@ public class GatewayFirmware extends InternetKnotenBetriebssystem {
 
     public void setKnoten(Knoten gateway) {
         super.setKnoten(gateway);
+    }
+
+    /** The IP configuration with DHCP is supported on WAN port only. */
+    @Override
+    public String dhcpEnabledMACAddress() {
+        return ((Gateway) getKnoten()).holeWANInterface().getMac();
+    }
+
+    @Override
+    protected NetzwerkInterface primaryNetworkInterface() {
+        return ((Gateway) getKnoten()).holeLANInterface();
     }
 
     /**

@@ -50,9 +50,11 @@ import filius.gui.GUIContainer;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Host;
+import filius.hardware.knoten.InternetKnoten;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.Betriebssystem;
+import filius.software.system.InternetKnotenBetriebssystem;
 
 @SuppressWarnings("serial")
 public class JHostKonfiguration extends JKonfiguration implements I18n {
@@ -119,15 +121,12 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     protected void initContents() {
         JLabel tempLabel;
         Box tempBox;
-        FocusListener focusListener;
-        ActionListener actionListener;
-
-        actionListener = new ActionListener() {
+        ActionListener actionListener = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 aenderungenAnnehmen();
             }
         };
-        focusListener = new FocusListener() {
+        FocusListener focusListener = new FocusListener() {
             public void focusGained(FocusEvent arg0) {}
 
             public void focusLost(FocusEvent arg0) {
@@ -408,7 +407,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     private void showDhcpConfiguration() {
         JDHCPKonfiguration dhcpKonfig = new JDHCPKonfiguration(JMainFrame.getJMainFrame(),
                 messages.getString("jhostkonfiguration_msg8"),
-                (Betriebssystem) ((Host) holeHardware()).getSystemSoftware());
+                (InternetKnotenBetriebssystem) ((InternetKnoten) holeHardware()).getSystemSoftware());
         dhcpKonfig.setVisible(true);
     }
 
@@ -441,9 +440,9 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
 
             bs = (Betriebssystem) host.getSystemSoftware();
 
-            macAdresse.setText(bs.holeMACAdresse());
-            ipAdresse.setText(bs.holeIPAdresse());
-            netzmaske.setText(bs.holeNetzmaske());
+            macAdresse.setText(bs.primaryMACAddress());
+            ipAdresse.setText(bs.primaryIPAdresse());
+            netzmaske.setText(bs.primarySubnetMask());
             gateway.setText(bs.getStandardGateway());
             dns.setText(bs.getDNSServer());
 

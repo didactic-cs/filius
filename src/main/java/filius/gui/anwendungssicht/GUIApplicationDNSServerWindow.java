@@ -174,7 +174,7 @@ public class GUIApplicationDNSServerWindow extends GUIApplicationWindow {
         hBox.add(aIpLabel);
         hBox.add(Box.createHorizontalStrut(5));
 
-        aIpField = new JTextField(this.holeAnwendung().getSystemSoftware().holeIPAdresse());
+        aIpField = new JTextField(this.holeAnwendung().getSystemSoftware().primaryIPAdresse());
         aIpField.setPreferredSize(new Dimension(275, 25));
         aIpField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {

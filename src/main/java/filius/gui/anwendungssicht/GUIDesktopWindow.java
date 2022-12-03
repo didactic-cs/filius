@@ -105,7 +105,7 @@ public class GUIDesktopWindow extends JFrame implements Observer {
             title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName();
         } else {
             title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName() + " - "
-                    + desktopPanel.getBetriebssystem().holeIPAdresse();
+                    + desktopPanel.getBetriebssystem().primaryIPAdresse();
         }
         setTitle(title);
     }

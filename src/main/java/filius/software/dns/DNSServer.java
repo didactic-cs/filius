@@ -213,7 +213,7 @@ public class DNSServer extends UDPServerAnwendung {
             }
         }
         if (answerResourceRecords.isEmpty()
-                && !getSystemSoftware().getDNSServer().equals(getSystemSoftware().holeIPAdresse())) {
+                && !getSystemSoftware().getDNSServer().equals(getSystemSoftware().primaryIPAdresse())) {
             dnsServerAddress = getSystemSoftware().getDNSServer();
             answerResourceRecords.addAll(resolveWithNameserver(query, dnsServerAddress));
         }

@@ -95,6 +95,9 @@ public class NatGatewayLANThread extends FirewallThread implements I18n {
 
     protected boolean isOutgoingPacket(IpPaket packet) {
         return !VermittlungsProtokoll.gleichesRechnernetz(packet.getEmpfaenger(), lanNic.getIp(),
-                lanNic.getSubnetzMaske()) && !packet.getEmpfaenger().equals(wanNic.getIp());
+                lanNic.getSubnetzMaske())
+                && !VermittlungsProtokoll.isBroadcast(packet.getEmpfaenger(), packet.getSender(),
+                        lanNic.getSubnetzMaske())
+                && !packet.getEmpfaenger().equals(wanNic.getIp());
     }
 }

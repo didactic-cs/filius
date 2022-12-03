@@ -27,8 +27,6 @@ package filius.software.system;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -37,16 +35,14 @@ import org.slf4j.LoggerFactory;
 
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
-import filius.hardware.knoten.Notebook;
-import filius.hardware.knoten.Rechner;
-import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.FiliusClassLoader;
 import filius.rahmenprogramm.Information;
 import filius.software.Anwendung;
+import filius.software.dhcp.DHCPClient;
+import filius.software.dhcp.DHCPServer;
 import filius.software.dns.Resolver;
 import filius.software.netzzugangsschicht.Ethernet;
-import filius.software.netzzugangsschicht.EthernetThread;
 import filius.software.rip.RIPTable;
 import filius.software.transportschicht.TCP;
 import filius.software.transportschicht.UDP;
@@ -68,13 +64,23 @@ import filius.software.vermittlungsschicht.Weiterleitungstabelle;
  * </ol>
  * zur Verfuegung. (als Entwurfsmuster Fassade)
  */
+@SuppressWarnings("serial")
 public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
     private static Logger LOG = LoggerFactory.getLogger(InternetKnotenBetriebssystem.class);
 
-    private static final long serialVersionUID = 1L;
-
     /** Das lokale Dateisystem eines Rechners */
     private Dateisystem dateisystem;
+    /** der DHCP-Server, der aktiviert und deaktiviert werden kann */
+    private DHCPServer dhcpServer;
+    /** ob die Konfiguration der Netzwerkkarte mit DHCP erfolgt */
+    private boolean dhcpKonfiguration;
+    /**
+     * der DHCP-Client, der zur Konfiguration der Netzwerkkarte genutzt wird, wenn die Konfiguration mit DHCP erfolgen
+     * soll
+     * 
+     * @see dhcpKonfiguration
+     */
+    private DHCPClient dhcpClient;
 
     /**
      * Die installierten Anwendungen. Sie werden mit dem Anwendungsnamen als Schluessel in einer HashMap gespeichert.
@@ -154,13 +160,14 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         tcp = new TCP(this);
         udp = new UDP(this);
 
-        this.dateisystem = new Dateisystem();
+        dateisystem = new Dateisystem();
 
         dnsclient = new Resolver();
         dnsclient.setSystemSoftware(this);
 
-        // print IDs for all network layers and the according node --> for
-        // providing debug support in log file
+        dhcpServer = new DHCPServer();
+        dhcpServer.setSystemSoftware(this);
+
         LOG.debug("DEBUG: InternetKnotenBetriebssystem (" + this.hashCode() + ")\n" + "\tEthernet: "
                 + ethernet.hashCode() + "\n" + "\tARP: " + arpVermittlung.hashCode() + "\n" + "\tIP: "
                 + vermittlung.hashCode() + "\n" + "\tICMP: " + icmpVermittlung.hashCode() + "\n" + "\tTCP: "
@@ -192,71 +199,25 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         udp.beenden();
 
         dnsclient.beenden();
+        dhcpServer.beenden();
+
+        if (dhcpClient != null) {
+            dhcpClient.beenden();
+        }
 
         for (Anwendung anwendung : installierteAnwendung.values()) {
             anwendung.beenden();
         }
     }
 
-    private void printDebugInfo() {
-        LOG.debug("DEBUG (" + this.hashCode() + "): start InternetKnotenBetriebssystem");
-        if (this.getKnoten() != null) {
-            LOG.debug("DEBUG (" + this.hashCode() + ") - Hostname = " + this.getKnoten().holeAnzeigeName());
-            LOG.debug("DEBUG (" + this.hashCode() + ") - Hardwaretyp = '");
-            if (getKnoten() instanceof filius.hardware.knoten.Notebook) {
-                LOG.debug("Notebook'");
-            } else if (getKnoten() instanceof filius.hardware.knoten.Rechner) {
-                LOG.debug("Rechner'");
-            } else if (getKnoten() instanceof filius.hardware.knoten.Vermittlungsrechner) {
-                LOG.debug("Vermittlungsrechner'");
-            } else {
-                LOG.debug("<unknown>'");
-            }
-        } else {
-            LOG.debug("DEBUG (" + this.hashCode() + ") - Hostname = <unknown>");
-            LOG.debug("DEBUG (" + this.hashCode() + ") - Hardwaretyp = <unknown>");
-        }
-        LOG.debug("DEBUG (" + this.hashCode() + ") - ETHER = " + ethernet.hashCode());
-        List<EthernetThread> threads = ethernet.getEthernetThreads();
-        if (threads != null)
-            for (int i = 0; i < threads.size(); i++)
-                LOG.debug("DEBUG (" + this.hashCode() + ")      - ETHER T-" + i + " = " + threads.get(i).hashCode());
-        LOG.debug("DEBUG (" + this.hashCode() + ") - ARP = " + arpVermittlung.hashCode());
-        filius.software.vermittlungsschicht.ARPThread thread = arpVermittlung.getARPThread();
-        if (thread != null)
-            LOG.debug("DEBUG (" + this.hashCode() + ")      - ARP T = " + thread.hashCode());
-        LOG.debug("DEBUG (" + this.hashCode() + ") - IP = " + vermittlung.hashCode());
-        filius.software.vermittlungsschicht.IPThread IPthread = vermittlung.getIPThread();
-        if (IPthread != null)
-            LOG.debug("DEBUG (" + this.hashCode() + ")      - IP T = " + IPthread.hashCode());
-        LOG.debug("DEBUG (" + this.hashCode() + ") - ICMP = " + icmpVermittlung.hashCode());
-        filius.software.vermittlungsschicht.ICMPThread ICMPthread = icmpVermittlung.getICMPThread();
-        if (IPthread != null)
-            LOG.debug("DEBUG (" + this.hashCode() + ")      - ICMP T = " + ICMPthread.hashCode());
-        LOG.debug("DEBUG (" + this.hashCode() + ") - TCP = " + tcp.hashCode());
-        LOG.debug("DEBUG (" + this.hashCode() + ") - UDP = " + udp.hashCode());
-        if (this.getKnoten() != null) {
-            if (getKnoten() instanceof Notebook) {
-                NetzwerkInterface nic = ((NetzwerkInterface) ((Notebook) getKnoten()).getNetzwerkInterfaces().get(0));
-                LOG.debug("DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
-                        + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
-            } else if (getKnoten() instanceof Rechner) {
-                NetzwerkInterface nic = ((NetzwerkInterface) ((Rechner) getKnoten()).getNetzwerkInterfaces().get(0));
-                LOG.debug("DEBUG (" + this.hashCode() + ") - NIC: {IP=" + nic.getIp() + "/" + nic.getSubnetzMaske()
-                        + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW=" + nic.getGateway() + "}");
-            } else if (getKnoten() instanceof Vermittlungsrechner) {
-                int nicNr = 0;
-                for (NetzwerkInterface nic : ((Vermittlungsrechner) getKnoten()).getNetzwerkInterfaces()) {
-                    LOG.debug("DEBUG (" + this.hashCode() + ") - NIC" + nicNr + ": {IP=" + nic.getIp() + "/"
-                            + nic.getSubnetzMaske() + ", MAC=" + nic.getMac() + ", DNS=" + nic.getDns() + ", GW="
-                            + nic.getGateway() + "}");
-                    nicNr++;
-                }
-            }
-        } else {
-            LOG.debug("DEBUG (" + this.hashCode() + ") - NIC=<unknown>");
-        }
-        getWeiterleitungstabelle().printTabelle(Integer.toString(this.hashCode()));
+    /** Methode zum Zugriff auf den DHCP-Server. */
+    public DHCPServer getDHCPServer() {
+        return dhcpServer;
+    }
+
+    /** Methode zum Zugriff auf den DHCP-Server. */
+    public void setDHCPServer(DHCPServer dhcpServer) {
+        this.dhcpServer = dhcpServer;
     }
 
     /**
@@ -280,11 +241,29 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         tcp.starten();
         udp.starten();
 
+        if (dhcpServer.isAktiv()) {
+            dhcpServer.starten();
+        }
+        if (isDHCPKonfiguration()) {
+            dhcpClient = new DHCPClient();
+            dhcpClient.setSystemSoftware(this);
+            dhcpClient.starten();
+        }
         for (Anwendung anwendung : installierteAnwendung.values()) {
             if (anwendung != null) {
                 anwendung.starten();
             }
         }
+    }
+
+    /** Ob die Konfiguration der Netzwerkkarte mit DHCP erfolgt */
+    public boolean isDHCPKonfiguration() {
+        return dhcpKonfiguration;
+    }
+
+    /** Ob die Konfiguration der Netzwerkkarte mit DHCP erfolgt */
+    public void setDHCPKonfiguration(boolean dhcp) {
+        this.dhcpKonfiguration = dhcp;
     }
 
     /** Methode fuer den Zugriff auf den DNS-Resolver */
@@ -614,47 +593,31 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Methode fuer den Zugriff auf die IP-Adresse der einzigen Netwerkkarte. Das ist eine Methode des Entwurfsmusters
      * Fassade
      */
-    public String holeIPAdresse() {
-        if (!(getKnoten() instanceof InternetKnoten)) {
-            return null;
+    public String primaryIPAdresse() {
+        NetzwerkInterface nic = primaryNetworkInterface();
+        return null == nic ? null : nic.getIp();
+    }
+
+    protected NetzwerkInterface primaryNetworkInterface() {
+        NetzwerkInterface nic = null;
+        if (getKnoten() instanceof InternetKnoten) {
+            InternetKnoten knoten = (InternetKnoten) getKnoten();
+            nic = knoten.getNetzwerkInterfaces().get(0);
         }
-        InternetKnoten knoten = (InternetKnoten) getKnoten();
-
-        String ip = null;
-        NetzwerkInterface nic;
-        ListIterator it = knoten.getNetzwerkInterfaces().listIterator();
-        while (it.hasNext()) {
-            nic = (NetzwerkInterface) it.next();
-            ip = nic.getIp();
-
-            // search for a public IP
-            if (!(ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("0.") || ip.startsWith("127."))) {
-                break;
-            }
-        }
-
-        return ip;
+        return nic;
     }
 
     /**
      * Methode fuer den Zugriff auf die MAC-Adresse der einzigen Netwerkkarte. Das ist eine Methode des Entwurfsmusters
      * Fassade
      */
-    public String holeMACAdresse() {
-        LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
-                + " (InternetKnotenBetriebssystem), holeMACAdresse()");
-        InternetKnoten knoten;
+    public String primaryMACAddress() {
+        NetzwerkInterface nic = primaryNetworkInterface();
+        return null == nic ? null : nic.getMac();
+    }
 
-        if (getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
-
-            if (knoten.getNetzwerkInterfaces().size() > 0) {
-                NetzwerkInterface nic = (NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0);
-                return nic.getMac();
-            }
-        }
-
-        return null;
+    public String dhcpEnabledMACAddress() {
+        return primaryMACAddress();
     }
 
     /**
@@ -724,16 +687,9 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
      * Methode fuer den Zugriff auf die Netzmaske der einzigen Netzwerkkarte. Das ist eine Methode des Entwurfsmusters
      * Fassade
      */
-    public String holeNetzmaske() {
-        LOG.debug(
-                "INVOKED (" + this.hashCode() + ") " + getClass() + " (InternetKnotenBetriebssystem), holeNetzmaske()");
-        InternetKnoten knoten;
-
-        if (getKnoten() instanceof InternetKnoten) {
-            knoten = (InternetKnoten) getKnoten();
-            return ((NetzwerkInterface) knoten.getNetzwerkInterfaces().get(0)).getSubnetzMaske();
-        }
-        return null;
+    public String primarySubnetMask() {
+        NetzwerkInterface nic = primaryNetworkInterface();
+        return null == nic ? null : nic.getSubnetzMaske();
 
     }
 }

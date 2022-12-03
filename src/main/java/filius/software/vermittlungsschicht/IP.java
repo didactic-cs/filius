@@ -30,6 +30,8 @@ import static filius.software.netzzugangsschicht.Ethernet.ETHERNET_BROADCAST;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,8 @@ import filius.software.transportschicht.UdpSegment;
  * weitergeleitet werden und eingehende Segmente an die Transportschicht weitergeleitet werden.
  */
 public class IP extends VermittlungsProtokoll implements I18n {
+    private static final Pattern REGEX_CLIENT_MAC_ADDRESS_IN_DHCP = Pattern.compile("chaddr=(.{17})");
+
     private static Logger LOG = LoggerFactory.getLogger(IP.class);
 
     public static final String CURRENT_NETWORK = "0.0.0.0";
@@ -139,8 +143,6 @@ public class IP extends VermittlungsProtokoll implements I18n {
 
         InternetKnoten knoten = (InternetKnoten) holeSystemSoftware().getKnoten();
         for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-            // Broadcast-Nachrichten werden nur im lokalen Rechnernetz
-            // verschickt
             sendBroadcastOverNic(nic, ipPaket);
         }
     }
@@ -151,8 +153,18 @@ public class IP extends VermittlungsProtokoll implements I18n {
         // wird es von keinem Knoten weitergeschickt
         ipPaket.setTtl(1);
 
+        String macAddressFilter = null;
+        if (ipPaket.getSegment().getDaten().startsWith("DHCPDISCOVER")
+                || ipPaket.getSegment().getDaten().startsWith("DHCPREQUEST")) {
+            Matcher dhcpMACMatcher = REGEX_CLIENT_MAC_ADDRESS_IN_DHCP.matcher(ipPaket.getSegment().getDaten());
+            if (dhcpMACMatcher.find()) {
+                macAddressFilter = dhcpMACMatcher.group(1);
+            }
+        }
+
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
         if (CURRENT_NETWORK.equals(ipPaket.getSender())
+                && (null == macAddressFilter || nic.getMac().equalsIgnoreCase(macAddressFilter))
                 || gleichesRechnernetz(ipPaket.getSender(), nic.getIp(), nic.getSubnetzMaske())) {
             bs.holeEthernet().senden(ipPaket, nic.getMac(), ETHERNET_BROADCAST, EthernetFrame.IP);
         }
@@ -245,7 +257,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
             benachrichtigeTransportschicht(paket);
         } else if (zielIp.equals("255.255.255.255")) {
             if (quellIp == null) {
-                quellIp = ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeIPAdresse();
+                quellIp = ((InternetKnotenBetriebssystem) holeSystemSoftware()).primaryIPAdresse();
             }
             paket.setSender(quellIp);
             sendeBroadcast(paket);

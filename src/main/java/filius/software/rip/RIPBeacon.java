@@ -87,7 +87,7 @@ public class RIPBeacon extends ClientAnwendung {
 		RIPMessage msg;
 
 		for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
-			msg = new RIPMessage(nic.getIp(), bs.holeIPAdresse(), RIPTable.INFINITY, RIPTable.TIMEOUT);
+			msg = new RIPMessage(nic.getIp(), bs.primaryIPAdresse(), RIPTable.INFINITY, RIPTable.TIMEOUT);
 			for (RIPRoute route : table.routes) {
 				// split horizon:
 				if (nic.getIp().equals(route.getInterfaceIpAddress())) {

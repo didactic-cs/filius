@@ -153,11 +153,11 @@ public class ARP extends VermittlungsProtokoll {
     public String holeARPTabellenEintrag(String zielIp) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag(" + zielIp + ")");
         if (zielIp.equals("127.0.0.1")) {
-            return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
+            return ((InternetKnotenBetriebssystem) holeSystemSoftware()).primaryMACAddress();
         }
         if (holeSystemSoftware() instanceof InternetKnotenBetriebssystem) {
-            if (zielIp.equals(((InternetKnotenBetriebssystem) holeSystemSoftware()).holeIPAdresse())) {
-                return ((InternetKnotenBetriebssystem) holeSystemSoftware()).holeMACAdresse();
+            if (zielIp.equals(((InternetKnotenBetriebssystem) holeSystemSoftware()).primaryIPAdresse())) {
+                return ((InternetKnotenBetriebssystem) holeSystemSoftware()).primaryMACAddress();
             }
         }
         // Eintrag in ARP-Tabelle fuer gesuchte IP-Adresse?
@@ -251,7 +251,7 @@ public class ARP extends VermittlungsProtokoll {
             }
         }
         if (null == bestNic) {
-            bestMask = IP.inetAton(((InternetKnotenBetriebssystem) holeSystemSoftware()).holeNetzmaske());
+            bestMask = IP.inetAton(((InternetKnotenBetriebssystem) holeSystemSoftware()).primarySubnetMask());
             bestNic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces().get(0);
         }
         return bestNic;

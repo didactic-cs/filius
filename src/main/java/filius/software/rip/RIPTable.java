@@ -76,7 +76,7 @@ public class RIPTable {
 			netMask = IP.inetAton(nic.getSubnetzMaske());
 			netAddr = IP.inetAton(nic.getIp()) & netMask;
 
-			addRoute(new RIPRoute(0, IP.inetNtoa(netAddr), IP.inetNtoa(netMask), nic.getIp(), bs.holeIPAdresse(),
+			addRoute(new RIPRoute(0, IP.inetNtoa(netAddr), IP.inetNtoa(netMask), nic.getIp(), bs.primaryIPAdresse(),
 			        nic.getIp(), 0));
 		}
 	}

@@ -63,7 +63,8 @@ import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.dhcp.DHCPAddressAssignment;
 import filius.software.dhcp.DHCPServer;
-import filius.software.system.Betriebssystem;
+import filius.software.system.GatewayFirmware;
+import filius.software.system.InternetKnotenBetriebssystem;
 
 public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
     private static Logger LOG = LoggerFactory.getLogger(JDHCPKonfiguration.class);
@@ -79,9 +80,11 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
     private JCheckBox cbUseInternal;
     private JTabbedPane tabbedPane;
     protected JTable staticAddressTable;
+    private InternetKnotenBetriebssystem os;
 
-    public JDHCPKonfiguration(JFrame owner, String titel, Betriebssystem bs) {
+    public JDHCPKonfiguration(JFrame owner, String titel, InternetKnotenBetriebssystem bs) {
         super(owner, titel, true);
+        os = bs;
         this.server = bs.getDHCPServer();
 
         this.setSize(380, 380);
@@ -141,7 +144,6 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
                 ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfGateway);
             }
         });
-        tfGateway.setEditable(server.isOwnSettings());
 
         lbDNSServer = new JLabel(messages.getString("jdhcpkonfiguration_msg5"));
         tfDNSServer = new JTextField(server.determineDnsserverip());
@@ -151,7 +153,6 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
                 ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfDNSServer);
             }
         });
-        tfDNSServer.setEditable(server.isOwnSettings());
 
         jpDhcp.add(lbUntergrenze);
         jpDhcp.add(lbObergrenze);
@@ -194,9 +195,12 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
         cbUseInternal.addItemListener(this);
         cbUseInternal.setToolTipText(messages.getString("jdhcpkonfiguration_msg9"));
         cbUseInternal.setSelected(server.isOwnSettings());
-
         jpDhcp.add(lbUseInternal);
         jpDhcp.add(cbUseInternal);
+        if (os instanceof GatewayFirmware) {
+            lbUseInternal.setVisible(false);
+            cbUseInternal.setVisible(false);
+        }
 
         jpDhcp.add(lbAktiv);
         jpDhcp.add(cbAktiv);
@@ -389,16 +393,26 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
             // LOG.debug("\titemStateChanged; source==cbUseInternal");
             if (cbUseInternal.isSelected()) {
                 server.setOwnSettings(true);
-                tfGateway.setEditable(true);
-                tfDNSServer.setEditable(true);
             } else {
                 server.setOwnSettings(false);
-                tfGateway.setEditable(false);
-                tfDNSServer.setEditable(false);
             }
-            tfGateway.setText(server.determineGatewayip());
-            tfDNSServer.setText(server.determineDnsserverip());
+            updateGatewayAndDNSSetting();
         }
+    }
+
+    private void updateGatewayAndDNSSetting() {
+        if (os instanceof GatewayFirmware) {
+            tfGateway.setEditable(false);
+            tfDNSServer.setEditable(true);
+        } else if (server.isOwnSettings()) {
+            tfGateway.setEditable(true);
+            tfDNSServer.setEditable(true);
+        } else {
+            tfGateway.setEditable(false);
+            tfDNSServer.setEditable(false);
+        }
+        tfGateway.setText(server.determineGatewayip());
+        tfDNSServer.setText(server.determineDnsserverip());
     }
 
     private void update() {
@@ -406,14 +420,13 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
         tfObergrenze.setText(server.getObergrenze());
         tfUntergrenze.setText(server.getUntergrenze());
         tfNetzmaske.setText(server.getSubnetzmaske());
-        tfGateway.setText(server.determineGatewayip());
-        tfDNSServer.setText(server.determineDnsserverip());
         cbUseInternal.setSelected(server.isOwnSettings());
         cbAktiv.setSelected(server.isAktiv());
         ((DefaultTableModel) staticAddressTable.getModel()).setRowCount(0);
         for (DHCPAddressAssignment entry : server.holeStaticAssignedAddresses()) {
             ((DefaultTableModel) staticAddressTable.getModel()).addRow(new Object[] { entry.getMAC(), entry.getIp() });
         }
+        updateGatewayAndDNSSetting();
     }
 
     public boolean ueberpruefen(Pattern pruefRegel, JTextField feld) {
@@ -433,18 +446,26 @@ public class JDHCPKonfiguration extends JDialog implements I18n, ItemListener {
     }
 
     private void speichern() {
-        if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfObergrenze))
+        if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfObergrenze)) {
             server.setObergrenze(tfObergrenze.getText());
+        }
 
-        if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfUntergrenze))
+        if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfUntergrenze)) {
             server.setUntergrenze(tfUntergrenze.getText());
+        }
 
-        if (cbUseInternal.isSelected()) {
-            server.setOwnSettings(true);
-            if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfGateway))
-                server.setGatewayip(tfGateway.getText());
-            if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfDNSServer))
+        if (os instanceof GatewayFirmware) {
+            if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfDNSServer)) {
                 server.setDnsserverip(tfDNSServer.getText());
+            }
+        } else if (cbUseInternal.isSelected()) {
+            server.setOwnSettings(true);
+            if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfGateway)) {
+                server.setGatewayip(tfGateway.getText());
+            }
+            if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfDNSServer)) {
+                server.setDnsserverip(tfDNSServer.getText());
+            }
         } else {
             server.setOwnSettings(false);
         }

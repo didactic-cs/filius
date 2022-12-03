@@ -168,7 +168,7 @@ public class SMTPClient extends ClientAnwendung implements I18n {
 
         empfang = socket.empfangen();
         if (empfang.startsWith("220")) {
-            socket.senden("HELO " + this.getSystemSoftware().holeIPAdresse());
+            socket.senden("HELO " + this.getSystemSoftware().primaryIPAdresse());
             empfang = socket.empfangen();
             if (empfang.startsWith("250")) {
                 return true;

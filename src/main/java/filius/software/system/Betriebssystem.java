@@ -28,8 +28,6 @@ package filius.software.system;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import filius.software.dhcp.DHCPClient;
-import filius.software.dhcp.DHCPServer;
 import filius.software.rip.RIPTable;
 
 /**
@@ -39,35 +37,9 @@ import filius.software.rip.RIPTable;
  * (InternetKnotenBetriebssystem) zur Verfuegung gestellt.
  * 
  */
+@SuppressWarnings("serial")
 public class Betriebssystem extends InternetKnotenBetriebssystem {
     private static Logger LOG = LoggerFactory.getLogger(Betriebssystem.class);
-
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * ob die Konfiguration der Netzwerkkarte mit DHCP erfolgt
-     */
-    private boolean dhcpKonfiguration;
-    /** der DHCP-Server, der aktiviert und deaktiviert werden kann */
-    private DHCPServer dhcpServer;
-    /**
-     * der DHCP-Client, der zur Konfiguration der Netzwerkkarte genutzt wird, wenn die Konfiguration mit DHCP erfolgen
-     * soll
-     * 
-     * @see dhcpKonfiguration
-     */
-    private DHCPClient dhcpClient;
-
-    /**
-     * Konstruktur, in dem DHCP-Client und -Server initialisiert werden
-     */
-    public Betriebssystem() {
-        super();
-        LOG.trace("INVOKED-2 (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), constr: Betriebssystem()");
-
-        dhcpServer = new DHCPServer();
-        dhcpServer.setSystemSoftware(this);
-    }
 
     @Override
     public boolean isRipEnabled() {
@@ -87,14 +59,6 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
     public synchronized void starten() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), starten()");
         super.starten();
-
-        if (isDHCPKonfiguration()) {
-            dhcpClient = new DHCPClient();
-            dhcpClient.setSystemSoftware(this);
-            dhcpClient.starten();
-        } else if (dhcpServer.isAktiv()) {
-            dhcpServer.starten();
-        }
     }
 
     /**
@@ -104,30 +68,5 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
     public void beenden() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), beenden()");
         super.beenden();
-
-        dhcpServer.beenden();
-        if (dhcpClient != null) {
-            dhcpClient.beenden();
-        }
-    }
-
-    /** Methode zum Zugriff auf den DHCP-Server. */
-    public DHCPServer getDHCPServer() {
-        return dhcpServer;
-    }
-
-    /** Methode zum Zugriff auf den DHCP-Server. */
-    public void setDHCPServer(DHCPServer dhcpServer) {
-        this.dhcpServer = dhcpServer;
-    }
-
-    /** Ob die Konfiguration der Netzwerkkarte mit DHCP erfolgt */
-    public boolean isDHCPKonfiguration() {
-        return dhcpKonfiguration;
-    }
-
-    /** Ob die Konfiguration der Netzwerkkarte mit DHCP erfolgt */
-    public void setDHCPKonfiguration(boolean dhcp) {
-        this.dhcpKonfiguration = dhcp;
     }
 }

@@ -40,6 +40,7 @@ import filius.exception.NoAvailableAddressException;
 import filius.hardware.Verbindung;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.software.clientserver.UDPServerAnwendung;
+import filius.software.system.GatewayFirmware;
 import filius.software.transportschicht.Socket;
 
 /**
@@ -193,7 +194,7 @@ public class DHCPServer extends UDPServerAnwendung {
     }
 
     public String holeServerIpAddress() {
-        return getSystemSoftware().holeIPAdresse();
+        return getSystemSoftware().primaryIPAdresse();
     }
 
     /**
@@ -339,7 +340,7 @@ public class DHCPServer extends UDPServerAnwendung {
 
     public String determineDnsserverip() {
         String dns;
-        if (useDhcpSettings) {
+        if (getSystemSoftware() instanceof GatewayFirmware || useDhcpSettings) {
             dns = dhcpDNS;
         } else {
             dns = getSystemSoftware().getDNSServer();
@@ -360,7 +361,9 @@ public class DHCPServer extends UDPServerAnwendung {
 
     public String determineGatewayip() {
         String gateway;
-        if (useDhcpSettings) {
+        if (getSystemSoftware() instanceof GatewayFirmware) {
+            gateway = ((GatewayFirmware) getSystemSoftware()).primaryIPAdresse();
+        } else if (useDhcpSettings) {
             gateway = dhcpGateway;
         } else {
             gateway = getSystemSoftware().getStandardGateway();
@@ -376,7 +379,7 @@ public class DHCPServer extends UDPServerAnwendung {
     }
 
     public String getSubnetzmaske() {
-        return getSystemSoftware().holeNetzmaske();
+        return getSystemSoftware().primarySubnetMask();
     }
 
     public List<DHCPAddressAssignment> holeStaticAssignedAddresses() {

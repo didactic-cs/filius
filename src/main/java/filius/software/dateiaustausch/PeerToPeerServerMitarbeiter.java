@@ -188,7 +188,7 @@ public class PeerToPeerServerMitarbeiter extends ServerMitarbeiter {
             bs = (Betriebssystem) peerToPeerAnwendung.getSystemSoftware();
 
             for (Datei aktuelleDatei : dateien) {
-                antwortPaket = new QueryHitPaket(dateien.size(), 6346, bs.holeIPAdresse(), "2", "", " ");
+                antwortPaket = new QueryHitPaket(dateien.size(), 6346, bs.primaryIPAdresse(), "2", "", " ");
                 antwortPaket.setGuid(queryPaket.getGuid());
                 antwortPaket.setHops(0);
                 antwortPaket.setTtl(8);
