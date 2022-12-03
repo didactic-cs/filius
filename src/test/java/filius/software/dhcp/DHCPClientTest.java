@@ -161,22 +161,22 @@ public class DHCPClientTest {
     @Test
     public void testValidateOfferedAddress_valid() throws Exception {
         String offeredAddress = "192.168.100.100";
-        when(arpMock.holeARPTabellenEintrag(offeredAddress)).thenReturn(null);
+        when(arpMock.holeARPTabellenEintrag(offeredAddress, 1)).thenReturn(null);
 
         boolean valid = dhcpClient.validateOfferedAddress(arpMock, offeredAddress);
 
-        verify(arpMock, times(1)).holeARPTabellenEintrag(offeredAddress);
+        verify(arpMock, times(1)).holeARPTabellenEintrag(offeredAddress, 1);
         assertTrue(valid);
     }
 
     @Test
     public void testValidateOfferedAddress_NotValid() throws Exception {
         String offeredAddress = "192.168.100.100";
-        when(arpMock.holeARPTabellenEintrag(offeredAddress)).thenReturn("aa:bb:cc:dd:ee:ff");
+        when(arpMock.holeARPTabellenEintrag(offeredAddress, 1)).thenReturn("aa:bb:cc:dd:ee:ff");
 
         boolean valid = dhcpClient.validateOfferedAddress(arpMock, offeredAddress);
 
-        verify(arpMock, times(1)).holeARPTabellenEintrag(offeredAddress);
+        verify(arpMock, times(1)).holeARPTabellenEintrag(offeredAddress, 1);
         assertFalse(valid);
     }
 

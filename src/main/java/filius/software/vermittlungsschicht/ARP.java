@@ -146,11 +146,12 @@ public class ARP extends VermittlungsProtokoll {
      * passender Eintrag vorliegt, wird dieser zurueck gegeben. Andernfalls wird null zurueck gegeben.
      * 
      * @author Thomas Gerding
-     * 
      * @param ipAdresse
+     * @param maxRetries
+     * 
      * @return MAC Adresse, zu der die IP Adresse gehoert, oder null, wenn keine MAC-Adresse bestimmt werden konnte
      */
-    public String holeARPTabellenEintrag(String zielIp) {
+    public String holeARPTabellenEintrag(String zielIp, int maxRetries) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (ARP), holeARPTabellenEintrag(" + zielIp + ")");
         if (zielIp.equals("127.0.0.1")) {
             return ((InternetKnotenBetriebssystem) holeSystemSoftware()).primaryMACAddress();
@@ -166,7 +167,7 @@ public class ARP extends VermittlungsProtokoll {
             return ((String[]) arpEntry)[0];
         } else {
             // ARP-Broadcast und warte auf Antwort
-            for (int i = 0; arpEntry == null && i < 2; i++) {
+            for (int i = 0; arpEntry == null && i < maxRetries; i++) {
                 LOG.debug("Send ARP query for " + (i + 1) + ". time.");
                 sendeARPBroadcast(zielIp);
                 synchronized (arpTabelle) {

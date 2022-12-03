@@ -177,7 +177,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      */
     private void sendUnicastToNextHop(IcmpPaket paket, String ziel, String macOfNicToUse) {
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
-        String zielMacAdresse = bs.holeARP().holeARPTabellenEintrag(ziel);
+        String zielMacAdresse = bs.holeARP().holeARPTabellenEintrag(ziel, 2);
 
         if (this.isLocalAddress(ziel)) {
             placeLocalICMPPacket(paket);

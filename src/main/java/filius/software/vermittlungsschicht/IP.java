@@ -216,7 +216,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
 
     private void sendeUnicastLokal(IpPaket paket, String ziel, NetzwerkInterface nic) {
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
-        String zielMacAdresse = bs.holeARP().holeARPTabellenEintrag(ziel);
+        String zielMacAdresse = bs.holeARP().holeARPTabellenEintrag(ziel, 2);
 
         if (zielMacAdresse != null) {
             // MAC-Adresse konnte bestimmt werden

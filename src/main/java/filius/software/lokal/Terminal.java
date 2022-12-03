@@ -890,7 +890,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         if (numParams(args, 2)) {
             if (EingabenUeberpruefung.isGueltig(args[1], EingabenUeberpruefung.musterIpAdresse)) {
                 targetIP = args[1];
-                targetMAC = os.holeARP().holeARPTabellenEintrag(targetIP);
+                targetMAC = os.holeARP().holeARPTabellenEintrag(targetIP, 2);
             }
             if (EingabenUeberpruefung.isGueltig(args[0], EingabenUeberpruefung.musterIpAdresse)) {
                 senderIP = args[0];
