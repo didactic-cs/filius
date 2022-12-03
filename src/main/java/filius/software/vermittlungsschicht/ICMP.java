@@ -221,13 +221,17 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
             // dekrementiert, bevor diese Funktion aufgerufen
             // wird)
             // ICMP Timeout Expired In Transit (11/0) zuruecksenden:
-            sendeICMP(TYPE_TIME_EXCEEDED, CODE_TTL_EXPIRED, icmpPaket.getSeqNr(), null, icmpPaket.getSender());
+            sendeTimeExceededReply(icmpPaket.getSender(), icmpPaket.getSeqNr());
         } else {
             // TTL ist nicht abgelaufen.
             // Paket weiterleiten:
             sendeICMP(icmpPaket.getIcmpType(), icmpPaket.getIcmpCode(), icmpPaket.getTtl(), icmpPaket.getSeqNr(),
                     icmpPaket.getSender(), icmpPaket.getEmpfaenger());
         }
+    }
+
+    public void sendeTimeExceededReply(String replyRecipient, int seqNo) {
+        sendeICMP(TYPE_TIME_EXCEEDED, CODE_TTL_EXPIRED, seqNo, null, replyRecipient);
     }
 
     /** method to actually send a ping and compute the pong event */

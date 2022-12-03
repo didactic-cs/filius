@@ -54,11 +54,27 @@ public class NatGatewayLANThread extends FirewallThread implements I18n {
     protected void verarbeiteDatenEinheit(EthernetFrame frame) {
         Lauscher.getLauscher().addDatenEinheit(lanNic.getMac(), frame);
 
-        if (!checkDiscardByFirewall(frame)) {
+        if (!checkDiscardByFirewall(frame) && !checkTTLExceeded(frame)) {
             updateNatTable(frame);
             modifyOutgoingFrame(frame);
             forwardFrame(frame);
         }
+    }
+
+    boolean checkTTLExceeded(EthernetFrame frame) {
+        boolean exceeded = false;
+        if (frame.getDaten() instanceof IpPaket) {
+            IpPaket packet = (IpPaket) frame.getDaten();
+            if (packet.getTtl() <= 1 && isOutgoingPacket(packet)) {
+                int seqNo = 0;
+                if (packet instanceof IcmpPaket) {
+                    seqNo = ((IcmpPaket) packet).getSeqNr();
+                }
+                natGateway.getSystemSoftware().holeICMP().sendeTimeExceededReply(packet.getSender(), seqNo);
+                exceeded = true;
+            }
+        }
+        return exceeded;
     }
 
     protected void modifyOutgoingFrame(EthernetFrame frame) {

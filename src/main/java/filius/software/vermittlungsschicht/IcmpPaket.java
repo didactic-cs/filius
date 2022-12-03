@@ -87,7 +87,6 @@ public class IcmpPaket extends IpPaket {
         return icmpType == ICMP.TYPE_ECHO_REQUEST && icmpCode == ICMP.CODE_ECHO;
     }
 
-    // manage sequence number field
     public int getSeqNr() {
         return this.seqNr;
     }
