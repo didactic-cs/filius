@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Hashtable;
 import java.util.Map.Entry;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -72,8 +74,8 @@ import filius.software.system.SystemSoftware;
  * 
  * @author stefan
  */
-@SuppressWarnings("serial")
-public class AggregatedExchangePanel extends JTabbedPane implements AggregatedExchangeComponent, I18n {
+@SuppressWarnings({ "serial", "deprecation" })
+public class AggregatedExchangePanel extends JTabbedPane implements AggregatedExchangeComponent, I18n, Observer {
 
     private Hashtable<String, JPanel> openedTabs = new Hashtable<String, JPanel>();
     private Hashtable<String, InternetKnotenBetriebssystem> systems = new Hashtable<String, InternetKnotenBetriebssystem>();
@@ -85,7 +87,8 @@ public class AggregatedExchangePanel extends JTabbedPane implements AggregatedEx
     @Override
     public void addTable(SystemSoftware system, String identifier) {
         final AggregatedMessageTable tabelle;
-        JPanel panel;
+
+        system.addObserver(this);
         final MessageDetailsPanel detailsPanel = new MessageDetailsPanel(identifier);
 
         if (openedTabs.get(identifier) == null) {
@@ -101,7 +104,7 @@ public class AggregatedExchangePanel extends JTabbedPane implements AggregatedEx
                     }
                 }
             });
-            panel = new JPanel(new BorderLayout());
+            JPanel panel = new JPanel(new BorderLayout());
 
             JScrollPane scrollPane;
             scrollPane = new JScrollPane(tabelle);
@@ -420,5 +423,10 @@ public class AggregatedExchangePanel extends JTabbedPane implements AggregatedEx
                 }
             }
         }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        updateTabTitle();
     }
 }
