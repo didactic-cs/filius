@@ -1,5 +1,14 @@
 # Changelog Filius
 
+## [2.2.0] - 2022-12-29
+### Added
+ * Add DHCP support for home router
+ 
+### Fixed
+ * Fix TTL handling in gateway / home router in order to allow traceroute
+ * Update tab titles in data exchange dialog if ip address is updated via DHCP
+ * Reduce number of ARP retries in DHCP flow (for validation) to one retry
+
 ## [2.1.0] - 2022-10-11
 ### Added
  * Add terminal command to reset / delete the entire ARP table (arp -d)
