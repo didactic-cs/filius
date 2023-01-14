@@ -1,6 +1,6 @@
 package filius.software.dhcp;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,7 +23,7 @@ public class DHCPServerMitarbeiterTest {
 
     @Before
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -80,8 +80,8 @@ public class DHCPServerMitarbeiterTest {
         when(serverMock.determineDnsserverip()).thenReturn(dnsServer);
         when(serverMock.determineGatewayip()).thenReturn(router);
         when(serverMock.getSubnetzmaske()).thenReturn(subnetMask);
-        when(serverMock.requestAddress(mac, ip)).thenReturn(
-                new DHCPAddressAssignment(mac, ip, System.currentTimeMillis() + 1000));
+        when(serverMock.requestAddress(mac, ip))
+                .thenReturn(new DHCPAddressAssignment(mac, ip, System.currentTimeMillis() + 1000));
 
         mitarbeiter.processRequest(mac, ip, serverIdentifier);
 
