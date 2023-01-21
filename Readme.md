@@ -28,14 +28,22 @@ The Windows installer is based on nsis. It supports the standard parameter:
 ## Website
 https://www.lernsoftware-filius.de/
 
-# Bundled JRE
+# Contribute / Build Filius
+
+## Development Environment
+
+Filius is developed with Eclipse using Maven as build tool.
+
+Currently, the build works with Java up to version 13 since some unit tests cannot be executed with the newest Java versions. In other words: It is possible to develop with a newer version but there will be some tests that fail.
+
+## Bundled JRE
 Some Filius distributions are shipped with JRE to remove the external dependency on a pre-installed Java Runtime Environment. But since Filius is not built as a Java module, the JRE cannot be built as part of the build process with Maven.
 
 The Runtime is created in two steps:
 0. Define required Java modules
 0. Create the runtime
 
-## Define Required Modules
+### Define Required Modules
 Use the jdeps tool that is shipped with OpenJDK:
 
 ```
@@ -52,14 +60,14 @@ Additionally, the following runtime dependencies are required in order to use th
 - jdk.compiler - This module contains the compiler toolset.
 - jdk.zipfs - This module is required to read dependencies on built-in Filius classes from filius.jar.
 
-## Build Runtime
+### Build Runtime
 The bundled JRE (if available) is built with the following command:
 
 ```
 jlink --no-header-files --no-man-pages --compress=2 --strip-debug --add-modules java.base,java.desktop,java.instrument,java.management,java.naming,java.sql,java.xml.crypto,jdk.unsupported,java.compiler,jdk.compiler,jdk.zipfs --output java-runtime
 ```
 
-# Generate Documenation
+## Generate Documenation
 Source code is documented with Javadoc. Generate the API documentation with Maven:
 
 ```
