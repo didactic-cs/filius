@@ -200,7 +200,7 @@ public class GUIApplicationTerminalWindow extends GUIApplicationWindow {
                         commandHistory.add(inputField.getText());
                         if (enteredCommand.equals("exit")) {
                             GUIApplicationTerminalWindow.this.close();
-                        } else if (enteredCommand.equals("reset")) {
+                        } else if (enteredCommand.equals("reset") || enteredCommand.equals("cls")) {
                             terminalField.setText("");
                             showStartScreen();
                             scrollToBottomAndFocusInput();
