@@ -56,19 +56,23 @@ public class ARPThread extends ProtokollThread<ArpPaket> {
 
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) vermittlung.holeSystemSoftware();
         NetzwerkInterface nic = vermittlung.getBroadcastNic(arpPaket.getSenderIP());
-        // Aus jedem ARP-Paket, mit dem eine eigene IP-Adresse abgefragt wird oder das eine Antwort ist, wird ein neuer
-        // ARP-Eintrag erzeugt
-        if (nic != null && arpPaket.getTargetIP().equals(nic.getIp())
-                || arpPaket.getOperation() == ArpPaket.REPLY && !arpPaket.getSenderIP().equalsIgnoreCase("0.0.0.0")) {
-            LOG.debug("ARP data received, will insert data for sender: {}", arpPaket);
-            vermittlung.hinzuARPTabellenEintrag(arpPaket.getSenderIP(), arpPaket.getSenderMAC());
-        }
+        if (nic != null && !VermittlungsProtokoll.getSubnetForIp(nic.getIp(), nic.getSubnetzMaske())
+                .equals(arpPaket.getSenderIP())) {
+            // Aus jedem ARP-Paket, mit dem eine eigene IP-Adresse abgefragt wird oder das eine Antwort ist, wird ein
+            // neuer
+            // ARP-Eintrag erzeugt
+            if (arpPaket.getTargetIP().equals(nic.getIp()) || arpPaket.getOperation() == ArpPaket.REPLY
+                    && !arpPaket.getSenderIP().equalsIgnoreCase("0.0.0.0")) {
+                LOG.debug("ARP data received, will insert data for sender: {}", arpPaket);
+                vermittlung.hinzuARPTabellenEintrag(arpPaket.getSenderIP(), arpPaket.getSenderMAC());
+            }
 
-        // wenn die Anfrage eine Anfrage fuer eine eigene
-        // IP-Adresse ist, wird eine Antwort verschickt
-        if (nic != null && arpPaket.getTargetMAC().equalsIgnoreCase("ff:ff:ff:ff:ff:ff")
-                && arpPaket.getTargetIP().equalsIgnoreCase(nic.getIp())) {
-            bs.holeARP().sendArpReply(nic.getMac(), nic.getIp(), arpPaket.getSenderMAC(), arpPaket.getSenderIP());
+            // wenn die Anfrage eine Anfrage fuer eine eigene
+            // IP-Adresse ist, wird eine Antwort verschickt
+            if (arpPaket.getTargetMAC().equalsIgnoreCase("ff:ff:ff:ff:ff:ff")
+                    && arpPaket.getTargetIP().equalsIgnoreCase(nic.getIp())) {
+                bs.holeARP().sendArpReply(nic.getMac(), nic.getIp(), arpPaket.getSenderMAC(), arpPaket.getSenderIP());
+            }
         }
     }
 }
