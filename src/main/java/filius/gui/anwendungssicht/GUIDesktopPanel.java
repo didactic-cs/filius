@@ -66,7 +66,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
 
     static final int HEIGHT_TASKBAR = 30;
     static final int HEIGHT_OVERALL = 460;
-    static final int WIDTH = 640;
+    static final int PANEL_WIDTH = 640;
     static final int HEIGHT_CONTENT = HEIGHT_OVERALL - HEIGHT_TASKBAR;
     static final int HEIGHT_APP_TITLEBAR = 30;
     static final int SIZE_TITLEBAR_ICON = 30;
@@ -103,7 +103,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
     }
 
     private void initOverallArea() {
-        setBounds(0, 0, WIDTH, HEIGHT_OVERALL);
+        setBounds(0, 0, PANEL_WIDTH, HEIGHT_OVERALL);
         BorderLayout layout = new BorderLayout();
         layout.setHgap(0);
         layout.setVgap(0);
@@ -112,7 +112,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
 
     private void initTaskbar() {
         taskbar = new JPanel(new BorderLayout());
-        taskbar.setPreferredSize(new Dimension(WIDTH, HEIGHT_TASKBAR));
+        taskbar.setPreferredSize(new Dimension(PANEL_WIDTH, HEIGHT_TASKBAR));
         taskbar.setBackground(new Color(180, 180, 180));
         add(taskbar, BorderLayout.SOUTH);
 
@@ -154,19 +154,19 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
 
     private void initWorkingArea() {
         mainPaneWithOverlay = new JLayeredPane();
-        mainPaneWithOverlay.setPreferredSize(new Dimension(WIDTH, HEIGHT_OVERALL - HEIGHT_TASKBAR));
+        mainPaneWithOverlay.setPreferredSize(new Dimension(PANEL_WIDTH, HEIGHT_OVERALL - HEIGHT_TASKBAR));
 
         add(mainPaneWithOverlay, BorderLayout.CENTER);
 
         workingLayer = new JPanel(workingAreaCardLayout);
-        workingLayer.setSize(new Dimension(WIDTH, HEIGHT_OVERALL - HEIGHT_TASKBAR));
+        workingLayer.setSize(new Dimension(PANEL_WIDTH, HEIGHT_OVERALL - HEIGHT_TASKBAR));
         mainPaneWithOverlay.add(workingLayer, JLayeredPane.DEFAULT_LAYER);
 
         desktopCard = new JBackgroundDesktopPane();
         desktopCard.setBackgroundImage("gfx/desktop/hintergrundbild.png");
 
         appPanel = new JPanel();
-        appPanel.setBounds(0, 0, WIDTH, HEIGHT_OVERALL);
+        appPanel.setBounds(0, 0, PANEL_WIDTH, HEIGHT_OVERALL);
         appPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 10));
         appPanel.setOpaque(false);
         desktopCard.add(appPanel, BorderLayout.CENTER);
@@ -175,7 +175,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
         infoLayer = new JPanel();
         infoLayer.setLayout(null);
         infoLayer.setOpaque(false);
-        infoLayer.setBounds(0, 0, WIDTH, HEIGHT_OVERALL);
+        infoLayer.setBounds(0, 0, PANEL_WIDTH, HEIGHT_OVERALL);
         infoLayer.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
                 GUIDesktopPanel.this.setInfoVisible(false);
@@ -185,13 +185,13 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
         networkInfo = new NetworkInfoPanel(this);
         int infoWidth = (int) networkInfo.getPreferredSize().getWidth();
         int infoHeight = (int) networkInfo.getPreferredSize().getHeight();
-        networkInfo.setBounds(WIDTH - infoWidth, HEIGHT_OVERALL - HEIGHT_TASKBAR - infoHeight, infoWidth, infoHeight);
+        networkInfo.setBounds(PANEL_WIDTH - infoWidth, HEIGHT_OVERALL - HEIGHT_TASKBAR - infoHeight, infoWidth, infoHeight);
         infoLayer.add(networkInfo);
         mainPaneWithOverlay.add(infoLayer, JLayeredPane.DEFAULT_LAYER);
 
         dialogLayer = new JPanel();
         dialogLayer.setLayout(null);
-        dialogLayer.setBounds(0, HEIGHT_APP_TITLEBAR, WIDTH, HEIGHT_CONTENT);
+        dialogLayer.setBounds(0, HEIGHT_APP_TITLEBAR, PANEL_WIDTH, HEIGHT_CONTENT);
         dialogLayer.addMouseListener(new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {}
         });
@@ -210,7 +210,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
 
         int windowWidth = (int) panel.getPreferredSize().getWidth();
         int windowHeight = (int) panel.getPreferredSize().getHeight();
-        panel.setBounds((WIDTH - windowWidth) / 2, HEIGHT_APP_TITLEBAR, windowWidth, windowHeight);
+        panel.setBounds((PANEL_WIDTH - windowWidth) / 2, HEIGHT_APP_TITLEBAR, windowWidth, windowHeight);
         panel.setBorder(BorderFactory.createEtchedBorder());
         dialogLayer.add(panel);
 
@@ -219,7 +219,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
         titlebar.setBackground(new Color(100, 100, 100));
         titlebar.setForeground(new Color(250, 250, 250));
         titlebar.setHorizontalAlignment(SwingConstants.CENTER);
-        titlebar.setBounds(0, 0, WIDTH, HEIGHT_APP_TITLEBAR);
+        titlebar.setBounds(0, 0, PANEL_WIDTH, HEIGHT_APP_TITLEBAR);
         dialogLayer.add(titlebar);
         dialogLayer.updateUI();
 
@@ -259,7 +259,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
 
     private GUIDesktopIcon initInstaller() {
         GUIApplicationWindow tempWindow = new GUIInstallationsDialog(this);
-        tempWindow.setBounds(0, 0, WIDTH, HEIGHT_OVERALL);
+        tempWindow.setBounds(0, 0, PANEL_WIDTH, HEIGHT_OVERALL);
         addLaufendeAnwendung(SOFTWARE_INSTALLATION, tempWindow);
         return createIcon(messages.getString("desktoppanel_msg1"), SOFTWARE_INSTALLATION,
                 "/gfx/desktop/icon_softwareinstallation.png");
@@ -272,7 +272,7 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
                     FiliusClassLoader.getInstance(Thread.currentThread().getContextClassLoader()));
             GUIApplicationWindow tempWindow = (GUIApplicationWindow) cl
                     .getConstructor(GUIDesktopPanel.class, String.class).newInstance(this, appInfo.get("Klasse"));
-            tempWindow.setBounds(0, 0, WIDTH, HEIGHT_OVERALL);
+            tempWindow.setBounds(0, 0, PANEL_WIDTH, HEIGHT_OVERALL);
 
             addLaufendeAnwendung(appInfo.get("Klasse"), tempWindow);
 

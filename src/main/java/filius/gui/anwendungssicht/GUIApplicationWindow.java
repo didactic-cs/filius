@@ -26,6 +26,7 @@
 package filius.gui.anwendungssicht;
 
 import static filius.gui.anwendungssicht.GUIDesktopPanel.HEIGHT_APP_TITLEBAR;
+import static filius.gui.anwendungssicht.GUIDesktopPanel.PANEL_WIDTH;
 import static filius.gui.anwendungssicht.GUIDesktopPanel.HEIGHT_CONTENT;
 import static filius.gui.anwendungssicht.GUIDesktopPanel.SIZE_TITLEBAR_ICON;
 
@@ -83,15 +84,15 @@ public abstract class GUIApplicationWindow extends JPanel implements I18n, Obser
     }
 
     private void initComponents() {
-        setSize(WIDTH, HEIGHT_CONTENT);
-        setPreferredSize(new Dimension(WIDTH, HEIGHT_CONTENT));
+        setSize(PANEL_WIDTH, HEIGHT_CONTENT);
+        setPreferredSize(new Dimension(PANEL_WIDTH, HEIGHT_CONTENT));
         BorderLayout appWindowLayout = (BorderLayout) getLayout();
         appWindowLayout.setHgap(0);
         appWindowLayout.setVgap(0);
         setLayout(appWindowLayout);
 
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setPreferredSize(new Dimension(WIDTH, HEIGHT_APP_TITLEBAR));
+        titleBar.setPreferredSize(new Dimension(PANEL_WIDTH, HEIGHT_APP_TITLEBAR));
         titleBar.setBackground(Color.DARK_GRAY);
         add(titleBar, BorderLayout.NORTH);
 
