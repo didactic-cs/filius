@@ -1,5 +1,16 @@
 # Changelog Filius
 
+## [2.3.0] - 2023-03-11
+### Added
+ * Add command line synonym "cls" for "reset"
+ 
+### Fixed
+ * Visible area of desktop fixed (on some os not everything was visible / visible area was to small)
+ * Under Debian/Ubuntu there must be an additional dependency for desktop file utils and Java dependency is updated
+ 
+### Changed
+ * ARP won't reply for ip addresses queries that ask for network address (e.g. 192.168.0.0) any more
+
 ## [2.2.0] - 2022-12-29
 ### Added
  * Add DHCP support for home router
