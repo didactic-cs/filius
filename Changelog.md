@@ -1,5 +1,9 @@
 # Changelog Filius
 
+## [2.3.1] - 2023-03-11
+### Changed
+ * Use current launch4j plugin
+
 ## [2.3.0] - 2023-03-11
 ### Added
  * Add command line synonym "cls" for "reset"

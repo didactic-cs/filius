@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>2.3.0</version>
+	<version>2.3.1</version>
 	<properties>
 		<buildDate>11.03.2023</buildDate>
 		<publisher>Stefan Freischlad</publisher>
