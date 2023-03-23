@@ -29,5 +29,5 @@ import java.util.ResourceBundle;
 
 public interface I18n {
 
-	public static final ResourceBundle messages = Information.getInformation().holeResourceBundle();
+	ResourceBundle messages = Information.getInformation().holeResourceBundle();
 }
