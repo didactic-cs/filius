@@ -66,10 +66,6 @@ import filius.rahmenprogramm.SzenarioVerwaltung;
 public class Main implements I18n {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    private static final String FRANCAIS = "Français";
-    private static final String ENGLISH = "English";
-    private static final String DEUTSCH = "Deutsch";
-
     /**
      * Der Start laeuft folgendermassen ab:
      * <ol>
@@ -99,9 +95,12 @@ public class Main implements I18n {
 
         konfigPfad = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
         if (!(new File(konfigPfad)).exists() && null == Information.getInformation().getLocale()) {
-            String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
+            String[] possibleValues = new String[Sprache.values().length];
+            for (int i = 0; i < Sprache.values().length; i++) {
+                possibleValues[i] = Sprache.values()[i].toString();
+            }
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
-                    JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
+                    JOptionPane.INFORMATION_MESSAGE, null, possibleValues, Sprache.DEUTSCH.toString());
             if (selectedValue == null) Information.getInformation().setLocale(Locale.GERMANY);
             else {
                 Sprache sprache = Sprache.getSprache(selectedValue);
