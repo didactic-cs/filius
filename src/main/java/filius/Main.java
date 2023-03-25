@@ -1,9 +1,9 @@
 /*
  ** This file is part of Filius, a network construction and simulation software.
- ** 
+ **
  ** Originally created at the University of Siegen, Institute "Didactics of
  ** Informatics and E-Learning" by a students' project group:
- **     members (2006-2007): 
+ **     members (2006-2007):
  **         André Asschoff, Johannes Bade, Carsten Dittich, Thomas Gerding,
  **         Nadja Haßler, Ernst Johannes Klebert, Michell Weyer
  **     supervisors:
@@ -14,12 +14,12 @@
  ** it under the terms of the GNU General Public License as published by
  ** the Free Software Foundation, either version 2 of the License, or
  ** (at your option) version 3.
- ** 
+ **
  ** Filius is distributed in the hope that it will be useful,
  ** but WITHOUT ANY WARRANTY; without even the implied
  ** warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  ** PURPOSE. See the GNU General Public License for more details.
- ** 
+ **
  ** You should have received a copy of the GNU General Public License
  ** along with Filius. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,15 +31,17 @@ import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import filius.rahmenprogramm.Sprache;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +64,7 @@ import filius.rahmenprogramm.SzenarioVerwaltung;
  * implementiert.
  */
 public class Main implements I18n {
-    private static Logger LOG = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static final String FRANCAIS = "Français";
     private static final String ENGLISH = "English";
@@ -100,18 +102,15 @@ public class Main implements I18n {
             String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
                     JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
-            if (selectedValue == null) {
-                Information.getInformation().setLocale(Locale.GERMANY);
-            } else if (ENGLISH.equals(selectedValue)) {
-                Information.getInformation().setLocale(Locale.UK);
-            } else if (FRANCAIS.equals(selectedValue)) {
-                Information.getInformation().setLocale(Locale.FRANCE);
-            } else {
-                Information.getInformation().setLocale(Locale.GERMANY);
+            if (selectedValue == null) Information.getInformation().setLocale(Locale.GERMANY);
+            else {
+                Sprache sprache = Sprache.getSprache(selectedValue);
+                if (sprache != null) Information.getInformation().setLocale(sprache.getLocale());
+                else throw new IllegalArgumentException("Unknown language: " + selectedValue);
             }
         } else {
             try {
-                xmldec = new XMLDecoder(new BufferedInputStream(new FileInputStream(konfigPfad)));
+                xmldec = new XMLDecoder(new BufferedInputStream(Files.newInputStream(Paths.get(konfigPfad))));
                 programmKonfig = (Object[]) xmldec.readObject();
                 if (programmKonfig != null) {
                     if (programmKonfig.length >= 4) {
@@ -159,7 +158,9 @@ public class Main implements I18n {
         GUIContainer.getGUIContainer().updateViewport();
         try {
             Thread.sleep(10);
-        } catch (Exception e) {}
+        } catch (Exception exception) {
+            LOG.error("Caught an unexpected exception.", exception);
+        }
         GUIContainer.getGUIContainer().updateCables();
 
         splashTime = System.currentTimeMillis() - splashTime;
@@ -171,7 +172,9 @@ public class Main implements I18n {
         if (splashTime < 1000) {
             try {
                 Thread.sleep(1000 - splashTime);
-            } catch (Exception e) {}
+            } catch (Exception exception) {
+                LOG.error("Caught an unexpected exception.", exception);
+            }
         } // sleep until 1s is over
         splashScreen.setAlwaysOnTop(false);
         splashScreen.setVisible(false);
@@ -204,11 +207,7 @@ public class Main implements I18n {
         if (SzenarioVerwaltung.getInstance().istGeaendert()) {
             entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg1"),
                     messages.getString("main_msg2"), JOptionPane.YES_NO_OPTION);
-            if (entscheidung == JOptionPane.YES_OPTION) {
-                abbruch = false;
-            } else {
-                abbruch = true;
-            }
+            abbruch = entscheidung != JOptionPane.YES_OPTION;
         }
         if (!abbruch) {
             programmKonfig = new Object[5];
@@ -220,7 +219,7 @@ public class Main implements I18n {
 
             String applicationConfigPath = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
             try (FileOutputStream fos = new FileOutputStream(applicationConfigPath);
-                    XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
+                 XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
                 encoder.writeObject(programmKonfig);
             } catch (Exception e) {
                 LOG.debug("", e);
@@ -259,7 +258,9 @@ public class Main implements I18n {
                 try {
                     configurator.doConfigure(configurator.getClass().getResourceAsStream("/logback.xml"));
                     LOG.info("Log to file enabled.");
-                } catch (JoranException e) {}
+                } catch (JoranException exception) {
+                    LOG.error("Caught an unexpected error while trying to load the logback configuration file..", exception);
+                }
             }
             if (Information.getInformation(filiusArgs.currWD) == null) {
                 System.exit(6);
@@ -295,13 +296,11 @@ public class Main implements I18n {
             // Set System L&F
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (UnsupportedLookAndFeelException e) {
-            // handle exception
+            LOG.warn("Native look and feel not supported. Using default look and feel.");
         } catch (ClassNotFoundException e) {
-            // handle exception
-        } catch (InstantiationException e) {
-            // handle exception
-        } catch (IllegalAccessException e) {
-            // handle exception
+            LOG.warn("LookAndFeel class could not be found. Using default look and feel.");
+        } catch (InstantiationException | IllegalAccessException e) {
+            LOG.warn("Could not instantiate LookAndFeel. Using default look and feel.");
         }
     }
 
