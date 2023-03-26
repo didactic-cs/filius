@@ -26,9 +26,6 @@
 package filius.exception;
 
 public class CreateAccountException extends Exception {
-	public CreateAccountException() {
-		super();
-	}
 
 	public CreateAccountException(String s) {
 		super(s);
