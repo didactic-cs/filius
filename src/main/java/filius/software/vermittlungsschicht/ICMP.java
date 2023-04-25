@@ -225,7 +225,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
         } else {
             // TTL ist nicht abgelaufen.
             // Paket weiterleiten:
-            sendeICMP(icmpPaket.getIcmpType(), icmpPaket.getIcmpCode(), icmpPaket.getTtl(), icmpPaket.getSeqNr(),
+            sendeICMP(icmpPaket.getIcmpType(), icmpPaket.getIcmpCode(), icmpPaket.getTtl() - 1, icmpPaket.getSeqNr(),
                     icmpPaket.getSender(), icmpPaket.getEmpfaenger());
         }
     }

@@ -287,7 +287,9 @@ public class IP extends VermittlungsProtokoll implements I18n {
         } else {
             try {
                 Route route = bs.determineRoute(paket.getEmpfaenger());
-                sendeUnicast(paket, route);
+                IpPaket packetClone = paket.clone();
+                packetClone.decrementTtl();
+                sendeUnicast(packetClone, route);
             } catch (RouteNotFoundException e) {
                 bs.holeICMP().sendeICMP(ICMP.TYPE_DESTINATION_UNREACHABLE, ICMP.CODE_DEST_NETWORK_UNREACHABLE,
                         paket.getSender());

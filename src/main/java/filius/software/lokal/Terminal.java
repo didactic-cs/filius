@@ -949,7 +949,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         int fehler = 0;
         int ttl;
 
-        for (ttl = 1; ttl <= maxHops && !interrupted; ttl++) {
+        for (ttl = 0; ttl < maxHops && !interrupted; ttl++) {
             benachrichtigeBeobachter(" " + ttl + "    ");
 
             for (int i = 0; i < 3 && !interrupted; i++) {

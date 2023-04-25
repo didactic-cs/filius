@@ -62,7 +62,6 @@ public class IPThread extends ProtokollThread<IpPaket> {
         if (vermittlung.isLocalAddress(ipPaket.getEmpfaenger()) || ipPaket.getEmpfaenger().equals("255.255.255.255")) {
             vermittlung.benachrichtigeTransportschicht(ipPaket);
         } else if (vermittlung.isIPForwardingEnabled()) {
-            ipPaket.decrementTtl();
             vermittlung.weiterleitenPaket(ipPaket);
         }
     }

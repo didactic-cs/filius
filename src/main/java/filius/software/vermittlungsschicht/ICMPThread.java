@@ -61,13 +61,11 @@ public class ICMPThread extends ProtokollThread<IcmpPaket> {
         if (vermittlung.isLocalAddress(icmpPaket.getEmpfaenger())
                 || vermittlung.isApplicableBroadcast(icmpPaket.getEmpfaenger())) {
             if (icmpPaket.isEchoRequest()) {
-                icmpPaket.decrementTtl();
                 vermittlung.sendEchoReply(icmpPaket);
             } else {
                 addIcmpResponse(icmpPaket);
             }
         } else {
-            icmpPaket.decrementTtl();
             vermittlung.weiterleitenPaket(icmpPaket);
         }
     }
