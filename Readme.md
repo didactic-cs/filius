@@ -28,6 +28,9 @@ The Windows installer is based on nsis. It supports the standard parameter:
 ## Website
 https://www.lernsoftware-filius.de/
 
+## Code Signing
+This program uses free code signing provided by [SignPath.io](https://signpath.io?utm_source=foundation&utm_medium=gitlab&utm_campaign=filius), and a free code signing certificate by the [SignPath Foundation](https://signpath.org?utm_source=foundation&utm_medium=gitlab&utm_campaign=filius)
+
 # Contribute / Build Filius
 
 ## Development Environment
