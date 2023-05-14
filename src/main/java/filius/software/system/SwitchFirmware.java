@@ -104,7 +104,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
         for (String elem : sat.keySet()) {
             Port anschluss = (Port) sat.get(elem);
             ausgabe = messages.getString("sw_switchfirmware_msg1") + " "
-                    + ((Switch) getKnoten()).getAnschluesse().indexOf(anschluss);
+                    + (((Switch) getKnoten()).getAnschluesse().indexOf(anschluss) + 1);
             eintrag = new Vector<String>();
             eintrag.add(elem.toUpperCase());
             eintrag.add(ausgabe);
