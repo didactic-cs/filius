@@ -118,11 +118,13 @@ public class Weiterleitungstabelle implements I18n {
                 + netzwerkziel + "," + netzwerkmaske + "," + gateway + "," + schnittstelle + ")");
         manuelleEintraege = null;
 
-        if (netzwerkziel != null && netzwerkmaske != null && gateway != null && schnittstelle != null) {
-            String[] tmpString = { IP.ipCheck(netzwerkziel), IP.ipCheck(netzwerkmaske), IP.ipCheck(gateway),
-                    IP.ipCheck(schnittstelle) };
-            manuelleTabelle.addLast(tmpString);
-        }
+        manuelleTabelle.addLast(new String[] { IP.ipCheck(netzwerkziel), IP.ipCheck(netzwerkmaske), IP.ipCheck(gateway),
+                IP.ipCheck(schnittstelle) });
+    }
+
+    public boolean validate(String netzwerkziel, String netzwerkmaske, String gateway, String schnittstelle) {
+        return null != IP.ipCheck(netzwerkziel) && null != IP.ipCheck(netzwerkmaske) && null != IP.ipCheck(gateway)
+                && null != IP.ipCheck(schnittstelle);
     }
 
     /**
@@ -145,6 +147,9 @@ public class Weiterleitungstabelle implements I18n {
      * Zugriff auf die Liste, in der steht, welche Eintraege automatisch erzeugt bzw. manuell erstellt wurden
      */
     public LinkedList<Boolean> holeManuelleEintraegeFlags() {
+        if (null == manuelleEintraege) {
+            holeTabelle();
+        }
         return manuelleEintraege;
     }
 
@@ -160,15 +165,13 @@ public class Weiterleitungstabelle implements I18n {
      */
     public LinkedList<String[]> holeTabelle() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Weiterleitungstabelle), holeTabelle()");
-        InternetKnoten knoten;
-        String gateway;
-        LinkedList<String[]> tabelle;
         String[] tmp = new String[4];
 
-        tabelle = new LinkedList<String[]>(manuelleTabelle);
+        LinkedList<String[]> tabelle = new LinkedList<String[]>(manuelleTabelle);
         manuelleEintraege = new LinkedList<Boolean>();
-        for (int i = 0; i < tabelle.size(); i++)
-            manuelleEintraege.add(new Boolean(true));
+        for (int i = 0; i < tabelle.size(); i++) {
+            manuelleEintraege.add(Boolean.TRUE);
+        }
 
         if (firmware != null) {
             // Eintrag fuer 'localhost'
@@ -178,9 +181,9 @@ public class Weiterleitungstabelle implements I18n {
             tmp[2] = "127.0.0.1";
             tmp[3] = "127.0.0.1";
             tabelle.addFirst(tmp);
-            manuelleEintraege.addFirst(new Boolean(false));
+            manuelleEintraege.addFirst(Boolean.FALSE);
 
-            knoten = (InternetKnoten) firmware.getKnoten();
+            InternetKnoten knoten = (InternetKnoten) firmware.getKnoten();
 
             // Eintrag fuer eigenes Rechnernetz
             for (NetzwerkInterface nic : knoten.getNetzwerkInterfaces()) {
@@ -191,7 +194,7 @@ public class Weiterleitungstabelle implements I18n {
                 tmp[2] = nic.getIp();
                 tmp[3] = nic.getIp();
                 tabelle.addFirst(tmp);
-                manuelleEintraege.addFirst(new Boolean(false));
+                manuelleEintraege.addFirst(Boolean.FALSE);
             }
 
             // Eintrag fuer eigene IP-Adresse
@@ -202,11 +205,11 @@ public class Weiterleitungstabelle implements I18n {
                 tmp[2] = "127.0.0.1";
                 tmp[3] = "127.0.0.1";
                 tabelle.addFirst(tmp);
-                manuelleEintraege.addFirst(new Boolean(false));
+                manuelleEintraege.addFirst(Boolean.FALSE);
             }
 
             // Eintrag fuer Standardgateway, wenn es konfiguriert wurde
-            gateway = firmware.getStandardGateway();
+            String gateway = firmware.getStandardGateway();
             if (gateway != null && !gateway.trim().equals("")) {
                 gateway = gateway.trim();
                 tmp = null;
@@ -228,7 +231,7 @@ public class Weiterleitungstabelle implements I18n {
                     tmp[3] = firmware.primaryIPAdresse();
                 }
                 tabelle.addLast(tmp);
-                manuelleEintraege.addLast(new Boolean(false));
+                manuelleEintraege.addLast(Boolean.FALSE);
             }
         }
 

@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -61,6 +62,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     private LinkedList<Boolean> editableRows = null;
     private JVermittlungsrechnerKonfiguration konfig;
     private boolean standardEintraegeAnzeigen = true;
+    boolean notPersistedRowVisible;
 
     public JWeiterleitungsTabelle(JVermittlungsrechnerKonfiguration konfig) {
         super(new DefaultTableModel(1, 4));
@@ -68,9 +70,6 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
                 + ")");
 
         this.konfig = konfig;
-
-        TableColumnModel tcm;
-        Vector tempVector;
 
         this.setRowHeight(20);
         this.setRowMargin(2);
@@ -107,7 +106,7 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
             }
         });
 
-        tcm = getColumnModel();
+        TableColumnModel tcm = getColumnModel();
 
         // Netzwerkziel, Netzwerkmaske, ZielIp, Schnittstelle
 
@@ -119,51 +118,60 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
 
     public void aenderungenAnnehmen() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", aenderungenAnnehmen()");
-        Vector<Object> rowData;
         Vector<Vector> tableData;
-        Weiterleitungstabelle tabelle;
-        String[] routingEintrag;
-        String tmpString;
-        Pattern pattern = null;
 
-        if (getCellEditor() != null)
+        if (getCellEditor() != null) {
             getCellEditor().stopCellEditing();
+        }
 
         tableData = ((DefaultTableModel) getModel()).getDataVector();
-        tabelle = ((InternetKnotenBetriebssystem) ((Knoten) konfig.holeHardware()).getSystemSoftware())
-                .getWeiterleitungstabelle();
+        Weiterleitungstabelle tabelle = ((InternetKnotenBetriebssystem) ((Knoten) konfig.holeHardware())
+                .getSystemSoftware()).getWeiterleitungstabelle();
         tabelle.reset();
         for (int i = 0; i < tableData.size(); i++) {
-            if (isCellEditable(i, 1)) {
-                rowData = (Vector) tableData.elementAt(i);
-                routingEintrag = new String[rowData.size()];
-                for (int j = 0; j < routingEintrag.length; j++) {
-                    tmpString = (String) rowData.elementAt(j);
-                    switch (j) {
-                    case 0:
-                        pattern = EingabenUeberpruefung.musterIpAdresse;
-                        break;
-                    case 1:
-                        pattern = EingabenUeberpruefung.musterSubNetz;
-                        break;
-                    case 2:
-                        pattern = EingabenUeberpruefung.musterIpAdresse;
-                        break;
-                    case 3:
-                        pattern = EingabenUeberpruefung.musterIpAdresse;
-                        break;
-                    }
-                    if (null != tmpString && EingabenUeberpruefung.isGueltig(tmpString, pattern)) {
-                        routingEintrag[j] = tmpString;
-                    } else {
-                        routingEintrag[j] = "";
-                    }
+            if (notPersistedRowVisible && i == tableData.size() - 1) {
+                String[] routingEintrag = extractAndValidateRowData(i);
+                if (tabelle.validate(routingEintrag[0], routingEintrag[1], routingEintrag[2], routingEintrag[3])) {
+                    notPersistedRowVisible = false;
+                    tabelle.addManuellenEintrag(routingEintrag[0], routingEintrag[1], routingEintrag[2],
+                            routingEintrag[3]);
                 }
+            } else if (isCellEditable(i, 1)) {
+                String[] routingEintrag = extractAndValidateRowData(i);
                 tabelle.addManuellenEintrag(routingEintrag[0], routingEintrag[1], routingEintrag[2], routingEintrag[3]);
             }
         }
-
         updateAttribute();
+    }
+
+    private String[] extractAndValidateRowData(int rowIdx) {
+        String tmpString;
+        Vector<Object> rowData = (Vector) ((DefaultTableModel) getModel()).getDataVector().elementAt(rowIdx);
+        String[] routingEintrag = new String[rowData.size()];
+        for (int j = 0; j < routingEintrag.length; j++) {
+            tmpString = (String) rowData.elementAt(j);
+            Pattern pattern = null;
+            switch (j) {
+            case 0:
+                pattern = EingabenUeberpruefung.musterIpAdresse;
+                break;
+            case 1:
+                pattern = EingabenUeberpruefung.musterSubNetz;
+                break;
+            case 2:
+                pattern = EingabenUeberpruefung.musterIpAdresse;
+                break;
+            case 3:
+                pattern = EingabenUeberpruefung.musterIpAdresse;
+                break;
+            }
+            if (null != tmpString && EingabenUeberpruefung.isGueltig(tmpString, pattern)) {
+                routingEintrag[j] = tmpString;
+            } else {
+                routingEintrag[j] = "";
+            }
+        }
+        return routingEintrag;
     }
 
     public boolean isCellEditable(int row, int column) {
@@ -201,16 +209,21 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
 
     public void neuerEintrag() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", neuerEintrag()");
-        Vector<String> eintrag = new Vector<String>();
-        eintrag.add("");
-        eintrag.add("");
-        eintrag.add("");
-        eintrag.add("");
-
-        ((DefaultTableModel) getModel()).addRow(eintrag);
-        // LOG.debug("JWeiterleitungsTabelle: neuer Eintrag, insgesamt "+getModel().getRowCount()+" Zeilen");
-        editableRows.add(new Boolean(true));
         aenderungenAnnehmen();
+        if (!notPersistedRowVisible) {
+            notPersistedRowVisible = true;
+
+            Vector<String> eintrag = new Vector<String>();
+            eintrag.add("");
+            eintrag.add("");
+            eintrag.add("");
+            eintrag.add("");
+
+            ((DefaultTableModel) getModel()).addRow(eintrag);
+            editableRows.add(Boolean.TRUE);
+        }
+
+        setRowSelectionInterval(getModel().getRowCount() - 1, getModel().getRowCount() - 1);
     }
 
     public void markiertenEintragLoeschen() {
@@ -221,6 +234,9 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     }
 
     private void entferneEintrag(int row) {
+        if (notPersistedRowVisible) {
+            notPersistedRowVisible = row < getModel().getRowCount() - 1;
+        }
         ((DefaultTableModel) getModel()).removeRow(row);
         editableRows.remove(row);
     }
@@ -253,16 +269,17 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
     public void updateAttribute() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", updateAttribute()");
         ListIterator it, editableIt;
-        Weiterleitungstabelle tabelle;
-        LinkedList<String[]> routingTabelle;
         String[][] data;
         Vector<String[]> tmpData;
 
         /* Weiterleitungstabelle aktualisieren */
-        tabelle = ((InternetKnotenBetriebssystem) ((Knoten) konfig.holeHardware()).getSystemSoftware())
-                .getWeiterleitungstabelle();
-        routingTabelle = tabelle.holeTabelle();
-
+        Weiterleitungstabelle tabelle = ((InternetKnotenBetriebssystem) ((Knoten) konfig.holeHardware())
+                .getSystemSoftware()).getWeiterleitungstabelle();
+        List<String[]> routingTabelle = tabelle.holeTabelle();
+        Vector<Object> notPersistedRow = null;
+        if (notPersistedRowVisible) {
+            notPersistedRow = ((DefaultTableModel) getModel()).getDataVector().lastElement();
+        }
         it = routingTabelle.listIterator();
         if (standardEintraegeAnzeigen) {
             editableRows = tabelle.holeManuelleEintraegeFlags();
@@ -290,8 +307,11 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
                 editableRows.add(Boolean.TRUE);
             }
         }
-
         ((DefaultTableModel) getModel()).setDataVector(data, getRoutingTabellenSpalten());
+        if (null != notPersistedRow) {
+            editableRows.add(Boolean.TRUE);
+            ((DefaultTableModel) getModel()).addRow(notPersistedRow);
+        }
         ((DefaultTableModel) getModel()).fireTableDataChanged();
     }
 }
