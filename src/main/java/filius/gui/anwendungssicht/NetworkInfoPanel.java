@@ -54,6 +54,7 @@ import filius.software.system.Betriebssystem;
  * @author Thomas Gerding
  * 
  */
+@SuppressWarnings("serial")
 public class NetworkInfoPanel extends JPanel implements I18n {
 
     private GUIDesktopPanel dp;
@@ -71,28 +72,28 @@ public class NetworkInfoPanel extends JPanel implements I18n {
         this.dp = dp;
 
         ipLabel = new JLabel(messages.getString("network_msg1"));
-        ipLabel.setSize(new Dimension(100, 15));
-        ipLabel.setPreferredSize(new Dimension(100, 15));
+        ipLabel.setSize(new Dimension(150, 15));
+        ipLabel.setPreferredSize(new Dimension(150, 15));
         dnsLabel = new JLabel(messages.getString("network_msg2"));
-        dnsLabel.setSize(new Dimension(100, 15));
-        dnsLabel.setPreferredSize(new Dimension(100, 15));
+        dnsLabel.setSize(new Dimension(150, 15));
+        dnsLabel.setPreferredSize(new Dimension(150, 15));
         gatewayLabel = new JLabel(messages.getString("network_msg3"));
-        gatewayLabel.setSize(new Dimension(100, 15));
-        gatewayLabel.setPreferredSize(new Dimension(100, 15));
+        gatewayLabel.setSize(new Dimension(150, 15));
+        gatewayLabel.setPreferredSize(new Dimension(150, 15));
         netmaskLabel = new JLabel(messages.getString("network_msg4"));
-        netmaskLabel.setSize(new Dimension(100, 15));
-        netmaskLabel.setPreferredSize(new Dimension(100, 15));
+        netmaskLabel.setSize(new Dimension(150, 15));
+        netmaskLabel.setPreferredSize(new Dimension(150, 15));
         macLabel = new JLabel(messages.getString("network_msg9"));
-        macLabel.setSize(new Dimension(100, 15));
-        macLabel.setPreferredSize(new Dimension(100, 15));
+        macLabel.setSize(new Dimension(150, 15));
+        macLabel.setPreferredSize(new Dimension(150, 15));
 
         bs = this.dp.getBetriebssystem();
         nic = (NetzwerkInterface) ((Host) bs.getKnoten()).getNetzwerkInterfaces().get(0);
 
         ipField = new JTextField(nic.getIp());
         ipField.setEditable(false);
-        ipField.setSize(new Dimension(100, 15));
-        ipField.setPreferredSize(new Dimension(100, 15));
+        ipField.setSize(new Dimension(150, 15));
+        ipField.setPreferredSize(new Dimension(150, 15));
         ipField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 ueberpruefen(EingabenUeberpruefung.musterIpAdresse, ipField);
@@ -101,8 +102,8 @@ public class NetworkInfoPanel extends JPanel implements I18n {
         });
         dnsField = new JTextField(bs.getDNSServer());
         dnsField.setEditable(false);
-        dnsField.setSize(new Dimension(100, 15));
-        dnsField.setPreferredSize(new Dimension(100, 15));
+        dnsField.setSize(new Dimension(150, 15));
+        dnsField.setPreferredSize(new Dimension(150, 15));
         dnsField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 ueberpruefen(EingabenUeberpruefung.musterIpAdresse, dnsField);
@@ -111,8 +112,8 @@ public class NetworkInfoPanel extends JPanel implements I18n {
         });
         gatewayField = new JTextField(bs.getStandardGateway());
         gatewayField.setEditable(false);
-        gatewayField.setSize(new Dimension(100, 15));
-        gatewayField.setPreferredSize(new Dimension(100, 15));
+        gatewayField.setSize(new Dimension(150, 15));
+        gatewayField.setPreferredSize(new Dimension(150, 15));
         gatewayField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 ueberpruefen(EingabenUeberpruefung.musterIpAdresse, gatewayField);
@@ -121,8 +122,8 @@ public class NetworkInfoPanel extends JPanel implements I18n {
         });
         netmaskField = new JTextField(nic.getSubnetzMaske());
         netmaskField.setEditable(false);
-        netmaskField.setSize(new Dimension(100, 15));
-        netmaskField.setPreferredSize(new Dimension(100, 15));
+        netmaskField.setSize(new Dimension(150, 15));
+        netmaskField.setPreferredSize(new Dimension(150, 15));
         netmaskField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 ueberpruefen(EingabenUeberpruefung.musterIpAdresse, netmaskField);
@@ -132,8 +133,8 @@ public class NetworkInfoPanel extends JPanel implements I18n {
 
         macField = new JTextField(nic.getMac());
         macField.setEditable(false);
-        macField.setSize(new Dimension(100, 15));
-        macField.setPreferredSize(new Dimension(100, 15));
+        macField.setSize(new Dimension(150, 15));
+        macField.setPreferredSize(new Dimension(150, 15));
 
         changeButton = new JButton(messages.getString("network_msg5"));
         changeButton.setToolTipText(messages.getString("network_msg6"));
