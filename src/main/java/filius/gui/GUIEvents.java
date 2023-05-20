@@ -705,6 +705,21 @@ public class GUIEvents implements I18n {
         pmRemoveCable.addActionListener(al);
         popmen.add(pmRemoveCable);
 
+        final JMenuItem pmToggleWireless = new JMenuItem(messages.getString("guievents_msg26"));
+        pmToggleWireless.setActionCommand("togglewireless");
+
+        ActionListener al2 = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand() == pmToggleWireless.getActionCommand()) {
+                    cable.getDasKabel().toggleWireless();
+                    GUIContainer.getGUIContainer().updateViewport();
+                }
+            }
+        };
+
+        pmToggleWireless.addActionListener(al2);
+        popmen.add(pmToggleWireless);        
+
         GUIContainer.getGUIContainer().getDesignpanel().add(popmen);
         popmen.setVisible(true);
         popmen.show(GUIContainer.getGUIContainer().getDesignpanel(), posX, posY);

@@ -53,6 +53,7 @@ public class JCablePanel extends JPanel implements Observer {
 
     private static final long serialVersionUID = 1L;
     private GUIKnotenItem ziel1, ziel2;
+    private GUIKabelItem kabelItem;
 
     private QuadCurve2D currCurve = null;
     private Color kabelFarbe = new Color(64, 64, 64);
@@ -113,6 +114,12 @@ public class JCablePanel extends JPanel implements Observer {
         g.setColor(kabelFarbe);
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(2));
+
+        if(getKabelItem() != null && getKabelItem().getDasKabel()!= null && getKabelItem().getDasKabel().getWireless()) {
+            float dash[] = { 10.0f };
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT,
+            BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
+        }
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int kp1 = (x1 - this.getX() + x2 - this.getX()) / 4;
@@ -162,6 +169,14 @@ public class JCablePanel extends JPanel implements Observer {
     public void setZiel2(GUIKnotenItem ziel2) {
         this.ziel2 = ziel2;
         updateBounds();
+    }
+
+    public void setKabelItem( GUIKabelItem value) {
+        kabelItem = value;
+    }
+
+    public GUIKabelItem getKabelItem() {
+        return kabelItem;
     }
 
     /**
