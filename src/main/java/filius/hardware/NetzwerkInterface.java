@@ -43,6 +43,7 @@ public class NetzwerkInterface implements Serializable {
     private String gateway;
     private String dns;
     private Port anschluss;
+    private boolean isWireless;
 
     public NetzwerkInterface() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass()
@@ -161,5 +162,13 @@ public class NetzwerkInterface implements Serializable {
      */
     public void setGateway(String gateway) {
         this.gateway = gateway;
+    }
+
+    public boolean isWireless() {
+        return isWireless;
+    }
+
+    public void setWireless(boolean isWireless) {
+        this.isWireless = isWireless;
     }
 }

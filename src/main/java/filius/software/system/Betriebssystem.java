@@ -69,4 +69,13 @@ public class Betriebssystem extends InternetKnotenBetriebssystem {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (Betriebssystem), beenden()");
         super.beenden();
     }
+
+    public void nicWireless(boolean wireless) {
+        primaryNetworkInterface().setWireless(wireless);
+    }
+
+    @Override
+    public boolean wireless() {
+        return primaryNetworkInterface().isWireless();
+    }
 }

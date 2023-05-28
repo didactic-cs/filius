@@ -113,4 +113,8 @@ public abstract class SystemSoftware extends Observable implements Serializable 
         setChanged();
         notifyObservers(o);
     }
+
+    public boolean wireless() {
+        return false;
+    }
 }

@@ -57,7 +57,8 @@ public class JCablePanel extends JPanel implements Observer {
 
     private QuadCurve2D currCurve = null;
     private Color kabelFarbe = new Color(64, 64, 64);
-    private final Color farbeStandard = new Color(64, 64, 64);
+    private final Color farbeKabel = new Color(64, 64, 64);
+    private final Color farbeWireless = new Color(192, 192, 192);
     private final Color farbeBlinken = new Color(0, 255, 64);
     private final Color farbeFailure = Color.RED;
 
@@ -115,10 +116,12 @@ public class JCablePanel extends JPanel implements Observer {
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(2));
 
-        if(getKabelItem() != null && getKabelItem().getDasKabel()!= null && getKabelItem().getDasKabel().getWireless()) {
+        if (isWireless()) {
             float dash[] = { 10.0f };
-            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT,
-            BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
+            if (kabelFarbe.equals(farbeKabel)) {
+                kabelFarbe = farbeWireless;
+            }
         }
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -135,6 +138,11 @@ public class JCablePanel extends JPanel implements Observer {
         g2.draw(myCurve);
         this.currCurve = myCurve;
         this.setOpaque(false);
+    }
+
+    private boolean isWireless() {
+        return getKabelItem() != null && getKabelItem().getDasKabel() != null
+                && getKabelItem().getDasKabel().getWireless();
     }
 
     /*
@@ -171,7 +179,7 @@ public class JCablePanel extends JPanel implements Observer {
         updateBounds();
     }
 
-    public void setKabelItem( GUIKabelItem value) {
+    public void setKabelItem(GUIKabelItem value) {
         kabelItem = value;
     }
 
@@ -191,8 +199,16 @@ public class JCablePanel extends JPanel implements Observer {
             LOG.debug("set cable color to red");
             kabelFarbe = farbeFailure;
         } else {
-            kabelFarbe = farbeStandard;
+            resetColor();
         }
         updateUI();
+    }
+
+    private void resetColor() {
+        if (isWireless()) {
+            kabelFarbe = farbeWireless;
+        } else {
+            kabelFarbe = farbeKabel;
+        }
     }
 }
