@@ -30,6 +30,8 @@ public class Kabel extends Verbindung {
 
     public static final String TYPE = messages.getString("hw_kabel_msg1");
 
+    private boolean wireless = false;
+
     public Kabel() {
         super();
     }
@@ -42,5 +44,17 @@ public class Kabel extends Verbindung {
     @Override
     public String holeHardwareTyp() {
         return TYPE;
+    }
+
+    public void setWireless(boolean value) {
+        wireless = value;
+    }
+
+    public boolean getWireless() {
+        return wireless;
+    }
+
+    public void toggleWireless() {
+        wireless = !wireless;
     }
 }

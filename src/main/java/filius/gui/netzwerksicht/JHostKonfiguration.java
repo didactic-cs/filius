@@ -72,6 +72,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     private JButton btDhcp;
     private JCheckBox useIpAsName;
     private JCheckBox useMacAsName;
+    private JCheckBox wireless;
 
     protected JHostKonfiguration(Hardware hardware) {
         super(hardware);
@@ -105,6 +106,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             bs.setDNSServer(dns.getText());
             bs.setIpForwardingEnabled(ipForwarding.isSelected());
             bs.setDHCPKonfiguration(dhcp.isSelected());
+            bs.nicWireless(wireless.isSelected());
 
             if (dhcp.isSelected()) {
                 bs.getDHCPServer().setAktiv(false);
@@ -282,6 +284,32 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         box.add(tempBox, BorderLayout.NORTH);
 
         // =======================================================
+        // Wireless / Cable
+        tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg13"));
+        tempLabel.setPreferredSize(new Dimension(LABEL_WIDTH, 10));
+        tempLabel.setVisible(true);
+        tempLabel.setOpaque(false);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        wireless = new JCheckBox();
+        wireless.setOpaque(false);
+        wireless.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                aenderungenAnnehmen();
+            }
+        });
+
+        tempBox = Box.createHorizontalBox();
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setPreferredSize(new Dimension(400, 35));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(wireless);
+        tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
+        tempBox.add(tempLabel);
+        rightBox.add(tempBox, BorderLayout.NORTH);
+
+        // =======================================================
         // IP address as name
         tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg10"));
         tempLabel.setPreferredSize(new Dimension(LABEL_WIDTH, 10));
@@ -439,6 +467,9 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             name.setEnabled(!host.isUseIPAsName() && !host.isUseMACAsName());
 
             bs = (Betriebssystem) host.getSystemSoftware();
+
+            wireless.setSelected(bs.wireless());
+            wireless.setEnabled(host.holeFreienPort() != null);
 
             macAdresse.setText(bs.primaryMACAddress());
             ipAdresse.setText(bs.primaryIPAdresse());

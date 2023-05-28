@@ -46,6 +46,7 @@ public class GUIKabelItem implements Serializable {
 
 	public GUIKabelItem() {
 		kabelpanel = new JCablePanel();
+		kabelpanel.setKabelItem(this);
 	}
 
 	public Kabel getDasKabel() {

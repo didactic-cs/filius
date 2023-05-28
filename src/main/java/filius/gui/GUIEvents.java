@@ -311,6 +311,12 @@ public class GUIEvents implements I18n {
                         }
                         if (success && neuesKabel.getKabelpanel().getZiel1() != null) {
                             Knoten quellKnoten = neuesKabel.getKabelpanel().getZiel1().getKnoten();
+                            if (tempKnoten.getSystemSoftware().wireless() && !(quellKnoten instanceof Switch)
+                                    || quellKnoten.getSystemSoftware().wireless() && !(tempKnoten instanceof Switch)) {
+                                success = false;
+                                GUIErrorHandler.getGUIErrorHandler()
+                                        .DisplayError(messages.getString("guievents_msg26"));
+                            }
                             if (tempKnoten.checkConnected(quellKnoten)) {
                                 success = false;
                                 GUIErrorHandler.getGUIErrorHandler()
@@ -479,6 +485,7 @@ public class GUIEvents implements I18n {
     private Kabel createConnection(Knoten component1, Knoten component2) {
         LOG.debug("connect componente {} <-> {}", component1.getName(), component2.getName());
         Port anschluss1 = null;
+        boolean wireless = false;
         if (component1 instanceof Modem) {
             Modem vrOut = (Modem) component1;
             anschluss1 = vrOut.getErstenAnschluss();
@@ -497,6 +504,7 @@ public class GUIEvents implements I18n {
         } else if (component1 instanceof InternetKnoten) {
             NetzwerkInterface nic1 = (NetzwerkInterface) ((InternetKnoten) component1).getNetzwerkInterfaces().get(0);
             anschluss1 = nic1.getPort();
+            wireless = nic1.isWireless();
         }
 
         Port anschluss2 = null;
@@ -518,9 +526,12 @@ public class GUIEvents implements I18n {
         } else if (component2 instanceof InternetKnoten) {
             NetzwerkInterface nic2 = (NetzwerkInterface) ((InternetKnoten) component2).getNetzwerkInterfaces().get(0);
             anschluss2 = nic2.getPort();
+            wireless = wireless || nic2.isWireless();
         }
 
-        return new Kabel(anschluss1, anschluss2);
+        Kabel connection = new Kabel(anschluss1, anschluss2);
+        connection.setWireless(wireless);
+        return connection;
     }
 
     public void resetAndHideCablePreview() {
