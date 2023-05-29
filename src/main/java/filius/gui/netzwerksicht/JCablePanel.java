@@ -112,7 +112,6 @@ public class JCablePanel extends JPanel implements Observer {
         y2 = (int) (ziel2.getImageLabel().getY() + (0.5 * ziel2.getImageLabel().getHeight()));
 
         /* Einfaches Zeichnen */
-        g.setColor(kabelFarbe);
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(2));
 
@@ -123,6 +122,7 @@ public class JCablePanel extends JPanel implements Observer {
                 kabelFarbe = farbeWireless;
             }
         }
+        g.setColor(kabelFarbe);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int kp1 = (x1 - this.getX() + x2 - this.getX()) / 4;

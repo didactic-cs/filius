@@ -31,68 +31,70 @@ import filius.hardware.Kabel;
 
 /**
  * 
- * Die Klasse GUIKabelItem ist die Verbindung von Grafikdarstellung und "realem"
- * Kabel. Sie enthält Jeweils ein JCablePanel und ein Kabel. Dazu stellt es die
- * getter und setter Methoden bereit.
+ * Die Klasse GUIKabelItem ist die Verbindung von Grafikdarstellung und "realem" Kabel. Sie enthält Jeweils ein
+ * JCablePanel und ein Kabel. Dazu stellt es die getter und setter Methoden bereit.
  * 
  * @author Thomas Gerding & Johannes Bade
  * 
  */
 public class GUIKabelItem implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private JCablePanel kabelpanel;
-	private Kabel dasKabel;
+    private static final long serialVersionUID = 1L;
+    private JCablePanel kabelpanel;
+    private Kabel dasKabel;
 
-	public GUIKabelItem() {
-		kabelpanel = new JCablePanel();
-		kabelpanel.setKabelItem(this);
-	}
+    public GUIKabelItem() {
+        kabelpanel = new JCablePanel();
+        kabelpanel.setKabelItem(this);
+    }
 
-	public Kabel getDasKabel() {
+    public Kabel getDasKabel() {
 
-		return dasKabel;
-	}
+        return dasKabel;
+    }
 
-	public void setDasKabel(Kabel dasKabel) {
-		this.dasKabel = dasKabel;
-		dasKabel.addObserver(kabelpanel);
-	}
+    public void setDasKabel(Kabel dasKabel) {
+        this.dasKabel = dasKabel;
+        dasKabel.addObserver(kabelpanel);
+        kabelpanel.updateBounds();
+    }
 
-	public JCablePanel getKabelpanel() {
-		return kabelpanel;
-	}
+    public JCablePanel getKabelpanel() {
+        return kabelpanel;
+    }
 
-	public void setKabelpanel(JCablePanel kabelpanel) {
-		this.kabelpanel = kabelpanel;
-	}
+    public void setKabelpanel(JCablePanel kabelpanel) {
+        this.kabelpanel = kabelpanel;
+    }
 
-	public String toString() {
-		String result = "[";
-		if (dasKabel != null)
-			result += "dasKabel (id)=" + dasKabel.hashCode() + ", ";
-		else
-			result += "dasKabel=<null>, ";
-		if (kabelpanel != null) {
-			result += "kabelpanel (id)=" + kabelpanel.hashCode() + ", ";
-			if (kabelpanel.getZiel1() != null) {
-				result += "kabelpanel.ziel1 (id)" + kabelpanel.getZiel1().hashCode() + ", ";
-				if (kabelpanel.getZiel1().getKnoten() != null)
-					result += "kabelpanel.ziel1.knoten (name)" + kabelpanel.getZiel1().getKnoten().holeAnzeigeName() + ", ";
-				else
-					result += "kabelpanel.ziel1.knoten=<null>, ";
-			} else
-				result += "kabelpanel.ziel1=<null>, ";
-			if (kabelpanel.getZiel2() != null) {
-				result += "kabelpanel.ziel2 (id)" + kabelpanel.getZiel2().hashCode() + ", ";
-				if (kabelpanel.getZiel2().getKnoten() != null)
-					result += "kabelpanel.ziel2.knoten (name)" + kabelpanel.getZiel2().getKnoten().holeAnzeigeName() + ", ";
-				else
-					result += "kabelpanel.ziel2.knoten=<null>, ";
-			}
-		} else
-			result += "kabelpanel=<null>";
-		result += "]";
-		return result;
-	}
+    public String toString() {
+        String result = "[";
+        if (dasKabel != null)
+            result += "dasKabel (id)=" + dasKabel.hashCode() + ", ";
+        else
+            result += "dasKabel=<null>, ";
+        if (kabelpanel != null) {
+            result += "kabelpanel (id)=" + kabelpanel.hashCode() + ", ";
+            if (kabelpanel.getZiel1() != null) {
+                result += "kabelpanel.ziel1 (id)" + kabelpanel.getZiel1().hashCode() + ", ";
+                if (kabelpanel.getZiel1().getKnoten() != null)
+                    result += "kabelpanel.ziel1.knoten (name)" + kabelpanel.getZiel1().getKnoten().holeAnzeigeName()
+                            + ", ";
+                else
+                    result += "kabelpanel.ziel1.knoten=<null>, ";
+            } else
+                result += "kabelpanel.ziel1=<null>, ";
+            if (kabelpanel.getZiel2() != null) {
+                result += "kabelpanel.ziel2 (id)" + kabelpanel.getZiel2().hashCode() + ", ";
+                if (kabelpanel.getZiel2().getKnoten() != null)
+                    result += "kabelpanel.ziel2.knoten (name)" + kabelpanel.getZiel2().getKnoten().holeAnzeigeName()
+                            + ", ";
+                else
+                    result += "kabelpanel.ziel2.knoten=<null>, ";
+            }
+        } else
+            result += "kabelpanel=<null>";
+        result += "]";
+        return result;
+    }
 }

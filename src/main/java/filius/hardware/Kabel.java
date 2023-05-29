@@ -53,8 +53,4 @@ public class Kabel extends Verbindung {
     public boolean getWireless() {
         return wireless;
     }
-
-    public void toggleWireless() {
-        wireless = !wireless;
-    }
 }
