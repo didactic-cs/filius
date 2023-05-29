@@ -30,6 +30,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -59,6 +60,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -1062,6 +1064,20 @@ public class GUIContainer implements Serializable, I18n {
             return simulationView.getVerticalScrollBar().getValue();
         }
         return designView.getVerticalScrollBar().getValue();
+    }
+
+    public int getRealXPos(int x) {
+        if (activeSite == GUIMainMenu.MODUS_AKTION) {
+            return SwingUtilities.convertPoint(simulationView, new Point(x, 0), simulationView.getViewport()).x;
+        }
+        return SwingUtilities.convertPoint(designView, new Point(x, 0), designView.getViewport()).x;
+    }
+
+    public int getRealYPos(int y) {
+        if (activeSite == GUIMainMenu.MODUS_AKTION) {
+            return SwingUtilities.convertPoint(simulationView, new Point(0, y), simulationView.getViewport()).y;
+        }
+        return SwingUtilities.convertPoint(designView, new Point(0, y), designView.getViewport()).y;
     }
 
     public JScrollPane getSidebarScrollpane() {

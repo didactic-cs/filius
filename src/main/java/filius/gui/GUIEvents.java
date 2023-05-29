@@ -401,8 +401,8 @@ public class GUIEvents implements I18n {
     private GUIKabelItem findClickedCable(MouseEvent e) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + ", clickedCable(" + e + ")");
         // Falls kein neues Objekt erstellt werden soll
-        int xPos = e.getX() + GUIContainer.getGUIContainer().getXOffset();
-        int yPos = e.getY() + GUIContainer.getGUIContainer().getYOffset();
+        int xPos = GUIContainer.getGUIContainer().getRealXPos(e.getX());
+        int yPos = GUIContainer.getGUIContainer().getRealYPos(e.getY());
 
         for (GUIKabelItem tempitem : GUIContainer.getGUIContainer().getCableItems()) {
             // item clicked, i.e., mouse pointer within item bounds
