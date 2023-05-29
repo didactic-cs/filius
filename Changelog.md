@@ -1,5 +1,21 @@
 # Changelog Filius
 
+## [2.4.0] - 2023-05-29
+### Added
+ * Switch is now also Wireless Access Point
+ * Usage info for each command line tool, show with 'help <command>'
+ 
+### Fixed
+ * Decrement TTL only in forwarded packets
+ * Contents of network info panel broader, info is visible
+ * Deletion of connections possible even in scrolled state
+ * Newly created rows are discarded if syntax is invalid
+ 
+### Changed
+ * Switch ports start now from 1 (instead of 0)
+ * Command 'cls' now listed with command line help
+ * Include OpenJDK 19.0.2 as built-in Java for Windows
+ 
 ## [2.3.1] - 2023-03-11
 ### Changed
  * Use current launch4j plugin
