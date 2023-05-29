@@ -357,10 +357,10 @@ public class GUIContainer implements Serializable, I18n {
             }
 
             public void mouseReleased(MouseEvent e) {
-                int xPosMainArea = e.getX() - designDragPreview.getWidth() / 2 - designSidebarScrollpane.getWidth();
-                int yPosMainArea = e.getY() - (designDragPreview.getHeight()) / 2;
-                if (designDragPreview.isVisible() && xPosMainArea >= 0 && xPosMainArea <= designView.getWidth()
-                        && yPosMainArea >= 0 && yPosMainArea <= designView.getHeight()) {
+                if (designDragPreview.isVisible() && e.getX() >= designSidebarScrollpane.getWidth()
+                        && e.getX() <= designView.getWidth() && e.getY() >= 0 && e.getY() <= designView.getHeight()) {
+                    int xPosMainArea = e.getX() - designDragPreview.getWidth() / 2 - designSidebarScrollpane.getWidth();
+                    int yPosMainArea = e.getY() - (designDragPreview.getHeight()) / 2;
                     neuerKnoten(xPosMainArea, yPosMainArea, designDragPreview);
                 }
                 designDragPreview.setVisible(false);
@@ -615,9 +615,7 @@ public class GUIContainer implements Serializable, I18n {
             if (selectedValue != null) {
                 ((Vermittlungsrechner) neuerKnoten).setzeAnzahlAnschluesse(Integer.parseInt((String) selectedValue));
             } else {
-                ((Vermittlungsrechner) neuerKnoten).setzeAnzahlAnschluesse(2); // If the dialog is cancelled by the
-                                                                               // user, the default value is 1, which is
-                                                                               // useless.
+                ((Vermittlungsrechner) neuerKnoten).setzeAnzahlAnschluesse(2);
             }
         } else if (label.getTyp().equals(Modem.TYPE)) {
             neuerKnoten = new Modem();
@@ -632,8 +630,9 @@ public class GUIContainer implements Serializable, I18n {
 
         if (tempIcon != null && neuerKnoten != null) {
             templabel = new JSidebarButton(tempIcon, neuerKnoten.holeHardwareTyp());
-            templabel.setBounds(x + designView.getHorizontalScrollBar().getValue(),
-                    y + designView.getVerticalScrollBar().getValue(), templabel.getWidth(), templabel.getHeight());
+            templabel.setBounds((x >= 0 ? x : 0) + designView.getHorizontalScrollBar().getValue(),
+                    (y >= 0 ? y : 0) + designView.getVerticalScrollBar().getValue(), templabel.getWidth(),
+                    templabel.getHeight());
             // The text must be assigned after construction.
             // This is required for the icon not to move when the text is longer than the width of the icon
             templabel.initTextAndUpdateLocation(neuerKnoten.holeAnzeigeName());
