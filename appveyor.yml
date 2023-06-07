@@ -15,7 +15,7 @@ build_script:
 
     mvn --version
 
-    mvn clean site install -Plinux -Pwindows-with-jre
+    mvn clean site install -Plinux -Pwindows-with-jre -U
 artifacts:
 - path: target\Filius-Setup_with-JRE*.exe
   name: Windows Installer with Bundled JRE
