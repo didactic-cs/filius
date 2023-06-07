@@ -41,7 +41,6 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import filius.rahmenprogramm.Sprache;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +64,10 @@ import filius.rahmenprogramm.SzenarioVerwaltung;
  */
 public class Main implements I18n {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+    private static final String FRANCAIS = "Français";
+    private static final String ENGLISH = "English";
+    private static final String DEUTSCH = "Deutsch";
 
     /**
      * Der Start laeuft folgendermassen ab:
@@ -95,17 +98,17 @@ public class Main implements I18n {
 
         konfigPfad = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
         if (!(new File(konfigPfad)).exists() && null == Information.getInformation().getLocale()) {
-            String[] possibleValues = new String[Sprache.values().length];
-            for (int i = 0; i < Sprache.values().length; i++) {
-                possibleValues[i] = Sprache.values()[i].toString();
-            }
+            String[] possibleValues = { DEUTSCH, ENGLISH, FRANCAIS };
             String selectedValue = (String) JOptionPane.showInputDialog(null, "", "Sprache/Language/Langue",
-                    JOptionPane.INFORMATION_MESSAGE, null, possibleValues, Sprache.DEUTSCH.toString());
-            if (selectedValue == null) Information.getInformation().setLocale(Locale.GERMANY);
-            else {
-                Sprache sprache = Sprache.getSprache(selectedValue);
-                if (sprache != null) Information.getInformation().setLocale(sprache.getLocale());
-                else throw new IllegalArgumentException("Unknown language: " + selectedValue);
+                    JOptionPane.INFORMATION_MESSAGE, null, possibleValues, possibleValues[0]);
+            if (selectedValue == null) {
+                Information.getInformation().setLocale(Locale.GERMANY);
+            } else if (ENGLISH.equals(selectedValue)) {
+                Information.getInformation().setLocale(Locale.UK);
+            } else if (FRANCAIS.equals(selectedValue)) {
+                Information.getInformation().setLocale(Locale.FRANCE);
+            } else {
+                Information.getInformation().setLocale(Locale.GERMANY);
             }
         } else {
             try {
@@ -218,7 +221,7 @@ public class Main implements I18n {
 
             String applicationConfigPath = Information.getInformation().getArbeitsbereichPfad() + "konfig.xml";
             try (FileOutputStream fos = new FileOutputStream(applicationConfigPath);
-                 XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
+                    XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(fos))) {
                 encoder.writeObject(programmKonfig);
             } catch (Exception e) {
                 LOG.debug("", e);
@@ -258,7 +261,8 @@ public class Main implements I18n {
                     configurator.doConfigure(configurator.getClass().getResourceAsStream("/logback.xml"));
                     LOG.info("Log to file enabled.");
                 } catch (JoranException exception) {
-                    LOG.error("Caught an unexpected error while trying to load the logback configuration file..", exception);
+                    LOG.error("Caught an unexpected error while trying to load the logback configuration file..",
+                            exception);
                 }
             }
             if (Information.getInformation(filiusArgs.currWD) == null) {

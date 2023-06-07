@@ -1,5 +1,9 @@
 # Changelog Filius
 
+## [2.4.1] - 2023-06-07
+### Fixed
+ * Fix language selection
+ 
 ## [2.4.0] - 2023-05-29
 ### Added
  * Switch is now also Wireless Access Point

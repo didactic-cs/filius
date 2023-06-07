@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>filius</groupId>
 	<artifactId>filius</artifactId>
-	<version>2.4.0</version>
+	<version>2.4.1</version>
 	<properties>
-		<buildDate>29.05.2023</buildDate>
+		<buildDate>07.06.2023</buildDate>
 		<publisher>Stefan Freischlad</publisher>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.10</junit.version>
