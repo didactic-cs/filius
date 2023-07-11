@@ -1,13 +1,13 @@
 # Filius - Simple Network Simulation
 Filius is a network simulator for educational purpose
 
-## Licencse
+## License
 Filius is provided under the terms of GPLv2 or GPLv3.
 
 ## Requirements
-Filius is a Java application. It is required that there is a Java Runtime Environment 8 or higher. Support of Java 8 is deprecated and will end soon.
+Filius is a Java application. A Java Runtime Environment 8 or higher is required. Support of Java 8 is deprecated and will end soon.
 
-For most features, JRE will do. The feature to implement and run your own applications (by means of the Software Wizard) requires Java Development Kit.
+For most features, JRE will do. The feature to implement and run your own applications (by means of the Software Wizard) requires the Java Development Kit.
 
 ## OS Support
 Windows, Linux
@@ -16,9 +16,9 @@ Windows, Linux
 German, French, English
 
 ## Configuration
-The personal configuration, i.e. selected language as well as the ui state when leaving the program, is stored within the personal home directory within a folder named ".filius".
+The personal configuration, i.e. selected language as well as the UI state when leaving the program, is stored within the personal home directory within a folder named ".filius".
 
-Global configurations can be modified in the install directory within "filius.ini". For more details see the documented parameter in this file.
+Global configurations can be modified in the install directory within "filius.ini". For more details see the documented parameters in this file.
 
 ## Installation
 The Windows installer is based on nsis. It supports the standard parameter:
@@ -42,9 +42,9 @@ Currently, the build works with Java up to version 13 since some unit tests cann
 ## Bundled JRE
 Some Filius distributions are shipped with JRE to remove the external dependency on a pre-installed Java Runtime Environment. But since Filius is not built as a Java module, the JRE cannot be built as part of the build process with Maven.
 
-The Runtime is created in two steps:
-0. Define required Java modules
-0. Create the runtime
+The runtime is created in two steps:
+1. Define required Java modules
+2. Create the runtime
 
 ### Define Required Modules
 Use the jdeps tool that is shipped with OpenJDK:
@@ -60,7 +60,7 @@ java.base,java.compiler,java.desktop,java.instrument,java.management,java.naming
 ```
 
 Additionally, the following runtime dependencies are required in order to use the Software Assistant for application compilation at runtime in Filius:
-- jdk.compiler - This module contains the compiler toolset.
+- jdk.compiler - This module contains the compiler tool set.
 - jdk.zipfs - This module is required to read dependencies on built-in Filius classes from filius.jar.
 
 ### Build Runtime
@@ -70,7 +70,7 @@ The bundled JRE (if available) is built with the following command:
 jlink --no-header-files --no-man-pages --compress=2 --strip-debug --add-modules java.base,java.desktop,java.instrument,java.management,java.naming,java.sql,java.xml.crypto,jdk.unsupported,java.compiler,jdk.compiler,jdk.zipfs --output java-runtime
 ```
 
-## Generate Documenation
+## Generate Documentation
 Source code is documented with Javadoc. Generate the API documentation with Maven:
 
 ```
