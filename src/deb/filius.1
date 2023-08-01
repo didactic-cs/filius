@@ -1,0 +1,70 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2023 Andreas B. Mundt <andi@debian.org>,
+.\"
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH FILIUS "1"  "July 2023" "" "User Commands"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+filius \- educational network simulator
+.SH SYNOPSIS
+.B filius
+.RI [ options ]
+.RI [ project.fls ]
+.SH DESCRIPTION
+This manual page documents briefly the
+.B filius
+program.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
+.\" respectively.
+.B filius
+is an educational program to simulate networking technologies
+like Ethernet, TCP/IP as well as various services and applications.
+
+It offers network components like desktops, servers, switches and
+routers.  After assembling a network, the setup can be simulated and
+saved as a
+.I project.fls
+(zip archive) file.
+.SH OPTIONS
+The program offers the following options:
+.TP
+.B \-h, \-\-help
+Show a summary of options.
+.TP
+.B \-l
+Activate logging to the log file.
+.TP
+.B \-n
+Activate the native look and feel graphical user interface.
+.TP
+.B \-r <arg>
+Multiplication factor to adapt the round-trip-time of the simulated network: 1 (default) up to 5.
+.TP
+.B \-s
+Adapt UI for small screen resolutions (less than 1024x768).
+.TP
+.B \-v
+Activate verbose logging.
+.TP
+.B \-w, \-\-wd <arg>
+Working directory of the program.  Defaults to
+.IR ~/.filius/ .
+.br
+.SH AUTHOR
+This manual page was written by Andreas B. Mundt <andi@debian.org> for
+the Debian system (but may be used by others).
