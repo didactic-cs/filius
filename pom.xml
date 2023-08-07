@@ -414,6 +414,28 @@
 							</execution>
 						</executions>
 					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<executable>pandoc</executable>
+							<workingDirectory>src/info/</workingDirectory>
+							<arguments>
+								<argument>-o</argument>
+								<argument>Einfuehrung_Filius.html</argument>
+								<argument>Einfuehrung_Filius.md</argument>
+							</arguments>
+						</configuration>
+					</plugin>
 					<!-- Create Debian Package (used for Ubuntu Platform) -->
 					<plugin>
 						<artifactId>jdeb</artifactId>
