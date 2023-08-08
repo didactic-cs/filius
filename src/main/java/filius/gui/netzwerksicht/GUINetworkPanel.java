@@ -39,6 +39,8 @@ import filius.hardware.knoten.Rechner;
 import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 
+import filius.gui.GUIContainer;
+
 public class GUINetworkPanel extends GUIMainArea {
 
     private static final long serialVersionUID = 1L;
@@ -67,21 +69,22 @@ public class GUINetworkPanel extends GUIMainArea {
             if (tempitem.getKnoten() instanceof InternetKnoten) {
                 templabel.updateTooltip((InternetKnoten) tempitem.getKnoten());
             }
+            int iconTheme = GUIContainer.getGUIContainer().getMenu().iconTheme;
             if (tempitem.getKnoten() instanceof Switch) {
                 if (((Switch) tempitem.getKnoten()).isCloud())
                     templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH_CLOUD)));
                 else
-                    templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH)));
+                    templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH[iconTheme])));
             } else if (tempitem.getKnoten() instanceof Vermittlungsrechner) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.VERMITTLUNGSRECHNER)));
+                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.VERMITTLUNGSRECHNER[iconTheme])));
             } else if (tempitem.getKnoten() instanceof Rechner) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.RECHNER)));
+                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.RECHNER[iconTheme])));
             } else if (tempitem.getKnoten() instanceof Notebook) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK)));
+                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK[iconTheme])));
             } else if (tempitem.getKnoten() instanceof Modem) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM)));
+                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM[iconTheme])));
             } else if (tempitem.getKnoten() instanceof Gateway) {
-                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.GATEWAY)));
+                templabel.setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.GATEWAY[iconTheme])));
             }
 
             templabel.setBounds(tempitem.getImageLabel().getBounds());
