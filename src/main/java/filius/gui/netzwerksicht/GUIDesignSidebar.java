@@ -78,9 +78,9 @@ public class GUIDesignSidebar extends GUISidebar {
         "gfx/hardware/laptopS.png"
     };
     public static final String MODEM[] = {
-        "gfx/hardware/vermittlungsrechner-out.png",
-        "gfx/hardware/vermittlungsrechner-outE.png",
-        "gfx/hardware/vermittlungsrechner-outS.png"
+        "gfx/hardware/modem.png",
+        "gfx/hardware/modemE.png",
+        "gfx/hardware/modemS.png"
     };
     public static final String GATEWAY[] = {
         "gfx/hardware/gateway.png",

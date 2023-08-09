@@ -30,3 +30,15 @@ Nuvola_mimetypes_pdf.png / pdf_small.png
 Designer: David Vignoni / ICON KING
 License: GNU GPL 2.1 or later
 https://commons.wikimedia.org/wiki/File:Nuvola_mimetypes_pdf.png
+
+Files:
+  gatewayS.svg gatewayS.png
+  laptopS.svg laptopS.png
+  routerS.svg routerS.png
+  serverS.svg serverS.png
+  switchS.svg switchS.png
+  modemS.svg modemS.png
+Copyright: 2023, Andreas B. Mundt <andi.mundt@web.de>
+License: GPL-3 or CC-BY-SA-4.0, https://creativecommons.org/licenses/by-sa/4.0/
+Comment: All icons have been drawn from scratch, partially inspired by the Gnome
+  high contrast icons: https://commons.wikimedia.org/wiki/GNOME_High_contrast_icons
