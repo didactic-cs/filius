@@ -75,10 +75,12 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
             GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
                     .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH_CLOUD)));
             ((Switch) holeHardware()).setCloud(true);
+            GUIContainer.getGUIContainer().updateViewport();
         } else {
             GUIContainer.getGUIContainer().getLabelforKnoten(((Switch) holeHardware()))
                     .setIcon(new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH[iconTheme])));
             ((Switch) holeHardware()).setCloud(false);
+            GUIContainer.getGUIContainer().updateViewport();
         }
     }
 
