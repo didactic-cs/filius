@@ -32,12 +32,12 @@ License: GNU GPL 2.1 or later
 https://commons.wikimedia.org/wiki/File:Nuvola_mimetypes_pdf.png
 
 Files:
-  gatewayS.svg gatewayS.png
-  laptopS.svg laptopS.png
-  routerS.svg routerS.png
-  serverS.svg serverS.png
-  switchS.svg switchS.png
-  modemS.svg modemS.png
+ gatewayS.svg gatewayS.png
+ laptopS.svg laptopS.png
+ routerS.svg routerS.png
+ serverS.svg serverS.png
+ switchS.svg switchS.png
+ modemS.svg modemS.png
 Copyright: 2023, Andreas B. Mundt <andi.mundt@web.de>
 License: GPL-3 or CC-BY-SA-4.0, https://creativecommons.org/licenses/by-sa/4.0/
 Comment: All icons have been drawn from scratch, partially inspired by the Gnome
@@ -47,6 +47,13 @@ Files: laptopE.svg laptopE.png
 Copyright: 2023, Andreas B. Mundt <andi.mundt@web.de>
 License: GPL-3 or CC-BY-SA-4.0, https://creativecommons.org/licenses/by-sa/4.0/
 Comment: Based on work by Baptiste Gaultier (@b.gaultier, openclipart), public domain
+
+Files:
+ routerE.svg routerE.png
+ switchE.svg switchE.png
+Copyright: 2023, Andreas B. Mundt <andi.mundt@web.de>
+License: GPL-3 or CC-BY-SA-4.0, https://creativecommons.org/licenses/by-sa/4.0/
+Comment: Based on work by Cyber Scooty (@cyberscooty, openclipart), public domain
 
 Files: serverE.svg serverE.png
 Copyright:
