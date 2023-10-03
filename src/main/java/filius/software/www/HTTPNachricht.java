@@ -27,10 +27,9 @@ package filius.software.www;
 
 import java.util.StringTokenizer;
 
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UriUtils;
 
 import filius.rahmenprogramm.I18n;
 
@@ -414,18 +413,12 @@ public class HTTPNachricht implements I18n {
     }
 
     protected static String encodePath(String path) {
-        String urlEncodedPath = "";
-        try {
-            urlEncodedPath = URIUtil.encodePathQuery(path, "utf8");
-        } catch (URIException e) {}
+        String urlEncodedPath = UriUtils.encodePath(path, "utf8");
         return urlEncodedPath;
     }
 
     protected static String decodePath(String urlEncodedPath) {
-        String path = "";
-        try {
-            path = URIUtil.decode(urlEncodedPath, "utf8");
-        } catch (URIException e) {}
+        String path = UriUtils.decode(urlEncodedPath, "utf8");
         return path;
     }
 }

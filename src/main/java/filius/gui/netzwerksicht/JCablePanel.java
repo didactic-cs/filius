@@ -69,35 +69,36 @@ public class JCablePanel extends JPanel implements Observer {
 
     public void updateBounds() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (JCablePanel), updateBounds()");
-        int x1, x2, y1, y2, t1;
 
-        // Theoretisch korrekte Positionen
-        x1 = (int) (ziel1.getImageLabel().getX());
-        x2 = (int) (ziel2.getImageLabel().getX());
-        y1 = (int) (ziel1.getImageLabel().getY());
-        y2 = (int) (ziel2.getImageLabel().getY());
+        if (null != ziel1 && null != ziel2) {
+            // Theoretisch korrekte Positionen
+            int x1 = (int) (ziel1.getImageLabel().getX());
+            int x2 = (int) (ziel2.getImageLabel().getX());
+            int y1 = (int) (ziel1.getImageLabel().getY());
+            int y2 = (int) (ziel2.getImageLabel().getY());
 
-        x1 = (int) (x1 + (0.5 * ziel1.getImageLabel().getWidth()));
-        y1 = (int) (y1 + (0.5 * ziel1.getImageLabel().getHeight()));
-        x2 = (int) (x2 + (0.5 * ziel2.getImageLabel().getWidth()));
-        y2 = (int) (y2 + (0.5 * ziel2.getImageLabel().getHeight()));
+            x1 = (int) (x1 + (0.5 * ziel1.getImageLabel().getWidth()));
+            y1 = (int) (y1 + (0.5 * ziel1.getImageLabel().getHeight()));
+            x2 = (int) (x2 + (0.5 * ziel2.getImageLabel().getWidth()));
+            y2 = (int) (y2 + (0.5 * ziel2.getImageLabel().getHeight()));
 
-        // Absolut korrekte Positionen (also Sidebar und Menu rausgerechnet)
-        if (x1 > x2) {
-            t1 = x1;
-            x1 = x2;
-            x2 = t1;
+            // Absolut korrekte Positionen (also Sidebar und Menu rausgerechnet)
+            if (x1 > x2) {
+                int t1 = x1;
+                x1 = x2;
+                x2 = t1;
+            }
+            if (y1 > y2) {
+                int t1 = y1;
+                y1 = y2;
+                y2 = t1;
+            }
+
+            // add 2 for each direction to take care of linewidth
+            setBounds(x1 - 2, y1 - 2, x2 - x1 + 4, y2 - y1 + 4);
+            LOG.trace("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2 + "  (W:"
+                    + (x2 - x1) + ", H:" + (y2 - y1) + ")");
         }
-        if (y1 > y2) {
-            t1 = y1;
-            y1 = y2;
-            y2 = t1;
-        }
-
-        // add 2 for each direction to take care of linewidth
-        setBounds(x1 - 2, y1 - 2, x2 - x1 + 4, y2 - y1 + 4);
-        LOG.trace("JCablePanel (" + this.hashCode() + "), bounds: " + x1 + "/" + y1 + ", " + x2 + "/" + y2 + "  (W:"
-                + (x2 - x1) + ", H:" + (y2 - y1) + ")");
     }
 
     protected void paintComponent(Graphics g) {
