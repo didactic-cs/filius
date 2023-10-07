@@ -28,6 +28,7 @@ package filius.software.system;
 import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -65,6 +66,18 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      * @see filius.software.netzzugangsschicht.SwitchPortBeobachter
      */
     private LinkedList<EthernetFrame> durchgelaufeneFrames = new LinkedList<EthernetFrame>();
+
+    private String ssid = UUID.randomUUID().toString().substring(0, 6);
+
+    private long retentionTime = 0;
+
+    public long getRetentionTime() {
+        return retentionTime;
+    }
+
+    public void setRetentionTime(long retentionTime) {
+        this.retentionTime = retentionTime;
+    }
 
     /**
      * Hier wird die Netzzugangsschicht des Switch initialisiert und gestartet. Ausserdem wird die SAT zurueckgesetzt.
@@ -156,5 +169,13 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      */
     public LinkedList<EthernetFrame> holeDurchgelaufeneFrames() {
         return durchgelaufeneFrames;
+    }
+
+    public void setSSID(String ssid) {
+        this.ssid = ssid;
+    }
+
+    public String getSSID() {
+        return ssid;
     }
 }
