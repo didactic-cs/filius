@@ -161,7 +161,7 @@ public class SzenarioVerwaltung extends Observable implements I18n {
             mx = new XMLEncoder(new BufferedOutputStream(fos));
             mx.setExceptionListener(new ExceptionListener() {
                 public void exceptionThrown(Exception e) {
-                    LOG.debug("", e);
+                    LOG.trace("Error in XML Encoder fetched.", e);
                 }
             });
 
@@ -171,17 +171,15 @@ public class SzenarioVerwaltung extends Observable implements I18n {
             mx.writeObject(docuItems);
 
             return true;
-        } catch (java.lang.RuntimeException e) {
+        } catch (RuntimeException e) {
             LOG.debug("EXCEPTION: java.lang.RuntimeException raised; Java internal problem, not Filius related!");
             return false;
         } catch (FileNotFoundException e2) {
-            LOG.debug("", e2);
-
+            LOG.debug("File to store could not be found.", e2);
             return false;
         } catch (Exception e) {
             return false;
         } finally {
-
             if (mx != null)
                 mx.close();
             if (fos != null) {
