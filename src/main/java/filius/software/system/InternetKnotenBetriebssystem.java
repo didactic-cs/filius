@@ -598,7 +598,7 @@ public abstract class InternetKnotenBetriebssystem extends SystemSoftware {
         return null == nic ? null : nic.getIp();
     }
 
-    protected NetzwerkInterface primaryNetworkInterface() {
+    public NetzwerkInterface primaryNetworkInterface() {
         NetzwerkInterface nic = null;
         if (getKnoten() instanceof InternetKnoten) {
             InternetKnoten knoten = (InternetKnoten) getKnoten();

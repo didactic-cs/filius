@@ -41,6 +41,16 @@ import filius.software.rip.RIPTable;
 public class Betriebssystem extends InternetKnotenBetriebssystem {
     private static Logger LOG = LoggerFactory.getLogger(Betriebssystem.class);
 
+    private String ssid;
+
+    public String getSsid() {
+        return ssid;
+    }
+
+    public void setSsid(String ssid) {
+        this.ssid = ssid;
+    }
+
     @Override
     public boolean isRipEnabled() {
         return false;

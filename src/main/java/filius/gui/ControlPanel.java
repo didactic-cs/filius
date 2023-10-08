@@ -48,6 +48,7 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
     private JBackgroundPanel contentPanel;
     protected JScrollPane scrollPane;
     protected Box box;
+    protected Box middleBox;
     protected Box rightBox;
 
     private JLabel openClose;
@@ -81,7 +82,12 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
         contentPanel.setBackgroundImage("gfx/allgemein/konfigPanel_hg.png");
         scrollPane = new JScrollPane(contentPanel);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        if (mode == HORIZONTAL) {
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        } else {
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        }
+
         add(scrollPane, BorderLayout.CENTER);
 
         openClose = new JLabel(getIcon(false));
@@ -122,21 +128,36 @@ public class ControlPanel extends JBackgroundPanel implements Observer {
         contentPanel.setLayout(new BorderLayout());
 
         box = Box.createVerticalBox();
-        box.add(Box.createHorizontalGlue());
         box.setOpaque(false);
         box.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         box.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
+        Box auxBox = Box.createHorizontalBox();
+        auxBox.add(Box.createVerticalGlue());
+        auxBox.setOpaque(false);
+        auxBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+
+        middleBox = Box.createVerticalBox();
+        middleBox.setOpaque(false);
+        middleBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        middleBox.setAlignmentY(JComponent.TOP_ALIGNMENT);
+        middleBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        auxBox.add(middleBox);
+
         rightBox = Box.createVerticalBox();
-        rightBox.add(Box.createHorizontalGlue());
         rightBox.setOpaque(false);
         rightBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        rightBox.setAlignmentY(JComponent.TOP_ALIGNMENT);
         rightBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        auxBox.add(rightBox);
 
         initContents();
 
+        middleBox.add(Box.createVerticalGlue());
+        rightBox.add(Box.createVerticalGlue());
+
         contentPanel.add(box, BorderLayout.CENTER);
-        contentPanel.add(rightBox, BorderLayout.LINE_END);
+        contentPanel.add(auxBox, BorderLayout.EAST);
         contentPanel.updateUI();
         contentPanel.invalidate();
         contentPanel.validate();

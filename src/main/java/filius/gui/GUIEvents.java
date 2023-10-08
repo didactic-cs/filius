@@ -45,10 +45,10 @@ import org.slf4j.LoggerFactory;
 import filius.gui.nachrichtensicht.ExchangeComponent;
 import filius.gui.netzwerksicht.GUIKabelItem;
 import filius.gui.netzwerksicht.GUIKnotenItem;
-import filius.gui.netzwerksicht.GUINetworkPanel;
 import filius.gui.netzwerksicht.JCablePanel;
 import filius.gui.netzwerksicht.JKonfiguration;
 import filius.gui.netzwerksicht.JSidebarButton;
+import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
@@ -84,12 +84,10 @@ public class GUIEvents implements I18n {
 
     private List<GUIKnotenItem> markedlist;
 
-    private GUIKnotenItem loeschitem, aktivesItem;
+    private GUIKnotenItem aktivesItem;
     private Map<Knoten, Boolean> statusIsWANPort = new HashMap<>();
     private boolean lastStatusIsWANPort;
     private GUIKnotenItem lastGateway;
-
-    private JSidebarButton loeschlabel;
 
     private JCablePanel kabelPanelVorschau;
 
@@ -153,12 +151,7 @@ public class GUIEvents implements I18n {
         }
 
         GUIContainer c = GUIContainer.getGUIContainer();
-
         JMarkerPanel auswahl = c.getAuswahl();
-        int neuX, neuY, neuWidth, neuHeight;
-        int tmpX, tmpY; // for calculating the actual position (only within
-                        // working panel)
-
         JSidebarButton dragVorschau = c.getDragVorschau();
 
         SzenarioVerwaltung.getInstance().setzeGeaendert();
@@ -166,7 +159,7 @@ public class GUIEvents implements I18n {
         // Einzelnes Item verschieben
         if (!c.isMarkerVisible()) {
             if (aktiveslabel != null && !dragVorschau.isVisible()) {
-                neuX = e.getX() + shiftX;
+                int neuX = e.getX() + shiftX;
                 if (neuX < 0) {
                     neuX = 0;
                 } else {
@@ -176,7 +169,7 @@ public class GUIEvents implements I18n {
                     }
                 }
 
-                neuY = e.getY() + shiftY;
+                int neuY = e.getY() + shiftY;
                 if (neuY < 0) {
                     neuY = 0;
                 } else {
@@ -240,10 +233,6 @@ public class GUIEvents implements I18n {
         JMarkerPanel auswahl = c.getAuswahl();
 
         SzenarioVerwaltung.getInstance().setzeGeaendert();
-
-        if (neuesKabel == null) {
-            neuesKabel = new GUIKabelItem();
-        }
         updateAktivesItem(e.getX(), e.getY());
 
         if (GUIContainer.getGUIContainer().getMarkierung().inBounds(e.getX(), e.getY())) {
@@ -264,7 +253,7 @@ public class GUIEvents implements I18n {
                 hideAuxPanel(false);
 
                 if (!c.getKabelvorschau().isVisible()) {
-                    kontextMenueEntwurfsmodus(aktiveslabel, e.getX(), e.getY());
+                    kontextMenueEntwurfsmodus(e.getX(), e.getY());
                 } else {
                     resetAndHideCablePreview();
                 }
@@ -309,7 +298,7 @@ public class GUIEvents implements I18n {
                                 GUIErrorHandler.getGUIErrorHandler().DisplayError(messages.getString("guievents_msg1"));
                             }
                         }
-                        if (success && neuesKabel.getKabelpanel().getZiel1() != null) {
+                        if (success && null != neuesKabel && null != neuesKabel.getKabelpanel().getZiel1()) {
                             Knoten quellKnoten = neuesKabel.getKabelpanel().getZiel1().getKnoten();
                             if (tempKnoten.getSystemSoftware().wireless() && !(quellKnoten instanceof Switch)
                                     || quellKnoten.getSystemSoftware().wireless() && !(tempKnoten instanceof Switch)) {
@@ -335,6 +324,7 @@ public class GUIEvents implements I18n {
                     }
 
                     c.setProperty(aktivesItem.getKnoten());
+                    c.getProperty().updateAttribute();
                     if (e.getClickCount() == 2) {
                         GUIContainer.getGUIContainer().getProperty().maximieren();
                     }
@@ -367,22 +357,28 @@ public class GUIEvents implements I18n {
         GUIContainer.getGUIContainer().getAuswahl().setBounds(0, 0, 0, 0);
     }
 
-    public void processCableConnection(int currentPosX, int currentPosY) {
-        if (neuesKabel.getKabelpanel().getZiel1() == null) {
-            plugCableToFirstComponent(currentPosX, currentPosY);
-        } else if (neuesKabel.getKabelpanel().getZiel1() != null && neuesKabel.getKabelpanel().getZiel2() == null
+    public void connectNodes(GUIKnotenItem start, GUIKnotenItem dest) {
+        if (null != start && null != dest) {
+            GUIKabelItem connection = new GUIKabelItem();
+            connection.getKabelpanel().setZiel1(start);
+            connection.getKabelpanel().setZiel2(dest);
+
+        }
+    }
+
+    private void processCableConnection(int currentPosX, int currentPosY) {
+        if (null == neuesKabel.getKabelpanel().getZiel1()) {
+            neuesKabel.getKabelpanel().setZiel1(aktivesItem);
+            setConnectionPreviewStart(currentPosX, currentPosY);
+        } else if (null != neuesKabel.getKabelpanel().getZiel1() && null == neuesKabel.getKabelpanel().getZiel2()
                 && neuesKabel.getKabelpanel().getZiel1() != aktivesItem) {
-            plugCableToSecondComponent();
-            Kabel newCable = createConnection(neuesKabel.getKabelpanel().getZiel1().getKnoten(),
-                    neuesKabel.getKabelpanel().getZiel2().getKnoten());
-            neuesKabel.setDasKabel(newCable);
+            createConnection(neuesKabel.getKabelpanel().getZiel1(), aktivesItem);
             resetAndShowCablePreview(currentPosX, currentPosY);
         }
     }
 
-    private void plugCableToFirstComponent(int currentPosX, int currentPosY) {
+    private void setConnectionPreviewStart(int currentPosX, int currentPosY) {
         LOG.debug("plug cable to first component {}", aktivesItem.getKnoten().getName());
-        neuesKabel.getKabelpanel().setZiel1(aktivesItem);
         GUIContainer.getGUIContainer().getKabelvorschau()
                 .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel2.png")));
         kabelPanelVorschau = new JCablePanel();
@@ -469,68 +465,67 @@ public class GUIEvents implements I18n {
         aktivesItem = item;
     }
 
-    private void plugCableToSecondComponent() {
-        LOG.debug("plug cable to second component {}", aktivesItem.getKnoten().getName());
-        GUIContainer c = GUIContainer.getGUIContainer();
-        GUINetworkPanel draftpanel = c.getDesignpanel();
-
-        neuesKabel.getKabelpanel().setZiel2(aktivesItem);
-        draftpanel.remove(kabelPanelVorschau);
-        draftpanel.add(neuesKabel.getKabelpanel());
-        neuesKabel.getKabelpanel().updateBounds();
-        draftpanel.updateUI();
-        c.getCableItems().add(neuesKabel);
-    }
-
-    private Kabel createConnection(Knoten component1, Knoten component2) {
-        LOG.debug("connect componente {} <-> {}", component1.getName(), component2.getName());
+    public Kabel createConnection(GUIKnotenItem component1, GUIKnotenItem component2) {
+        LOG.debug("connect componente {} <-> {}", component1.getKnoten().getName(), component2.getKnoten().getName());
         Port anschluss1 = null;
         boolean wireless = false;
-        if (component1 instanceof Modem) {
-            Modem vrOut = (Modem) component1;
+        if (component1.getKnoten() instanceof Modem) {
+            Modem vrOut = (Modem) component1.getKnoten();
             anschluss1 = vrOut.getErstenAnschluss();
-        } else if (component1 instanceof Vermittlungsrechner) {
-            Vermittlungsrechner r = (Vermittlungsrechner) component1;
+        } else if (component1.getKnoten() instanceof Vermittlungsrechner) {
+            Vermittlungsrechner r = (Vermittlungsrechner) component1.getKnoten();
             anschluss1 = r.holeFreienPort();
-        } else if (component1 instanceof Switch) {
-            Switch sw = (Switch) component1;
+        } else if (component1.getKnoten() instanceof Switch) {
+            Switch sw = (Switch) component1.getKnoten();
             anschluss1 = ((SwitchFirmware) sw.getSystemSoftware()).getKnoten().holeFreienPort();
-        } else if (component1 instanceof Gateway) {
-            if (statusIsWANPort.getOrDefault(component1, Boolean.TRUE)) {
-                anschluss1 = ((Gateway) component1).holeWANInterface().getPort();
+        } else if (component1.getKnoten() instanceof Gateway) {
+            if (statusIsWANPort.getOrDefault(component1.getKnoten(), Boolean.TRUE)) {
+                anschluss1 = ((Gateway) component1.getKnoten()).holeWANInterface().getPort();
             } else {
-                anschluss1 = ((Gateway) component1).holeLANInterface().getPort();
+                anschluss1 = ((Gateway) component1.getKnoten()).holeLANInterface().getPort();
             }
-        } else if (component1 instanceof InternetKnoten) {
-            NetzwerkInterface nic1 = (NetzwerkInterface) ((InternetKnoten) component1).getNetzwerkInterfaces().get(0);
+        } else if (component1.getKnoten() instanceof InternetKnoten) {
+            NetzwerkInterface nic1 = (NetzwerkInterface) ((InternetKnoten) component1.getKnoten())
+                    .getNetzwerkInterfaces().get(0);
             anschluss1 = nic1.getPort();
             wireless = nic1.isWireless();
         }
 
         Port anschluss2 = null;
-        if (component2 instanceof Modem) {
-            Modem vrOut = (Modem) component2;
+        if (component2.getKnoten() instanceof Modem) {
+            Modem vrOut = (Modem) component2.getKnoten();
             anschluss2 = vrOut.getErstenAnschluss();
-        } else if (component2 instanceof Vermittlungsrechner) {
-            Vermittlungsrechner r = (Vermittlungsrechner) component2;
+        } else if (component2.getKnoten() instanceof Vermittlungsrechner) {
+            Vermittlungsrechner r = (Vermittlungsrechner) component2.getKnoten();
             anschluss2 = r.holeFreienPort();
-        } else if (component2 instanceof Switch) {
-            Switch sw = (Switch) component2;
+        } else if (component2.getKnoten() instanceof Switch) {
+            Switch sw = (Switch) component2.getKnoten();
             anschluss2 = ((SwitchFirmware) sw.getSystemSoftware()).getKnoten().holeFreienPort();
-        } else if (component2 instanceof Gateway) {
-            if (statusIsWANPort.getOrDefault(component2, Boolean.TRUE)) {
-                anschluss2 = ((Gateway) component2).holeWANInterface().getPort();
+        } else if (component2.getKnoten() instanceof Gateway) {
+            if (statusIsWANPort.getOrDefault(component2.getKnoten(), Boolean.TRUE)) {
+                anschluss2 = ((Gateway) component2.getKnoten()).holeWANInterface().getPort();
             } else {
-                anschluss2 = ((Gateway) component2).holeLANInterface().getPort();
+                anschluss2 = ((Gateway) component2.getKnoten()).holeLANInterface().getPort();
             }
-        } else if (component2 instanceof InternetKnoten) {
-            NetzwerkInterface nic2 = (NetzwerkInterface) ((InternetKnoten) component2).getNetzwerkInterfaces().get(0);
+        } else if (component2.getKnoten() instanceof InternetKnoten) {
+            NetzwerkInterface nic2 = (NetzwerkInterface) ((InternetKnoten) component2.getKnoten())
+                    .getNetzwerkInterfaces().get(0);
             anschluss2 = nic2.getPort();
             wireless = wireless || nic2.isWireless();
         }
 
         Kabel connection = new Kabel(anschluss1, anschluss2);
         connection.setWireless(wireless);
+
+        GUIKabelItem kabelItem = new GUIKabelItem();
+        kabelItem.getKabelpanel().setZiel1(component1);
+        kabelItem.getKabelpanel().setZiel2(component2);
+
+        kabelItem.setDasKabel(connection);
+        GUIContainer.getGUIContainer().getDesignpanel().add(kabelItem.getKabelpanel());
+        kabelItem.getKabelpanel().updateBounds();
+        GUIContainer.getGUIContainer().getDesignpanel().updateUI();
+        GUIContainer.getGUIContainer().getCableItems().add(kabelItem);
         return connection;
     }
 
@@ -544,10 +539,9 @@ public class GUIEvents implements I18n {
     }
 
     private void resetCableTool() {
-        neuesKabel = new GUIKabelItem();
         GUIContainer.getGUIContainer().getKabelvorschau()
                 .setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/ziel1.png")));
-
+        neuesKabel = new GUIKabelItem();
         if (kabelPanelVorschau != null) {
             kabelPanelVorschau.setVisible(false);
         }
@@ -640,13 +634,10 @@ public class GUIEvents implements I18n {
      * 
      *         Bei rechter Maustaste auf ein Item (bei Laufendem Entwurfsmodus) wird ein Kontextmenü angezeigt, in dem
      *         z.B. das Item gelöscht, kopiert oder ausgeschnitten werden kann.
-     * 
-     * @param templabel
-     *            Item auf dem das Kontextmenü erscheint
      * @param e
      *            MouseEvent (Für Position d. Kontextmenü u.a.)
      */
-    private void kontextMenueEntwurfsmodus(JSidebarButton templabel, int posX, int posY) {
+    private void kontextMenueEntwurfsmodus(int posX, int posY) {
         String textKabelEntfernen;
 
         updateAktivesItem(posX, posY);
@@ -670,9 +661,9 @@ public class GUIEvents implements I18n {
                 public void actionPerformed(ActionEvent e) {
 
                     if (e.getActionCommand() == pmLoeschen.getActionCommand()) {
-                        itemLoeschen(loeschlabel, loeschitem);
+                        itemLoeschen(aktiveslabel, aktivesItem);
                     } else if (e.getActionCommand() == pmKabelEntfernen.getActionCommand()) {
-                        kabelEntfernen();
+                        removeAllConnectionsFromActiveItem();
                     } else if (e.getActionCommand() == pmShowConfig.getActionCommand()) {
                         GUIContainer.getGUIContainer().setProperty(aktivesItem.getKnoten());
                         GUIContainer.getGUIContainer().getProperty().maximieren();
@@ -691,9 +682,6 @@ public class GUIEvents implements I18n {
             GUIContainer.getGUIContainer().getDesignpanel().add(popmen);
             popmen.setVisible(true);
             popmen.show(GUIContainer.getGUIContainer().getDesignpanel(), posX, posY);
-
-            loeschlabel = templabel;
-            loeschitem = aktivesItem;
         }
     }
 
@@ -708,7 +696,7 @@ public class GUIEvents implements I18n {
         ActionListener al = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (e.getActionCommand() == pmRemoveCable.getActionCommand()) {
-                    removeSingleCable(cable);
+                    removeConnection(cable);
                 }
             }
         };
@@ -749,7 +737,7 @@ public class GUIEvents implements I18n {
         while (iteratorLoeschKabel.hasNext()) {
             kabel = iteratorLoeschKabel.next();
 
-            this.removeSingleCable(kabel);
+            this.removeConnection(kabel);
         }
 
         GUIContainer.getGUIContainer().removeNodeItem(loeschitem);
@@ -758,61 +746,37 @@ public class GUIEvents implements I18n {
         GUIContainer.getGUIContainer().updateViewport();
     }
 
-    // remove a single cable without using touching the connected node
-    private void removeSingleCable(GUIKabelItem cable) {
-        LOG.trace("INVOKED filius.gui.GUIEvents, removeSingleCable(" + cable + ")");
+    /** remove the connection from model and view */
+    public void removeConnection(GUIKabelItem cable) {
+        LOG.trace("INVOKED filius.gui.GUIEvents, removeConnection(" + cable + ")");
         if (cable == null)
-            return; // no cable to be removed (this variable should be set in
-                    // contextMenuCable)
+            return;
 
-        filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration ziel1konf = null;
-        filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration ziel2konf = null;
-
-        if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel1()
-                .getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // LOG.debug("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
-            // JVermittlungsrechnerKonfiguration");
-            ziel1konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
-                    .getInstance(cable.getKabelpanel().getZiel1().getKnoten()));
-        }
-        if (JKonfiguration.getInstance(cable.getKabelpanel().getZiel2()
-                .getKnoten()) instanceof filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) {
-            // LOG.debug("DEBUG filius.gui.GUIEvents, removeSingleCable: getZiel1 -->
-            // JVermittlungsrechnerKonfiguration");
-            ziel2konf = ((filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration) JKonfiguration
-                    .getInstance(cable.getKabelpanel().getZiel2().getKnoten()));
-        }
         cable.getDasKabel().anschluesseTrennen();
         GUIContainer.getGUIContainer().getCableItems().remove(cable);
         GUIContainer.getGUIContainer().getDesignpanel().remove(cable.getKabelpanel());
-        GUIContainer.getGUIContainer().updateViewport();
 
-        if (ziel1konf != null)
-            ziel1konf.updateAttribute();
-        if (ziel2konf != null)
-            ziel2konf.updateAttribute();
+        if (JKonfiguration.getInstance(
+                cable.getKabelpanel().getZiel1().getKnoten()) instanceof JVermittlungsrechnerKonfiguration) {
+            JKonfiguration.getInstance(cable.getKabelpanel().getZiel1().getKnoten()).updateAttribute();
+        }
+        if (JKonfiguration.getInstance(
+                cable.getKabelpanel().getZiel2().getKnoten()) instanceof JVermittlungsrechnerKonfiguration) {
+            JKonfiguration.getInstance(cable.getKabelpanel().getZiel2().getKnoten()).updateAttribute();
+        }
+        GUIContainer.getGUIContainer().updateViewport();
     }
 
-    /**
-     * 
-     * Entfernt das Kabel, welches am aktuellen Item angeschlossen ist
-     * 
-     * Ersetzt spaeter kabelEntfernen!
-     * 
-     */
-    private void kabelEntfernen() {
-        ListIterator<GUIKabelItem> iteratorAlleKabel = GUIContainer.getGUIContainer().getCableItems().listIterator();
-        GUIKabelItem tempKabel = null;
-        LinkedList<GUIKabelItem> loeschListe = new LinkedList<GUIKabelItem>();
-
+    /** Entfernt alle Verbindungen, die am aktuell selektierten Knoten angeschlossen sind. */
+    private void removeAllConnectionsFromActiveItem() {
         // Zu löschende Elemente werden in eine temporäre Liste gepackt
-        while (iteratorAlleKabel.hasNext()) {
-            tempKabel = (GUIKabelItem) iteratorAlleKabel.next();
-            if (tempKabel.getKabelpanel().getZiel1().equals(loeschitem)) {
+        LinkedList<GUIKabelItem> loeschListe = new LinkedList<GUIKabelItem>();
+        for (GUIKabelItem tempKabel : GUIContainer.getGUIContainer().getCableItems()) {
+            if (tempKabel.getKabelpanel().getZiel1().equals(aktivesItem)) {
                 loeschListe.add(tempKabel);
             }
 
-            if (tempKabel.getKabelpanel().getZiel2().equals(loeschitem)) {
+            if (tempKabel.getKabelpanel().getZiel2().equals(aktivesItem)) {
                 loeschListe.add(tempKabel);
             }
         }
@@ -820,14 +784,9 @@ public class GUIEvents implements I18n {
         // Temporäre Liste der zu löschenden Kabel wird iteriert und dabei
         // werden die Kabel aus der globalen Kabelliste gelöscht
         // und vom Panel entfernt
-        ListIterator<GUIKabelItem> iteratorLoeschKabel = loeschListe.listIterator();
-        while (iteratorLoeschKabel.hasNext()) {
-            tempKabel = iteratorLoeschKabel.next();
-            this.removeSingleCable(tempKabel);
+        for (GUIKabelItem tempKabel : loeschListe) {
+            this.removeConnection(tempKabel);
         }
-
-        GUIContainer.getGUIContainer().updateViewport();
-
     }
 
     public void mausPressedActionMode(MouseEvent e) {
