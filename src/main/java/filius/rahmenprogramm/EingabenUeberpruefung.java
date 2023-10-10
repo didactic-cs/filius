@@ -64,7 +64,8 @@ public class EingabenUeberpruefung implements I18n {
     public static final Pattern musterKeineLeerzeichen = Pattern.compile("[^\\s]*");
     public static final Pattern musterEmailBenutzername = Pattern.compile("([a-zA-Z0-9]|\\.|\\_|\\-)*");
     public static final Pattern musterMindEinZeichen = Pattern.compile("(.){1,}");
-    public static final Pattern musterNurZahlen = Pattern.compile("\\d");
+    public static final Pattern musterNurZahl = Pattern.compile("\\d");
+    public static final Pattern musterNurZahlen = Pattern.compile("\\d*");
     public static final Pattern musterDomain = Pattern.compile(
             "^([a-zA-Z]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]){0,1}(\\.[a-zA-Z]([a-zA-Z0-9\\\\-]{0,61}[a-zA-Z0-9]){0,1})*){0,1}\\.{0,1}$");
     public static final Pattern musterSubnetBinary = Pattern.compile("^11*0*$");
