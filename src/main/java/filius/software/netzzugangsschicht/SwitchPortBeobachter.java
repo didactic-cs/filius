@@ -25,6 +25,8 @@
  */
 package filius.software.netzzugangsschicht;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +82,8 @@ public class SwitchPortBeobachter extends ProtokollThread<EthernetFrame> {
 
         if (!switchFirmware.holeDurchgelaufeneFrames().contains(etp)) {
             switchFirmware.holeDurchgelaufeneFrames().add(etp);
-            switchFirmware.hinzuSatEintrag(etp.getQuellMacAdresse(), anschluss);
+            Date letztes_update = new Date();
+            switchFirmware.hinzuSatEintrag(etp.getQuellMacAdresse(), anschluss, letztes_update);
 
             Port zielAnschluss = switchFirmware.holeAnschlussFuerMAC(etp.getZielMacAdresse());
             if (zielAnschluss != null) {
