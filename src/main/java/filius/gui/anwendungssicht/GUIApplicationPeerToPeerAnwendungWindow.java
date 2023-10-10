@@ -444,7 +444,7 @@ public class GUIApplicationPeerToPeerAnwendungWindow extends GUIApplicationWindo
      * @param feld
      */
     public void zahlPruefen(JTextField feld) {
-        if (EingabenUeberpruefung.isGueltig(feld.getText(), EingabenUeberpruefung.musterNurZahlen)) {
+        if (EingabenUeberpruefung.isGueltig(feld.getText(), EingabenUeberpruefung.musterNurZahl)) {
             feld.setForeground(EingabenUeberpruefung.farbeRichtig);
             zahlOK = true;
         } else {
