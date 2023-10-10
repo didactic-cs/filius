@@ -25,14 +25,18 @@
  */
 package filius.gui.anwendungssicht;
 
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 
@@ -60,11 +64,26 @@ public class SatViewer extends JDialog implements I18n, PropertyChangeListener {
         ImageIcon icon = new ImageIcon(getClass().getResource("/gfx/hardware/switch.png"));
         setIconImage(icon.getImage());
 
-        dtm = new DefaultTableModel(0, 2);
+        dtm = new DefaultTableModel(0, 3);
         JTable tableSATNachrichten = new JTable(dtm);
         DefaultTableColumnModel dtcm = (DefaultTableColumnModel) tableSATNachrichten.getColumnModel();
         dtcm.getColumn(0).setHeaderValue(messages.getString("guievents_msg9"));
         dtcm.getColumn(1).setHeaderValue(messages.getString("guievents_msg10"));
+        dtcm.getColumn(2).setHeaderValue(messages.getString("guievents_msg27"));
+        
+        JPopupMenu menu = new JPopupMenu();
+
+        JMenuItem resetMenuItem = new JMenuItem(messages.getString("guievents_msg28"));
+        resetMenuItem.addMouseListener(new MouseInputAdapter() {
+            public void mousePressed(MouseEvent e) {
+                menu.setVisible(false);
+                ((SwitchFirmware) sw.getSystemSoftware()).loescheSAT();
+            }
+        });
+        menu.add(resetMenuItem);
+        
+        tableSATNachrichten.setComponentPopupMenu(menu);
+        
         JScrollPane spSAT = new JScrollPane(tableSATNachrichten);
         getContentPane().add(spSAT);
     }
@@ -82,6 +101,8 @@ public class SatViewer extends JDialog implements I18n, PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        updateSat();
+    	if (evt.getPropertyName() == "sat_entry") {
+    		updateSat();
+    	}
     }
 }
