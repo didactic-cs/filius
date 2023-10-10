@@ -26,8 +26,12 @@
 package filius.software.system;
 
 import java.beans.PropertyChangeEvent;
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -39,6 +43,31 @@ import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.I18n;
 import filius.software.netzzugangsschicht.EthernetFrame;
 import filius.software.netzzugangsschicht.SwitchPortBeobachter;
+
+/** Diese Klasse erweitert den Wert der HashMap für die SAT um einen Eintrag für das letzte Update.
+ */
+class satEntry {
+	
+	private Port port;
+	private Date letztes_Update;
+	
+	public Port getPort(){
+		return port;
+	}
+	
+	public Date holeLetztesUpdate() {
+		return letztes_Update;
+	}
+	
+	public void setPort(Port port) {
+		this.port = port;
+	}
+	
+	public void hinzuLetztesUpdate(Date letztes_Update) {
+		this.letztes_Update = letztes_Update;
+	}
+}
+
 
 /**
  * Diese Klasse stellt die Funktionalitaet des Switches zur Verfuegung. Wichtiges Element ist die Source Address Table
@@ -52,7 +81,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
     /**
      * Die Source Address Tabel (SAT), in der die MAC-Adressen den physischen Anschluessen des Switch zugeordnet werden
      */
-    private HashMap<String, Port> sat = new HashMap<String, Port>();
+    private ConcurrentHashMap<String, satEntry> sat = new ConcurrentHashMap<String, satEntry>();
 
     /**
      * Liste der Anschlussbeobachter. Sie implementieren die Netzzugangsschicht.
@@ -69,7 +98,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
 
     private String ssid = UUID.randomUUID().toString().substring(0, 6);
 
-    private long retentionTime = 0;
+    private long retentionTime = 300000;
 
     public long getRetentionTime() {
         return retentionTime;
@@ -87,7 +116,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), starten()");
         SwitchPortBeobachter anschlussBeobachter;
 
-        sat = new HashMap<String, Port>();
+        sat = new ConcurrentHashMap<String, satEntry>();
         switchBeobachter = new LinkedList<SwitchPortBeobachter>();
 
         for (Port anschluss : ((Switch) getKnoten()).getAnschluesse()) {
@@ -96,6 +125,19 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
             switchBeobachter.add(anschlussBeobachter);
         }
         firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, null));
+        
+        Timer timer = new Timer();
+       
+        timer.scheduleAtFixedRate(new TimerTask(){
+        	@Override
+        	public void run() {
+        		if(!isStarted()) {
+        			timer.cancel();
+        		} else if (!sat.isEmpty()) {
+        			checkSAT();	
+        		}
+        	}
+        }, 1000, 1000);
     }
 
     /** Hier wird die Netzzugangsschicht des Switch gestoppt. */
@@ -113,14 +155,16 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
         Vector<Vector<String>> eintraege = new Vector<Vector<String>>();
         Vector<String> eintrag;
         String ausgabe;
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
         for (String elem : sat.keySet()) {
-            Port anschluss = (Port) sat.get(elem);
+            Port anschluss = (Port) sat.get(elem).getPort();
             ausgabe = messages.getString("sw_switchfirmware_msg1") + " "
                     + (((Switch) getKnoten()).getAnschluesse().indexOf(anschluss) + 1);
             eintrag = new Vector<String>();
             eintrag.add(elem.toUpperCase());
             eintrag.add(ausgabe);
+            eintrag.add(formatter.format(sat.get(elem).holeLetztesUpdate()));
             eintraege.add(eintrag);
         }
 
@@ -136,10 +180,13 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
      * @param anschluss
      *            der Anschluss des Switch, der mit dem entfernten Anschluss verbunden ist
      */
-    public void hinzuSatEintrag(String macAdresse, Port anschluss) {
+    public void hinzuSatEintrag(String macAdresse, Port anschluss, Date letztes_Update) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), hinzuSatEintrag(" + macAdresse
-                + "," + anschluss + ")");
-        sat.put(macAdresse, anschluss);
+                + "," + anschluss + "," + letztes_Update + ")");
+        satEntry eintrag = new satEntry();	
+        eintrag.setPort(anschluss);
+        eintrag.hinzuLetztesUpdate(letztes_Update);	
+        sat.put(macAdresse, eintrag);
         firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, anschluss));
     }
 
@@ -155,7 +202,7 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (SwitchFirmware), holeAnschlussFuerMAC("
                 + macAdresse + ")");
         if (sat.containsKey(macAdresse)) {
-            return (Port) sat.get(macAdresse);
+            return (Port) sat.get(macAdresse).getPort();
         } else {
             return null;
         }
@@ -177,5 +224,26 @@ public class SwitchFirmware extends SystemSoftware implements I18n {
 
     public String getSSID() {
         return ssid;
+    }
+    
+    /**
+     * Methode zum Löschen der gesamten SAT
+     */
+    public void loescheSAT() {
+    	sat.clear();
+        firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, null));
+    }
+    
+    /**
+     * Methode zum Überprüfen der SAT
+     */
+    public void checkSAT() {
+    	Date jetzt = new Date();
+    	sat.forEach((mac,eintrag) -> {
+    		if (jetzt.getTime()-eintrag.holeLetztesUpdate().getTime() >= getRetentionTime()) {
+    			sat.remove(mac);
+    			firePropertyChanged(new PropertyChangeEvent(this, "sat_entry", null, null));
+    		};
+    	});
     }
 }
