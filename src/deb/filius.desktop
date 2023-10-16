@@ -10,3 +10,5 @@ Type=Application
 Categories=Education
 StartupNotify=false
 MimeType=application/filius-project
+Keywords=network;simulation;internet;school;education
+Keywords[de]=Netzwerk;Simulation;Internet;Schule;Bildung
