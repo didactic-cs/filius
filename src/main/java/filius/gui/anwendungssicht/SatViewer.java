@@ -59,7 +59,7 @@ public class SatViewer extends JDialog implements I18n, PropertyChangeListener {
     }
 
     private void init() {
-        setBounds(100, 100, 320, 240);
+        setBounds(100, 100, 400, 280);
 
         ImageIcon icon = new ImageIcon(getClass().getResource("/gfx/hardware/switch.png"));
         setIconImage(icon.getImage());
@@ -68,9 +68,12 @@ public class SatViewer extends JDialog implements I18n, PropertyChangeListener {
         JTable tableSATNachrichten = new JTable(dtm);
         DefaultTableColumnModel dtcm = (DefaultTableColumnModel) tableSATNachrichten.getColumnModel();
         dtcm.getColumn(0).setHeaderValue(messages.getString("guievents_msg9"));
+        dtcm.getColumn(0).setPreferredWidth(150);
         dtcm.getColumn(1).setHeaderValue(messages.getString("guievents_msg10"));
+        dtcm.getColumn(1).setPreferredWidth(100);
         dtcm.getColumn(2).setHeaderValue(messages.getString("guievents_msg27"));
-        
+        dtcm.getColumn(2).setPreferredWidth(150);
+
         JPopupMenu menu = new JPopupMenu();
 
         JMenuItem resetMenuItem = new JMenuItem(messages.getString("guievents_msg28"));
@@ -81,9 +84,9 @@ public class SatViewer extends JDialog implements I18n, PropertyChangeListener {
             }
         });
         menu.add(resetMenuItem);
-        
+
         tableSATNachrichten.setComponentPopupMenu(menu);
-        
+
         JScrollPane spSAT = new JScrollPane(tableSATNachrichten);
         getContentPane().add(spSAT);
     }
@@ -101,8 +104,8 @@ public class SatViewer extends JDialog implements I18n, PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-    	if (evt.getPropertyName() == "sat_entry") {
-    		updateSat();
-    	}
+        if (evt.getPropertyName() == "sat_entry") {
+            updateSat();
+        }
     }
 }
