@@ -34,27 +34,36 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import filius.gui.GUIContainer;
+import filius.gui.GUIEvents;
 import filius.gui.JMainFrame;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
+import filius.hardware.knoten.Switch;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.system.Betriebssystem;
 import filius.software.system.InternetKnotenBetriebssystem;
+import filius.software.system.SwitchFirmware;
 
 @SuppressWarnings("serial")
 public class JHostKonfiguration extends JKonfiguration implements I18n {
@@ -72,7 +81,11 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     private JButton btDhcp;
     private JCheckBox useIpAsName;
     private JCheckBox useMacAsName;
-    private JCheckBox wireless;
+    private JComboBox<String> ssid;
+    private JLabel ssidLabel;
+    private JRadioButton useLAN;
+    private JRadioButton useWiFi;
+    private ButtonGroup lanWifi;
 
     protected JHostKonfiguration(Hardware hardware) {
         super(hardware);
@@ -89,7 +102,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         updateAttribute();
     }
 
-    public void aenderungenAnnehmen() {
+    private void aenderungenAnnehmen() {
         Host host;
         Betriebssystem bs;
 
@@ -106,18 +119,32 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             bs.setDNSServer(dns.getText());
             bs.setIpForwardingEnabled(ipForwarding.isSelected());
             bs.setDHCPKonfiguration(dhcp.isSelected());
-            bs.nicWireless(wireless.isSelected());
+
+            boolean wifiStatusBeforeChange = bs.wireless();
+            String ssidBeforeChange = bs.getSsid();
+
+            bs.nicWireless(useWiFi.isSelected());
+            if (ssid.getSelectedIndex() >= 1) {
+                ((Betriebssystem) host.getSystemSoftware()).setSsid(ssid.getSelectedItem().toString());
+            } else {
+                ((Betriebssystem) host.getSystemSoftware()).setSsid(null);
+            }
+
+            boolean wifiStatusAfterChange = bs.wireless();
+            String ssidAfterChange = bs.getSsid();
+            if (!StringUtils.equals(ssidBeforeChange, ssidAfterChange)
+                    || wifiStatusBeforeChange != wifiStatusAfterChange) {
+                updateWifiConnection();
+            }
 
             if (dhcp.isSelected()) {
                 bs.getDHCPServer().setAktiv(false);
             }
-
         } else {
             LOG.debug("GUIRechnerKonfiguration: Aenderungen konnten nicht uebernommen werden.");
         }
 
         GUIContainer.getGUIContainer().updateViewport();
-        updateAttribute();
     }
 
     protected void initContents() {
@@ -126,6 +153,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         ActionListener actionListener = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 aenderungenAnnehmen();
+                updateAttribute();
             }
         };
         FocusListener focusListener = new FocusListener() {
@@ -133,6 +161,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
 
             public void focusLost(FocusEvent arg0) {
                 aenderungenAnnehmen();
+                updateAttribute();
             }
 
         };
@@ -285,29 +314,69 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
 
         // =======================================================
         // Wireless / Cable
-        tempLabel = new JLabel(messages.getString("jhostkonfiguration_msg13"));
-        tempLabel.setPreferredSize(new Dimension(LABEL_WIDTH, 10));
-        tempLabel.setVisible(true);
-        tempLabel.setOpaque(false);
-        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-        wireless = new JCheckBox();
-        wireless.setOpaque(false);
-        wireless.addActionListener(new ActionListener() {
+        ActionListener wifiLanActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 aenderungenAnnehmen();
+                updateAttribute();
             }
-        });
+        };
+
+        JLabel connectivity = new JLabel(" / ");
+        useLAN = new JRadioButton();
+        useLAN.setText(messages.getString("jhostkonfiguration_msg14"));
+        useLAN.setOpaque(false);
+        useLAN.addActionListener(wifiLanActionListener);
+        lanWifi = new ButtonGroup();
+        lanWifi.add(useLAN);
+        useWiFi = new JRadioButton();
+        useWiFi.setText(messages.getString("jhostkonfiguration_msg13"));
+        useWiFi.setOpaque(false);
+        useWiFi.addActionListener(wifiLanActionListener);
+        lanWifi.add(useWiFi);
 
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         tempBox.setPreferredSize(new Dimension(400, 35));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        tempBox.add(wireless);
-        tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
-        tempBox.add(tempLabel);
-        rightBox.add(tempBox, BorderLayout.NORTH);
+        tempBox.add(useLAN);
+        tempBox.add(connectivity);
+        tempBox.add(useWiFi);
+        middleBox.add(tempBox);
+
+        ssidLabel = new JLabel(messages.getString("jhostkonfiguration_msg15"));
+        ssidLabel.setVisible(true);
+        ssidLabel.setOpaque(false);
+        ssidLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        tempBox = Box.createHorizontalBox();
+        tempBox.add(Box.createHorizontalStrut(30));
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setPreferredSize(new Dimension(400, 35));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(ssidLabel);
+        middleBox.add(tempBox);
+
+        ssid = new JComboBox<>();
+        ssid.addItem(messages.getString("jhostkonfiguration_msg16"));
+        ssid.setPreferredSize(new Dimension(LABEL_WIDTH - 60, 15));
+        ssid.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                aenderungenAnnehmen();
+            }
+        });
+        tempBox = Box.createHorizontalBox();
+        tempBox.add(Box.createHorizontalStrut(30));
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setPreferredSize(new Dimension(400, 35));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(ssid);
+        middleBox.add(tempBox);
+
+        middleBox.add(Box.createVerticalStrut(160));
 
         // =======================================================
         // IP address as name
@@ -406,10 +475,9 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
         tempBox.add(tempLabel);
         rightBox.add(tempBox, BorderLayout.NORTH);
 
-        rightBox.add(Box.createVerticalStrut(10));
-
         // ===================================================
         // DHCP-Server einrichten
+        rightBox.add(Box.createVerticalStrut(10));
         tempBox = Box.createHorizontalBox();
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         tempBox.setOpaque(false);
@@ -421,13 +489,9 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             }
         });
         tempBox.add(btDhcp);
-
         rightBox.add(tempBox);
 
-        tempBox = Box.createVerticalBox();
-        tempBox.setOpaque(false);
-        tempBox.setPreferredSize(new Dimension(400, 80));
-        rightBox.add(tempBox);
+        rightBox.add(Box.createVerticalStrut(80));
 
         updateAttribute();
     }
@@ -456,20 +520,14 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     }
 
     public void updateAttribute() {
-        Betriebssystem bs;
-        Host host;
-
         if (holeHardware() != null) {
-            host = (Host) holeHardware();
+            Host host = (Host) holeHardware();
             name.setText(host.holeAnzeigeName());
             useIpAsName.setSelected(host.isUseIPAsName());
             useMacAsName.setSelected(host.isUseMACAsName());
             name.setEnabled(!host.isUseIPAsName() && !host.isUseMACAsName());
 
-            bs = (Betriebssystem) host.getSystemSoftware();
-
-            wireless.setSelected(bs.wireless());
-            wireless.setEnabled(host.holeFreienPort() != null);
+            Betriebssystem bs = (Betriebssystem) host.getSystemSoftware();
 
             macAdresse.setText(bs.primaryMACAddress());
             ipAdresse.setText(bs.primaryIPAdresse());
@@ -486,12 +544,85 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             gateway.setEnabled(!bs.isDHCPKonfiguration());
             dns.setEnabled(!bs.isDHCPKonfiguration());
 
+            useLAN.setSelected(!bs.wireless());
+            useWiFi.setSelected(bs.wireless());
+            useWiFi.setEnabled(host.holeFreienPort() != null || bs.wireless());
+            ssid.setEnabled(useWiFi.isSelected());
+            ssidLabel.setEnabled(ssid.isEnabled());
+            updateSsid();
+
             checkIpAddress();
             checkDnsAddress();
             checkGatewayAddress();
             checkNetmask();
         } else {
             LOG.debug("GUIRechnerKonfiguration: keine Hardware-Komponente vorhanden");
+        }
+    }
+
+    private void updateWifiConnection() {
+        Host host = (Host) holeHardware();
+
+        // Step 1: remove existing wifi connection
+        for (GUIKabelItem cable : GUIContainer.getGUIContainer().getCableItems()) {
+            if (cable.getDasKabel().getWireless() && (host.equals(cable.getKabelpanel().getZiel1().getKnoten())
+                    || host.equals(cable.getKabelpanel().getZiel2().getKnoten()))) {
+                GUIEvents.getGUIEvents().removeConnection(cable);
+                break;
+            }
+        }
+        // Step 2: (Re-)Connect to access point
+        Betriebssystem os = (Betriebssystem) host.getSystemSoftware();
+        String configuredSSID = os.getSsid();
+        boolean connectWifi = os.wireless() && null != configuredSSID;
+        if (connectWifi) {
+            GUIKnotenItem wifiAccessPoint = null;
+            GUIKnotenItem hostNode = null;
+            for (GUIKnotenItem item : GUIContainer.getGUIContainer().getKnotenItems()) {
+                if (item.getKnoten() instanceof Switch
+                        && configuredSSID.equals(((SwitchFirmware) item.getKnoten().getSystemSoftware()).getSSID())) {
+                    wifiAccessPoint = item;
+                } else if (item.getKnoten().equals(host)) {
+                    hostNode = item;
+                } else if (null != wifiAccessPoint && null != hostNode) {
+                    break;
+                }
+            }
+            if (null != wifiAccessPoint) {
+                GUIEvents.getGUIEvents().createConnection(hostNode, wifiAccessPoint);
+            }
+        }
+        GUIContainer.getGUIContainer().updateCables();
+    }
+
+    private void updateSsid() {
+        List<String> ssidList = new ArrayList<>();
+        for (int i = 1; i < ssid.getItemCount(); i++) {
+            ssidList.add(ssid.getItemAt(i));
+        }
+
+        List<String> accessPointSsidList = new ArrayList<>();
+        for (GUIKnotenItem item : GUIContainer.getGUIContainer().getKnotenItems()) {
+            if (item.getKnoten() instanceof Switch) {
+                String accessPointSsid = ((SwitchFirmware) item.getKnoten().getSystemSoftware()).getSSID();
+                accessPointSsidList.add(accessPointSsid);
+                if (!ssidList.contains(accessPointSsid)) {
+                    ssid.addItem(accessPointSsid);
+                }
+            }
+        }
+        for (int i = ssid.getItemCount() - 1; i >= 1; i--) {
+            if (!accessPointSsidList.contains(ssid.getItemAt(i))) {
+                ssid.removeItemAt(i);
+            }
+        }
+
+        Host host = (Host) holeHardware();
+        String configuredSSID = ((Betriebssystem) host.getSystemSoftware()).getSsid();
+        if (null != configuredSSID) {
+            ssid.setSelectedItem(configuredSSID);
+        } else {
+            ssid.setSelectedIndex(0);
         }
     }
 

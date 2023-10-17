@@ -87,9 +87,9 @@
 			<version>2.8.0</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>6.0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -293,7 +293,8 @@
 									</classPath>
 									<chdir>.</chdir>
 									<jre>
-										<!-- If the runtime is not bundled, launch4j will start with the 
+										<!-- If the runtime is not bundled,
+										launch4j will start with the 
 											available JRE. -->
 										<path>java-runtime</path>
 										<bundledJre64Bit>true</bundledJre64Bit>
@@ -308,10 +309,12 @@
 										<fileDescription>${project.name}</fileDescription>
 										<copyright>${publisher}</copyright>
 										<productVersion>${project.version}.0</productVersion>
-										<txtProductVersion>${project.description}</txtProductVersion>
+										<txtProductVersion>
+											${project.description}</txtProductVersion>
 										<productName>${project.name}</productName>
 										<internalName>${project.artifactId}</internalName>
-										<originalFilename>${launch4j.starterName}</originalFilename>
+										<originalFilename>
+											${launch4j.starterName}</originalFilename>
 									</versionInfo>
 								</configuration>
 							</execution>
@@ -404,13 +407,53 @@
 								<phase>prepare-package</phase>
 								<configuration>
 									<target>
-										<gzip destfile="${project.build.directory}/changelog.gz"
+										<gzip
+											destfile="${project.build.directory}/changelog.gz"
 											src="${project.basedir}/Changelog.md" />
 									</target>
 								</configuration>
 								<goals>
 									<goal>run</goal>
 								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>en</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>pandoc</executable>
+									<workingDirectory>src/info/</workingDirectory>
+									<arguments>
+										<argument>-o</argument>
+										<argument>Introduction_Filius.html</argument>
+										<argument>Introduction_Filius.md</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>de</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>pandoc</executable>
+									<workingDirectory>src/info/</workingDirectory>
+									<arguments>
+										<argument>-o</argument>
+										<argument>Einfuehrung_Filius.html</argument>
+										<argument>Einfuehrung_Filius.md</argument>
+									</arguments>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
@@ -429,7 +472,8 @@
 									<installDir>/usr/share/filius</installDir>
 									<dataSet>
 										<data>
-											<src>${project.build.directory}/${project.build.finalName}.jar</src>
+											<src>
+												${project.build.directory}/${project.build.finalName}.jar</src>
 											<type>file</type>
 											<dst>/usr/share/filius/filius.jar</dst>
 										</data>
@@ -441,15 +485,18 @@
 												<path>/usr/share/doc/filius</path>
 												<path>/usr/share/filius/config</path>
 												<path>/usr/share/filius/tmpl</path>
-												<path>/usr/share/filius/tmpl/quelltext_vorlagen</path>
+												<path>
+													/usr/share/filius/tmpl/quelltext_vorlagen</path>
 												<path>/usr/share/filius/img</path>
 												<path>/usr/share/filius/hilfe</path>
-												<path>/usr/share/filius/hilfe/gfx</path>
+												<path>
+													/usr/share/filius/hilfe/gfx</path>
 												<path>/usr/share/filius/lib</path>
 											</paths>
 										</data>
 										<data>
-											<src>${project.basedir}/src/scripts/filius.sh</src>
+											<src>
+												${project.basedir}/src/scripts/filius.sh</src>
 											<type>file</type>
 											<dst>usr/share/filius/filius.sh</dst>
 											<mapper>
@@ -462,41 +509,52 @@
 										<data>
 											<type>link</type>
 											<linkName>/usr/bin/filius</linkName>
-											<linkTarget>../share/filius/filius.sh</linkTarget>
+											<linkTarget>
+												../share/filius/filius.sh</linkTarget>
 											<symlink>true</symlink>
 										</data>
 										<data>
-											<src>${project.basedir}/src/deb/filius.desktop</src>
+											<src>
+												${project.basedir}/src/deb/filius.desktop</src>
 											<type>file</type>
-											<dst>/usr/share/applications/filius.desktop</dst>
+											<dst>
+												/usr/share/applications/filius.desktop</dst>
 										</data>
 										<data>
-											<src>${project.basedir}/src/deb/application-filius-project.xml</src>
+											<src>
+												${project.basedir}/src/deb/application-filius-project.xml</src>
 											<type>file</type>
-											<dst>/usr/share/mime/packages/application-filius-project.xml</dst>
+											<dst>
+												/usr/share/mime/packages/application-filius-project.xml</dst>
 										</data>
 										<data>
-											<src>${project.basedir}/src/deb/filius32.png</src>
+											<src>
+												${project.basedir}/src/deb/filius32.png</src>
 											<type>file</type>
 											<dst>/usr/share/pixmaps/filius32.png</dst>
 										</data>
 										<data>
-											<src>${project.basedir}/src/deb/copyright</src>
+											<src>
+												${project.basedir}/src/deb/copyright</src>
 											<type>file</type>
 											<dst>/usr/share/doc/filius/copyright</dst>
 										</data>
 										<data>
-											<src>${project.build.directory}/changelog.gz</src>
+											<src>
+												${project.build.directory}/changelog.gz</src>
 											<type>file</type>
-											<dst>/usr/share/doc/filius/changelog.gz</dst>
+											<dst>
+												/usr/share/doc/filius/changelog.gz</dst>
 										</data>
 										<data>
-											<src>${project.build.directory}/Changelog.md</src>
+											<src>
+												${project.build.directory}/Changelog.md</src>
 											<type>file</type>
 											<dst>/usr/share/filius/Changelog.md</dst>
 										</data>
 										<data>
-											<src>${project.build.directory}/Readme.md</src>
+											<src>
+												${project.build.directory}/Readme.md</src>
 											<type>file</type>
 											<dst>/usr/share/filius/Readme.md</dst>
 										</data>
@@ -511,7 +569,8 @@
 											</mapper>
 										</data>
 										<data>
-											<src>${project.basedir}/src/main/resources/config</src>
+											<src>
+												${project.basedir}/src/main/resources/config</src>
 											<type>directory</type>
 											<includes>*.*</includes>
 											<mapper>
@@ -526,7 +585,8 @@
 											<symlink>true</symlink>
 										</data>
 										<data>
-											<src>${project.basedir}/src/main/resources/tmpl</src>
+											<src>
+												${project.basedir}/src/main/resources/tmpl</src>
 											<type>directory</type>
 											<mapper>
 												<type>perm</type>
@@ -534,7 +594,8 @@
 											</mapper>
 										</data>
 										<data>
-											<src>${project.basedir}/src/main/resources/img</src>
+											<src>
+												${project.basedir}/src/main/resources/img</src>
 											<type>directory</type>
 											<includes>*.*</includes>
 											<mapper>
@@ -543,7 +604,8 @@
 											</mapper>
 										</data>
 										<data>
-											<src>${project.basedir}/src/main/resources/hilfe</src>
+											<src>
+												${project.basedir}/src/main/resources/hilfe</src>
 											<type>directory</type>
 											<includes>*.*</includes>
 											<mapper>
@@ -552,12 +614,14 @@
 											</mapper>
 										</data>
 										<data>
-											<src>${project.basedir}/src/main/resources/hilfe/gfx</src>
+											<src>
+												${project.basedir}/src/main/resources/hilfe/gfx</src>
 											<type>directory</type>
 											<includes>*.*</includes>
 											<mapper>
 												<type>perm</type>
-												<prefix>/usr/share/filius/hilfe/gfx</prefix>
+												<prefix>
+													/usr/share/filius/hilfe/gfx</prefix>
 											</mapper>
 										</data>
 										<data>

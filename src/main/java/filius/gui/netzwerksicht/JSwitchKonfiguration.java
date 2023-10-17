@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -42,19 +44,25 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import filius.gui.GUIContainer;
+import filius.gui.GUIEvents;
 import filius.hardware.Hardware;
 import filius.hardware.knoten.Switch;
+import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
+import filius.software.system.SwitchFirmware;
 
 public class JSwitchKonfiguration extends JKonfiguration implements I18n {
     private static Logger LOG = LoggerFactory.getLogger(JSwitchKonfiguration.class);
 
     private static final long serialVersionUID = 1L;
     private JTextField name; // Name,Name,20,String,editable,Neuer
+    private JTextField ssid;
+    private JTextField retentionTime;
     private JCheckBox checkCloud;
 
     protected JSwitchKonfiguration(Hardware hardware) {
@@ -62,7 +70,26 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
     }
 
     public void aenderungenAnnehmen() {
-        ((Switch) holeHardware()).setName(name.getText());
+        Switch switchWAP = (Switch) holeHardware();
+        switchWAP.setName(name.getText());
+
+        SwitchFirmware switchFirmware = (SwitchFirmware) switchWAP.getSystemSoftware();
+        String ssidBeforeChange = switchFirmware.getSSID();
+        if (checkSSID()) {
+            switchFirmware.setSSID(ssid.getText());
+        }
+        if (!StringUtils.equals(ssidBeforeChange, switchFirmware.getSSID())) {
+            for (GUIKabelItem cable : GUIContainer.getGUIContainer().getCableItems()) {
+                if (cable.getDasKabel().getWireless() && (switchWAP.equals(cable.getKabelpanel().getZiel1().getKnoten())
+                        || switchWAP.equals(cable.getKabelpanel().getZiel2().getKnoten()))) {
+                    GUIEvents.getGUIEvents().removeConnection(cable);
+                }
+            }
+        }
+        try {
+            ((SwitchFirmware) ((Switch) holeHardware()).getSystemSoftware())
+                    .setRetentionTime(Long.parseLong(retentionTime.getText()) * 1000);
+        } catch (NumberFormatException e) {}
 
         GUIContainer.getGUIContainer().updateViewport();
         updateAttribute();
@@ -112,18 +139,13 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
             }
 
         };
+        tempBox2 = Box.createVerticalBox();
 
+        // switch name
         tempLabel = new JLabel(messages.getString("jswitchkonfiguration_msg1"));
         tempLabel.setPreferredSize(new Dimension(140, 10));
         tempLabel.setVisible(true);
         tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-        checkCloud = new JCheckBox(messages.getString("jswitchkonfiguration_msg3"));
-        checkCloud.setPreferredSize(new Dimension(160, 10));
-        checkCloud.setVisible(true);
-        checkCloud.setOpaque(false);
-        // checkCloud.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        checkCloud.addItemListener(itemListener);
 
         name = new JTextField(messages.getString("jswitchkonfiguration_msg2"));
         name.addActionListener(actionListener);
@@ -137,17 +159,95 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
         tempBox.add(name);
-        tempBox2 = Box.createVerticalBox();
+
         tempBox2.add(tempBox);
         tempBox2.add(Box.createVerticalStrut(10));
+
+        // ssid
+        tempLabel = new JLabel(messages.getString("jswitchkonfiguration_msg4"));
+        tempLabel.setPreferredSize(new Dimension(140, 10));
+        tempLabel.setVisible(true);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        ssid = new JTextField();
+        ssid.addActionListener(actionListener);
+        ssid.addFocusListener(focusListener);
+        ssid.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                checkSSID();
+            }
+        });
+
+        tempBox = Box.createHorizontalBox();
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(tempLabel);
+        tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
+        tempBox.add(ssid);
+
+        tempBox2.add(tempBox);
+        tempBox2.add(Box.createVerticalStrut(10));
+
+        // switch icon
+        checkCloud = new JCheckBox(messages.getString("jswitchkonfiguration_msg3"));
+        checkCloud.setPreferredSize(new Dimension(160, 10));
+        checkCloud.setVisible(true);
+        checkCloud.setOpaque(false);
+        // checkCloud.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        checkCloud.addItemListener(itemListener);
+
+        // retention time
+        tempLabel = new JLabel(messages.getString("jswitchkonfiguration_msg5"));
+        tempLabel.setPreferredSize(new Dimension(300, 10));
+        tempLabel.setVisible(true);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        retentionTime = new JTextField();
+        retentionTime.setPreferredSize(new Dimension(100, 10));
+        retentionTime.addActionListener(actionListener);
+        retentionTime.addFocusListener(focusListener);
+        retentionTime.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                checkRetentionTime();
+            }
+        });
+
+        tempBox = Box.createHorizontalBox();
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setPreferredSize(new Dimension(400, 40));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(tempLabel);
+        tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
+        tempBox.add(retentionTime);
+
+        rightBox.add(tempBox);
+        rightBox.add(Box.createVerticalStrut(190));
+
         tempBox2.add(checkCloud);
         box.add(tempBox2, BorderLayout.NORTH);
     }
 
     @Override
     public void updateAttribute() {
-        name.setText(((Switch) holeHardware()).holeAnzeigeName());
-        checkCloud.setSelected(((Switch) holeHardware()).isCloud());
+        Switch switchWAP = (Switch) holeHardware();
+        name.setText(switchWAP.holeAnzeigeName());
+        ssid.setText(((SwitchFirmware) switchWAP.getSystemSoftware()).getSSID());
+        checkSSID();
+        retentionTime.setText(Long
+                .toString(((SwitchFirmware) ((Switch) holeHardware()).getSystemSoftware()).getRetentionTime() / 1000));
+        checkRetentionTime();
+        // eingefügt
+        checkCloud.setSelected(switchWAP.isCloud());
     }
 
+    private boolean checkSSID() {
+        return ueberpruefen(EingabenUeberpruefung.musterServiceSetIdentifier, ssid);
+    }
+
+    private boolean checkRetentionTime() {
+        return ueberpruefen(EingabenUeberpruefung.musterNurZahlen, retentionTime);
+    }
 }

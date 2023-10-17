@@ -64,11 +64,13 @@ public class EingabenUeberpruefung implements I18n {
     public static final Pattern musterKeineLeerzeichen = Pattern.compile("[^\\s]*");
     public static final Pattern musterEmailBenutzername = Pattern.compile("([a-zA-Z0-9]|\\.|\\_|\\-)*");
     public static final Pattern musterMindEinZeichen = Pattern.compile("(.){1,}");
-    public static final Pattern musterNurZahlen = Pattern.compile("\\d");
+    public static final Pattern musterNurZahl = Pattern.compile("\\d");
+    public static final Pattern musterNurZahlen = Pattern.compile("\\d*");
     public static final Pattern musterDomain = Pattern.compile(
             "^([a-zA-Z]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]){0,1}(\\.[a-zA-Z]([a-zA-Z0-9\\\\-]{0,61}[a-zA-Z0-9]){0,1})*){0,1}\\.{0,1}$");
     public static final Pattern musterSubnetBinary = Pattern.compile("^11*0*$");
     public static final Pattern musterMacAddress = Pattern.compile("^[0-9a-fA-f]{2}(:[0-9a-fA-f]{2}){5}$");
+    public static final Pattern musterServiceSetIdentifier = Pattern.compile("^[ -~]+$");
 
     public static final Color farbeFalsch = new Color(255, 20, 20);
     public static final Color farbeRichtig = new Color(0, 0, 0);

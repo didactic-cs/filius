@@ -72,7 +72,7 @@ public class GatewayFirmware extends InternetKnotenBetriebssystem {
     }
 
     @Override
-    protected NetzwerkInterface primaryNetworkInterface() {
+    public NetzwerkInterface primaryNetworkInterface() {
         return ((Gateway) getKnoten()).holeLANInterface();
     }
 
