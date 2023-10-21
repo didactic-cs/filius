@@ -170,7 +170,15 @@ public class Lauscher implements I18n {
     protected Object[] frameWithTimestamp(EthernetFrame frame) {
         Object[] frameMitZeitstempel = new Object[2];
         frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
-        frameMitZeitstempel[1] = frame;
+        Object daten = new Object();
+        if (frame.getDaten() instanceof IpPaket) {
+        	daten = ((IpPaket) frame.getDaten()).clone();
+        } else if (frame.getDaten() instanceof IcmpPaket) {
+        	daten = ((IcmpPaket) frame.getDaten()).clone();
+        } else {
+        	daten = frame.getDaten();
+        }
+        frameMitZeitstempel[1] = new EthernetFrame(daten, frame.getQuellMacAdresse(), frame.getZielMacAdresse(), frame.getTyp());
         return frameMitZeitstempel;
     }
 
