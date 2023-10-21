@@ -117,10 +117,12 @@ public class JCablePanel extends JPanel implements Observer {
         g2.setStroke(new BasicStroke(2));
 
         if (isWireless()) {
-            float dash[] = { 10.0f };
-            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
             if (kabelFarbe.equals(farbeKabel)) {
                 kabelFarbe = farbeWireless;
+            }
+            if (!kabelFarbe.equals(farbeBlinken)) {
+                float dash[] = { 10.0f };
+                g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
             }
         }
         g.setColor(kabelFarbe);
