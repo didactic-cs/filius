@@ -1,5 +1,20 @@
 # Changelog Filius
 
+## [2.5.0] - 2023-10-22
+### Added
+ * Switch / Wireless Access Point with SSID
+ * Configure Wi-Fi connections with SSID
+ * Switch with retention time for SAT entries
+ * Manual for Linux
+
+### Changed
+ * Replacement of some icons
+
+### Fixed
+ * Issues on Linux
+ * Log messages
+ * Messages in network traffic viewer are immutable
+ 
 ## [2.4.1] - 2023-06-07
 ### Fixed
  * Fix language selection
