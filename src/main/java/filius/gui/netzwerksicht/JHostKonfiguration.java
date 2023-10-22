@@ -601,6 +601,9 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             ssidList.add(ssid.getItemAt(i));
         }
 
+        Host host = (Host) holeHardware();
+        String configuredSSID = ((Betriebssystem) host.getSystemSoftware()).getSsid();
+
         List<String> accessPointSsidList = new ArrayList<>();
         for (GUIKnotenItem item : GUIContainer.getGUIContainer().getKnotenItems()) {
             if (item.getKnoten() instanceof Switch) {
@@ -617,9 +620,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             }
         }
 
-        Host host = (Host) holeHardware();
-        String configuredSSID = ((Betriebssystem) host.getSystemSoftware()).getSsid();
-        if (null != configuredSSID) {
+        if (null != configuredSSID && accessPointSsidList.contains(configuredSSID)) {
             ssid.setSelectedItem(configuredSSID);
         } else {
             ssid.setSelectedIndex(0);
