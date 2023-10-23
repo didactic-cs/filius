@@ -56,11 +56,16 @@ public class IcmpPaket extends IpPaket {
 
     @Override
     public IcmpPaket clone() {
-        IcmpPaket clone = (IcmpPaket) super.clone();
+        IcmpPaket clone = new IcmpPaket();
+        copyIpPacketAttributes(clone);
+        copyIcmpAttributes(clone);
+        return clone;
+    }
+
+    private void copyIcmpAttributes(IcmpPaket clone) {
         clone.seqNr = seqNr;
         clone.icmpType = icmpType;
         clone.icmpCode = icmpCode;
-        return clone;
     }
 
     public void setIcmpType(int type) {
