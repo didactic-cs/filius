@@ -1,5 +1,9 @@
 # Changelog Filius
 
+## [2.5.1] - 2023-10-23
+### Fixed
+ * Ping resp. ICMP fixed
+  
 ## [2.5.0] - 2023-10-22
 ### Added
  * Switch / Wireless Access Point with SSID
