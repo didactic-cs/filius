@@ -12,6 +12,7 @@
  * Manual for Linux
 
 ### Changed
+ * Requires Java 17 (or higher)
  * Replacement of some icons
 
 ### Fixed

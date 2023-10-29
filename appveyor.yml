@@ -4,7 +4,7 @@ skip_non_tags: true
 
 image: Visual Studio 2022
 environment:
-  JAVA_HOME: C:\Program Files\Java\jdk19
+  JAVA_HOME: C:\Program Files\Java\jdk17
   PATH: '%JAVA_HOME%\bin;%PATH%'
   JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF8
 build_script:

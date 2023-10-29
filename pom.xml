@@ -15,8 +15,8 @@
 		<htmlparser.version>1.6</htmlparser.version>
 		<jna.version>5.12.1</jna.version>
 		<mavenCompiler.version>2.0.2</mavenCompiler.version>
-		<java.version>1.8</java.version>
-		<execJre.version>1.8.0</execJre.version>
+		<java.version>17</java.version>
+		<execJre.version>17</execJre.version>
 		<mavenJar.version>2.4</mavenJar.version>
 		<launch4j.version>2.3.2</launch4j.version>
 		<launch4j.starterName>Filius.exe</launch4j.starterName>
