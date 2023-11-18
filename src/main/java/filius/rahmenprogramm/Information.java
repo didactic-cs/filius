@@ -25,6 +25,7 @@
  */
 package filius.rahmenprogramm;
 
+import java.awt.Frame;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,6 +48,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,9 +170,7 @@ public class Information implements Serializable {
             directoryPath = currPath + ".filius" + System.getProperty("file.separator");
             try {
                 testFile = new java.io.File(directoryPath);
-                //
-                // write check, i.e., create random directory and delete it
-                // again
+                // write check, i.e., create random directory and delete it again
                 testFile.mkdirs();
                 testFile = new java.io.File(directoryPath + randomString);
                 testFile.createNewFile();
@@ -181,7 +181,7 @@ public class Information implements Serializable {
                 nowrite = false;
             } catch (Exception e) {
                 // open dialog to choose another directory
-                javax.swing.JOptionPane.showMessageDialog(null,
+                JOptionPane.showMessageDialog(null,
                         "Fehler: Verzeichnis ist nicht schreibbar. Filius benötigt aber Schreibrechte.\n"
                                 + "Bitte wählen Sie ein Verzeichnis, für das Sie Schreibrechte besitzen.\n\n"
                                 + "Error: Directory is not writeable. But Filius needs write permissions.\n"
@@ -189,15 +189,14 @@ public class Information implements Serializable {
                         "Fehler / Error", javax.swing.JOptionPane.ERROR_MESSAGE);
                 JFileChooser fc = new JFileChooser();
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                if (fc.showOpenDialog(new java.awt.Frame()) == JFileChooser.APPROVE_OPTION) {
+                if (fc.showOpenDialog(new Frame()) == JFileChooser.APPROVE_OPTION) {
                     currPath = fc.getSelectedFile().getAbsolutePath() + System.getProperty("file.separator");
-                } else
+                } else {
                     return false;
+                }
             }
         } while (nowrite);
-        arbeitsbereichPfad = currPath + ".filius" + System.getProperty("file.separator"); // set
-                                                                                          // correct
-                                                                                          // path
+        arbeitsbereichPfad = currPath + ".filius" + System.getProperty("file.separator");
         return true;
     }
 
