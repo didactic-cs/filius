@@ -52,11 +52,15 @@ public class IpPaket implements Serializable, Cloneable {
     @Override
     public IpPaket clone() {
         IpPaket clone = new IpPaket(protocol);
+        copyIpPacketAttributes(clone);
+        return clone;
+    }
+
+    void copyIpPacketAttributes(IpPaket clone) {
         clone.ttl = ttl;
         clone.empfaenger = empfaenger;
         clone.sender = sender;
         clone.data = data;
-        return clone;
     }
 
     public String getEmpfaenger() {
