@@ -34,12 +34,15 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -62,6 +65,7 @@ import filius.hardware.knoten.LokalerKnoten;
 import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
+import filius.software.nat.NatMethod;
 import filius.software.system.GatewayFirmware;
 import filius.software.system.InternetKnotenBetriebssystem;
 
@@ -90,8 +94,14 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
 
     private JTabbedPane tpNetzwerkKarten;
 
-    private Kabel highlightedCable = null;
+    private JPortForwarding portForwarding;
 
+    private Kabel highlightedCable = null;
+    
+    private JComboBox<String> coneTypeSelect;
+
+    private JTextField retentionTime;
+    
     protected JGatewayConfiguration(Hardware hardware) {
         super(hardware);
     }
@@ -102,7 +112,28 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
 
         gateway.setName(name.getText());
         firmware.setStandardGateway(gatewayName.getText());
-
+        
+        switch (coneTypeSelect.getSelectedIndex()) { //neu
+        case 0:
+        	if (firmware.getNatMethod() != NatMethod.fullCone) {
+        		firmware.setNatMethodChanged(true);
+        	}
+        	firmware.setNatMethod(NatMethod.fullCone);
+        	break;
+        case 1:
+        	if (firmware.getNatMethod() != NatMethod.restrictedCone) {
+        		firmware.setNatMethodChanged(true);
+        	}
+        	firmware.setNatMethod(NatMethod.restrictedCone);
+        	break;
+        }
+        	
+        try {
+        	firmware.setRetentionTime(Long.parseLong(retentionTime.getText())*1000);
+        } catch (NumberFormatException e) {
+    		System.out.println(e);
+    	}
+        	
         applyNICConfig(gateway.holeWANInterface(), ipAddressWANPort, netmaskWANPort);
         firmware.setDHCPKonfiguration(dhcp.isSelected());
         applyNICConfig(gateway.holeLANInterface(), ipAddressLANPort, netmaskLANPort);
@@ -145,9 +176,12 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
     protected void initContents() {
         Box boxNetzwerkKarten;
         Box vBox;
+        Box boxPortForwarding;
         KeyAdapter ipAdresseKeyAdapter;
         KeyAdapter netzmaskeKeyAdapter;
         JButton btFirewall;
+        JButton btNeuerEintrag;
+        JButton btEintragLoeschen;
 
         JLabel tempLabel;
         Box tempBox;
@@ -234,6 +268,58 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         vBox.add(tempBox);
         vBox.add(Box.createVerticalStrut(5));
 
+        // retention time //neu
+        tempBox = Box.createHorizontalBox();
+        tempBox.setMaximumSize(new Dimension(400, 40));
+        
+        tempLabel = new JLabel(messages.getString("jgatewayconfiguration_msg23"));
+        tempLabel.setPreferredSize(new Dimension(140, 20));
+        tempLabel.setVisible(true);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        tempBox.add(tempLabel);
+
+        retentionTime = new JTextField("30");
+        retentionTime.addActionListener(actionListener);
+        retentionTime.addFocusListener(focusListener);
+        retentionTime.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                checkRetentionTime();
+            }
+        });
+        tempBox.add(retentionTime);
+        
+        tempLabel = new JLabel("s");
+        tempLabel.setPreferredSize(new Dimension(140, 10));
+        tempLabel.setVisible(true);	
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        tempBox.add(tempLabel);
+
+        vBox.add(tempBox);
+        vBox.add(Box.createVerticalStrut(10));
+
+        // full-cone or (address)-restricted-cone NAT //neu
+        ActionListener coneTypeActionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+            	aenderungenAnnehmen();
+                updateAttribute();
+            }
+        };
+        tempBox = Box.createHorizontalBox();
+        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempLabel = new JLabel(messages.getString("jgatewayconfiguration_msg24"));
+        tempLabel.setPreferredSize(new Dimension(140, 20));
+        tempLabel.setVisible(true);
+        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        tempBox.add(tempLabel);
+        String conetypeList[] = {messages.getString("jgatewayconfiguration_msg25"),messages.getString("jgatewayconfiguration_msg26")};
+        coneTypeSelect = new JComboBox<>(conetypeList);
+        coneTypeSelect.addActionListener(coneTypeActionListener);
+        
+        tempBox.setPreferredSize(new Dimension(140, 20));
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        tempBox.add(coneTypeSelect);
+        vBox.add(tempBox);
+
         // IP forwarding status
         tempBox = Box.createHorizontalBox();
         tempBox.setMaximumSize(new Dimension(400, 40));
@@ -305,9 +391,50 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
                     conn.setAktiv(true);
                     highlightedCable = (Kabel) conn;
                 }
+
+                portForwarding.aenderungenAnnehmen();
             }
 
         });
+        
+        // Port forwarding tabs
+        
+        portForwarding = new JPortForwarding(this);
+
+        JScrollPane spWeiterleitung = new JScrollPane(portForwarding);
+        spWeiterleitung.setPreferredSize(new Dimension(300, 120));
+        spWeiterleitung.addFocusListener(focusListener);
+
+        tempBox = Box.createHorizontalBox();
+        tempBox.setOpaque(false);
+        tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        btNeuerEintrag = new JButton(messages.getString("jgatewayconfiguration_msg21"));
+        btNeuerEintrag.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                portForwarding.neuerEintrag();
+            }
+        });
+        tempBox.add(Box.createHorizontalStrut(50));
+        tempBox.add(btNeuerEintrag);
+
+        btEintragLoeschen = new JButton(messages.getString("jgatewayconfiguration_msg22"));
+        btEintragLoeschen.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                portForwarding.markiertenEintragLoeschen();
+            }
+        });
+        tempBox.add(Box.createHorizontalStrut(5));
+        tempBox.add(btEintragLoeschen);
+
+        boxPortForwarding = Box.createVerticalBox();
+        boxPortForwarding.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        boxPortForwarding.add(tempBox);
+        boxPortForwarding.add(spWeiterleitung);
+
+        tpNetzwerkKarten.addTab(messages.getString("jgatewayconfiguration_msg19"), boxPortForwarding);
+        
 
         box.add(boxNetzwerkKarten);
 
@@ -434,10 +561,21 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
         ipAddressWANPort.setEnabled(!dhcpEnabled);
         netmaskWANPort.setEnabled(!dhcpEnabled);
 
+        switch (bs.getNatMethod()) { //neu
+        case fullCone:
+        	coneTypeSelect.setSelectedIndex(0);
+        	break;
+        case restrictedCone:
+        	coneTypeSelect.setSelectedIndex(1);
+        	break;
+        }
+
         updateNICConfigPane("LAN", vRechner.holeLANInterface(), ipAddressLANPort, macAddressLANPort, netmaskLANPort,
                 connectedComponentLAN, LAN_TAB_IDX);
         updateNICConfigPane("WAN", vRechner.holeWANInterface(), ipAddressWANPort, macAddressWANPort, netmaskWANPort,
                 connectedComponentWAN, WAN_TAB_IDX);
+
+        portForwarding.updateAttribute();
     }
 
     private void updateNICConfigPane(String titlePrefix, NetzwerkInterface nic, JTextField ipAddressTextfield,
@@ -491,5 +629,9 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
             }
         }
         return null;
+    }
+
+    private boolean checkRetentionTime() {
+        return ueberpruefen(EingabenUeberpruefung.musterNurZahlen, retentionTime);
     }
 }
