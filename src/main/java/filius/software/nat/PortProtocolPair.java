@@ -27,13 +27,17 @@ package filius.software.nat;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class PortProtocolPair {
     private int port;
     private int protocol;
+    private String address;
 
-    public PortProtocolPair(int port, int protocol) {
+    public PortProtocolPair(int port, String address, int protocol) {
         super();
         this.port = port;
+        this.address = address;
         this.protocol = protocol;
     }
 
@@ -53,28 +57,38 @@ public class PortProtocolPair {
         this.protocol = protocol;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     @Override
     public boolean equals(Object other) {
-        boolean result = true;
+    	boolean result = true;
         if (null == other) {
             result = false;
         } else if (!(other instanceof PortProtocolPair)) {
             result = false;
         } else if (port != ((PortProtocolPair) other).port) {
             return false;
+        } else if (!StringUtils.equals(address, ((PortProtocolPair) other).address)) {
+            result = false;
         } else if (protocol != ((PortProtocolPair) other).protocol) {
-            return false;
+        	result = false;
         }
         return result;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(port, protocol);
+        return Objects.hash(port,address,protocol);
     }
 
     @Override
     public String toString() {
-        return "prot=" + protocol + " / " + port;
+        return "prot=" + protocol + " / " + address +":" + port;
     }
 }
