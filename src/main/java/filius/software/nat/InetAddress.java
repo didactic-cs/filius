@@ -82,6 +82,20 @@ public class InetAddress {
         return result;
     }
 
+    public boolean equalsWOIp(Object other) {
+        boolean result = true;
+        if (null == other) {
+            result = false;
+        } else if (!(other instanceof InetAddress)) {
+            result = false;
+        } else if (port != ((InetAddress) other).port) {
+            return false;
+        } else if (protocol != ((InetAddress) other).protocol) {
+            return false;
+        }
+        return result;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(ipAddress, port, protocol);
