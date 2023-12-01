@@ -86,10 +86,6 @@ public class GatewayFirewallConfigTable extends JExtendedTable implements I18n {
                 rule.destMask = getCurrentValueAt(editingRow, 4);
             }
 
-            if (srcIP != null && isSrcValid || destIP != null && isDestValid) {
-               // super.updateUI();
-            }
-
             String protocol = getCurrentValueAt(editingRow, 5);
             if (protocol.equals("TCP")) {
                 rule.protocol = FirewallRule.TCP;
