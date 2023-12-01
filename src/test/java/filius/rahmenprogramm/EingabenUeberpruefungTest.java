@@ -115,10 +115,10 @@ public class EingabenUeberpruefungTest {
         assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1/24", musterIpAdresseAuchCidr));
         assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1 / 24", musterIpAdresseAuchCidr));
         assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1", musterIpAdresseAuchCidr));
-        // The parseCidr method in the IP class does an out of range check.
-        assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1/33", musterIpAdresseAuchCidr));
-        assertFalse(EingabenUeberpruefung.isGueltig("192.168.0.1/100", musterIpAdresseAuchCidr));
-        assertFalse(EingabenUeberpruefung.isGueltig("192.168.0.1/-1", musterIpAdresseAuchCidr));
+        assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1/2", musterIpAdresseAuchCidr));
+        assertFalse(EingabenUeberpruefung.isGueltig("192.168.0.1/31", musterIpAdresseAuchCidr));
+        assertFalse(EingabenUeberpruefung.isGueltig("192.168.0.1/1", musterIpAdresseAuchCidr));
+        assertFalse(EingabenUeberpruefung.isGueltig("192.168.0.1/-2", musterIpAdresseAuchCidr));
         assertFalse(EingabenUeberpruefung.isGueltig("Hello World", musterIpAdresseAuchCidr));
     }
 }
