@@ -46,6 +46,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+import static filius.software.vermittlungsschicht.IP.parseCidr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,23 +151,28 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
         String[] routingEintrag = new String[rowData.size()];
         for (int j = 0; j < routingEintrag.length; j++) {
             tmpString = (String) rowData.elementAt(j);
-            Pattern pattern = null;
-            switch (j) {
-            case 0:
-                pattern = EingabenUeberpruefung.musterIpAdresse;
-                break;
-            case 1:
-                pattern = EingabenUeberpruefung.musterSubNetz;
-                break;
-            case 2:
-                pattern = EingabenUeberpruefung.musterIpAdresse;
-                break;
-            case 3:
-                pattern = EingabenUeberpruefung.musterIpAdresse;
-                break;
-            }
+            var pattern = switch (j) {
+                case 0 -> EingabenUeberpruefung.musterIpAdresseAuchCidr;
+                case 1 -> EingabenUeberpruefung.musterSubNetz;
+                case 2, 3 -> EingabenUeberpruefung.musterIpAdresse;
+                default -> null;
+            };
+
+            assert pattern != null;
             if (null != tmpString && EingabenUeberpruefung.isGueltig(tmpString, pattern)) {
-                routingEintrag[j] = tmpString;
+                if (j > 0 ) {
+                    routingEintrag[j] = tmpString;
+                } else {
+                    var ipAndMask = parseCidr(tmpString);
+                    routingEintrag[j] = ipAndMask[0];
+                    if (ipAndMask.length == 2) {
+                        rowData.set(j, ipAndMask[0]);
+                        rowData.set(++j, ipAndMask[1]);
+                        routingEintrag[j] = ipAndMask[1];
+                        ((DefaultTableModel) getModel()).fireTableDataChanged();
+                    }
+
+                }
             } else {
                 routingEintrag[j] = "";
             }

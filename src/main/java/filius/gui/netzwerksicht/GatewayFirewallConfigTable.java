@@ -33,6 +33,9 @@ import filius.gui.JExtendedTable;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
 import filius.software.firewall.FirewallRule;
+import static filius.software.vermittlungsschicht.IP.parseCidr;
+import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresseAuchCidr;
+import static filius.rahmenprogramm.EingabenUeberpruefung.isGueltig;
 
 @SuppressWarnings("serial")
 public class GatewayFirewallConfigTable extends JExtendedTable implements I18n {
@@ -50,10 +53,43 @@ public class GatewayFirewallConfigTable extends JExtendedTable implements I18n {
         if (editor != null) {
             Firewall firewall = (Firewall) ((JFirewallDialog) parentGUI).getFirewall();
             FirewallRule rule = firewall.getRuleset().get(editingRow);
-            rule.srcIP = getCurrentValueAt(editingRow, 1);
-            rule.srcMask = getCurrentValueAt(editingRow, 2);
-            rule.destIP = getCurrentValueAt(editingRow, 3);
-            rule.destMask = getCurrentValueAt(editingRow, 4);
+
+            var srcIP = getCurrentValueAt(editingRow, 1);
+            var isSrcValid = isGueltig(srcIP, musterIpAdresseAuchCidr);
+            if (srcIP != null && isSrcValid) {
+                var srcIPAndMask = parseCidr(srcIP);
+                rule.srcIP = srcIPAndMask[0];
+                rule.srcMask = srcIPAndMask.length == 2 ? srcIPAndMask[1] : getCurrentValueAt(editingRow, 2);
+
+                if (srcIPAndMask.length == 2) {
+                    super.getModel().setValueAt(rule.srcIP, editingRow, 1);
+                    super.getModel().setValueAt(rule.srcMask, editingRow, 2);
+                }
+            } else {
+                rule.srcIP = srcIP;
+                rule.srcMask = getCurrentValueAt(editingRow, 2);
+            }
+
+            var destIP = getCurrentValueAt(editingRow, 3);
+            var isDestValid = isGueltig(destIP, musterIpAdresseAuchCidr);
+            if (destIP != null && isDestValid) {
+                var destIPAndMask = parseCidr(destIP);
+                rule.destIP = destIPAndMask[0];
+                rule.destMask = destIPAndMask.length == 2 ? destIPAndMask[1] : getCurrentValueAt(editingRow, 4);
+
+                if (destIPAndMask.length == 2) {
+                    super.getModel().setValueAt(rule.destIP, editingRow, 3);
+                    super.getModel().setValueAt(rule.destMask, editingRow, 4);
+                }
+            } else {
+                rule.destIP = destIP;
+                rule.destMask = getCurrentValueAt(editingRow, 4);
+            }
+
+            if (srcIP != null && isSrcValid || destIP != null && isDestValid) {
+               // super.updateUI();
+            }
+
             String protocol = getCurrentValueAt(editingRow, 5);
             if (protocol.equals("TCP")) {
                 rule.protocol = FirewallRule.TCP;
