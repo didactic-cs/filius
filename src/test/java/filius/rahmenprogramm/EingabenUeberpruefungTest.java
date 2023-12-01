@@ -4,6 +4,7 @@ import static filius.rahmenprogramm.EingabenUeberpruefung.musterDomain;
 import static filius.rahmenprogramm.EingabenUeberpruefung.musterEmailAdresse;
 import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresse;
 import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresseAuchLeer;
+import static filius.rahmenprogramm.EingabenUeberpruefung.musterIpAdresseAuchCidr;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -107,5 +108,17 @@ public class EingabenUeberpruefungTest {
         assertFalse(EingabenUeberpruefung.isGueltig("a123456789012345678901234567890123456789012345678901234567890123."
                 + "a123456789012345678901234567890123456789012345678901234567890123.",
                 musterDomain));
+    }
+
+    @Test
+    public void testIpCidr() throws Exception {
+        assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1/24", musterIpAdresseAuchCidr));
+        assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1 / 24", musterIpAdresseAuchCidr));
+        assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1", musterIpAdresseAuchCidr));
+        // The parseCidr method in the IP class does an out of range check.
+        assertTrue(EingabenUeberpruefung.isGueltig("192.168.0.1/33", musterIpAdresseAuchCidr));
+        assertFalse(EingabenUeberpruefung.isGueltig("192.168.0.1/100", musterIpAdresseAuchCidr));
+        assertFalse(EingabenUeberpruefung.isGueltig("192.168.0.1/-1", musterIpAdresseAuchCidr));
+        assertFalse(EingabenUeberpruefung.isGueltig("Hello World", musterIpAdresseAuchCidr));
     }
 }
