@@ -171,9 +171,9 @@ public class Lauscher implements I18n {
         Object[] frameMitZeitstempel = new Object[2];
         frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
         Object daten = new Object();
-        if (frame.getDaten() instanceof IpPaket) {
+        if (frame.getDaten().getClass().equals("filius.software.vermittlungsschicht.IpPaket")) {
         	daten = ((IpPaket) frame.getDaten()).clone();
-        } else if (frame.getDaten() instanceof IcmpPaket) {
+        } else if (frame.getDaten().getClass().equals("filius.software.vermittlungsschicht.IcmpPaket")) {
         	daten = ((IcmpPaket) frame.getDaten()).clone();
         } else {
         	daten = frame.getDaten();
