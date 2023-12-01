@@ -154,10 +154,10 @@ public class IP extends VermittlungsProtokoll implements I18n {
             return new String[] { ip };
         }
 
-		assert addr[0] != null;
+        assert addr[0] != null;
         assert addr[1] != null;
 
-		addr[0] = addr[0].stripTrailing();
+        addr[0] = addr[0].stripTrailing();
         addr[1] = addr[1].stripLeading();
 
         int prefix = Integer.parseInt(addr[1]);
