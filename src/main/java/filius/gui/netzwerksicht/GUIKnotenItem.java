@@ -35,9 +35,7 @@ import org.slf4j.LoggerFactory;
 import filius.gui.GUIContainer;
 import filius.gui.GUIEvents;
 import filius.gui.GUIMainMenu;
-import filius.gui.NatViewerControl;
 import filius.gui.SatViewerControl;
-import filius.hardware.knoten.Gateway;																						// Neu eingefügt
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Notebook;
 import filius.hardware.knoten.Rechner;
@@ -70,8 +68,6 @@ public class GUIKnotenItem {
                             GUIContainer.getGUIContainer().showDesktop(GUIKnotenItem.this);
                         } else if (GUIKnotenItem.this.getKnoten() instanceof Switch) {
                             SatViewerControl.getInstance().showViewer((Switch) GUIKnotenItem.this.getKnoten());
-                        } else if (GUIKnotenItem.this.getKnoten() instanceof Gateway) {
-                            NatViewerControl.getInstance().showViewer((Gateway) GUIKnotenItem.this.getKnoten());
                         }
                     }
                 }
