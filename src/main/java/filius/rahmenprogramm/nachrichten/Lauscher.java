@@ -171,17 +171,10 @@ public class Lauscher implements I18n {
         Object[] frameMitZeitstempel = new Object[2];
         frameMitZeitstempel[0] = Long.valueOf(System.currentTimeMillis());
         Object daten = new Object();
-<<<<<<< Upstream, based on origin/master
         if (frame.getDaten() instanceof IcmpPaket) {
             daten = ((IcmpPaket) frame.getDaten()).clone();
         } else if (frame.getDaten() instanceof IpPaket) {
             daten = ((IpPaket) frame.getDaten()).clone();
-=======
-        if (frame.getDaten().getClass().equals("filius.software.vermittlungsschicht.IpPaket")) {
-        	daten = ((IpPaket) frame.getDaten()).clone();
-        } else if (frame.getDaten().getClass().equals("filius.software.vermittlungsschicht.IcmpPaket")) {
-        	daten = ((IcmpPaket) frame.getDaten()).clone();
->>>>>>> 98bfa1f Bug in der Methode frameWithTimestamp behoben, der zm Absturz bei ICMP-Paketen führte
         } else {
             daten = frame.getDaten();
         }
