@@ -25,7 +25,6 @@
  */
 package filius.gui.netzwerksicht;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -173,32 +172,6 @@ public class JWeiterleitungsTabelle extends JTable implements I18n {
             }
         }
         return routingEintrag;
-    }
-    
-    public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
-        Component comp = super.prepareRenderer(renderer, row, col);
-        String cellValue = (String) getModel().getValueAt(row, col); // get the value from the cell
-        Pattern pattern = null;
-        switch (col) {
-        case 0:
-            pattern = EingabenUeberpruefung.musterIpAdresse;
-            break;
-        case 1:
-            pattern = EingabenUeberpruefung.musterSubNetz;
-            break;
-        case 2:
-            pattern = EingabenUeberpruefung.musterIpAdresse;
-            break;
-        case 3:
-            pattern = EingabenUeberpruefung.musterIpAdresse;
-            break;
-        }
-        if (null != cellValue && EingabenUeberpruefung.isGueltig(cellValue, pattern)) { // color the cell accordingly
-            comp.setForeground(EingabenUeberpruefung.farbeRichtig);
-        } else {
-            comp.setForeground(EingabenUeberpruefung.farbeFalsch);
-        }
-        return comp;
     }
 
     public boolean isCellEditable(int row, int column) {
