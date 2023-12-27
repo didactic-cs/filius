@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import filius.hardware.knoten.Gateway;
 import filius.rahmenprogramm.I18n;
 import filius.software.firewall.Firewall;
-import filius.software.system.GatewayFirmware;
 import filius.software.vermittlungsschicht.IpPaket;
 
 public class NatGateway extends Firewall implements I18n {
@@ -51,7 +50,6 @@ public class NatGateway extends Firewall implements I18n {
 
     public void insertNewConnection(int protocol, String lanIpAddress, int lanPort, String wanIpAddress, int wanPort) {
         InetAddress lanAddress = new InetAddress(lanIpAddress, lanPort, protocol);
-        Gateway gateway = (Gateway) getSystemSoftware().getKnoten(); //neu
         if (!natTable.hasConnection(lanAddress)) {
             int port = PSEUDO_PORT_ICMP;
             if (protocol == IpPaket.TCP) {
@@ -59,10 +57,9 @@ public class NatGateway extends Firewall implements I18n {
             } else if (protocol == IpPaket.UDP) {
                 port = getSystemSoftware().holeUdp().reserviereFreienPort();
             }
-            LOG.debug("New connection in NAT table: protocol={}, WANaddress={}, port={}, LANaddress={}", protocol, wanIpAddress, port, lanAddress);
-            natTable.addDynamic(port, wanIpAddress, protocol, lanAddress, NatType.DynamicEntry);
+            LOG.debug("New connection in NAT table: protocol={}, port={}, address={}", protocol, port, lanAddress);
+            natTable.addDynamic(port, protocol, lanAddress);
             natTable.print();
-            ((GatewayFirmware) gateway.getSystemSoftware()).fireNATPropertyChange();
         }
     }
 
@@ -81,25 +78,12 @@ public class NatGateway extends Firewall implements I18n {
         int port = (packet.getProtocol() == IpPaket.TCP || packet.getProtocol() == IpPaket.UDP)
                 ? packet.getSegment().getZielPort()
                 : PSEUDO_PORT_ICMP;
-    	InetAddress dest = natTable.find(port, packet.getSender(), packet.getProtocol());
-        Gateway gateway = (Gateway) getSystemSoftware().getKnoten();
-        ((GatewayFirmware) gateway.getSystemSoftware()).fireNATPropertyChange();
+        InetAddress dest = natTable.find(port, packet.getProtocol());
         if (dest != null) {
-        	packet.setEmpfaenger(dest.getIpAddress());
+            packet.setEmpfaenger(dest.getIpAddress());
             if (packet.getProtocol() == IpPaket.TCP || packet.getProtocol() == IpPaket.UDP) {
                 packet.getSegment().setZielPort(dest.getPort());
             }
         }
-    }
-    
-    public NetworkAddressTranslationTable getNATTable() {
-    	return natTable;
-    }
-    
-    public boolean eintragExistiert(IpPaket packet) {
-    	int port = (packet.getProtocol() == IpPaket.TCP || packet.getProtocol() == IpPaket.UDP)
-                ? packet.getSegment().getZielPort()
-                : PSEUDO_PORT_ICMP;
-    	return (natTable.find(port, packet.getSender(), packet.getProtocol())) == null? false: true;
     }
 }
