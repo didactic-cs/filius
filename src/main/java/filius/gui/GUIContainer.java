@@ -29,6 +29,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -37,11 +38,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -55,15 +58,12 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGeneratorContext;
@@ -476,43 +476,40 @@ public class GUIContainer implements Serializable, I18n {
     }
 
     public void exportAsImage() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter pngFileFilter = new FileNameExtensionFilter("Portable Network Graphics", "png");
-        FileNameExtensionFilter svgFileFilter = new FileNameExtensionFilter("Scalable Vector Graphics", "svg");
-        fileChooser.addChoosableFileFilter(pngFileFilter);
-        fileChooser.addChoosableFileFilter(svgFileFilter);
-        fileChooser.setAcceptAllFileFilterUsed(false);
+        FileDialog fileDialog = new FileDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg4"),
+                FileDialog.SAVE);
+        FilenameFilter filiusFilenameFilter = (dir, name) -> name.endsWith(".png") || name.endsWith(".PNG");
+        fileDialog.setFilenameFilter(filiusFilenameFilter);
+
         String path = SzenarioVerwaltung.getInstance().holePfad();
         if (path != null) {
-            String szenarioFile = new File(path).getAbsolutePath();
-            File preselectedFile = new File(szenarioFile.substring(0, szenarioFile.lastIndexOf(".")));
-            fileChooser.setSelectedFile(preselectedFile);
+            Path scenarioPath = Path.of(path);
+            fileDialog.setDirectory(scenarioPath.getParent().toString());
+
+            String scenarioFilename = scenarioPath.getFileName().toString();
+            fileDialog.setFile(scenarioFilename.substring(0, scenarioFilename.lastIndexOf(".")) + ".png");
         }
 
-        if (fileChooser.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
-            FileFilter selectedFileFilter = fileChooser.getFileFilter();
-            FileType type = (svgFileFilter.equals(selectedFileFilter)) ? FileType.SVG : FileType.PNG;
-
-            String imagePath = fileChooser.getSelectedFile().getAbsolutePath();
-            if (FileType.SVG == type) {
-                imagePath = imagePath.endsWith(".svg") ? imagePath : imagePath + ".svg";
+        fileDialog.setVisible(true);
+        if (null != fileDialog.getFile()) {
+            String imagePath;
+            boolean nameChanged = false;
+            if (fileDialog.getFile().endsWith(".png") || fileDialog.getFile().endsWith(".PNG")) {
+                imagePath = Path.of(fileDialog.getDirectory(), fileDialog.getFile()).toString();
             } else {
-                imagePath = imagePath.endsWith(".png") ? imagePath : imagePath + ".png";
+                nameChanged = true;
+                imagePath = Path.of(fileDialog.getDirectory(), fileDialog.getFile()).toString() + ".png";
             }
 
             int entscheidung = JOptionPane.YES_OPTION;
-            if (imagePath != null && new File(imagePath).exists()) {
+            if (nameChanged && new File(imagePath).exists()) {
                 entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
                         messages.getString("guimainmemu_msg17"), messages.getString("guimainmemu_msg10"),
                         JOptionPane.YES_NO_OPTION);
             }
             if (entscheidung == JOptionPane.YES_OPTION) {
                 try {
-                    if (FileType.SVG == type) {
-                        exportAsSVG(imagePath);
-                    } else {
-                        exportAsPNG(imagePath);
-                    }
+                    exportAsPNG(imagePath);
                 } catch (IOException e) {
                     JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), messages.getString("guimainmemu_msg11"));
                 }

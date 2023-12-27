@@ -87,10 +87,9 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
             }
         }
         try {
-        	((SwitchFirmware) ((Switch) holeHardware()).getSystemSoftware()).setRetentionTime(Long.parseLong(retentionTime.getText())*1000);
-        } catch (NumberFormatException e) {
-    		System.out.println(e);
-    	}											
+            ((SwitchFirmware) ((Switch) holeHardware()).getSystemSoftware())
+                    .setRetentionTime(Long.parseLong(retentionTime.getText()) * 1000);
+        } catch (NumberFormatException e) {}
 
         GUIContainer.getGUIContainer().updateViewport();
         updateAttribute();
@@ -188,13 +187,22 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
         tempBox2.add(tempBox);
         tempBox2.add(Box.createVerticalStrut(10));
 
+        // switch icon
+        checkCloud = new JCheckBox(messages.getString("jswitchkonfiguration_msg3"));
+        checkCloud.setPreferredSize(new Dimension(160, 10));
+        checkCloud.setVisible(true);
+        checkCloud.setOpaque(false);
+        // checkCloud.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        checkCloud.addItemListener(itemListener);
+
         // retention time
         tempLabel = new JLabel(messages.getString("jswitchkonfiguration_msg5"));
-        tempLabel.setPreferredSize(new Dimension(140, 10));
+        tempLabel.setPreferredSize(new Dimension(300, 10));
         tempLabel.setVisible(true);
         tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        retentionTime = new JTextField("30");
+        retentionTime = new JTextField();
+        retentionTime.setPreferredSize(new Dimension(100, 10));
         retentionTime.addActionListener(actionListener);
         retentionTime.addFocusListener(focusListener);
         retentionTime.addKeyListener(new KeyAdapter() {
@@ -206,27 +214,14 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
         tempBox = Box.createHorizontalBox();
         tempBox.setOpaque(false);
         tempBox.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        tempBox.setMaximumSize(new Dimension(400, 40));
+        tempBox.setPreferredSize(new Dimension(400, 40));
         tempBox.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         tempBox.add(tempLabel);
         tempBox.add(Box.createHorizontalStrut(5)); // Platz zw. tempLabel und
         tempBox.add(retentionTime);
-        tempLabel = new JLabel("s");
-        tempLabel.setPreferredSize(new Dimension(140, 10));
-        tempLabel.setVisible(true);	
-        tempLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        tempBox.add(tempLabel);
 
-        tempBox2.add(tempBox);
-        tempBox2.add(Box.createVerticalStrut(10));
-
-        // switch icon
-        checkCloud = new JCheckBox(messages.getString("jswitchkonfiguration_msg3"));
-        checkCloud.setPreferredSize(new Dimension(160, 10));
-        checkCloud.setVisible(true);
-        checkCloud.setOpaque(false);
-        // checkCloud.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        checkCloud.addItemListener(itemListener);
+        rightBox.add(tempBox);
+        rightBox.add(Box.createVerticalStrut(190));
 
         tempBox2.add(checkCloud);
         box.add(tempBox2, BorderLayout.NORTH);
@@ -237,14 +232,17 @@ public class JSwitchKonfiguration extends JKonfiguration implements I18n {
         Switch switchWAP = (Switch) holeHardware();
         name.setText(switchWAP.holeAnzeigeName());
         ssid.setText(((SwitchFirmware) switchWAP.getSystemSoftware()).getSSID());
-        retentionTime.setText(Long.toString(((SwitchFirmware) ((Switch) holeHardware()).getSystemSoftware()).getRetentionTime()/1000));		// Neu eingefügt
+        checkSSID();
+        retentionTime.setText(Long
+                .toString(((SwitchFirmware) ((Switch) holeHardware()).getSystemSoftware()).getRetentionTime() / 1000));
+        checkRetentionTime();
+        // eingefügt
         checkCloud.setSelected(switchWAP.isCloud());
     }
 
     private boolean checkSSID() {
         return ueberpruefen(EingabenUeberpruefung.musterServiceSetIdentifier, ssid);
     }
-
 
     private boolean checkRetentionTime() {
         return ueberpruefen(EingabenUeberpruefung.musterNurZahlen, retentionTime);
