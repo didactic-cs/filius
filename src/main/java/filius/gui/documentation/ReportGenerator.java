@@ -57,7 +57,6 @@ import filius.gui.GUIContainer;
 import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.knoten.InternetKnoten;
-import filius.rahmenprogramm.EingabenUeberpruefung;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.SzenarioVerwaltung;
 import filius.rahmenprogramm.nachrichten.Lauscher;
@@ -65,9 +64,7 @@ import filius.software.Anwendung;
 import filius.software.dns.DNSServer;
 import filius.software.dns.ResourceRecord;
 import filius.software.system.Betriebssystem;
-import filius.software.system.GatewayFirmware;
 import filius.software.system.InternetKnotenBetriebssystem;
-import filius.software.vermittlungsschicht.IpPaket;
 
 public class ReportGenerator {
     private static final Font SMALL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 8, BaseColor.BLACK);
@@ -214,52 +211,12 @@ public class ReportGenerator {
                 addHeaderCell(I18n.messages.getString("jweiterleitungstabelle_msg6"), forwardingTable);
 
                 for (String[] routeEntry : systemSoftware.getWeiterleitungstabelle().holeTabelle()) {
-                	if(EingabenUeberpruefung.isGueltig(routeEntry[0],EingabenUeberpruefung.musterIpAdresse)) {
-                    	for (int i = 0; i < routeEntry.length; i++) {
-                    		addCell(routeEntry[i], forwardingTable);
-                    	}
-                	}
+                    for (int i = 0; i < routeEntry.length; i++) {
+                        addCell(routeEntry[i], forwardingTable);
+                    }
                 }
                 document.add(forwardingTable);
                 document.add(Chunk.NEWLINE);
-                
-                if (systemSoftware instanceof GatewayFirmware) {
-                    PdfPTable portForwardingTable = new PdfPTable(4);
-                    portForwardingTable.setHorizontalAlignment(Element.ALIGN_LEFT);
-                    portForwardingTable.setTotalWidth(new float[] { 180, 180, 180, 180 });
-                    portForwardingTable.setLockedWidth(false);
-
-                    addHeaderCell(I18n.messages.getString("jportforwarding_msg4"), portForwardingTable);
-                    addHeaderCell(I18n.messages.getString("jportforwarding_msg5"), portForwardingTable);
-                    addHeaderCell(I18n.messages.getString("jportforwarding_msg6"), portForwardingTable);
-                    addHeaderCell(I18n.messages.getString("jportforwarding_msg7"), portForwardingTable);
-                    
-                    boolean notEmpty = false;
-
-                    for (String[] routeEntry : systemSoftware.getWeiterleitungstabelle().holeTabelle()) {
-                    	if(EingabenUeberpruefung.isGueltig(routeEntry[0],EingabenUeberpruefung.musterProtocol)) {
-                    		notEmpty = true;
-                    		switch(routeEntry[0]) {
-                            case (""+IpPaket.TCP):
-                            case "TCP":
-                            	routeEntry[0] = "TCP";
-                            	break;
-                            case (""+IpPaket.UDP):
-                            case "UDP":
-                            	routeEntry[0] = "UDP";
-                            	break;
-                    		}
-                    		for (int i = 0; i < routeEntry.length; i++) {
-                        		addCell(routeEntry[i], portForwardingTable);
-                        	}
-                    	}
-                    }
-                    if(notEmpty) {
-                        createSection(document, I18n.messages.getString("jgatewayconfiguration_msg19"), 3);
-                    	document.add(portForwardingTable);
-                        document.add(Chunk.NEWLINE);
-                    }
-                }
             }
         }
     }
