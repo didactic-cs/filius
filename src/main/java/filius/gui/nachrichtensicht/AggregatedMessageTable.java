@@ -27,15 +27,12 @@ package filius.gui.nachrichtensicht;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,8 +40,8 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -52,10 +49,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,38 +187,38 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
             public void mousePressed(MouseEvent e) {
                 menu.setVisible(false);
 
-                FileDialog fileDialog = new FileDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg4"),
-                        FileDialog.SAVE);
-                FilenameFilter filiusFilenameFilter = (dir, name) -> name.endsWith(".txt");
-                fileDialog.setFilenameFilter(filiusFilenameFilter);
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        return file.isDirectory() || file.getName().endsWith(".txt");
+                    }
 
+                    @Override
+                    public String getDescription() {
+                        return "Text file";
+                    }
+                });
                 String path = SzenarioVerwaltung.getInstance().holePfad();
                 if (path != null) {
                     File preselectedFile = new File(
                             exchangeComponent.getTabTitle(AggregatedMessageTable.this.interfaceId) + ".txt");
-                    fileDialog.setFile(preselectedFile.toString());
+                    fileChooser.setSelectedFile(preselectedFile);
                 }
 
-                fileDialog.setVisible(true);
-                if (fileDialog.getFile() != null) {
-                    Path outFile;
-                    boolean nameChanged = false;
-                    if (StringUtils.endsWith(fileDialog.getFile(), ".txt")) {
-                        outFile = Path.of(fileDialog.getDirectory(), fileDialog.getFile());
-                    } else {
-                        nameChanged = true;
-                        outFile = Path.of(fileDialog.getDirectory(), fileDialog.getFile() + ".txt");
-                    }
-                    int entscheidung = JOptionPane.YES_OPTION;
-                    if (nameChanged && outFile.toFile().exists()) {
-                        entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                                messages.getString("guimainmemu_msg17"), messages.getString("guimainmemu_msg10"),
-                                JOptionPane.YES_NO_OPTION);
-                    }
-                    if (entscheidung == JOptionPane.YES_OPTION) {
-                        try (FileOutputStream outputStream = new FileOutputStream(outFile.toString())) {
+                if (fileChooser.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
+                    if (fileChooser.getSelectedFile() != null) {
+                        File outFile = fileChooser.getSelectedFile();
+                        if (StringUtils.endsWith(outFile.getName(), ".txt")) {
+                            outFile = new File(outFile.getParentFile(), outFile.getName() + ".txt");
+                        }
+                        FileOutputStream outputStream = null;
+                        try {
+                            outputStream = new FileOutputStream(fileChooser.getSelectedFile());
                             writeToStream(outputStream);
-                        } catch (IOException e1) {}
+                        } catch (IOException e1) {} finally {
+                            IOUtils.closeQuietly(outputStream);
+                        }
                     }
                 }
             }
@@ -335,7 +334,7 @@ public class AggregatedMessageTable extends JTable implements LauscherBeobachter
             }
             List<String[]> lineData = prepareDataArrays(values, 40);
             for (String[] data : lineData) {
-                outputStream.write(String.format(rowTemplate, (Object[]) data).getBytes("UTF8"));
+                outputStream.write(String.format(rowTemplate, data).getBytes("UTF8"));
             }
             outputStream.write(lineSeparator.getBytes("UTF8"));
         }

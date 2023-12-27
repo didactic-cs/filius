@@ -27,7 +27,6 @@ package filius.gui.anwendungssicht;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -47,6 +46,7 @@ import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -67,7 +67,6 @@ import javax.swing.tree.TreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import filius.gui.JMainFrame;
 import filius.software.lokal.FileExplorer;
 import filius.software.system.Datei;
 import filius.software.system.Dateisystem;
@@ -395,12 +394,10 @@ public class GUIApplicationFileExplorerWindow extends GUIApplicationWindow {
         fileButton.addMouseListener(new MouseInputAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                FileDialog fileDialog = new FileDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg3"),
-                        FileDialog.LOAD);
-                fileDialog.setVisible(true);
-                if (null != fileDialog.getFile()) {
-                    datei = fileDialog.getFile();
-                    pfad = fileDialog.getDirectory();
+                JFileChooser fc = new JFileChooser();
+                if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    datei = fc.getSelectedFile().getName();
+                    pfad = fc.getSelectedFile().getParent();
                     if (!pfad.endsWith(System.getProperty("file.separator")))
                         pfad += System.getProperty("file.separator");
                 }

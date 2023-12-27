@@ -27,22 +27,21 @@ package filius.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.Serializable;
-import java.nio.file.Path;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 import javax.tools.ToolProvider;
 
 import org.slf4j.Logger;
@@ -72,19 +71,14 @@ public class GUIMainMenu implements Serializable, I18n {
 
     private JSlider simulationSpeedInPercent;
 
+    private FileFilter filiusFileFilter;
+
     private JLabel geschwindigkeit;
 
     private int aktuellerModus;
 
-    private JButton btAktionsmodus;
-    private JButton btEntwurfsmodus;
-    private JButton btDokumodus;
-    private JButton btOeffnen;
-    private JButton btSpeichern;
-    private JButton btNeu;
-    private JButton btWizard;
-    private JButton btHilfe;
-    private JButton btInfo;
+    private JButton btAktionsmodus, btEntwurfsmodus, btDokumodus, btOeffnen, btSpeichern, btNeu, btWizard, btHilfe,
+            btInfo;
 
     public GUIMainMenu() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
@@ -156,6 +150,9 @@ public class GUIMainMenu implements Serializable, I18n {
 
         ActionListener al = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
+                boolean erfolg;
+
                 if (isSoftwareWizardEnabled() && e.getActionCommand().equals(btWizard.getActionCommand())) {
                     FrameSoftwareWizard gsw = new FrameSoftwareWizard();
                     gsw.setVisible(true);
@@ -166,17 +163,110 @@ public class GUIMainMenu implements Serializable, I18n {
                 }
 
                 if (e.getActionCommand().equals(btNeu.getActionCommand())) {
-                    newScenario(e);
+                    int entscheidung = JOptionPane.YES_OPTION;
+                    try {
+                        if (SzenarioVerwaltung.getInstance().istGeaendert()) {
+                            entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
+                                    messages.getString("guimainmemu_msg9"), messages.getString("guimainmemu_msg10"),
+                                    JOptionPane.YES_NO_OPTION);
+                        } else {
+                            entscheidung = JOptionPane.YES_OPTION;
+                        }
+                    } catch (Exception exc) {
+                        LOG.debug("", e);
+                    }
+                    if (entscheidung == JOptionPane.YES_OPTION) {
+                        GUIContainer.getGUIContainer().clearAllItems();
+                        GUIContainer.getGUIContainer().setProperty(null);
+                        Information.getInformation().reset();
+                        SzenarioVerwaltung.getInstance().reset();
+                    }
                 }
 
                 if (e.getActionCommand().equals(btSpeichern.getActionCommand())) {
                     if (GUIContainer.getGUIContainer().getActiveSite() != MODUS_AKTION) {
-                        saveScenario();
+                        JFileChooser fcSpeichern = new JFileChooser();
+
+                        fcSpeichern.setFileFilter(filiusFileFilter);
+                        initCurrentFileOrDirSelection(fcSpeichern);
+
+                        if (fcSpeichern.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
+                            if (fcSpeichern.getSelectedFile() != null) {
+                                Information.getInformation()
+                                        .setLastOpenedDirectory(fcSpeichern.getSelectedFile().getParent());
+                                String targetFilePath;
+                                if (fcSpeichern.getSelectedFile().getName().endsWith(".fls")) {
+                                    targetFilePath = fcSpeichern.getSelectedFile().getPath();
+                                } else {
+                                    targetFilePath = fcSpeichern.getSelectedFile().getPath() + ".fls";
+                                }
+
+                                int entscheidung = JOptionPane.YES_OPTION;
+                                if (SzenarioVerwaltung.getInstance().holePfad() != null && targetFilePath != null
+                                        && new File(targetFilePath).exists()
+                                        && !new File(SzenarioVerwaltung.getInstance().holePfad())
+                                                .equals(new File(targetFilePath))) {
+                                    entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
+                                            messages.getString("guimainmemu_msg17"),
+                                            messages.getString("guimainmemu_msg10"), JOptionPane.YES_NO_OPTION);
+                                }
+
+                                if (entscheidung == JOptionPane.YES_OPTION) {
+                                    erfolg = SzenarioVerwaltung.getInstance().speichern(targetFilePath,
+                                            GUIContainer.getGUIContainer().getKnotenItems(),
+                                            GUIContainer.getGUIContainer().getCableItems(),
+                                            GUIContainer.getGUIContainer().getDocuItems());
+                                    if (!erfolg) {
+                                        JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(),
+                                                messages.getString("guimainmemu_msg11"));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
                 if (e.getActionCommand().equals(btOeffnen.getActionCommand())) {
-                    loadScenario();
+                    int entscheidung = JOptionPane.YES_OPTION;
+                    try {
+                        if (SzenarioVerwaltung.getInstance().istGeaendert()) {
+                            entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
+                                    messages.getString("guimainmemu_msg9"), messages.getString("guimainmemu_msg10"),
+                                    JOptionPane.YES_NO_OPTION);
+                        } else {
+                            entscheidung = JOptionPane.YES_OPTION;
+                        }
+                    } catch (Exception exc) {
+                        LOG.debug("", e);
+                    }
+                    if (entscheidung == JOptionPane.YES_OPTION
+                            && GUIContainer.getGUIContainer().getActiveSite() != MODUS_AKTION) {
+                        JFileChooser fcLaden = new JFileChooser();
+                        fcLaden.setFileFilter(filiusFileFilter);
+                        initCurrentFileOrDirSelection(fcLaden);
+
+                        if (fcLaden.showOpenDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
+                            if (fcLaden.getSelectedFile() != null) {
+                                Information.getInformation()
+                                        .setLastOpenedDirectory(fcLaden.getSelectedFile().getParent());
+                                try {
+                                    Information.getInformation().reset();
+                                    SzenarioVerwaltung.getInstance().laden(fcLaden.getSelectedFile().getPath(),
+                                            GUIContainer.getGUIContainer().getKnotenItems(),
+                                            GUIContainer.getGUIContainer().getCableItems(),
+                                            GUIContainer.getGUIContainer().getDocuItems());
+                                    GUIContainer.getGUIContainer().setProperty(null);
+                                    GUIContainer.getGUIContainer().updateViewport();
+                                    Thread.sleep(10);
+                                    GUIContainer.getGUIContainer().updateCables();
+                                } catch (FileNotFoundException e1) {
+                                    LOG.debug("Selected File could not be found.", e);
+                                } catch (Exception e2) {
+                                    LOG.debug(e2.getMessage(), e2);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (e.getActionCommand().equals(btEntwurfsmodus.getActionCommand())) {
@@ -238,6 +328,18 @@ public class GUIMainMenu implements Serializable, I18n {
         }
         menupanel.add(btHilfe);
         menupanel.add(btInfo);
+
+        filiusFileFilter = new FileFilter() {
+            public boolean accept(File pathname) {
+                if (pathname.isDirectory())
+                    return true;
+                return pathname.getName().toLowerCase().endsWith(".fls");
+            }
+
+            public String getDescription() {
+                return messages.getString("guimainmemu_msg13");
+            }
+        };
     }
 
     private void updateLatency() {
@@ -246,7 +348,7 @@ public class GUIMainMenu implements Serializable, I18n {
         geschwindigkeit.setText("" + simulationSpeedInPercent.getValue() + "%");
     }
 
-    private void initCurrentFileOrDirSelection(FileDialog dialog) {
+    private void initCurrentFileOrDirSelection(JFileChooser fcLaden) {
         String scenarioPath = SzenarioVerwaltung.getInstance().holePfad();
         String lastOpenedDir = Information.getInformation().getLastOpenedDirectory();
         File file = null;
@@ -254,11 +356,11 @@ public class GUIMainMenu implements Serializable, I18n {
             file = new File(scenarioPath);
         }
         if (null != file && file.exists()) {
-            dialog.setFile(file.getAbsolutePath());
+            fcLaden.setSelectedFile(file);
         } else if (null != lastOpenedDir) {
             file = new File(lastOpenedDir);
             if (file.exists()) {
-                dialog.setDirectory(file.getAbsolutePath());
+                fcLaden.setCurrentDirectory(file);
             }
         }
     }
@@ -278,7 +380,8 @@ public class GUIMainMenu implements Serializable, I18n {
             simulationSpeedInPercent.setValue(simulationSpeedInPercent.getValue() + diff);
     }
 
-    public boolean doClick(String button) { // manually perform click event on a registered button
+    public boolean doClick(String button) { // manually perform click event on a
+                                            // registered button
         if (button.equals("btAktionsmodus"))
             btAktionsmodus.doClick();
         else if (button.equals("btEntwurfsmodus"))
@@ -300,109 +403,6 @@ public class GUIMainMenu implements Serializable, I18n {
         else
             return false;
         return true;
-    }
-
-    private void newScenario(ActionEvent e) {
-        int entscheidung = JOptionPane.YES_OPTION;
-        try {
-            if (SzenarioVerwaltung.getInstance().istGeaendert()) {
-                entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                        messages.getString("guimainmemu_msg9"), messages.getString("guimainmemu_msg10"),
-                        JOptionPane.YES_NO_OPTION);
-            } else {
-                entscheidung = JOptionPane.YES_OPTION;
-            }
-        } catch (Exception exc) {
-            LOG.debug("", e);
-        }
-        if (entscheidung == JOptionPane.YES_OPTION) {
-            GUIContainer.getGUIContainer().clearAllItems();
-            GUIContainer.getGUIContainer().setProperty(null);
-            Information.getInformation().reset();
-            SzenarioVerwaltung.getInstance().reset();
-        }
-    }
-
-    private void loadScenario() {
-        int entscheidung = JOptionPane.YES_OPTION;
-        try {
-            if (SzenarioVerwaltung.getInstance().istGeaendert()) {
-                entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                        messages.getString("guimainmemu_msg9"), messages.getString("guimainmemu_msg10"),
-                        JOptionPane.YES_NO_OPTION);
-            } else {
-                entscheidung = JOptionPane.YES_OPTION;
-            }
-        } catch (Exception exc) {
-            LOG.debug("", exc);
-        }
-        if (entscheidung == JOptionPane.YES_OPTION && GUIContainer.getGUIContainer().getActiveSite() != MODUS_AKTION) {
-            FileDialog fileDialog = new FileDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg3"),
-                    FileDialog.LOAD);
-            FilenameFilter filiusFilenameFilter = (dir, name) -> name.endsWith(".fls");
-            fileDialog.setFilenameFilter(filiusFilenameFilter);
-            initCurrentFileOrDirSelection(fileDialog);
-            fileDialog.setVisible(true);
-
-            String selectedFile = fileDialog.getFile();
-            if (selectedFile != null) {
-                Information.getInformation().setLastOpenedDirectory(fileDialog.getDirectory());
-                try {
-                    Path file = Path.of(fileDialog.getDirectory(), selectedFile);
-                    Information.getInformation().reset();
-                    SzenarioVerwaltung.getInstance().laden(file.toString(),
-                            GUIContainer.getGUIContainer().getKnotenItems(),
-                            GUIContainer.getGUIContainer().getCableItems(),
-                            GUIContainer.getGUIContainer().getDocuItems());
-                    GUIContainer.getGUIContainer().setProperty(null);
-                    GUIContainer.getGUIContainer().updateViewport();
-                    Thread.sleep(10);
-                    GUIContainer.getGUIContainer().updateCables();
-                } catch (FileNotFoundException e1) {
-                    LOG.debug("Selected File could not be found.", e1);
-                } catch (Exception e2) {
-                    LOG.debug(e2.getMessage(), e2);
-                }
-            }
-        }
-    }
-
-    private void saveScenario() {
-        boolean erfolg;
-        FileDialog fileDialog = new FileDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg4"),
-                FileDialog.SAVE);
-        FilenameFilter filiusFilenameFilter = (dir, name) -> name.endsWith(".fls");
-        fileDialog.setFilenameFilter(filiusFilenameFilter);
-        initCurrentFileOrDirSelection(fileDialog);
-        fileDialog.setVisible(true);
-
-        if (fileDialog.getFile() != null) {
-            Information.getInformation().setLastOpenedDirectory(fileDialog.getDirectory());
-            String targetFilePath;
-            boolean nameChanged = false;
-            if (fileDialog.getFile().endsWith(".fls")) {
-                targetFilePath = Path.of(fileDialog.getDirectory(), fileDialog.getFile()).toString();
-            } else {
-                nameChanged = true;
-                targetFilePath = Path.of(fileDialog.getDirectory(), fileDialog.getFile() + ".fls").toString();
-            }
-
-            int entscheidung = JOptionPane.YES_OPTION;
-            if (nameChanged && new File(targetFilePath).exists()) {
-                entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
-                        messages.getString("guimainmemu_msg17"), messages.getString("guimainmemu_msg10"),
-                        JOptionPane.YES_NO_OPTION);
-            }
-
-            if (entscheidung == JOptionPane.YES_OPTION) {
-                erfolg = SzenarioVerwaltung.getInstance().speichern(targetFilePath,
-                        GUIContainer.getGUIContainer().getKnotenItems(), GUIContainer.getGUIContainer().getCableItems(),
-                        GUIContainer.getGUIContainer().getDocuItems());
-                if (!erfolg) {
-                    JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), messages.getString("guimainmemu_msg11"));
-                }
-            }
-        }
     }
 
     // set/reset cable highlight, i.e., make all cables normal coloured for

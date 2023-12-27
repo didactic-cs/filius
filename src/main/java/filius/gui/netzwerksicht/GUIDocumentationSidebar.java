@@ -25,16 +25,15 @@
  */
 package filius.gui.netzwerksicht;
 
-import java.awt.FileDialog;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.MouseInputAdapter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.itextpdf.text.DocumentException;
 
@@ -101,40 +100,30 @@ public class GUIDocumentationSidebar extends GUISidebar implements I18n {
     }
 
     private void generateReport() {
-        FileDialog fileDialog = new FileDialog(JMainFrame.getJMainFrame(), messages.getString("main_msg4"),
-                FileDialog.SAVE);
-        FilenameFilter pdfFilenameFilter = (dir, name) -> name.endsWith(".pdf") || name.endsWith(".PDF");
-        fileDialog.setFilenameFilter(pdfFilenameFilter);
-
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter pdfFileFilter = new FileNameExtensionFilter("PDF", "pdf");
+        fileChooser.addChoosableFileFilter(pdfFileFilter);
+        fileChooser.setAcceptAllFileFilterUsed(false);
         String path = SzenarioVerwaltung.getInstance().holePfad();
         if (path != null) {
             String szenarioFile = new File(path).getAbsolutePath();
-            File preselectedFile = new File(szenarioFile.substring(0, szenarioFile.lastIndexOf(".")) + ".pdf");
-            fileDialog.setDirectory(preselectedFile.getParent());
-            fileDialog.setFile(preselectedFile.getName());
+            File preselectedFile = new File(szenarioFile.substring(0, szenarioFile.lastIndexOf(".")));
+            fileChooser.setSelectedFile(preselectedFile);
         }
 
-        fileDialog.setVisible(true);
-        if (null != fileDialog.getFile()) {
-            String reportFilename;
-            boolean nameChanged = false;
-            if (fileDialog.getFile().endsWith(".pdf") || fileDialog.getFile().endsWith(".PDF")) {
-                reportFilename = fileDialog.getFile();
-            } else {
-                nameChanged = true;
-                reportFilename = fileDialog.getFile() + ".pdf";
-            }
+        if (fileChooser.showSaveDialog(JMainFrame.getJMainFrame()) == JFileChooser.APPROVE_OPTION) {
+            String reportPath = fileChooser.getSelectedFile().getAbsolutePath();
+            reportPath = reportPath.endsWith(".pdf") ? reportPath : reportPath + ".pdf";
 
             int entscheidung = JOptionPane.YES_OPTION;
-            Path reportFilepath = Path.of(fileDialog.getDirectory(), reportFilename);
-            if (nameChanged && reportFilepath.toFile().exists()) {
+            if (reportPath != null && new File(reportPath).exists()) {
                 entscheidung = JOptionPane.showConfirmDialog(JMainFrame.getJMainFrame(),
                         messages.getString("guimainmemu_msg17"), messages.getString("guimainmemu_msg10"),
                         JOptionPane.YES_NO_OPTION);
             }
             if (entscheidung == JOptionPane.YES_OPTION) {
                 try {
-                    ReportGenerator.getInstance().generateReport(reportFilepath.toString());
+                    ReportGenerator.getInstance().generateReport(reportPath);
                 } catch (DocumentException | IOException e) {
                     JOptionPane.showMessageDialog(JMainFrame.getJMainFrame(), messages.getString("guimainmemu_msg11"));
                 }

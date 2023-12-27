@@ -48,11 +48,11 @@ import filius.gui.netzwerksicht.GUIKnotenItem;
 import filius.gui.netzwerksicht.JCablePanel;
 import filius.gui.netzwerksicht.JKonfiguration;
 import filius.gui.netzwerksicht.JSidebarButton;
+import filius.gui.netzwerksicht.JVermittlungsrechnerKonfiguration;
 import filius.hardware.Kabel;
 import filius.hardware.NetzwerkInterface;
 import filius.hardware.Port;
 import filius.hardware.knoten.Gateway;
-import filius.hardware.knoten.Host;
 import filius.hardware.knoten.InternetKnoten;
 import filius.hardware.knoten.Knoten;
 import filius.hardware.knoten.Modem;
@@ -62,7 +62,6 @@ import filius.hardware.knoten.Switch;
 import filius.hardware.knoten.Vermittlungsrechner;
 import filius.rahmenprogramm.I18n;
 import filius.rahmenprogramm.SzenarioVerwaltung;
-import filius.software.system.Betriebssystem;
 import filius.software.system.InternetKnotenBetriebssystem;
 import filius.software.system.SwitchFirmware;
 
@@ -690,26 +689,24 @@ public class GUIEvents implements I18n {
      * context menu in case of clicking on single cable item --> used for deleting a single cable
      */
     private void contextMenuCable(final GUIKabelItem cable, int posX, int posY) {
-        if (!cable.getDasKabel().getWireless()) {
-            final JMenuItem pmRemoveCable = new JMenuItem(messages.getString("guievents_msg5"));
-            pmRemoveCable.setActionCommand("removecable");
+        final JMenuItem pmRemoveCable = new JMenuItem(messages.getString("guievents_msg5"));
+        pmRemoveCable.setActionCommand("removecable");
 
-            JPopupMenu popmen = new JPopupMenu();
-            ActionListener al = new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (e.getActionCommand() == pmRemoveCable.getActionCommand()) {
-                        removeConnection(cable);
-                    }
+        JPopupMenu popmen = new JPopupMenu();
+        ActionListener al = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand() == pmRemoveCable.getActionCommand()) {
+                    removeConnection(cable);
                 }
-            };
+            }
+        };
 
-            pmRemoveCable.addActionListener(al);
-            popmen.add(pmRemoveCable);
+        pmRemoveCable.addActionListener(al);
+        popmen.add(pmRemoveCable);
 
-            GUIContainer.getGUIContainer().getDesignpanel().add(popmen);
-            popmen.setVisible(true);
-            popmen.show(GUIContainer.getGUIContainer().getDesignpanel(), posX, posY);
-        }
+        GUIContainer.getGUIContainer().getDesignpanel().add(popmen);
+        popmen.setVisible(true);
+        popmen.show(GUIContainer.getGUIContainer().getDesignpanel(), posX, posY);
     }
 
     /**
@@ -759,8 +756,14 @@ public class GUIEvents implements I18n {
         GUIContainer.getGUIContainer().getCableItems().remove(cable);
         GUIContainer.getGUIContainer().getDesignpanel().remove(cable.getKabelpanel());
 
-        JKonfiguration.getInstance(cable.getKabelpanel().getZiel1().getKnoten()).updateAttribute();
-        JKonfiguration.getInstance(cable.getKabelpanel().getZiel2().getKnoten()).updateAttribute();
+        if (JKonfiguration.getInstance(
+                cable.getKabelpanel().getZiel1().getKnoten()) instanceof JVermittlungsrechnerKonfiguration) {
+            JKonfiguration.getInstance(cable.getKabelpanel().getZiel1().getKnoten()).updateAttribute();
+        }
+        if (JKonfiguration.getInstance(
+                cable.getKabelpanel().getZiel2().getKnoten()) instanceof JVermittlungsrechnerKonfiguration) {
+            JKonfiguration.getInstance(cable.getKabelpanel().getZiel2().getKnoten()).updateAttribute();
+        }
         GUIContainer.getGUIContainer().updateViewport();
     }
 
@@ -781,17 +784,9 @@ public class GUIEvents implements I18n {
         // Temporäre Liste der zu löschenden Kabel wird iteriert und dabei
         // werden die Kabel aus der globalen Kabelliste gelöscht
         // und vom Panel entfernt
-        boolean wireless = false;
         for (GUIKabelItem tempKabel : loeschListe) {
             this.removeConnection(tempKabel);
-            if (tempKabel.getDasKabel().getWireless()) {
-                wireless = true;
-            }
         }
-        if (wireless && aktivesItem.getKnoten() instanceof Host) {
-            ((Betriebssystem) aktivesItem.getKnoten().getSystemSoftware()).setSsid(null);
-        }
-        JKonfiguration.getInstance(aktivesItem.getKnoten()).updateAttribute();
     }
 
     public void mausPressedActionMode(MouseEvent e) {

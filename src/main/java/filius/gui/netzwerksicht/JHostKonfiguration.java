@@ -529,6 +529,13 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
 
             Betriebssystem bs = (Betriebssystem) host.getSystemSoftware();
 
+            useLAN.setSelected(!bs.wireless());
+            useWiFi.setSelected(bs.wireless());
+            useWiFi.setEnabled(host.holeFreienPort() != null || bs.wireless());
+            ssid.setEnabled(useWiFi.isSelected());
+            ssidLabel.setEnabled(ssid.isEnabled());
+            updateSsid();
+
             macAdresse.setText(bs.primaryMACAddress());
             ipAdresse.setText(bs.primaryIPAdresse());
             netzmaske.setText(bs.primarySubnetMask());
@@ -543,13 +550,6 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             netzmaske.setEnabled(!bs.isDHCPKonfiguration());
             gateway.setEnabled(!bs.isDHCPKonfiguration());
             dns.setEnabled(!bs.isDHCPKonfiguration());
-
-            useLAN.setSelected(!bs.wireless());
-            useWiFi.setSelected(bs.wireless());
-            useWiFi.setEnabled(host.holeFreienPort() != null || bs.wireless());
-            ssid.setEnabled(useWiFi.isSelected());
-            ssidLabel.setEnabled(ssid.isEnabled());
-            updateSsid();
 
             checkIpAddress();
             checkDnsAddress();
@@ -601,9 +601,6 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             ssidList.add(ssid.getItemAt(i));
         }
 
-        Host host = (Host) holeHardware();
-        String configuredSSID = ((Betriebssystem) host.getSystemSoftware()).getSsid();
-
         List<String> accessPointSsidList = new ArrayList<>();
         for (GUIKnotenItem item : GUIContainer.getGUIContainer().getKnotenItems()) {
             if (item.getKnoten() instanceof Switch) {
@@ -620,7 +617,9 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
             }
         }
 
-        if (null != configuredSSID && accessPointSsidList.contains(configuredSSID)) {
+        Host host = (Host) holeHardware();
+        String configuredSSID = ((Betriebssystem) host.getSystemSoftware()).getSsid();
+        if (null != configuredSSID) {
             ssid.setSelectedItem(configuredSSID);
         } else {
             ssid.setSelectedIndex(0);
