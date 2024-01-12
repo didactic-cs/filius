@@ -29,7 +29,8 @@ import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.util.UriUtils;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import filius.rahmenprogramm.I18n;
 
@@ -413,12 +414,20 @@ public class HTTPNachricht implements I18n {
     }
 
     protected static String encodePath(String path) {
-        String urlEncodedPath = UriUtils.encodePath(path, "utf8");
-        return urlEncodedPath;
+        try {
+            String urlEncodedPath = URLEncoder.encode(path, "utf8");
+            return urlEncodedPath;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     protected static String decodePath(String urlEncodedPath) {
-        String path = UriUtils.decode(urlEncodedPath, "utf8");
-        return path;
+        try {
+            String path = URLDecoder.decode(urlEncodedPath, "utf8");
+            return path;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

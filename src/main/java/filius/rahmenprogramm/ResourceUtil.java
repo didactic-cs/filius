@@ -5,7 +5,7 @@ import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.util.UriUtils;
+import java.net.URLDecoder;
 
 public class ResourceUtil {
     private static Logger LOG = LoggerFactory.getLogger(ResourceUtil.class);
@@ -23,7 +23,10 @@ public class ResourceUtil {
         String path = null;
         if (urlEncodedPath != null) {
             LOG.debug(urlEncodedPath);
-            path = UriUtils.decode(urlEncodedPath, "utf8");
+            try {
+                path = URLDecoder.decode(urlEncodedPath, "utf8");
+            } catch (Exception e) {
+            }
             LOG.debug("Resolved path: " + path);
         }
         return path;
