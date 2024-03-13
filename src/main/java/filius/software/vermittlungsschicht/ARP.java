@@ -251,10 +251,6 @@ public class ARP extends VermittlungsProtokoll {
                 bestNic = nic;
             }
         }
-        if (null == bestNic) {
-            bestMask = IP.inetAton(((InternetKnotenBetriebssystem) holeSystemSoftware()).primarySubnetMask());
-            bestNic = ((InternetKnoten) holeSystemSoftware().getKnoten()).getNetzwerkInterfaces().get(0);
-        }
         return bestNic;
     }
 
