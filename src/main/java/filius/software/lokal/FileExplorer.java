@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import filius.rahmenprogramm.Base64;
 import filius.rahmenprogramm.I18n;
+import filius.rahmenprogramm.ResourceUtil;
 import filius.software.Anwendung;
 import filius.software.system.Datei;
 
@@ -54,7 +55,7 @@ public class FileExplorer extends Anwendung implements I18n {
         super();
         LOG.trace("INVOKED-2 (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileExplorer), constr: FileExplorer()");
-        this.getFileTypeMap();
+        this.initFileTypeMap();
     }
 
     public void beenden() {
@@ -158,13 +159,13 @@ public class FileExplorer extends Anwendung implements I18n {
      * @author Johannes Bade & Thomas Gerding
      * 
      */
-    public void getFileTypeMap() {
+    public void initFileTypeMap() {
         LOG.trace("INVOKED (" + this.hashCode() + ", T" + this.getId() + ") " + getClass()
                 + " (FileExplorer), getFileTypeMap()");
         fileTypeMap = new HashMap<String, String>();
         RandomAccessFile configFile;
         try {
-            configFile = new RandomAccessFile("config/filetypes.txt", "r");
+            configFile = new RandomAccessFile(ResourceUtil.getResourcePath("config/filetypes.txt"), "r");
             for (String line; (line = configFile.readLine()) != null;) {
                 StringTokenizer stx = new StringTokenizer(line, ";");
                 String tmpType = stx.nextToken();
@@ -180,8 +181,6 @@ public class FileExplorer extends Anwendung implements I18n {
         } catch (IOException e) {
             LOG.debug("", e);
         }
-
-        // LOG.debug(fileTypeMap);
 
     }
 
