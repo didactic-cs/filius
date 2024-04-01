@@ -68,6 +68,7 @@ public abstract class ClientAnwendung extends Anwendung {
 
         if (socket != null) {
             socket.beenden();
+            socket = null;
         }
     }
 }

@@ -121,6 +121,7 @@ public abstract class Anwendung extends Thread {
 
         synchronized (kommandos) {
             kommandos.clear();
+            benachrichtigeBeobachter();
         }
         if (getState().equals(State.NEW)) {
             start();
@@ -143,6 +144,9 @@ public abstract class Anwendung extends Thread {
                 kommandos.clear();
                 kommandos.notifyAll();
             }
+        }
+        synchronized (this) {
+            this.interrupt();
         }
     }
 

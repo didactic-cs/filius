@@ -169,7 +169,7 @@ public class ClientBaustein extends ClientAnwendung implements I18n {
                 nachricht = socket.empfangen(Long.MAX_VALUE);
                 if (nachricht != null) {
                     benachrichtigeBeobachter(">>" + nachricht);
-                } else {
+                } else if (null != socket) {
                     socket.schliessen();
                     benachrichtigeBeobachter(
                             messages.getString("sw_clientbaustein_msg5") + " " + socket.holeZielIPAdresse() + ":"

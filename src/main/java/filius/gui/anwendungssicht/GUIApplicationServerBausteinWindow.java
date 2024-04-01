@@ -159,7 +159,9 @@ public class GUIApplicationServerBausteinWindow extends GUIApplicationWindow {
      * wird. Der Parameter arg enthaelt die Nachricht, die von der Anwendung verschickt wurde.
      */
     public void update(Observable o, Object arg) {
-        taLog.append(arg.toString() + "\n");
+        if (null != arg) {
+            taLog.append(arg.toString() + "\n");
+        }
         aktualisieren();
     }
 }
