@@ -134,10 +134,21 @@ public abstract class VermittlungsProtokoll extends Protokoll {
         return false;
     }
 
-    public boolean isApplicableBroadcast(String zielIp) {
+    public boolean isBroadcast(String zielIp) {
         List<NetzwerkInterface> nics = ((InternetKnoten) this.holeSystemSoftware().getKnoten()).getNetzwerkInterfaces();
         for (NetzwerkInterface nic : nics) {
             if (isBroadcast(zielIp, nic.getIp(), nic.getSubnetzMaske())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isNetworkLocalBroadcast(String zielIp, String senderIP) {
+        List<NetzwerkInterface> nics = ((InternetKnoten) this.holeSystemSoftware().getKnoten()).getNetzwerkInterfaces();
+        for (NetzwerkInterface nic : nics) {
+            if (gleichesRechnernetz(senderIP, nic.getIp(), nic.getSubnetzMaske())
+                    && isBroadcast(zielIp, nic.getIp(), nic.getSubnetzMaske())) {
                 return true;
             }
         }
