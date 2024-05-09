@@ -1,5 +1,18 @@
 # Changelog Filius
 
+## [2.6.0] - 2024-05-09
+### Added
+ * Allow broadcast ping with parameter -b (undocumented feature)
+ 
+### Changed
+ * Do not send ARP request as best guess via first NIC if address not applicable
+ * Remove svg export
+ * Use other file dialogs (might help with MacOS)
+
+### Fixed
+ * Shutdown resp. close sockets correctly when switching to design mode
+ * Fix initialization of web server ui regarding vhost configuration
+
 ## [2.5.1] - 2023-10-23
 ### Fixed
  * Ping resp. ICMP fixed
