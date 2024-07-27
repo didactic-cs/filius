@@ -172,8 +172,8 @@ public class JMainFrame extends javax.swing.JFrame implements WindowListener, Ob
                             // LOG.debug("KeyDispatcher: CTRL+H recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btHilfe");
                             return true;
-                        case 65: // A (about dialog)
-                            // LOG.debug("KeyDispatcher: CTRL+A recognised");
+                        case 73: // A (about dialog)
+                            // LOG.debug("KeyDispatcher: CTRL+I recognised");
                             GUIContainer.getGUIContainer().getMenu().doClick("btInfo");
                             return true;
                         }
