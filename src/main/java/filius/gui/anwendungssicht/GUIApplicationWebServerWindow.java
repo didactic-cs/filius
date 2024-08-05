@@ -151,6 +151,7 @@ public class GUIApplicationWebServerWindow extends GUIApplicationWindow {
             backPanel.remove(vHostBox);
             logBox.setPreferredSize(new Dimension(300, 350));
         }
+        showVHosts.setSelected(tableVisible);
         Dimension size = getSize();
         setSize(size);
         updateUI();

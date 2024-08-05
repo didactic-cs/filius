@@ -100,7 +100,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
 
     /** Hilfsmethode zum Versenden eines ICMP Echo Reply */
     public void sendEchoReply(IcmpPaket rcvPacket) {
-        sendeICMP(TYPE_ECHO_REPLY, CODE_ECHO, rcvPacket.getSeqNr(), rcvPacket.getEmpfaenger(), rcvPacket.getSender());
+        sendeICMP(TYPE_ECHO_REPLY, CODE_ECHO, rcvPacket.getSeqNr(), null, rcvPacket.getSender());
     }
 
     public void sendeICMP(int typ, int code, String zielIP) {
@@ -235,9 +235,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
     }
 
     /** method to actually send a ping and compute the pong event */
-    public int startSinglePing(String destIp, int seqNr) throws TimeoutException {
-        int resultTTL = -1; // return ttl field of received echo reply packet
-
+    public IcmpPaket startSinglePing(String destIp, int seqNr) throws TimeoutException {
         thread.resetIcmpResponseQueue();
         sendEchoRequest(destIp, seqNr);
         IcmpPaket response = thread.waitForIcmpResponse();
@@ -245,12 +243,11 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
         if (response == null) {
             throw new TimeoutException("Destination Host Unreachable");
         } else {
-            if (!(destIp.equals(response.getSender()) && seqNr == response.getSeqNr() && response.isEchoResponse())) {
+            if (!(seqNr == response.getSeqNr() && response.isEchoResponse())) {
                 throw new TimeoutException("Destination Host Unreachable");
             }
-            resultTTL = response.getTtl();
         }
-        return resultTTL;
+        return response;
     }
 
     /** method to send a traceroute probe (realized as ping) */

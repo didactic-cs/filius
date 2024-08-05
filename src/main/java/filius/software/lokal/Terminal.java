@@ -776,12 +776,16 @@ public class Terminal extends ClientAnwendung implements I18n {
      * 'ping' command to check connectivity via ICMP echo request/reply
      */
     public String ping(String[] args) {
-        LOG.trace("INVOKED (" + this.hashCode() + ", " + this.getId() + ") " + getClass() + " (Terminal), ping(");
-        for (int i = 0; i < args.length; i++) {
-            LOG.debug(i + "='" + args[i] + "' ");
-        }
-        LOG.debug(")");
-        if (!numParams(args, 1)) {
+        LOG.debug("ping with params: {}", args.toString());
+
+        String target = null;
+        boolean enableBroadcast = false;
+        if (numParams(args, 1)) {
+            target = args[0];
+        } else if (numParams(args, 2)) {
+            target = args[1];
+            enableBroadcast = true;
+        } else {
             return usage("ping");
         }
         Resolver res = getSystemSoftware().holeDNSClient();
@@ -792,13 +796,13 @@ public class Terminal extends ClientAnwendung implements I18n {
         }
 
         // first: resolve host name
-        String destIp;
+        String targetIp;
         try {
-            destIp = IP.ipCheck(args[0]);
-            if (destIp == null) { // args[0] is not an IP address
-                destIp = res.holeIPAdresse(args[0]);
+            targetIp = IP.ipCheck(target);
+            if (targetIp == null) { // args[0] is not an IP address
+                targetIp = res.holeIPAdresse(target);
             }
-            if (destIp == null) { // args[0] could also not be resolved
+            if (targetIp == null) { // args[0] could also not be resolved
                 LOG.debug("ERROR (" + this.hashCode() + "): Terminal 'host': result is null!");
                 benachrichtigeBeobachter(messages.getString("sw_terminal_msg30"));
                 return messages.getString("sw_terminal_msg30");
@@ -812,8 +816,9 @@ public class Terminal extends ClientAnwendung implements I18n {
             return messages.getString("sw_terminal_msg29");
         }
         try {
-            Route route = ((InternetKnotenBetriebssystem) getSystemSoftware()).determineRoute(destIp);
-            if (VermittlungsProtokoll.isBroadcast(destIp, route.getInterfaceIpAddress(), route.getNetMask())) {
+            Route route = ((InternetKnotenBetriebssystem) getSystemSoftware()).determineRoute(targetIp);
+            if (!enableBroadcast
+                    && VermittlungsProtokoll.isBroadcast(targetIp, route.getInterfaceIpAddress(), route.getNetMask())) {
                 benachrichtigeBeobachter(messages.getString("sw_terminal_msg53"));
                 return messages.getString("sw_terminal_msg53");
             }
@@ -826,7 +831,7 @@ public class Terminal extends ClientAnwendung implements I18n {
         long timeStart, timeDiff;
         // inform about a multiple data transmission to the observer
         benachrichtigeBeobachter(Boolean.TRUE);
-        benachrichtigeBeobachter("PING " + args[0] + " (" + destIp + ")");
+        benachrichtigeBeobachter("PING " + target + " (" + targetIp + ")");
 
         int receivedReplies = 0;
         int num;
@@ -834,29 +839,22 @@ public class Terminal extends ClientAnwendung implements I18n {
         for (num = 0; !interrupted && num < loopNumber; num++) {
             try {
                 timeStart = System.currentTimeMillis();
-                // / CAVE: wahrscheinlich hier Queue nötig und blockieren, bis
-                // Ergebnis da ist!!!
-                int resTTL = getSystemSoftware().holeICMP().startSinglePing(destIp, num + 1);
-                // wait 1s between single ping executions subtract needed time
-                // for former ping
+                IcmpPaket pingResponse = getSystemSoftware().holeICMP().startSinglePing(targetIp, num + 1);
                 timeDiff = 1000 - (System.currentTimeMillis() - timeStart);
-                // LOG.debug("DEBUG: Terminal, ping (num="+(num+1)+"), resTTL="+resTTL+",
-                // delay="+(1000-timeDiff)+", timeDiff="+timeDiff);
-                if (resTTL >= 0) {
-                    benachrichtigeBeobachter("\nFrom " + args[0] + " (" + destIp + "): icmp_seq=" + (num + 1) + " ttl="
-                            + resTTL + " time=" + (System.currentTimeMillis() - timeStart) + "ms");
+                if (pingResponse.getTtl() >= 0) {
+                    benachrichtigeBeobachter("\nFrom " + pingResponse.getSender() + ": icmp_seq=" + (num + 1) + " ttl="
+                            + pingResponse.getTtl() + " time=" + (System.currentTimeMillis() - timeStart) + "ms");
                     receivedReplies++;
                 }
                 if (timeDiff > 0) {
                     try {
-                        // LOG.debug("DEBUG: Terminal wartet für "+timeDiff+"ms");
+                        LOG.debug("DEBUG: Terminal waits for " + timeDiff + " ms");
                         Thread.sleep(timeDiff);
-                        // LOG.debug("DEBUG: Terminal fertig mit Warten");
                     } catch (InterruptedException e) {}
                 }
             } catch (java.util.concurrent.TimeoutException e) {
                 benachrichtigeBeobachter(
-                        "\nFrom " + args[0] + " (" + destIp + "): icmp_seq=" + (num + 1) + "   -- Timeout!");
+                        "\nFrom " + args[0] + " (" + targetIp + "): icmp_seq=" + (num + 1) + "   -- Timeout!");
             } catch (Exception e) {
                 LOG.debug("", e);
             }

@@ -122,10 +122,12 @@ public class DHCPClient extends ClientAnwendung {
         int fehlerzaehler = 0;
         zustand = INIT;
 
-        InternetKnotenBetriebssystem operatingSystem = (InternetKnotenBetriebssystem) getSystemSoftware();
         String oldIpAddress = resetIpConfig();
+        updateOberserver();
+
         IpConfig config = null;
         UDPSocket udpSocket = null;
+        InternetKnotenBetriebssystem operatingSystem = (InternetKnotenBetriebssystem) getSystemSoftware();
         while (zustand != FINISH && fehlerzaehler < MAX_ERROR_COUNT && running) {
             try {
                 switch (zustand) {
@@ -163,12 +165,17 @@ public class DHCPClient extends ClientAnwendung {
                 fehlerzaehler++;
             }
         }
-        if (fehlerzaehler == MAX_ERROR_COUNT && running) {
+        if (fehlerzaehler == MAX_ERROR_COUNT || !running) {
             LOG.debug("ERROR (" + this.hashCode() + "): kein DHCPACK erhalten");
             operatingSystem.setzeIPAdresse(oldIpAddress);
         }
         udpSocket.schliessen();
 
+        updateOberserver();
+    }
+
+    private void updateOberserver() {
+        InternetKnotenBetriebssystem operatingSystem = (InternetKnotenBetriebssystem) getSystemSoftware();
         Knoten node = operatingSystem.getKnoten();
         node.benachrichtigeBeobachter();
         operatingSystem.benachrichtigeBeobacher(node);

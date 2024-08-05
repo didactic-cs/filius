@@ -59,7 +59,7 @@ public class WebServer extends TCPServerAnwendung {
     private HashMap<String, WebServerPlugIn> plugins = new HashMap<String, WebServerPlugIn>();
 
     private String[][] vHostArray = new String[5][2];
-    private boolean useVHost;
+    private boolean useVHost = false;
 
     public WebServer() {
         super();

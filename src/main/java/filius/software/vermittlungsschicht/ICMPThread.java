@@ -59,12 +59,14 @@ public class ICMPThread extends ProtokollThread<IcmpPaket> {
      */
     protected void verarbeiteDatenEinheit(IcmpPaket icmpPaket) {
         if (vermittlung.isLocalAddress(icmpPaket.getEmpfaenger())
-                || vermittlung.isApplicableBroadcast(icmpPaket.getEmpfaenger())) {
+                || vermittlung.isNetworkLocalBroadcast(icmpPaket.getEmpfaenger(), icmpPaket.getSender())) {
             if (icmpPaket.isEchoRequest()) {
                 vermittlung.sendEchoReply(icmpPaket);
             } else {
                 addIcmpResponse(icmpPaket);
             }
+        } else if (vermittlung.isBroadcast(icmpPaket.getEmpfaenger())) {
+            LOG.info("discard icmp broadcast for another network ({})", icmpPaket);
         } else {
             vermittlung.weiterleitenPaket(icmpPaket);
         }

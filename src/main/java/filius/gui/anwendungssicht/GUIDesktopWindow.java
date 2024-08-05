@@ -44,83 +44,85 @@ import filius.software.system.Betriebssystem;
 
 @SuppressWarnings({ "serial", "deprecation" })
 public class GUIDesktopWindow extends JFrame implements Observer {
-	private GUIDesktopPanel desktopPanel;
+    private GUIDesktopPanel desktopPanel;
 
-	public enum Mode {
-		ROW(0), COLUMN(1), STACK(2);
+    public enum Mode {
+        ROW(0), COLUMN(1), STACK(2);
 
-		private final int value;
+        private final int value;
 
-		Mode(int mode) {
-			this.value = mode;
-		}
+        Mode(int mode) {
+            this.value = mode;
+        }
 
-		public static Mode getMode(int value) {
-			if (value == ROW.value) {
-				return ROW;
-			} else if (value == COLUMN.value) {
-				return COLUMN;
-			} else {
-				return STACK;
-			}
-		}
-	}
+        public static Mode getMode(int value) {
+            if (value == ROW.value) {
+                return ROW;
+            } else if (value == COLUMN.value) {
+                return COLUMN;
+            } else {
+                return STACK;
+            }
+        }
+    }
 
-	public GUIDesktopWindow(Betriebssystem bs) {
-		bs.addObserver(this);
+    public GUIDesktopWindow(Betriebssystem bs) {
+        bs.addObserver(this);
 
-		Hardware hardware;
-		String imageFile = null;
+        Hardware hardware;
+        String imageFile = null;
 
-		hardware = bs.getKnoten();
-		if (hardware instanceof Rechner) {
-			imageFile = GUIDesignSidebar.RECHNER;
-		} else if (hardware instanceof Notebook) {
-			imageFile = GUIDesignSidebar.NOTEBOOK;
-		}
+        hardware = bs.getKnoten();
+        if (hardware instanceof Rechner) {
+            imageFile = GUIDesignSidebar.RECHNER;
+        } else if (hardware instanceof Notebook) {
+            imageFile = GUIDesignSidebar.NOTEBOOK;
+        }
 
-		ImageIcon icon = new ImageIcon(getClass().getResource("/" + imageFile));
-		setIconImage(icon.getImage());
+        ImageIcon icon = new ImageIcon(getClass().getResource("/" + imageFile));
+        setIconImage(icon.getImage());
 
-		int titleBarHeight = JMainFrame.getJMainFrame().getHeight()
-				- JMainFrame.getJMainFrame().getContentPane().getHeight();
-		int borderWidth = JMainFrame.getJMainFrame().getWidth()
-				- JMainFrame.getJMainFrame().getContentPane().getWidth();
-		setSize(PANEL_WIDTH + borderWidth, HEIGHT_OVERALL + titleBarHeight);
-		setResizable(false);
+        int titleBarHeight = JMainFrame.getJMainFrame().getHeight()
+                - JMainFrame.getJMainFrame().getContentPane().getHeight();
+        int borderWidth = JMainFrame.getJMainFrame().getWidth()
+                - JMainFrame.getJMainFrame().getContentPane().getWidth();
+        setSize(PANEL_WIDTH + borderWidth, HEIGHT_OVERALL + titleBarHeight);
+        setResizable(false);
 
-		desktopPanel = new GUIDesktopPanel(bs);
-		getContentPane().add(desktopPanel);
-	}
+        desktopPanel = new GUIDesktopPanel(bs);
+        getContentPane().add(desktopPanel);
+    }
 
-	public void setVisible(boolean flag) {
-		super.setVisible(flag);
+    public void setVisible(boolean flag) {
+        super.setVisible(flag);
 
-		updateTitle();
+        updateTitle();
+        desktopPanel.updateInfo();
 
-		if (flag) {
-			toFront();
-		}
-	}
+        if (flag) {
+            toFront();
+        }
+    }
 
-	private void updateTitle() {
-		String title;
-		Host host = (Host) desktopPanel.getBetriebssystem().getKnoten();
-		if (host.isUseIPAsName()) {
-			title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName();
-		} else {
-			title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName() + " - "
-					+ desktopPanel.getBetriebssystem().primaryIPAdresse();
-		}
-		setTitle(title);
-	}
+    private void updateTitle() {
+        String title;
+        Host host = (Host) desktopPanel.getBetriebssystem().getKnoten();
+        if (host.isUseIPAsName()) {
+            title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName();
+        } else {
+            title = desktopPanel.getBetriebssystem().getKnoten().holeAnzeigeName() + " - "
+                    + desktopPanel.getBetriebssystem().primaryIPAdresse();
+        }
+        setTitle(title);
+    }
 
-	public Betriebssystem getBetriebssystem() {
-		return desktopPanel.getBetriebssystem();
-	}
+    public Betriebssystem getBetriebssystem() {
+        return desktopPanel.getBetriebssystem();
+    }
 
-	@Override
-	public void update(Observable o, Object arg) {
-		updateTitle();
-	}
+    @Override
+    public void update(Observable o, Object arg) {
+        desktopPanel.updateInfo();
+        updateTitle();
+    }
 }

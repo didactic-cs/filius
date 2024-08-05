@@ -146,6 +146,9 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
     private void setInfoVisible(boolean visible) {
         if (visible) {
             mainPaneWithOverlay.moveToFront(infoLayer);
+            if (null != networkInfo) {
+                networkInfo.setVisible(true);
+            }
         } else {
             mainPaneWithOverlay.moveToBack(infoLayer);
         }
@@ -185,7 +188,8 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
         networkInfo = new NetworkInfoPanel(this);
         int infoWidth = (int) networkInfo.getPreferredSize().getWidth();
         int infoHeight = (int) networkInfo.getPreferredSize().getHeight();
-        networkInfo.setBounds(PANEL_WIDTH - infoWidth, HEIGHT_OVERALL - HEIGHT_TASKBAR - infoHeight, infoWidth, infoHeight);
+        networkInfo.setBounds(PANEL_WIDTH - infoWidth, HEIGHT_OVERALL - HEIGHT_TASKBAR - infoHeight, infoWidth,
+                infoHeight);
         infoLayer.add(networkInfo);
         mainPaneWithOverlay.add(infoLayer, JLayeredPane.DEFAULT_LAYER);
 
@@ -377,6 +381,12 @@ public class GUIDesktopPanel extends JPanel implements I18n, Observer {
             networkIcon.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_c.png")));
         } else {
             networkIcon.setIcon(new ImageIcon(getClass().getResource("/gfx/desktop/netzwek_aus.png")));
+        }
+    }
+
+    public void updateInfo() {
+        if (null != networkInfo) {
+            networkInfo.updateInfo();
         }
     }
 }

@@ -244,16 +244,20 @@ public class NetworkInfoPanel extends JPanel implements I18n {
 
     public void setVisible(boolean b) {
         if (b) {
-            // bring data up-to-date:
-            bs = this.dp.getBetriebssystem();
-            NetzwerkInterface nic = (NetzwerkInterface) ((Host) bs.getKnoten()).getNetzwerkInterfaces().get(0);
-
-            ipField.setText(nic.getIp());
-            dnsField.setText(bs.getDNSServer());
-            gatewayField.setText(bs.getStandardGateway());
-            netmaskField.setText(nic.getSubnetzMaske());
+            updateInfo();
         }
         super.setVisible(b);
+    }
+
+    public void updateInfo() {
+        // bring data up-to-date:
+        bs = this.dp.getBetriebssystem();
+        NetzwerkInterface nic = (NetzwerkInterface) ((Host) bs.getKnoten()).getNetzwerkInterfaces().get(0);
+
+        ipField.setText(nic.getIp());
+        dnsField.setText(bs.getDNSServer());
+        gatewayField.setText(bs.getStandardGateway());
+        netmaskField.setText(nic.getSubnetzMaske());
     }
 
 }

@@ -144,7 +144,7 @@ public class VermittlungsProtokollTest {
         InternetKnotenBetriebssystem betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
         VermittlungsProtokoll protokoll = new VermittlungsProtokollTestable(betriebssystem );
         
-        boolean isApplicableBroadcast = protokoll.isApplicableBroadcast("10.10.10.255");
+        boolean isApplicableBroadcast = protokoll.isBroadcast("10.10.10.255");
         
         assertThat(isApplicableBroadcast, is(true));
     }
@@ -167,7 +167,7 @@ public class VermittlungsProtokollTest {
         InternetKnotenBetriebssystem betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
         VermittlungsProtokoll protokoll = new VermittlungsProtokollTestable(betriebssystem );
         
-        boolean isApplicableBroadcast = protokoll.isApplicableBroadcast("10.10.10.254");
+        boolean isApplicableBroadcast = protokoll.isBroadcast("10.10.10.254");
         
         assertThat(isApplicableBroadcast, is(false));
     }
@@ -179,7 +179,7 @@ public class VermittlungsProtokollTest {
         InternetKnotenBetriebssystem betriebssystem = initSystemSoftwareAndNodeMock(localIpAddress, subnetzMaske);
         VermittlungsProtokoll protokoll = new VermittlungsProtokollTestable(betriebssystem );
         
-        boolean isApplicableBroadcast = protokoll.isApplicableBroadcast("10.11.10.255");
+        boolean isApplicableBroadcast = protokoll.isBroadcast("10.11.10.255");
         
         assertThat(isApplicableBroadcast, is(false));
     }
