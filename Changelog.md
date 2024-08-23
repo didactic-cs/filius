@@ -1,5 +1,13 @@
 # Changelog Filius
 
+## [2.6.1] - 2024-08-23
+### Changed
+ * Shortcut to open info dialog changed to Ctrl+I
+ * New notebooks are added with label "Notebook" (previously "New Notebook")
+
+### Fixed
+ * Correctly update Network Info Panel (to open at lower right corner on the desktop) when IP address changesd
+
 ## [2.6.0] - 2024-05-09
 ### Added
  * Allow broadcast ping with parameter -b (undocumented feature)
