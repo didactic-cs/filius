@@ -215,7 +215,7 @@ public class ICMP extends VermittlungsProtokoll implements I18n {
      *            das zu versendende ICMP-Paket
      */
     public void weiterleitenPaket(IcmpPaket icmpPaket) {
-        if (icmpPaket.getTtl() <= 0) {
+        if (icmpPaket.getTtl() <= 1) {
             // TTL ist abgelaufen.
             // (wird in ICMPThread.verarbeiteDatenEinheit()
             // dekrementiert, bevor diese Funktion aufgerufen

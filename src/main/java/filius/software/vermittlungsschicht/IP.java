@@ -282,7 +282,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
     public void weiterleitenPaket(IpPaket paket) {
         InternetKnotenBetriebssystem bs = (InternetKnotenBetriebssystem) holeSystemSoftware();
 
-        if (paket.getTtl() <= 0) {
+        if (paket.getTtl() <= 1) {
             bs.holeICMP().sendeICMP(ICMP.TYPE_TIME_EXCEEDED, ICMP.CODE_TTL_EXPIRED, paket.getSender());
         } else {
             try {
