@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="55"
+   height="58"
+   viewBox="0 0 39.285714 41.428572"
+   version="1.1"
+   id="svg5363"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="switchS.svg"
+   inkscape:export-filename="switchS.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview5365"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="4.3893395"
+     inkscape:cx="21.415523"
+     inkscape:cy="47.273627"
+     inkscape:window-width="1112"
+     inkscape:window-height="1052"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showguides="true" />
+  <defs
+     id="defs5360">
+    <marker
+       style="overflow:visible"
+       id="TriangleStart"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="TriangleStart"
+       markerWidth="4"
+       markerHeight="4"
+       viewBox="0 0 5.3244081 6.1553851"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="none">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-15.327178,-29.292398)">
+    <g
+       id="g13268"
+       transform="translate(-1.1904777,1.2144869)"
+       style="stroke-width:1.61979753;stroke-dasharray:none">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:1.61979753;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+         id="rect5484"
+         width="36.36734"
+         height="36.053219"
+         x="17.976843"
+         y="32.099125"
+         ry="1.9290044"
+         rx="1.9290044" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.61979753;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleStart)"
+         d="M 33.904287,39.292398 H 46.70862"
+         id="path13045" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.61979753;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleStart)"
+         d="M 38.41673,46.514622 H 25.612397"
+         id="path13211" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.61979753;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleStart)"
+         d="M 33.904287,53.736845 H 46.70862"
+         id="path13217" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.61979753;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleStart)"
+         d="M 38.41673,60.959069 H 25.612397"
+         id="path13221" />
+    </g>
+  </g>
+</svg>

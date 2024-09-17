@@ -41,6 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
+import javax.swing.JComboBox;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.tools.ToolProvider;
@@ -86,6 +87,9 @@ public class GUIMainMenu implements Serializable, I18n {
     private JButton btHilfe;
     private JButton btInfo;
 
+    private JComboBox iconSelect;
+    public int iconTheme = 0;
+
     public GUIMainMenu() {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (GUIMainMenu), constr: GUIMainMenu()");
         Container c = JMainFrame.getJMainFrame().getContentPane();
@@ -95,6 +99,19 @@ public class GUIMainMenu implements Serializable, I18n {
         menupanel.setBounds(0, 0, c.getWidth(), 65);
         menupanel.setEnabled(false);
         menupanel.setBackgroundImage("gfx/allgemein/menue_hg.png");
+
+        String[] choices = { "home", "enterprise", "symbols" };
+        iconSelect = new JComboBox(choices);
+        iconSelect.setVisible(true);
+        iconSelect.setBounds(520, 8, 90, 20);
+        iconSelect.setActionCommand("iconselect");
+        iconSelect.setToolTipText(messages.getString("guimainmemu_msg18"));
+        iconSelect.addActionListener (new ActionListener () {
+            public void actionPerformed(ActionEvent e) {
+                iconTheme = iconSelect.getSelectedIndex();
+                updateIcons();
+            }
+        });
 
         btOeffnen = new JButton();
         btOeffnen.setIcon(new ImageIcon(getClass().getResource("/gfx/allgemein/oeffnen.png")));
@@ -207,14 +224,14 @@ public class GUIMainMenu implements Serializable, I18n {
         geschwindigkeit.setVisible(true);
         geschwindigkeit.setToolTipText(messages.getString("guimainmemu_msg15"));
         geschwindigkeit.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
-        geschwindigkeit.setBounds(612, 10, 120, 44);
+        geschwindigkeit.setBounds(612, 25, 120, 44);
 
         simulationSpeedInPercent = new JSlider(0, 100);
         simulationSpeedInPercent.setToolTipText(messages.getString("guimainmemu_msg16"));
         simulationSpeedInPercent.setMaximum(100);
         simulationSpeedInPercent.setMinimum(1);
         simulationSpeedInPercent.setValue(100 - Verbindung.holeVerzoegerungsFaktor());
-        simulationSpeedInPercent.setBounds(510, 10, 100, 44);
+        simulationSpeedInPercent.setBounds(510, 25, 100, 44);
         simulationSpeedInPercent.setOpaque(false);
         simulationSpeedInPercent.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent arg0) {
@@ -233,6 +250,7 @@ public class GUIMainMenu implements Serializable, I18n {
         menupanel.add(btSpeichern);
         menupanel.add(simulationSpeedInPercent);
         menupanel.add(geschwindigkeit);
+        menupanel.add(iconSelect);
         if (isSoftwareWizardEnabled()) {
             menupanel.add(btWizard);
         }
@@ -244,6 +262,12 @@ public class GUIMainMenu implements Serializable, I18n {
         Verbindung.setzeVerzoegerungsFaktor(
                 simulationSpeedInPercent.getMaximum() - simulationSpeedInPercent.getValue() + 1);
         geschwindigkeit.setText("" + simulationSpeedInPercent.getValue() + "%");
+    }
+
+    private void updateIcons() {
+        LOG.debug("DEBUG: New icon theme selected: " + iconTheme);
+        GUIContainer.getGUIContainer().updateViewport();
+        GUIContainer.getGUIContainer().getSidebar().updateSidebarIcons();
     }
 
     private void initCurrentFileOrDirSelection(FileDialog dialog) {

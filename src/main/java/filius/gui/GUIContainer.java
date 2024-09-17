@@ -594,18 +594,20 @@ public class GUIContainer implements Serializable, I18n {
         // Auswahlrahmen löschen
         GUIEvents.getGUIEvents().cancelMultipleSelection();
 
+        LOG.debug("DEBUG: Going to use icon theme: " + menu.iconTheme);
+
         if (label.getTyp().equals(Switch.TYPE)) {
             neuerKnoten = new Switch();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH));
+            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.SWITCH[menu.iconTheme]));
         } else if (label.getTyp().equals(Rechner.TYPE)) {
             neuerKnoten = new Rechner();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.RECHNER));
+            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.RECHNER[menu.iconTheme]));
         } else if (label.getTyp().equals(Notebook.TYPE)) {
             neuerKnoten = new Notebook();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK));
+            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.NOTEBOOK[menu.iconTheme]));
         } else if (label.getTyp().equals(Vermittlungsrechner.TYPE)) {
             neuerKnoten = new Vermittlungsrechner();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.VERMITTLUNGSRECHNER));
+            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.VERMITTLUNGSRECHNER[menu.iconTheme]));
 
             Object[] possibleValues = { "2", "3", "4", "5", "6", "7", "8" };
             Object selectedValue = JOptionPane.showInputDialog(JMainFrame.getJMainFrame(),
@@ -618,10 +620,10 @@ public class GUIContainer implements Serializable, I18n {
             }
         } else if (label.getTyp().equals(Modem.TYPE)) {
             neuerKnoten = new Modem();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM));
+            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.MODEM[menu.iconTheme]));
         } else if (label.getTyp().equals(Gateway.TYPE)) {
             neuerKnoten = new Gateway();
-            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.GATEWAY));
+            tempIcon = new ImageIcon(getClass().getResource("/" + GUIDesignSidebar.GATEWAY[menu.iconTheme]));
         } else {
             LOG.debug("ERROR (" + this.hashCode() + "): " + "unbekannter Hardwaretyp " + label.getTyp()
                     + " konnte nicht erzeugt werden.");
@@ -692,17 +694,17 @@ public class GUIContainer implements Serializable, I18n {
         if (hardwareTyp.equals(Kabel.TYPE)) {
             tmp = GUIDesignSidebar.KABEL;
         } else if (hardwareTyp.equals(Switch.TYPE)) {
-            tmp = GUIDesignSidebar.SWITCH;
+            tmp = GUIDesignSidebar.SWITCH[menu.iconTheme];
         } else if (hardwareTyp.equals(Rechner.TYPE)) {
-            tmp = GUIDesignSidebar.RECHNER;
+            tmp = GUIDesignSidebar.RECHNER[menu.iconTheme];
         } else if (hardwareTyp.equals(Notebook.TYPE)) {
-            tmp = GUIDesignSidebar.NOTEBOOK;
+            tmp = GUIDesignSidebar.NOTEBOOK[menu.iconTheme];
         } else if (hardwareTyp.equals(Vermittlungsrechner.TYPE)) {
-            tmp = GUIDesignSidebar.VERMITTLUNGSRECHNER;
+            tmp = GUIDesignSidebar.VERMITTLUNGSRECHNER[menu.iconTheme];
         } else if (hardwareTyp.equals(Modem.TYPE)) {
-            tmp = GUIDesignSidebar.MODEM;
+            tmp = GUIDesignSidebar.MODEM[menu.iconTheme];
         } else if (hardwareTyp.equals(Gateway.TYPE)) {
-            tmp = GUIDesignSidebar.GATEWAY;
+            tmp = GUIDesignSidebar.GATEWAY[menu.iconTheme];
         } else {
             tmp = null;
             LOG.debug("GUIContainer: ausgewaehlte Hardware-Komponente unbekannt!");
