@@ -136,6 +136,48 @@ public class IP extends VermittlungsProtokoll implements I18n {
         return inetNtoa(ipAddr);
     }
 
+    /**
+     * Parses an IP address in CIDR notation. If the IP address passed is not in CIDR notation or the prefix is out of
+     * range, an array with a length of one and the string of the argument passed is returned. Otherwise, an array
+     * containing the IP address and the subnet mask is returned.
+     *
+     * @param ip    The IP address in CIDR notation to be parsed.
+     * @return      An array containing the IP address and the subnet mask, or the original
+     *              string if not in CIDR notation.
+     * @throws NumberFormatException If the prefix cannot be parsed as an integer.
+     */
+    public static String[] parseCidr(String ip) throws NumberFormatException {
+        String[] addr = ip.split("/| / ");
+        addr[0] = ipCheck(addr[0]);
+
+        if (addr.length != 2) {
+            return new String[] { ip };
+        }
+
+        assert addr[0] != null;
+        assert addr[1] != null;
+
+        addr[0] = addr[0].stripTrailing();
+        addr[1] = addr[1].stripLeading();
+
+        int prefix = Integer.parseInt(addr[1]);
+
+        if (prefix < 2 || prefix > 30) {
+            LOG.debug("ERROR: Prefix ausserhalb des Wertebereichs: " + prefix);
+            return new String[] { ip };
+        }
+
+        int mask = 0xffffffff << (32 - prefix);
+        addr[1] = String.format("%d.%d.%d.%d",
+                (mask >> 24) & 0xff,
+                (mask >> 16) & 0xff,
+                (mask >> 8) & 0xff,
+                mask & 0xff);
+
+        return addr;
+    }
+
+
     /** Hilfsmethode zum Versenden eines Broadcast-Pakets */
     private void sendeBroadcast(IpPaket ipPaket) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), sendeBroadcast(" + ipPaket.toString()
@@ -173,8 +215,8 @@ public class IP extends VermittlungsProtokoll implements I18n {
     /**
      * Hilfsmethode fuer Pakete, die fuer den eigenen Knoten bestimmt sind
      * 
-     * @param segment
-     *            das zu verarbeitende Segment
+     * @param paket
+     *            das Paket mit dem zu verarbeitendem Segment
      */
     void benachrichtigeTransportschicht(IpPaket paket) {
         LOG.trace("INVOKED (" + this.hashCode() + ") " + getClass() + " (IP), benachrichtigeTransportschicht("
@@ -276,7 +318,7 @@ public class IP extends VermittlungsProtokoll implements I18n {
      * abgelaufen ist (d. h. TTL groesser 0). Wenn diese Bedingung erfuellt ist, wird die Weiterleitungstabelle nach
      * einem passenden Eintrag abgefragt und entsprechend verschickt.
      * 
-     * @param ipPaket
+     * @param paket
      *            das zu versendende IP-Paket
      */
     public void weiterleitenPaket(IpPaket paket) {

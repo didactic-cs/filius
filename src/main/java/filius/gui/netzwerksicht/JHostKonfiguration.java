@@ -48,6 +48,7 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import static filius.software.vermittlungsschicht.IP.parseCidr;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,9 +113,18 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
                 host.setName(name.getText());
             }
 
+            String[] ipAndMask = {};
+
+            if (ipAdresse.getText().contains("/") && EingabenUeberpruefung.isGueltig(
+                    ipAdresse.getText(),
+                    EingabenUeberpruefung.musterIpAdresseAuchCidr
+            )) {
+                ipAndMask = parseCidr(ipAdresse.getText());
+            }
+
             bs = (Betriebssystem) host.getSystemSoftware();
-            bs.setzeIPAdresse(ipAdresse.getText());
-            bs.setzeNetzmaske(netzmaske.getText());
+            bs.setzeIPAdresse(ipAndMask.length >= 1 ? ipAndMask[0] : ipAdresse.getText());
+            bs.setzeNetzmaske(ipAndMask.length == 2 ? ipAndMask[1] : netzmaske.getText());
             bs.setStandardGateway(gateway.getText());
             bs.setDNSServer(dns.getText());
             bs.setIpForwardingEnabled(ipForwarding.isSelected());
@@ -504,7 +514,7 @@ public class JHostKonfiguration extends JKonfiguration implements I18n {
     }
 
     private void checkIpAddress() {
-        ueberpruefen(EingabenUeberpruefung.musterIpAdresse, ipAdresse);
+        ueberpruefen(EingabenUeberpruefung.musterIpAdresseAuchCidr, ipAdresse);
     }
 
     private void checkDnsAddress() {

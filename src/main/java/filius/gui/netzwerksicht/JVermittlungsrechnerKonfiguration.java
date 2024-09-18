@@ -52,6 +52,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import static filius.software.vermittlungsschicht.IP.parseCidr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,8 +117,17 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         for (int i = 0; it.hasNext(); i++) {
             NetzwerkInterface nic = (NetzwerkInterface) it.next();
 
-            if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, ipAdressen[i])) {
+            if (ueberpruefen(EingabenUeberpruefung.musterIpAdresseAuchCidr, ipAdressen[i])) {
                 nic.setIp(ipAdressen[i].getText());
+                var ipAndMask = parseCidr(ipAdressen[i].getText());
+                nic.setIp(ipAndMask[0]);
+                if (ipAndMask.length == 2) {
+                    nic.setSubnetzMaske(ipAndMask[1]);
+                    ipAdressen[i].setText(nic.getIp());
+                    netzmasken[i].setText(nic.getSubnetzMaske());
+                    continue;
+                }
+
             } else {
                 LOG.debug("ERROR (" + this.hashCode() + "): IP-Adresse ungueltig " + ipAdressen[i].getText());
             }
@@ -205,7 +215,7 @@ public class JVermittlungsrechnerKonfiguration extends JKonfiguration implements
         ipAdresseKeyAdapter = new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 JTextField tfQuelle = (JTextField) e.getSource();
-                ueberpruefen(EingabenUeberpruefung.musterIpAdresse, tfQuelle);
+                ueberpruefen(EingabenUeberpruefung.musterIpAdresseAuchCidr, tfQuelle);
             }
         };
 

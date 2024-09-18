@@ -45,6 +45,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import static filius.software.vermittlungsschicht.IP.parseCidr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,8 +113,15 @@ public class JGatewayConfiguration extends JKonfiguration implements I18n {
     }
 
     private void applyNICConfig(NetzwerkInterface nic, JTextField ipAddressTextfield, JTextField netmaskTextfield) {
-        if (ueberpruefen(EingabenUeberpruefung.musterIpAdresse, ipAddressTextfield)) {
-            nic.setIp(ipAddressTextfield.getText());
+        if (ueberpruefen(EingabenUeberpruefung.musterIpAdresseAuchCidr, ipAddressTextfield)) {
+            var ipAndMask = parseCidr(ipAddressTextfield.getText());
+            nic.setIp(ipAndMask[0]);
+            if (ipAndMask.length == 2) {
+                nic.setSubnetzMaske(ipAndMask[1]);
+                ipAddressTextfield.setText(nic.getIp());
+                netmaskTextfield.setText(nic.getSubnetzMaske());
+                return;
+            }
         } else {
             LOG.debug("ERROR (" + this.hashCode() + "): IP-Adresse ungueltig " + ipAddressTextfield.getText());
         }

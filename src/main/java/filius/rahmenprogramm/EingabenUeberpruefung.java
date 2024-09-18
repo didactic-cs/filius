@@ -48,6 +48,8 @@ public class EingabenUeberpruefung implements I18n {
     // table configuration as network identifier
     public static final Pattern musterIpAdresse = Pattern.compile(
             "^(0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))$");
+    public static final Pattern musterIpAdresseAuchCidr = Pattern.compile(
+            "^(0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))( ?\\/ ?([2-9]|1[0-9]|2[0-9]|30))?$");
     public static final Pattern musterIpAdresseAuchLeer = Pattern.compile(
             "^((0*([1-9]?[0-9]?|1[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.((0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))\\.){2}(0*(1?[0-9]{1,2}|2[0-4]?[0-9]|25[0-5]))){0,1}$");
 
